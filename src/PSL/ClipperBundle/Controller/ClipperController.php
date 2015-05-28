@@ -130,7 +130,7 @@ class ClipperController extends FOSRestController
       foreach ($orders as $order) {
         $products = Bigcommerce::getOrderProducts($order->id);
         foreach ($products as $product) {
-          $output[] = $product->product_id;
+          $output[$product->product_id] = $product->product_id;
         }
       }
       
