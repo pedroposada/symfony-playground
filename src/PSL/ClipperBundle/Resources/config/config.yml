@@ -1,0 +1,8 @@
+# GremoBuzzBundle Configuration
+gremo_buzz:
+    client: "native" # allowed "curl", "multi_curl" or "native"
+    options:
+        ignore_errors: true
+        max_redirects: 5
+        timeout: 5
+        verify_peer: true
