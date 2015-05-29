@@ -74,17 +74,6 @@ swiftmailer:
     password:  "%mailer_password%"
     spool:     { type: memory }
 
-# MongoDB
-doctrine_mongodb:
-    connections:
-        default:
-            server: mongodb://localhost:27017
-            options: {}
-    default_database: test_database
-    document_managers:
-        default:
-            auto_mapping: true
-            
 # FOSRest Configuration
 fos_rest:
     param_fetcher_listener: true
