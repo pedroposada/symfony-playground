@@ -32,7 +32,9 @@
         "nelmio/api-doc-bundle": "^2.9",
         "weberhofer/jsonrpcphp": "2.1.0",
         "gremo/buzz-bundle": "*",
-        "bigcommerce/api": "dev-master"
+        "bigcommerce/api": "dev-master",
+        "asimlqt/php-google-spreadsheet-client": "2.3.*",
+        "google/apiclient": "1.0.*@beta"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

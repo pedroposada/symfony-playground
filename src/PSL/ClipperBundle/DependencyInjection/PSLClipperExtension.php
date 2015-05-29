@@ -1,4 +1,5 @@
 <?php
+// PSL/ClipperBundle/DependencyInjection/PSLClipperExtension.php
 
 namespace PSL\ClipperBundle\DependencyInjection;
 
@@ -24,5 +25,13 @@ class PSLClipperExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        // Google Spreadsheets Parameters
+        $container->setParameter('psl_clipper.google_spreadsheets.client_id', $config['google_spreadsheets']['client_id']);
+        $container->setParameter('psl_clipper.google_spreadsheets.service_account_name', $config['google_spreadsheets']['service_account_name']);
+        $container->setParameter('psl_clipper.google_spreadsheets.p12_file_name', $config['google_spreadsheets']['p12_file_name']);
+        $container->setParameter('psl_clipper.google_spreadsheets.spreadsheet_name', $config['google_spreadsheets']['spreadsheet_name']);
+        $container->setParameter('psl_clipper.google_spreadsheets.worksheet_name', $config['google_spreadsheets']['worksheet_name']);
+        // $container->setParameter('psl_clipper.google_spreadsheets.sheet_id', $config['google_spreadsheets']['sheet_id']);
     }
 }

@@ -1,3 +1,5 @@
+# PSL/ClipperBundle/Resources/config/config.yml
+
 # GremoBuzzBundle Configuration
 gremo_buzz:
     client: "native" # allowed "curl", "multi_curl" or "native"
@@ -6,3 +8,17 @@ gremo_buzz:
         max_redirects: 5
         timeout: 5
         verify_peer: true
+
+# PSL Clipper Configuration
+psl_clipper:
+    google_spreadsheets:
+        client_id : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p.apps.googleusercontent.com"
+        service_account_name : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p@developer.gserviceaccount.com"
+        p12_file_name : "Sheets-15a60218c7c8_0.p12"
+        spreadsheet_name : "Feas"
+        worksheet_name : "UI"
+
+# client_id : "438525493574-tfraiqi61bckm1c8addglp28904erhir.apps.googleusercontent.com"
+# service_account_name : "438525493574-tfraiqi61bckm1c8addglp28904erhir@developer.gserviceaccount.com"
+# p12_file_name : "spreeadsheet-test-26d2699e9952.p12"
+# sheet_id : "fake-id"
