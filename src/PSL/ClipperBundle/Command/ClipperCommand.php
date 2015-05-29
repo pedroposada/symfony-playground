@@ -18,7 +18,7 @@ class ClipperCommand extends ContainerAwareCommand
     protected function configure()
     {
       $this
-        ->setName('clipper:get-fq-orders')
+        ->setName('clipper:process-fq-orders')
         ->setDescription('Get FirstQ orders from BigCommerce and process them.')
       ;
     }
