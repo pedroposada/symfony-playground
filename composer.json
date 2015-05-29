@@ -34,7 +34,8 @@
         "gremo/buzz-bundle": "*",
         "bigcommerce/api": "dev-master",
         "asimlqt/php-google-spreadsheet-client": "2.3.*",
-        "google/apiclient": "1.0.*@beta"
+        "google/apiclient": "1.0.*@beta",
+        "symfony/console": "2.8.x-dev"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

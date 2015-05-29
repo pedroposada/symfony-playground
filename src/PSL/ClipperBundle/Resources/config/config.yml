@@ -1,4 +1,11 @@
 # PSL/ClipperBundle/Resources/config/config.yml
+parameters:
+  bigcommerce.username: "pedro.posada"
+  bigcommerce.store_url: "https://store-th2odj.mybigcommerce.com"
+  bigcommerce.api_key:  "4e3d9f3523585f0126abb48f80ac0ff544816916"
+  bigcommerce.order_status_code.Completed: 10
+  bigcommerce.category_code.FirstQ: 18
+
 
 # GremoBuzzBundle Configuration
 gremo_buzz:
@@ -22,3 +29,4 @@ psl_clipper:
 # service_account_name : "438525493574-tfraiqi61bckm1c8addglp28904erhir@developer.gserviceaccount.com"
 # p12_file_name : "spreeadsheet-test-26d2699e9952.p12"
 # sheet_id : "fake-id"
+
