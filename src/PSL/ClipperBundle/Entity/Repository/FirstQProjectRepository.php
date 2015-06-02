@@ -14,17 +14,4 @@ use PSL\ClipperBundle\Entity\FirstQProject;
  */
 class FirstQProjectRepository extends EntityRepository
 {
-  public function getLatestFQs($limit = null)
-  {
-    $qb = $this->createQueryBuilder('fq')
-               ->select('fq')
-               ->addOrderBy('fq.created', 'DESC');
-
-    if (!is_null($limit)) {
-      $qb->setMaxResults($limit);
-    }
-
-    return $qb->getQuery()->getResult();
-  }
-
 }

@@ -1,24 +1,45 @@
 # PSL/ClipperBundle/Resources/config/config.yml
+parameters:
+  # BigCommerce Settings
+  bigcommerce:
+    api:
+      username:                       "pedro.posada"
+      store_url:                      "https://store-th2odj.mybigcommerce.com"
+      api_key:                        "4e3d9f3523585f0126abb48f80ac0ff544816916"
+    order_status_code_completed:      10
+    category_code_firstq:             18
+  
+  # Clipper settings
+  clipper:
+    state_codes:
+      bigcommerce_pending:     "BIGCOMMERCE_PENDING"
+      bigcommerce_complete:    "BIGCOMMERCE_COMPLETE"
+      limesurvey_created:      "LIMESURVEY_CREATED"
+      rpanel_complete:         "RPANEL_COMPLETE"
+      limesurvey_complete:     "LIMESURVEY_COMPLETE"
+      email_sent:              "EMAIL_SENT"
+
 
 # GremoBuzzBundle Configuration
 gremo_buzz:
-    client: "native" # allowed "curl", "multi_curl" or "native"
-    options:
-        ignore_errors: true
-        max_redirects: 5
-        timeout: 5
-        verify_peer: true
+  client: "native" # allowed "curl", "multi_curl" or "native"
+  options:
+    ignore_errors: true
+    max_redirects: 5
+    timeout: 5
+    verify_peer: true
 
 # PSL Clipper Configuration
 psl_clipper:
-    google_spreadsheets:
-        client_id : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p.apps.googleusercontent.com"
-        service_account_name : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p@developer.gserviceaccount.com"
-        p12_file_name : "Sheets-15a60218c7c8_0.p12"
-        spreadsheet_name : "Feas"
-        worksheet_name : "UI"
+  google_spreadsheets:
+    client_id : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p.apps.googleusercontent.com"
+    service_account_name : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p@developer.gserviceaccount.com"
+    p12_file_name : "Sheets-15a60218c7c8_0.p12"
+    spreadsheet_name : "Feas"
+    worksheet_name : "UI"
 
 # client_id : "438525493574-tfraiqi61bckm1c8addglp28904erhir.apps.googleusercontent.com"
 # service_account_name : "438525493574-tfraiqi61bckm1c8addglp28904erhir@developer.gserviceaccount.com"
 # p12_file_name : "spreeadsheet-test-26d2699e9952.p12"
 # sheet_id : "fake-id"
+
