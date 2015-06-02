@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8beff7deaa88854c6d44a57b4ff2b07e",
+    "hash": "07eeb59a2f27b6c8ffe42d5eeb32f408",
     "packages": [
         {
             "name": "asimlqt/php-google-spreadsheet-client",
@@ -853,60 +853,6 @@
             "time": "2014-12-20 21:24:13"
         },
         {
-            "name": "doctrine/instantiator",
-            "version": "1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "f976e5de371104877ebc89bd8fecb0019ed9c119"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/f976e5de371104877ebc89bd8fecb0019ed9c119",
-                "reference": "f976e5de371104877ebc89bd8fecb0019ed9c119",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3,<8.0-DEV"
-            },
-            "require-dev": {
-                "athletic/athletic": "~0.1.8",
-                "ext-pdo": "*",
-                "ext-phar": "*",
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "2.0.*@ALPHA"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Doctrine\\Instantiator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com",
-                    "homepage": "http://ocramius.github.com/"
-                }
-            ],
-            "description": "A small, lightweight utility to instantiate objects in PHP without invoking their constructors",
-            "homepage": "https://github.com/doctrine/instantiator",
-            "keywords": [
-                "constructor",
-                "instantiate"
-            ],
-            "time": "2014-10-13 12:58:55"
-        },
-        {
             "name": "doctrine/lexer",
             "version": "v1.0.1",
             "source": {
@@ -1024,220 +970,6 @@
                 "migrations"
             ],
             "time": "2015-05-26 15:30:26"
-        },
-        {
-            "name": "doctrine/mongodb",
-            "version": "1.1.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/mongodb.git",
-                "reference": "5cd7ab2aeb6783b9f2345a47767b5c0b2d2b3305"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb/zipball/5cd7ab2aeb6783b9f2345a47767b5c0b2d2b3305",
-                "reference": "5cd7ab2aeb6783b9f2345a47767b5c0b2d2b3305",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/common": "~2.1",
-                "ext-mongo": ">=1.2.12,<1.7-dev",
-                "php": ">=5.3.2"
-            },
-            "require-dev": {
-                "jmikola/geojson": "~1.0"
-            },
-            "suggest": {
-                "jmikola/geojson": "Support GeoJSON geometry objects in 2dsphere queries"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Doctrine\\MongoDB": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jonathan H. Wage",
-                    "email": "jonwage@gmail.com"
-                },
-                {
-                    "name": "Jeremy Mikola",
-                    "email": "jmikola@gmail.com"
-                },
-                {
-                    "name": "Bulat Shakirzyanov",
-                    "email": "mallluhuct@gmail.com"
-                },
-                {
-                    "name": "Kris Wallsmith",
-                    "email": "kris.wallsmith@gmail.com"
-                }
-            ],
-            "description": "Doctrine MongoDB Abstraction Layer",
-            "homepage": "http://www.doctrine-project.org",
-            "keywords": [
-                "database",
-                "mongodb",
-                "persistence"
-            ],
-            "time": "2015-02-25 00:38:50"
-        },
-        {
-            "name": "doctrine/mongodb-odm",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/mongodb-odm.git",
-                "reference": "f9d26e2839c657659dc129fe5b4aaa7f87d0ea55"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/f9d26e2839c657659dc129fe5b4aaa7f87d0ea55",
-                "reference": "f9d26e2839c657659dc129fe5b4aaa7f87d0ea55",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/annotations": "~1.0",
-                "doctrine/cache": "~1.0",
-                "doctrine/collections": "~1.1",
-                "doctrine/common": "~2.4",
-                "doctrine/inflector": "~1.0",
-                "doctrine/instantiator": "~1.0.1",
-                "doctrine/mongodb": ">=1.1.5,<2.0",
-                "php": ">=5.3.2",
-                "symfony/console": "~2.3|~3.0"
-            },
-            "require-dev": {
-                "symfony/yaml": "~2.3|~3.0"
-            },
-            "suggest": {
-                "symfony/yaml": "Enables the YAML metadata mapping driver"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Doctrine\\ODM\\MongoDB": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jonathan H. Wage",
-                    "email": "jonwage@gmail.com"
-                },
-                {
-                    "name": "Jeremy Mikola",
-                    "email": "jmikola@gmail.com"
-                },
-                {
-                    "name": "Bulat Shakirzyanov",
-                    "email": "mallluhuct@gmail.com"
-                },
-                {
-                    "name": "Kris Wallsmith",
-                    "email": "kris.wallsmith@gmail.com"
-                },
-                {
-                    "name": "Maciej Malarz",
-                    "email": "malarzm@gmail.com"
-                },
-                {
-                    "name": "Andreas Braun",
-                    "email": "alcaeus@alcaeus.org"
-                }
-            ],
-            "description": "Doctrine MongoDB Object Document Mapper",
-            "homepage": "http://www.doctrine-project.org",
-            "keywords": [
-                "database",
-                "mongodb",
-                "odm",
-                "persistence"
-            ],
-            "time": "2015-05-22 07:35:15"
-        },
-        {
-            "name": "doctrine/mongodb-odm-bundle",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/DoctrineMongoDBBundle.git",
-                "reference": "9e98fd9def517c68c8b8db43333545faef9a94b6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/9e98fd9def517c68c8b8db43333545faef9a94b6",
-                "reference": "9e98fd9def517c68c8b8db43333545faef9a94b6",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/mongodb-odm": "~1.0.0-beta10@dev",
-                "php": ">=5.3.2",
-                "symfony/config": "~2.2",
-                "symfony/console": "~2.1",
-                "symfony/dependency-injection": "~2.2",
-                "symfony/doctrine-bridge": "~2.1",
-                "symfony/framework-bundle": "~2.1",
-                "symfony/options-resolver": "~2.1"
-            },
-            "require-dev": {
-                "doctrine/data-fixtures": "@dev",
-                "symfony/form": "~2.3",
-                "symfony/yaml": "~2.1"
-            },
-            "suggest": {
-                "doctrine/data-fixtures": "Load data fixtures"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Doctrine\\Bundle\\MongoDBBundle\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kris Wallsmith",
-                    "email": "kris@symfony.com"
-                },
-                {
-                    "name": "Jonathan H. Wage",
-                    "email": "jonwage@gmail.com"
-                },
-                {
-                    "name": "Bulat Shakirzyanov",
-                    "email": "mallluhuct@gmail.com"
-                }
-            ],
-            "description": "Symfony2 Doctrine MongoDB Bundle",
-            "homepage": "http://www.doctrine-project.org",
-            "keywords": [
-                "mongodb",
-                "persistence",
-                "symfony"
-            ],
-            "time": "2015-05-14 17:52:49"
         },
         {
             "name": "doctrine/orm",
@@ -1891,16 +1623,16 @@
         },
         {
             "name": "kriswallsmith/buzz",
-            "version": "v0.13",
+            "version": "v0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriswallsmith/Buzz.git",
-                "reference": "487760b05d6269a4c2c374364325326cfa65b12c"
+                "reference": "f802a9b9d01b53496f50c9c5e09b5c779cbbd300"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriswallsmith/Buzz/zipball/487760b05d6269a4c2c374364325326cfa65b12c",
-                "reference": "487760b05d6269a4c2c374364325326cfa65b12c",
+                "url": "https://api.github.com/repos/kriswallsmith/Buzz/zipball/f802a9b9d01b53496f50c9c5e09b5c779cbbd300",
+                "reference": "f802a9b9d01b53496f50c9c5e09b5c779cbbd300",
                 "shasum": ""
             },
             "require": {
@@ -1935,7 +1667,7 @@
                 "curl",
                 "http client"
             ],
-            "time": "2014-09-15 12:42:36"
+            "time": "2015-06-02 16:48:29"
         },
         {
             "name": "michelf/php-markdown",
@@ -2278,17 +2010,17 @@
         },
         {
             "name": "sensio/distribution-bundle",
-            "version": "v3.0.24",
+            "version": "v3.0.28",
             "target-dir": "Sensio/Bundle/DistributionBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/SensioDistributionBundle.git",
-                "reference": "79b820aee1f1daeb2717fa9471ee19275cc1d638"
+                "reference": "8175618b07793b9d43c3be931f3d8d4c14c9e866"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/SensioDistributionBundle/zipball/79b820aee1f1daeb2717fa9471ee19275cc1d638",
-                "reference": "79b820aee1f1daeb2717fa9471ee19275cc1d638",
+                "url": "https://api.github.com/repos/sensiolabs/SensioDistributionBundle/zipball/8175618b07793b9d43c3be931f3d8d4c14c9e866",
+                "reference": "8175618b07793b9d43c3be931f3d8d4c14c9e866",
                 "shasum": ""
             },
             "require": {
@@ -2334,7 +2066,7 @@
                 "configuration",
                 "distribution"
             ],
-            "time": "2015-05-16 12:57:08"
+            "time": "2015-06-01 15:04:20"
         },
         {
             "name": "sensio/framework-extra-bundle",
@@ -2728,16 +2460,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v2.6.8",
+            "version": "v2.6.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "7ae1934082d9ac299303b146e4a999274a723e94"
+                "reference": "b06539573ccf64dd3a62852685f052553d02c5ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/7ae1934082d9ac299303b146e4a999274a723e94",
-                "reference": "7ae1934082d9ac299303b146e4a999274a723e94",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/b06539573ccf64dd3a62852685f052553d02c5ba",
+                "reference": "b06539573ccf64dd3a62852685f052553d02c5ba",
                 "shasum": ""
             },
             "require": {
@@ -2841,7 +2573,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2015-05-27 00:17:10"
+            "time": "2015-05-29 22:55:07"
         },
         {
             "name": "twig/extensions",
@@ -3144,8 +2876,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "doctrine/mongodb-odm": 20,
-        "doctrine/mongodb-odm-bundle": 20,
         "doctrine/doctrine-fixtures-bundle": 20,
         "doctrine/data-fixtures": 20,
         "doctrine/doctrine-migrations-bundle": 20,
