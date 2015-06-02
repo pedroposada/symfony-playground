@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\BrowserKit\Response;
 use Bigcommerce\Api\Client as Bigcommerce;
 
+use PSL\ClipperBundle\Controller\GoogleSpreadsheetController;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 
 
@@ -23,7 +24,43 @@ use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
  */
 class ClipperController extends FOSRestController
 {
-  
+    
+    /**
+     * Validate a FristQ request
+     * 
+     * @ApiDoc(
+     *   resource=true,
+     *   statusCodes = {
+     *     200 = "Returned when successful",
+     *   }
+     * )
+     * 
+     * The data is coming from an AJAX call performed on a 3rd party site
+     * 
+     * @param int $loi          - LOI number
+     * @param int $ir           - IR number
+     * @param string $country   - Country name
+     * @param string $specialty - Specialty name
+     *
+     * @return the GoogleSheet
+     */
+    // public function getClipperValidationGetAction(Request $request)
+    public function getClipperValidationGetAction(Request $request)
+    {
+        $request = $this->getRequest();
+        
+        $loi = $request->query->get('loi');
+        $ir = $request->query->get('ir');
+        $country = $request->query->get('country');
+        $specialty = $request->query->get('specialty');
+        
+        $gsc = New GoogleSpreadsheetController();
+        $gsc->setContainer($this->container); 
+        $return = $gsc->requestFeasibility($loi, $ir, $country, $specialty);
+        
+        return $return;
+    }
+    
     /**
      * Retrieve a clipper.
      *
