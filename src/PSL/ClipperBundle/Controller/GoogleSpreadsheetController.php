@@ -84,7 +84,7 @@ class GoogleSpreadsheetController extends Controller
             if ($result) {
                 $percent = round(($result['F8'] / $result['F3']) * 100, 2);
                 $size = $result['F3'];
-                $return_string = 'Size of Universe Represented: ' . $size . " - " . 'Percent of Universe Represented: ' .  $percent . '%';
+                $return_string = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
             }
             else {
                 $return_string = 'Error retrieving results';
@@ -101,7 +101,7 @@ class GoogleSpreadsheetController extends Controller
     }
     
     /**
-     * Returns data from the Feasibility sheet
+     * Renders data from the Feasibility sheet in a twig file
      *
      * @param int $loi          - LOI number
      * @param int $ir           - IR number
@@ -163,7 +163,7 @@ class GoogleSpreadsheetController extends Controller
             if ($result) {
                 $percent = round(($result['F8'] / $result['F3']) * 100, 2);
                 $size = $result['F3'];
-                $return_string = 'Size of Universe Represented: ' . $size . " - " . 'Percent of Universe Represented: ' .  $percent . '%';
+                $return_string = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
             }
             else {
                 $return_string = 'Error retrieving results';
@@ -173,10 +173,8 @@ class GoogleSpreadsheetController extends Controller
             $return_string = 'Error retrieving sheet';
         }
         
-        return $return_string;
-        
         // render the object
-        // return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $return_string));
+        return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $return_string));
     }
     
     /**
@@ -240,9 +238,6 @@ class GoogleSpreadsheetController extends Controller
         }
         
         return $return_string;
-        
-        // render the object
-        // return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $return_string));
     }
     
     /**

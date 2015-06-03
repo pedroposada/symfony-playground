@@ -36,15 +36,11 @@ class ClipperController extends FOSRestController
      * )
      * 
      * The data is coming from an AJAX call performed on a 3rd party site
-     * 
-     * @param int $loi          - LOI number
-     * @param int $ir           - IR number
-     * @param string $country   - Country name
-     * @param string $specialty - Specialty name
      *
-     * @return the GoogleSheet
+     * @param Request $request the request object 
+     *
+     * @return \Symfony\Component\BrowserKit\Response
      */
-    // public function getClipperValidationGetAction(Request $request)
     public function getClipperValidationGetAction(Request $request)
     {
         $request = $this->getRequest();
@@ -58,7 +54,7 @@ class ClipperController extends FOSRestController
         $gsc->setContainer($this->container); 
         $return = $gsc->requestFeasibility($loi, $ir, $country, $specialty);
         
-        return $return;
+        return new Response($return);
     }
     
     /**

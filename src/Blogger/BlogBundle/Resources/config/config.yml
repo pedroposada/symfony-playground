@@ -1,4 +1,0 @@
-# src/Blogger/BlogBundle/Resources/config/config.yml
-parameters:
-    # Blogger contact email address
-    blogger_blog.emails.contact_email: pedro.posada@pslgroup.com

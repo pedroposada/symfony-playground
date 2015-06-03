@@ -33,7 +33,8 @@
         "bigcommerce/api": "dev-master",
         "asimlqt/php-google-spreadsheet-client": "2.3.*",
         "google/apiclient": "1.0.*@beta",
-        "symfony/console": "2.8.x-dev"
+        "symfony/console": "2.8.x-dev",
+        "nelmio/cors-bundle": "~1.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
