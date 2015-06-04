@@ -29,27 +29,16 @@ class FirstQProject
     }
     
     /**
+     * @ORM\Column(type="guid")
      * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="UUID")
      */
     protected $id;
-
-    /**
-     * @ORM\Column(type="string")
-     * 
-     */
-    protected $guid ;
 
     /**
      * @ORM\Column(type="string", length=200, options={"comment":"Bigcommerce client id"})
      */
     protected $bc_client_id;
-
-    /**
-     * @ORM\Column(type="string", length=200, options={"comment":"Bigcommerce name of the client"})
-     */
-    protected $bc_client_name;
 
     /**
      * @ORM\Column(type="string", length=200, options={"comment":"id of the Bigcommerce product created"})
@@ -93,29 +82,6 @@ class FirstQProject
     }
 
     /**
-     * Set guid
-     *
-     * @param string $guid
-     * @return FirstQProject
-     */
-    public function setGuid($guid)
-    {
-        $this->guid = $guid;
-
-        return $this;
-    }
-
-    /**
-     * Get guid
-     *
-     * @return string 
-     */
-    public function getGuid()
-    {
-        return $this->guid;
-    }
-
-    /**
      * Set bc_client_id
      *
      * @param string $bcClientId
@@ -136,29 +102,6 @@ class FirstQProject
     public function getBcClientId()
     {
         return $this->bc_client_id;
-    }
-
-    /**
-     * Set bc_client_name
-     *
-     * @param string $bcClientName
-     * @return FirstQProject
-     */
-    public function setBcClientName($bcClientName)
-    {
-        $this->bc_client_name = $bcClientName;
-
-        return $this;
-    }
-
-    /**
-     * Get bc_client_name
-     *
-     * @return string 
-     */
-    public function getBcClientName()
-    {
-        return $this->bc_client_name;
     }
 
     /**
