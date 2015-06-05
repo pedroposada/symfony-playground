@@ -26,5 +26,4 @@ class FirstQProjectRepository extends EntityRepository
     
     return $this->matching($criteria);
   }
-  
 }
