@@ -14,75 +14,119 @@ use Bigcommerce\Api\Client as Bigcommerce;
 
 class ClipperCommand extends ContainerAwareCommand
 {
+  
+  private $products = array();
+  private $product_ids = array();
+  private $to_state;
+  private $from_state;
+  private $query_result;
+  private $last_error = 'OK';
+  
     protected function configure()
     {
       $this
-        ->setName('clipper:process-fq-orders')
+        ->setName('clipper:cron')
         ->setDescription('Get FirstQ orders from BigCommerce and process them.')
       ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-      $text = '';
+      $params = $this->getContainer()->getParameter('clipper');
       
-      /**
-       * bigcommerce_pending
-       */
-      // fetch product ids from db with state 'bigcommerce_pending'
-      $repository = $this->getContainer()->get('doctrine')->getRepository('PSLClipperBundle:FirstQProject');
-      $parameters_clipper = $this->getContainer()->getParameter('clipper');
-      $fqs = $repository->findBy(
-        array('state' => $parameters_clipper['state_codes']['bigcommerce_pending'])
+      $this
+        ->getCompletedOrderProducts()
+        ->fromState($params['state_codes']['bigcommerce_pending'])
+        ->toState($params['state_codes']['bigcommerce_complete'])
+        ->productIds($this->products)
+        // ->productIds(array(76 => 1, 47 => 1))
+        ->changeState()
+      ;
+      
+      
+      $logger = $this->getContainer()->get('logger');
+      $logger->info(var_dump($this->last_error, 1));
+    }
+
+    private function fromState($state)
+    {
+      $this->from_state = $state;
+      return $this;
+    }
+
+    private function toState($state)
+    {
+      $this->to_state = $state;
+      return $this;
+    }
+    
+    private function productIds($products)
+    {
+      $this->product_ids = array_keys($products);
+      return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    private function getCompletedOrderProducts()
+    {
+      $completed_order_products = array();
+      
+      $parameters_bigcommerce = $this->getContainer()->getParameter('bigcommerce');
+      Bigcommerce::failOnError();
+      Bigcommerce::configure(array(
+        'username'  => $parameters_bigcommerce['api']['username'],
+        'store_url' => $parameters_bigcommerce['api']['store_url'],
+        'api_key'   => $parameters_bigcommerce['api']['api_key']
+      ));
+      // look for orders by product id and mark them as complete
+      $fields = array(
+        'status_id' => $parameters_bigcommerce['order_status_code_completed'], // Completed orders
       );
-       
-      // connect to bigcommerce to find completed orders for these product ids
-      if (count($fqs)) {
-        $product_ids = array();
-        foreach ($fqs as $fq) {
-          $product_ids[$fq->getBcProductId()] = $fq;
-        }
-        $parameters_bigcommerce = $this->getContainer()->getParameter('bigcommerce');
-        Bigcommerce::configure(array(
-          'username'  => $parameters_bigcommerce['api']['username'],
-          'store_url' => $parameters_bigcommerce['api']['store_url'],
-          'api_key'   => $parameters_bigcommerce['api']['api_key']
-        ));
-        // look for orders by product id
-        $orders = array();
-        $fields = array(
-          'status_id' => $parameters_bigcommerce['order_status_code_completed'], // Completed orders
-        );
+      
+      try{
+        
         $orders = Bigcommerce::getOrders($fields);
         foreach ($orders as $order) {
           $products = Bigcommerce::getOrderProducts($order->id);
           foreach ($products as $product) {
-            if (key_exists($product->product_id, $product_ids)) {
-              
-            }
+            $completed_order_products[$product->product_id] = $product;
           }
         }
-      }
+        $this->products = $completed_order_products;
       
-      /**
-       * bigcommerce_complete
-       */
-      // update fqs in db
+      } catch(Bigcommerce\Api\Error $e) {
+        
+        $this->last_error = $e->getCode() . ' - ' . $e->getMessage();
+        
+      }      
       
-      // $fq = new FirstQProject();
-      // $fq->setGuid('1111');
-      // $fq->setBcClientId('2222');
-      // $fq->setBcClientName('aaaaa');
-      // $fq->setBcProductId('3333');
-      // $fq->setFormDataRaw('4444');
-      // $fq->setSheetDataRaw('5555');
-      // $fq->setState('pending');
-      // $manager->persist($fq);
-      // $manager->flush();
-
-      /**
-       * send feedback to terminal
-       */
-      $output->writeln(json_encode($text));
+      return $this;
     }
+    
+  /**
+   * @return $this
+   */
+   private function changeState() 
+   {
+      try {
+         
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+          ->findByIdsAndState($this->product_ids, $this->from_state);
+        foreach ($fqs as $fq) {
+          $fq->setState($this->to_state);
+        }
+        $em->flush();
+        $em->clear();
+         
+      } catch(\Doctrine\ORM\ORMException $e){
+           
+        $this->last_error = $e->getCode() . ' - ' . $e->getMessage();
+         
+      }
+       
+      return $this;
+   }
 }

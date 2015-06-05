@@ -1,118 +1,39 @@
 <?php
-// src/Blogger/BlogBundle/Entity/Blog.php
 
 namespace PSL\ClipperBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity(repositoryClass="PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository")
- * @ORM\Table(name="firstq_project")
- * @ORM\HasLifecycleCallbacks()
+ * @ORM\Entity
  */
 class FirstQProject
 {
-  
-    public function __construct()
-    {
-      $this->setCreated(new \DateTime());
-      $this->setUpdated(new \DateTime());
-    }
-    
-    /**
-     * @ORM\PreUpdate
-     */
-    public function setUpdatedValue()
-    {
-      $this->setUpdated(new \DateTime());
-    }
-    
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
     protected $id;
 
-    /**
-     * @ORM\Column(type="string")
-     * 
-     */
-    protected $guid ;
-
-    /**
-     * @ORM\Column(type="string", length=200, options={"comment":"Bigcommerce client id"})
-     */
     protected $bc_client_id;
 
-    /**
-     * @ORM\Column(type="string", length=200, options={"comment":"Bigcommerce name of the client"})
-     */
-    protected $bc_client_name;
-
-    /**
-     * @ORM\Column(type="string", length=200, options={"comment":"id of the Bigcommerce product created"})
-     */
     protected $bc_product_id;
 
-    /**
-     * @ORM\Column(type="text", options={"comment":"result of the form submission, as json or as associative array"})
-     */
     protected $form_data_raw;
 
-    /**
-     * @ORM\Column(type="text", options={"comment":"result of the Google Spreadsheet as json or as associative array"})
-     */
     protected $sheet_data_raw;
 
-    /**
-     * @ORM\Column(type="string", length=100, options={"comment":"last error or success code. Use to keep track of the request"})
-     */
     protected $state;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    
     protected $created;
     
-    /**
-     * @ORM\Column(type="datetime")
-     */
     protected $updated;
 
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return guid 
      */
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set guid
-     *
-     * @param string $guid
-     * @return FirstQProject
-     */
-    public function setGuid($guid)
-    {
-        $this->guid = $guid;
-
-        return $this;
-    }
-
-    /**
-     * Get guid
-     *
-     * @return string 
-     */
-    public function getGuid()
-    {
-        return $this->guid;
     }
 
     /**
@@ -136,29 +57,6 @@ class FirstQProject
     public function getBcClientId()
     {
         return $this->bc_client_id;
-    }
-
-    /**
-     * Set bc_client_name
-     *
-     * @param string $bcClientName
-     * @return FirstQProject
-     */
-    public function setBcClientName($bcClientName)
-    {
-        $this->bc_client_name = $bcClientName;
-
-        return $this;
-    }
-
-    /**
-     * Get bc_client_name
-     *
-     * @return string 
-     */
-    public function getBcClientName()
-    {
-        return $this->bc_client_name;
     }
 
     /**
@@ -297,5 +195,12 @@ class FirstQProject
     public function getUpdated()
     {
         return $this->updated;
+    }
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setUpdatedValue()
+    {
+        // Add your code here
     }
 }
