@@ -2,3 +2,6 @@ services:
 #    psl_clipper.example:
 #        class: PSL\ClipperBundle\Example
 #        arguments: [@service_id, "plain_value", %parameter%]
+
+    google.spreadsheet:
+        class: PSL\ClipperBundle\Controller\GoogleSpreadsheetController

@@ -34,7 +34,11 @@
         "asimlqt/php-google-spreadsheet-client": "2.3.*",
         "google/apiclient": "1.0.*@beta",
         "symfony/console": "2.8.x-dev",
+<<<<<<< HEAD
         "gedmo/doctrine-extensions": "dev-master"
+=======
+        "nelmio/cors-bundle": "~1.0"
+>>>>>>> 1792c931b2a9eb4f5fd3f1baa19691d4fd61646a
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
