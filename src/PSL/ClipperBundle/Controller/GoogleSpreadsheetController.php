@@ -25,83 +25,79 @@ class GoogleSpreadsheetController extends Controller
     /**
      * Returns data from the Feasibility sheet
      *
-     * @param int $loi          - LOI number
-     * @param int $ir           - IR number
-     * @param string $country   - Country name
-     * @param string $specialty - Specialty name
+     * @param mixed $form_data_raw - contains different values from the submit form
      * 
      * @return 
      */
-    public function requestFeasibility($loi, $ir, $country, $specialty)
+    public function requestFeasibility($form_data)
     {
+        // Feasibility object
+        $feasibility = new \stdClass();
+        
         // @TODO: might be done somewhere else, maybe in the FeasibilityRequest object 
         // Validation of the fields
-        $error_string = FALSE;
-        if (!is_numeric($loi)) {
-            $error_string = 'LOI is not a number.';
+        $error_string = '';
+        if (!is_numeric($form_data->loi)) {
+            $error_string .= 'LOI is not a number. ';
         }
-        if (!is_numeric($ir)) {
-            $error_string = 'IR is not a number.';
+        if (!is_numeric($form_data->ir)) {
+            $error_string .= 'IR is not a number. ';
         }
-        if (empty($country)) {
-            $error_string = 'Country is empty.';
+        if (empty($form_data->country)) {
+            $error_string .= 'Country is empty. ';
         }
-        if (empty($specialty)) {
-            $error_string = 'Specialty is empty.';
-        }
-        
-        if ($error_string !== FALSE) {
-          $return_string = 'Error Validation';
-          return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $error_string));
+        if (empty($form_data->specialty)) {
+            $error_string .= 'Specialty is empty.';
         }
         
-        // set the FeasibilityRequest object
-        $feasibility_request = new FeasibilityRequest();
-        $feasibility_request->initFeasibilityRequest($loi, $ir, $country, $specialty);
-        
-        // Batch Set Get Parameters
-        $spreadsheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.spreadsheet_name');
-        $worksheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.worksheet_name');
-        // $sheet_id = $this->container->getParameter('psl_clipper.google_spreadsheets.sheet_id');
+        if ($error_string !== '') {
+            // Throw exception if data is incorrect
+            throw new \Exception($error_string);
+        }
         
         // mapping of cell to data to send
         $data = array(
-            'C10' => $feasibility_request->getLoi(),
-            'C18' => $feasibility_request->getIr(),
-            'C7' => $feasibility_request->getCountry(),
-            'C8' => $feasibility_request->getSpecialty()
+            'C10' => $form_data->loi,
+            'C18' => $form_data->ir,
+            'C7' => $form_data->country,
+            'C8' => $form_data->specialty
         );
         // cells to return
         $return = array('F3', 'F8');
         
-        //Google Sheets object
+        // Google Sheets object
         $sheets = $this->setupSheets();
         
         if ($sheets) {
+            // get Spreadsheet parameters
+            $spreadsheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.spreadsheet_name');
+            $worksheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.worksheet_name');
+            // $sheet_id = $this->container->getParameter('psl_clipper.google_spreadsheets.sheet_id');
             
+            // retrieve result
             $result = $sheets->batchSetGet($spreadsheet_name, $worksheet_name, $data, $return);
             
             if ($result) {
                 $percent = round(($result['F8'] / $result['F3']) * 100, 2);
                 $size = $result['F3'];
-                $return_string = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
+                
+                $feasibility->feasibility = TRUE;
+                $feasibility->description = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
             }
             else {
-                $return_string = 'Error retrieving results';
+                throw new \Exception('Error retrieving results.');
             }
         }
         else {
-            $return_string = 'Error retrieving sheet';
+            throw new \Exception('Error retrieving sheet.');
         }
-        
-        return $return_string;
-        
-        // render the object
-        // return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $return_string));
+
+        return $feasibility;
     }
     
     /**
      * Renders data from the Feasibility sheet in a twig file
+     * For testing purposes
      *
      * @param int $loi          - LOI number
      * @param int $ir           - IR number
@@ -175,69 +171,6 @@ class GoogleSpreadsheetController extends Controller
         
         // render the object
         return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $return_string));
-    }
-    
-    /**
-     * Returns data from the Universes sheet
-     *
-     * @param string $country   - Country name
-     * @param string $specialty - Specialty name
-     * 
-     * @return 
-     */
-    public function requestUniversesAction($country, $specialty)
-    {
-        
-        // Validation of the fields
-        $error_string = FALSE;
-        if (empty($country)) {
-            $error_string = 'Country is empty.';
-        }
-        if (empty($specialty)) {
-            $error_string = 'Specialty is empty.';
-        }
-        
-        if ($error_string !== FALSE) {
-          return $this->render('PSLClipperBundle:GoogleSpeadsheet:index.html.twig', array('return_string' => $error_string));
-        }
-        
-        // set the FeasibilityRequest object
-        $feasibility_request = new FeasibilityRequest();
-        $feasibility_request->initFeasibilityRequest(null, null, $country, $specialty);
-        
-        // Batch Set Get Parameters
-        $spreadsheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.spreadsheet_name');
-        $worksheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.worksheet_name');
-        // $sheet_id = $this->container->getParameter('psl_clipper.google_spreadsheets.sheet_id');
-        
-        // mapping of cell to data to send
-        $data = array(
-            'C7' => $feasibility_request->getCountry(),
-            'C8' => $feasibility_request->getSpecialty()
-        );
-        // cells to return
-        // F3 = universe_size
-        // F5 = universe_feas
-        $return = array('F3', 'F5');
-        
-        // Google Sheets object
-        $sheets = $this->setupSheets();
-        
-        if ($sheets) {
-            
-            $result = $sheets->batchSetGet($spreadsheet_name, $worksheet_name, $data, $return);
-            
-            if ($result) {
-                $universe_size = $result['F3'];
-                $universe_feas = $result['F5'];
-                $return_string = 'Universe Size: ' . $universe_size . " - " . 'Universe Feasibility: ' .  $universe_feas;
-            }
-            else {
-                $return_string = 'Error retrieving results';
-            }
-        }
-        
-        return $return_string;
     }
     
     /**
