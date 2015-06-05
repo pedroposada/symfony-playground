@@ -25,75 +25,38 @@ class ClipperCommand extends ContainerAwareCommand
     protected function configure()
     {
       $this
-        ->setName('clipper:process-fq-orders')
+        ->setName('clipper:cron')
         ->setDescription('Get FirstQ orders from BigCommerce and process them.')
       ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-      /**
-       * bigcommerce_pending
-       */
-      // fetch product ids from db with state 'bigcommerce_pending'
-      // $em = $this->getContainer()->get('doctrine')->getManager();
-      // $fqs = $em->getRepository('PSLClipperBundle:FirstQProject')->findBy(
-        // array('state' => $parameters_clipper['state_codes']['bigcommerce_pending'])
-      // );
-      // $text = $fqs; // DEBUG
-       
-       
-      // connect to bigcommerce to find completed orders product ids
-      // if (count($fqs)) {
-        // $product_ids = array();
-        // foreach ($fqs as $fq) {
-          // $product_ids[$fq->getBcProductId()] = $fq;
-        // }
-        
-        // $products = $this->getCompletedOrderProducts(); // DEBUG
-      // }
+      $params = $this->getContainer()->getParameter('clipper');
       
-      /**
-       * bigcommerce_complete
-       */
-      // update fqs in db
-      
-      // $fq = new FirstQProject();
-      // $fq->setGuid('1111');
-      // $fq->setBcClientId('2222');
-      // $fq->setBcClientName('aaaaa');
-      // $fq->setBcProductId('3333');
-      // $fq->setFormDataRaw('4444');
-      // $fq->setSheetDataRaw('5555');
-      // $fq->setState('pending');
-      // $manager->persist($fq);
-      // $manager->flush();
-
-      $clipper_params = $this->getContainer()->getParameter('clipper');
       $this
         ->getCompletedOrderProducts()
-        ->fromState($clipper_params['state_codes']['bigcommerce_pending'])
-        ->toState($clipper_params['state_codes']['bigcommerce_complete'])
+        ->fromState($params['state_codes']['bigcommerce_pending'])
+        ->toState($params['state_codes']['bigcommerce_complete'])
         ->productIds($this->products)
+        // ->productIds(array(76 => 1, 47 => 1))
         ->changeState()
       ;
       
       
-      /**
-       * send feedback to terminal
-       */
-      $output->writeln(print_r($this->last_error, 1));
+      $logger = $this->getContainer()->get('logger');
+      $logger->info(var_dump($this->last_error, 1));
     }
 
     private function fromState($state)
     {
-      $this->$from_state = $state;
+      $this->from_state = $state;
       return $this;
     }
 
     private function toState($state)
     {
-      $this->$to_state = $state;
+      $this->to_state = $state;
       return $this;
     }
     
@@ -142,34 +105,28 @@ class ClipperCommand extends ContainerAwareCommand
       return $this;
     }
     
-    /**
-     * @param $state_code code to describe current state of fq project
-     * @return $this
-     */
-     private function changeState() 
-     {
-       try {
+  /**
+   * @return $this
+   */
+   private function changeState() 
+   {
+      try {
          
-         $em = $this->getContainer()->get('doctrine')->getManager();
-         $qb = $em->createQueryBuilder();
-         $qb
-          ->update('\PSL\ClipperBundle\Entity\FirstQProject', 'fqp')
-          ->set('fqp.state', ':to_state')
-          ->where($qb->expr()->eq('fqp.state', ':from_state'))
-          ->andWhere($qb->expr()->in('fqp.id', ':product_ids'))
-          ->setParameter('to_state', $this->to_state)
-          ->setParameter('from_state', $this->from_state)
-          ->setParameter('product_ids', $this->product_ids)
-          ;
-         $query = $qb->getQuery();
-         $this->query_result = $query->getResult();
-       
-       } catch(\Doctrine\ORM\ORMException $e){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+          ->findByIdsAndState($this->product_ids, $this->from_state);
+        foreach ($fqs as $fq) {
+          $fq->setState($this->to_state);
+        }
+        $em->flush();
+        $em->clear();
+         
+      } catch(\Doctrine\ORM\ORMException $e){
            
-         $this->last_error = $e->getCode() . ' - ' . $e->getMessage();
+        $this->last_error = $e->getCode() . ' - ' . $e->getMessage();
          
-       }
+      }
        
-       return $this;
-     }
+      return $this;
+   }
 }

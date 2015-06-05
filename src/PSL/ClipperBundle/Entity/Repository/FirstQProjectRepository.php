@@ -4,6 +4,9 @@ namespace PSL\ClipperBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Collections\Criteria;
+
+// custom
 use PSL\ClipperBundle\Entity\FirstQProject;
 
 /**
@@ -14,4 +17,14 @@ use PSL\ClipperBundle\Entity\FirstQProject;
  */
 class FirstQProjectRepository extends EntityRepository
 {
+  public function findByIdsAndState($ids = array(), $state)
+  {
+    $expr = Criteria::expr();
+    $criteria = Criteria::create();
+    $criteria->where($expr->in('bc_product_id', $ids));
+    $criteria->andWhere($expr->eq('state', $state));
+    
+    return $this->matching($criteria);
+  }
+  
 }
