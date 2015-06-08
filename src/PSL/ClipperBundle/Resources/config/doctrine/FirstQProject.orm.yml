@@ -13,9 +13,10 @@ PSL\ClipperBundle\Entity\FirstQProject:
         strategy: UUID
   fields:
     # definition of fields
-    bc_client_id:
+    bc_order_id:
       type: string
       length: 200
+      nullable: true
       options:
         comment: Bigcommerce client id
     bc_product_id:

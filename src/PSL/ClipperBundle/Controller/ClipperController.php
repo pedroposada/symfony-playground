@@ -24,7 +24,7 @@ use Bigcommerce\Api\Client as Bigcommerce;
 
 use PSL\ClipperBundle\Controller\GoogleSpreadsheetController;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
-use PSL\ClipperBundle\Entity;
+use PSL\ClipperBundle\Entity\FirstQProject;
 
 /**
  * Rest Controller for Clipper
@@ -84,7 +84,7 @@ class ClipperController extends FOSRestController
             $bc_product = $this->getBigcommerceProduct($form_data->timestamp, $price);
             
             // Save into the database
-            // $this->createFirstQProject(serialize($form_data), serialize($gs_result), $product);
+            $this->createFirstQProject(serialize($form_data), serialize($gs_result), $bc_product);
             
             // build response
             $returnObject['product']['id'] = $bc_product->id;

@@ -11,7 +11,7 @@ class FirstQProject
 {
     protected $id;
 
-    protected $bc_client_id;
+    protected $bc_order_id;
 
     protected $bc_product_id;
 
@@ -37,26 +37,26 @@ class FirstQProject
     }
 
     /**
-     * Set bc_client_id
+     * Set bc_order_id
      *
-     * @param string $bcClientId
+     * @param string $bcOrderId
      * @return FirstQProject
      */
-    public function setBcClientId($bcClientId)
+    public function setBcOrderId($bcOrderId)
     {
-        $this->bc_client_id = $bcClientId;
+        $this->bc_order_id = $bcOrderId;
 
         return $this;
     }
 
     /**
-     * Get bc_client_id
+     * Get bc_order_id
      *
      * @return string 
      */
-    public function getBcClientId()
+    public function getBcOrdertId()
     {
-        return $this->bc_client_id;
+        return $this->bc_order_id;
     }
 
     /**
