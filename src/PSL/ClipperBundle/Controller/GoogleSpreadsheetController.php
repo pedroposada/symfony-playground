@@ -43,8 +43,8 @@ class GoogleSpreadsheetController extends Controller
         if (!is_numeric($form_data->ir)) {
             $error_string .= 'IR is not a number. ';
         }
-        if (empty($form_data->country)) {
-            $error_string .= 'Country is empty. ';
+        if (empty($form_data->market)) {
+            $error_string .= 'Market is empty. ';
         }
         if (empty($form_data->specialty)) {
             $error_string .= 'Specialty is empty.';
@@ -59,7 +59,7 @@ class GoogleSpreadsheetController extends Controller
         $data = array(
             'C10' => $form_data->loi,
             'C18' => $form_data->ir,
-            'C7' => $form_data->country,
+            'C7' => $form_data->market,
             'C8' => $form_data->specialty
         );
         // cells to return

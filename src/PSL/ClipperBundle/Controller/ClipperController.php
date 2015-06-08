@@ -53,9 +53,14 @@ class ClipperController extends FOSRestController
      * 
      * @requestparam(name="loi", default="", description="LOI.")
      * @requestparam(name="ir", default="", description="IR.")
-     * @requestparam(name="country", default="", description="country.")
-     * @requestparam(name="specialty", default="", description="specialty.") 
-     * @requestparam(name="timestamp", default="", description="timestamp.")
+     * @requestparam(name="title", default="", description="Title.")
+     * @requestparam(name="name", default="", description="Name.")
+     * @requestparam(name="patient_type", default="", description="Patient type.")
+     * @requestparam(name="num_participants", default="", description="Number of participants.")
+     * @requestparam(name="market", default="", description="Market.")
+     * @requestparam(name="specialty", default="", description="Specialty.") 
+     * @requestparam(name="timestamp", default="", description="Timestamp.")
+     * @requestparam(name="brand", default="", description="Brands.")
      * 
      * @return \Symfony\Component\BrowserKit\Response
      */
@@ -67,12 +72,16 @@ class ClipperController extends FOSRestController
         try {
             // get $_POST values
             $form_data = new \stdClass();
-            
-            $form_data->loi = $paramFetcher->get('loi');
-            $form_data->ir = $paramFetcher->get('ir');
-            $form_data->country = $paramFetcher->get('country');
+            $form_data->loi = 10; // hard coded for now
+            $form_data->ir = 10; // hard coded for now
+            $form_data->title = $paramFetcher->get('title');
+            $form_data->name = $paramFetcher->get('name');
+            $form_data->patient_type = $paramFetcher->get('patient_type');
+            $form_data->num_participants = $paramFetcher->get('num_participants');
+            $form_data->market = $paramFetcher->get('market');
             $form_data->specialty = $paramFetcher->get('specialty');
-            $form_data->timestamp = $paramFetcher->get('timestamp'); 
+            $form_data->timestamp = $paramFetcher->get('timestamp');
+            $form_data->brand = explode("|", $paramFetcher->get('brand'));
             
             // Google Spreadsheet validation
             $gsc = New GoogleSpreadsheetController();
