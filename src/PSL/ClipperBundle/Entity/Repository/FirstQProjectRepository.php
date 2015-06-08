@@ -26,4 +26,13 @@ class FirstQProjectRepository extends EntityRepository
     
     return $this->matching($criteria);
   }
+  
+  public function findByState($state)
+  {
+    $expr = Criteria::expr();
+    $criteria = Criteria::create();
+    $criteria->where($expr->eq('state', $state));
+    
+    return $this->matching($criteria);
+  }
 }

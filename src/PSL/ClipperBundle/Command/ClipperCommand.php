@@ -9,8 +9,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Bigcommerce\Api\Client as Bigcommerce;
+use \Exception as Exception;
 
 // custom
+use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 
 class ClipperCommand extends ContainerAwareCommand
 {
@@ -20,7 +22,7 @@ class ClipperCommand extends ContainerAwareCommand
   private $to_state;
   private $from_state;
   private $query_result;
-  private $last_error = 'OK';
+  private $logger;
 
   protected function configure()
   {
@@ -29,18 +31,33 @@ class ClipperCommand extends ContainerAwareCommand
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    $params = $this->getContainer()->getParameter('clipper');
+    $this->logger = $this->getContainer()->get('monolog.logger.clipper');
+    
+    try {
+      $params = $this->getContainer()->getParameter('clipper');
+  
+      $this
+        ->getCompletedOrderProducts()                                 
+          ->getProductIds($this->products)                            
+          ->fromState($params['state_codes']['bigcommerce_pending'])  
+          ->toState($params['state_codes']['bigcommerce_complete'])   
+          ->changeState()                                             
+        ->createLimeSurvey()                                          
+          // ->fromState($params['state_codes']['bigcommerce_complete'])
+          // ->toState($params['state_codes']['limesurvey_created'])
+          // ->productIds($this->products)
+          // ->changeState()
+        ;
+    }
+    catch (\Exception $e) {
+      $debug = array(
+        "File: {$e->getFile()}",
+        "Line: {$e->getLine()}",
+      );
+      $this->logger->debug(implode(" | ", $debug));
+      $this->logger->error($e->__toString());
+    }
 
-    $this
-      ->getCompletedOrderProducts()
-      ->fromState($params['state_codes']['bigcommerce_pending'])
-      ->toState($params['state_codes']['bigcommerce_complete'])
-      ->productIds($this->products)
-      // ->productIds(array(76 => 1, 47 => 1))
-      ->changeState();
-
-    $logger = $this->getContainer()->get('logger');
-    $logger->info(var_dump($this->last_error, 1));
   }
 
   private function fromState($state)
@@ -55,75 +72,87 @@ class ClipperCommand extends ContainerAwareCommand
     return $this;
   }
 
-  private function productIds($products)
+  private function getProductIds($products)
   {
     $this->product_ids = array_keys($products);
     return $this;
   }
 
-  /**
-   * @return $this
-   */
+  private function changeState()
+  {
+    $em = $this->getContainer()->get('doctrine')->getManager();
+    $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByIdsAndState($this->product_ids, $this->from_state);
+    if ($count = count($fqs)) {
+      $this->logger->debug("Found [{$count}] FirstQProject(s) with state [{$this->from_state}]", array('changeState'));
+      foreach ( $fqs as $fq ) {
+        $fq->setState($this->to_state);
+      }
+      $em->flush();
+      $em->clear();
+    }
+    else {
+      $this->logger->debug("No Products found with state [{$this->from_state}]", array('changeState'));
+    }
+
+    return $this;
+  }
+  
   private function getCompletedOrderProducts()
   {
     $completed_order_products = array();
 
-    $parameters_bigcommerce = $this->getContainer()->getParameter('bigcommerce');
+    $params = $this->getContainer()->getParameter('bigcommerce');
 
-    try {
-
-      Bigcommerce::failOnError();
-      Bigcommerce::configure(array(
-        'username' => $parameters_bigcommerce['api']['username'],
-        'store_url' => $parameters_bigcommerce['api']['store_url'],
-        'api_key' => $parameters_bigcommerce['api']['api_key']
-      ));
-      // look for orders by product id and mark them as complete
-      $fields = array(
-        'status_id' => $parameters_bigcommerce['order_status_code_completed'],
-      );
-      $orders = Bigcommerce::getOrders($fields);
+    Bigcommerce::failOnError();
+    Bigcommerce::configure(array(
+      'username' => $params['api']['username'],
+      'store_url' => $params['api']['store_url'],
+      'api_key' => $params['api']['api_key']
+    ));
+    // look for orders by product id and mark them as complete
+    $fields = array(
+      'status_id' => $params['order_status_code_completed'],
+    );
+    $orders = Bigcommerce::getOrders($fields);
+    if ($count = count($orders)) {
+      $this->logger->debug("Found [{$count}] Completed Order(s) in BigCommerce.", array('getCompletedOrderProducts'));
       foreach ( $orders as $order ) {
         $products = Bigcommerce::getOrderProducts($order->id);
         foreach ( $products as $product ) {
           $completed_order_products[$product->product_id] = $product;
         }
       }
-      $this->products = $completed_order_products;
-
     }
-    catch(Bigcommerce\Api\Error $e) {
-
-      $this->last_error = $e->getCode() . ' - ' . $e->getMessage();
-
+    else {
+      $this->logger->debug("No Orders found with status [{$params['order_status_code_completed']}] in BigCommerce.", array('getCompletedOrderProducts'));
     }
+    $this->products = $completed_order_products;
 
     return $this;
   }
 
-  /**
-   * @return $this
-   */
-  private function changeState()
+  private function createLimeSurvey()
   {
-    try {
-
-      $em = $this->getContainer()->get('doctrine')->getManager();
-      $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByIdsAndState($this->product_ids, $this->from_state);
-      foreach ( $fqs as $fq ) {
-        $fq->setState($this->to_state);
-      }
-      $em->flush();
-      $em->clear();
-
+    $params = $this->getContainer()->getParameter('limesurvey');
+    LimeSurvey::configure(array(
+      'ls_baseurl' => $params['api']['ls_baseurl'],
+      'ls_password' => $params['api']['ls_password'],
+      'ls_user' => $params['api']['ls_user']
+    ));
+    
+    $params = $this->getContainer()->getParameter('clipper');
+    $em = $this->getContainer()->get('doctrine')->getManager();
+    $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByState($params['state_codes']['bigcommerce_complete']);
+    if ($count = count($fqs)) {
+      $this->logger->debug("Found [{$count}] FirstQProject(s) with state [{$params['state_codes']['bigcommerce_complete']}.", array('createLimeSurvey'));
+      //...
+      
     }
-    catch(\Doctrine\ORM\ORMException $e) {
-
-      $this->last_error = $e->getCode() . ' - ' . $e->getMessage();
-
+    else {
+      //...
+      
     }
-
-    return $this;
+    
   }
 
 }

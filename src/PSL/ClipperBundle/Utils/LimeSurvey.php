@@ -1,77 +1,77 @@
 <?php
 
-namespace PSL\ClipperBundle\Controller;
+namespace PSL\ClipperBundle\Utils;
 
 use org\jsonrpcphp\JsonRPCClient;
+use \Exception as Exception;
 
 /**
  * helper class to interact with LimeSurvey
  */
   
-class LimeSurveyController extends Controller
+class LimeSurvey
 {
-  protected $response;
-  protected $session_key;
-  protected $release_session_key;
-  protected $client;
-  protected $callback = '';
-  protected $param_arr = array();
-  protected $settings;
+  static private $response;
+  static private $session_key;
+  static private $release_session_key;
+  static private $client;
   
-  public function __construct($config = array()) 
+  /**
+   * Configure the API client with the required credentials.
+   *
+   * Requires a settings array to be passed in with the following keys:
+   *
+   * - ls_baseurl
+   * - ls_user
+   * - ls_password
+   *
+   * @param array $settings
+   * @throws \Exception
+   */
+  public static function configure(array $settings)
   {
-    // settings
-    $this->settings = $config;
+    if (!isset($settings['ls_baseurl'])) {
+        throw new Exception("'ls_baseurl' must be provided");
+    }
 
-    // instanciate a new JsonRPCClient client
-    $ls_baseurl = $this->getSetting('ls_baseurl');
-    $this->client = new JsonRPCClient($ls_baseurl);
-    
-    // request session key
-    $ls_user = $this->getSetting('ls_user');
-    $ls_password = $this->getSetting('ls_password');
-    $this->session_key = $this->client->get_session_key($ls_user, $ls_password);
+    if (!isset($settings['ls_user'])) {
+        throw new Exception("'ls_user' must be provided");
+    }
+
+    if (!isset($settings['ls_password'])) {
+        throw new Exception("'ls_password' must be provided");
+    }
+
+    self::$ls_baseurl = $settings['ls_baseurl'];
+    self::$ls_user = $settings['ls_user'];
+    self::$ls_password = $settings['ls_password'];
   }
   
   /**
    * @return response from client
    */
-  public function execute() 
+  private function call($callback, $param_arr) 
   {
-    $callback = $this->callback;
-    $param_arr = $this->param_arr;
+    // instanciate a new JsonRPCClient client
+    self::$client = new JsonRPCClient(self::$ls_baseurl);
     
-    // client callback and pass param_arr to it
-    if (!empty($callback) && !empty($param_arr)) {
-      $this->response = call_user_func_array(array($this->client, $callback), $param_arr);
-    }
+    // request session key
+    self::$session_key = self::$client->get_session_key(self::$ls_user, self::$ls_password);
+    
+    // call $callback and pass $param_arr to it
+    self::$response = call_user_func_array(array(self::$client, $callback), $param_arr);
     
     // release session key
-    $this->release_session_key = $this->client->release_session_key($this->session_key);
+    self::$release_session_key = self::$client->release_session_key($this->session_key);
     
-    // call logging function
-    if (function_exists($this->getSetting('logging_function'))) {
-      $logging_function = $this->getSetting('logging_function');
-      $logging_function(array('callback' => $callback, 'param_arr' => $param_arr, 'object' => $this));
-    }
-    
-    return $this->response;
-  }
-  
-  /**
-   * settings wrapper
-   */
-  protected function getSetting($name = NULL, $default_value = NULL) 
-  {
-    return isset($this->settings[$name]) ? $this->settings[$name] : $default_value;
+    return self::$response;
   }
   
   /**
   * RPC Routine to import a survey - imports lss,csv,xls or survey zip archive.
   */
-  public function import_survey($args = array()) 
+  public static function import_survey($args = array()) 
   {
-    $this->callback = __FUNCTION__;
     /**
      * @param string $sSessionKey Auth Credentials
      * @param string $sImportData String containing the BASE 64 encoded data of a lss,csv,xls or survey zip archive
@@ -80,45 +80,42 @@ class LimeSurveyController extends Controller
      * @param integer $DestSurveyID This is the new ID of the survey - if already used a random one will be taken instead
      * @return array|integer iSurveyID - ID of the new survey
      */
-    $this->param_arr = array_merge(array(
-      'sSessionKey' => $this->session_key,
+    $param_arr = array_merge(array(
+      'sSessionKey' => self::$session_key,
       'sImportData' => null, 
       'sImportDataType' => 'lss', 
       'sNewSurveyName' => null, 
       'DestSurveyID' => null,
     ), $args);
     
-    return $this;
+    return call('import_survey', $param_arr);
   }
   
   /**
   * RPC Routine that launches a newly created survey.
   */
-  public function activate_survey($args = array()) 
+  public static function activate_survey($args = array()) 
   {
-    $this->callback = __FUNCTION__;
     /**
      * @param string $sSessionKey Auth credentials
      * @param int $iSurveyID The id of the survey to be activated
      * @return array The result of the activation
      */
-    $this->param_arr = array_merge(array(
-      'sSessionKey' => $this->session_key,
+    $param_arr = array_merge(array(
+      'sSessionKey' => self::$session_key,
       'iSurveyID' => null, 
     ), $args);
     
-    return $this;
+    return call('activate_survey', $param_arr);
   }
   
   
   /**
   * RPC Routine to export responses.
   * Returns the requested file as base64 encoded string
-  *
   * */
   public function export_responses($args = array()) 
   {
-    $this->callback = __FUNCTION__;
     /**
      * @param string $sSessionKey Auth credentials
      * @param int $iSurveyID Id of the Survey
@@ -132,8 +129,8 @@ class LimeSurveyController extends Controller
      * @param array $aFields Optional Selected fields
      * @return array|string On success: Requested file as base 64-encoded string. On failure array with error information
      */
-    $this->param_arr = array_merge(array(
-      'sSessionKey' => $this->session_key,
+    $param_arr = array_merge(array(
+      'sSessionKey' => self::$session_key,
       'iSurveyID' => null, 
       'sDocumentType' => 'csv', 
       'sLanguageCode' => 'en', 
@@ -145,8 +142,7 @@ class LimeSurveyController extends Controller
       'aFields' => null,
     ), $args);
     
-    return $this;
+    return call('export_responses', $param_arr);
   }
-  
     
 }

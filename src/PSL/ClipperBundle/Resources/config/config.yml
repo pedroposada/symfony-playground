@@ -1,23 +1,31 @@
 # PSL/ClipperBundle/Resources/config/config.yml
 parameters:
+  
   # BigCommerce Settings
   bigcommerce:
     api:
       username:                       "pedro.posada"
       store_url:                      "https://store-th2odj.mybigcommerce.com"
       api_key:                        "4e3d9f3523585f0126abb48f80ac0ff544816916"
-    order_status_code_completed:      10
-    category_code_firstq:             18
+    order_status_code_completed:      10 # numeric code in bigcommerce for Completed orders
+    category_code_firstq:             18 # numeric code in bigcommerce for FirstQ category
   
   # Clipper settings
   clipper:
     state_codes:
-      bigcommerce_pending:     "BIGCOMMERCE_PENDING"
-      bigcommerce_complete:    "BIGCOMMERCE_COMPLETE"
-      limesurvey_created:      "LIMESURVEY_CREATED"
-      rpanel_complete:         "RPANEL_COMPLETE"
-      limesurvey_complete:     "LIMESURVEY_COMPLETE"
-      email_sent:              "EMAIL_SENT"
+      bigcommerce_pending:            "BIGCOMMERCE_PENDING"
+      bigcommerce_complete:           "BIGCOMMERCE_COMPLETE"
+      limesurvey_created:             "LIMESURVEY_CREATED"
+      rpanel_complete:                "RPANEL_COMPLETE"
+      limesurvey_complete:            "LIMESURVEY_COMPLETE"
+      email_sent:                     "EMAIL_SENT"
+      
+  # LimeSurvey settings
+  limesurvey:
+    api:
+      ls_baseurl:                       "http://dev-limesurvey.pslgroup.com/index.php/admin/remotecontrol"
+      ls_password:                      "admin"
+      ls_user:                          "admin"
 
 
 # GremoBuzzBundle Configuration
@@ -43,3 +51,6 @@ psl_clipper:
 # p12_file_name : "spreeadsheet-test-26d2699e9952.p12"
 # sheet_id : "fake-id"
 
+# Monolog
+monolog:
+    channels: ["clipper"]
