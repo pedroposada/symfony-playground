@@ -18,6 +18,8 @@ class FirstQProject
     protected $form_data_raw;
 
     protected $sheet_data_raw;
+    
+    protected $limesurvey_sid;
 
     protected $state;
     
@@ -104,6 +106,7 @@ class FirstQProject
     {
         return $this->form_data_raw;
     }
+    
 
     /**
      * Set sheet_data_raw
@@ -202,5 +205,38 @@ class FirstQProject
     public function setUpdatedValue()
     {
         // Add your code here
+    }
+
+    /**
+     * Get bc_order_id
+     *
+     * @return string 
+     */
+    public function getBcOrderId()
+    {
+        return $this->bc_order_id;
+    }
+
+    /**
+     * Set limesurvey_sid
+     *
+     * @param integer $limesurveySid
+     * @return FirstQProject
+     */
+    public function setLimesurveySid($limesurveySid)
+    {
+        $this->limesurvey_sid = $limesurveySid;
+
+        return $this;
+    }
+
+    /**
+     * Get limesurvey_sid
+     *
+     * @return integer 
+     */
+    public function getLimesurveySid()
+    {
+        return $this->limesurvey_sid;
     }
 }

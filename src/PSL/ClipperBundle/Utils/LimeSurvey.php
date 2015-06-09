@@ -11,10 +11,13 @@ use \Exception as Exception;
   
 class LimeSurvey
 {
-  static private $response;
-  static private $session_key;
-  static private $release_session_key;
-  static private $client;
+  private $response;
+  private $session_key;
+  private $release_session_key;
+  private $client;
+  private $ls_baseurl;
+  private $ls_user;
+  private $ls_password;
   
   /**
    * Configure the API client with the required credentials.
@@ -28,7 +31,7 @@ class LimeSurvey
    * @param array $settings
    * @throws \Exception
    */
-  public static function configure(array $settings)
+  public function configure(array $settings)
   {
     if (!isset($settings['ls_baseurl'])) {
         throw new Exception("'ls_baseurl' must be provided");
@@ -42,9 +45,15 @@ class LimeSurvey
         throw new Exception("'ls_password' must be provided");
     }
 
-    self::$ls_baseurl = $settings['ls_baseurl'];
-    self::$ls_user = $settings['ls_user'];
-    self::$ls_password = $settings['ls_password'];
+    $this->ls_baseurl = $settings['ls_baseurl'];
+    $this->ls_user = $settings['ls_user'];
+    $this->ls_password = $settings['ls_password'];
+    
+    // instanciate a new JsonRPCClient client
+    $this->client = new JsonRPCClient($this->ls_baseurl);
+    
+    // request session key
+    $this->session_key = $this->client->get_session_key($this->ls_user, $this->ls_password);
   }
   
   /**
@@ -52,25 +61,20 @@ class LimeSurvey
    */
   private function call($callback, $param_arr) 
   {
-    // instanciate a new JsonRPCClient client
-    self::$client = new JsonRPCClient(self::$ls_baseurl);
-    
-    // request session key
-    self::$session_key = self::$client->get_session_key(self::$ls_user, self::$ls_password);
-    
     // call $callback and pass $param_arr to it
-    self::$response = call_user_func_array(array(self::$client, $callback), $param_arr);
+    $this->response = call_user_func_array(array($this->client, $callback), $param_arr);
+    $this->param_arr = $param_arr;
     
     // release session key
-    self::$release_session_key = self::$client->release_session_key($this->session_key);
+    // $this->release_session_key = $this->client->release_session_key($this->session_key);
     
-    return self::$response;
+    return $this->response;
   }
   
   /**
   * RPC Routine to import a survey - imports lss,csv,xls or survey zip archive.
   */
-  public static function import_survey($args = array()) 
+  public function import_survey($args = array()) 
   {
     /**
      * @param string $sSessionKey Auth Credentials
@@ -81,20 +85,20 @@ class LimeSurvey
      * @return array|integer iSurveyID - ID of the new survey
      */
     $param_arr = array_merge(array(
-      'sSessionKey' => self::$session_key,
+      'sSessionKey' => $this->session_key,
       'sImportData' => null, 
       'sImportDataType' => 'lss', 
       'sNewSurveyName' => null, 
       'DestSurveyID' => null,
     ), $args);
     
-    return call('import_survey', $param_arr);
+    return $this->call('import_survey', $param_arr);
   }
   
   /**
   * RPC Routine that launches a newly created survey.
   */
-  public static function activate_survey($args = array()) 
+  public function activate_survey($args = array()) 
   {
     /**
      * @param string $sSessionKey Auth credentials
@@ -102,11 +106,11 @@ class LimeSurvey
      * @return array The result of the activation
      */
     $param_arr = array_merge(array(
-      'sSessionKey' => self::$session_key,
+      'sSessionKey' => $this->session_key,
       'iSurveyID' => null, 
     ), $args);
     
-    return call('activate_survey', $param_arr);
+    return $this->call('activate_survey', $param_arr);
   }
   
   
@@ -130,7 +134,7 @@ class LimeSurvey
      * @return array|string On success: Requested file as base 64-encoded string. On failure array with error information
      */
     $param_arr = array_merge(array(
-      'sSessionKey' => self::$session_key,
+      'sSessionKey' => $this->session_key,
       'iSurveyID' => null, 
       'sDocumentType' => 'csv', 
       'sLanguageCode' => 'en', 
@@ -142,7 +146,7 @@ class LimeSurvey
       'aFields' => null,
     ), $args);
     
-    return call('export_responses', $param_arr);
+    return $this->call('export_responses', $param_arr);
   }
     
 }

@@ -7,7 +7,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Collections\Criteria;
 
 // custom
-use PSL\ClipperBundle\Entity\FirstQProject;
+use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 
 /**
  * FirstQProjectRepository
@@ -35,4 +35,26 @@ class FirstQProjectRepository extends EntityRepository
     
     return $this->matching($criteria);
   }
+  
+  public function findByStateNot($state)
+  {
+    $expr = Criteria::expr();
+    $criteria = Criteria::create();
+    $criteria->where($expr->neq('state', $state));
+    
+    return $this->matching($criteria);
+  }
+  
+  public function getFormDataByField(FirstQProject $fq, $field_name) 
+  {
+    $response = array();
+    $raw = $fq->getFormDataRaw();
+    $unserialized = unserialize($raw);
+    if (isset($unserialized->{$field_name})) {
+      $response = (array)$unserialized->{$field_name};
+    }
+    
+    return $response;
+  }
+  
 }

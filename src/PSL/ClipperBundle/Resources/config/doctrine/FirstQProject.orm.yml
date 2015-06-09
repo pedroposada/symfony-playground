@@ -18,7 +18,7 @@ PSL\ClipperBundle\Entity\FirstQProject:
       length: 200
       nullable: true
       options:
-        comment: Bigcommerce client id
+        comment: Bigcommerce order id
     bc_product_id:
       type: string
       length: 200
@@ -32,6 +32,11 @@ PSL\ClipperBundle\Entity\FirstQProject:
       type: text
       options:
         comment: result of the Google Spreadsheet as json or as associative array
+    limesurvey_sid:
+      type: integer
+      nullable: true
+      options:
+        comment: LimeSurvey survey id
     state:
       type: string
       length: 100
