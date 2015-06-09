@@ -17,8 +17,12 @@ namespace PSL\ClipperBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Config\FileLocator;
+
 use PSL\ClipperBundle\Entity\FeasibilityRequest;
 use PSL\ClipperBundle\Utils\GoogleSheets;
+
+use \stdClass as stdClass;
+use \Exception as Exception;
 
 class GoogleSpreadsheetController extends Controller
 {
@@ -32,7 +36,7 @@ class GoogleSpreadsheetController extends Controller
     public function requestFeasibility($form_data)
     {
         // Feasibility object
-        $feasibility = new \stdClass();
+        $feasibility = new stdClass();
         
         // @TODO: might be done somewhere else, maybe in the FeasibilityRequest object 
         // Validation of the fields
@@ -52,7 +56,7 @@ class GoogleSpreadsheetController extends Controller
         
         if ($error_string !== '') {
             // Throw exception if data is incorrect
-            throw new \Exception($error_string);
+            throw new Exception($error_string);
         }
         
         // mapping of cell to data to send
@@ -85,11 +89,11 @@ class GoogleSpreadsheetController extends Controller
                 $feasibility->description = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
             }
             else {
-                throw new \Exception('Error retrieving results.');
+                throw new Exception('Error retrieving results.');
             }
         }
         else {
-            throw new \Exception('Error retrieving sheet.');
+            throw new Exception('Error retrieving sheet.');
         }
 
         return $feasibility;

@@ -28,6 +28,9 @@ use PSL\ClipperBundle\Controller\GoogleSpreadsheetController;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQProject;
 
+use \stdClass as stdClass;
+use \Exception as Exception;
+
 /**
  * Rest Controller for Clipper
  *
@@ -73,7 +76,7 @@ class ClipperController extends FOSRestController
     
     try {
       // get $_POST values
-      $form_data = new \stdClass();
+      $form_data = new stdClass();
       $form_data->loi = 10; // hard coded for now
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
@@ -151,7 +154,7 @@ class ClipperController extends FOSRestController
   {
 
     if( empty($timestamp) ) {
-      throw new \Exception('Error while creating Bigcommerce product.');
+      throw new Exception('Error while creating Bigcommerce product.');
     }
 
     // Get parameters
@@ -181,7 +184,7 @@ class ClipperController extends FOSRestController
       return $product;
     }
     else {
-      throw new \Exception('Error while creating Bigcommerce product.');
+      throw new Exception('Error while creating Bigcommerce product.');
     }
   }
 
