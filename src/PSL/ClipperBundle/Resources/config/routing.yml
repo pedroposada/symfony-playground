@@ -1,6 +1,8 @@
-# psl_clipper_homepage:
-    # path:     /hello/{name}
-    # defaults: { _controller: PSLClipperBundle:Default:index }
+psl_clipper_limesurvey_redirect:
+  path:     /limesurvey/{sid}/{slug}
+  defaults: { _controller: PSLClipperBundle:Clipper:redirectLimeSurvey }
+  requirements:
+    sid: \d+
 
 # Automatic routes
 clipper:
@@ -9,9 +11,9 @@ clipper:
   prefix:   /ws
 
 psl_clipper_googlespreadsheets_feasibility:
-    path:     /clipper-gs/feasibility/{loi}/{ir}/{country}/{specialty}
-    defaults: { _controller: PSLClipperBundle:GoogleSpreadsheet:requestFeasibility }
+  path:     /clipper-gs/feasibility/{loi}/{ir}/{country}/{specialty}
+  defaults: { _controller: PSLClipperBundle:GoogleSpreadsheet:requestFeasibility }
 
 psl_clipper_googlespreadsheets_universes:
-    path:     /clipper-gs/universes/{country}/{specialty}
-    defaults: { _controller: PSLClipperBundle:GoogleSpreadsheet:requestUniverses }
+  path:     /clipper-gs/universes/{country}/{specialty}
+  defaults: { _controller: PSLClipperBundle:GoogleSpreadsheet:requestUniverses }

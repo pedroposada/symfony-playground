@@ -11,22 +11,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
+use PSL\ClipperBundle\Utils\Rpanel as Rpanel;
 
 class ClipperCommand extends ContainerAwareCommand
 {
-
-  private $products = array();
-  private $product_ids = array();
-  private $to_state;
-  private $from_state;
-  private $query_result;
   private $logger;
 
   protected function configure()
@@ -38,36 +32,41 @@ class ClipperCommand extends ContainerAwareCommand
   {
     $params = $this->getContainer()->getParameter('clipper');
     $this->logger = $this->getContainer()->get('monolog.logger.clipper');
-    $em = $this->getContainer()->get('doctrine')->getManager();
+    // $em = $this->getContainer()->get('doctrine')->getManager();
+//     
+    // // find all except with state 'email_sent'
+    // $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+      // ->findByStateNot($params['state_codes']['email_sent']);
+//     
+    // $this->logger->info("Found [{$fqs->count()}] fq.", array('execute'));
+    // foreach ($fqs as $fq) {
+      // try {
+        // $this
+          // ->process($fq, 'bigcommerce_pending')
+          // ->process($fq, 'bigcommerce_complete')
+          // // ->process($fq, 'limesurvey_created')
+          // // ->process($fq, 'rpanel_complete')
+          // // ->process($fq, 'limesurvey_complete') // 
+          // ;
+//         
+        // // feedback if all is good
+        // $this->logger->info('OK', array('fq.id' => $fq->getId()));
+      // }
+      // catch (\Exception $e) {
+        // $debug = new stdClass();
+        // $debug->file = $e->getFile();
+        // $debug->line = $e->getLine();
+        // $this->logger->debug(Debug::toString($debug));
+        // $this->logger->error($e->getMessage());
+      // }
+    // }
+    // $em->flush();
+    // $em->clear();
     
-    // find all except with state 'email_sent'
-    $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
-      ->findByStateNot($params['state_codes']['email_sent']);
-    
-    $this->logger->info("Found [{$fqs->count()}] fq.", array('execute'));
-    foreach ($fqs as $fq) {
-      try {
-        $this
-          ->process($fq, 'bigcommerce_pending')
-          ->process($fq, 'bigcommerce_complete')
-          // ->process($fq, 'limesurvey_created')
-          // ->process($fq, 'rpanel_complete')
-          // ->process($fq, 'limesurvey_complete') // 
-          ;
-        
-        // feedback if all is good
-        $this->logger->info('OK', array('fq.id' => $fq->getId()));
-      }
-      catch (\Exception $e) {
-        $debug = new stdClass();
-        $debug->file = $e->getFile();
-        $debug->line = $e->getLine();
-        $this->logger->debug(Debug::toString($debug));
-        $this->logger->error($e->getMessage());
-      }
-    }
-    $em->flush();
-    $em->clear();
+    // test
+    $rpanel = new Rpanel();
+    $result = $rpanel->findAllAgencies();
+    $this->logger->info(Debug::toString($result));
   }
 
   /**
