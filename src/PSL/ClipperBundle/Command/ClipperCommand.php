@@ -32,41 +32,36 @@ class ClipperCommand extends ContainerAwareCommand
   {
     $params = $this->getContainer()->getParameter('clipper');
     $this->logger = $this->getContainer()->get('monolog.logger.clipper');
-    // $em = $this->getContainer()->get('doctrine')->getManager();
-//     
-    // // find all except with state 'email_sent'
-    // $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
-      // ->findByStateNot($params['state_codes']['email_sent']);
-//     
-    // $this->logger->info("Found [{$fqs->count()}] fq.", array('execute'));
-    // foreach ($fqs as $fq) {
-      // try {
-        // $this
-          // ->process($fq, 'bigcommerce_pending')
-          // ->process($fq, 'bigcommerce_complete')
-          // // ->process($fq, 'limesurvey_created')
-          // // ->process($fq, 'rpanel_complete')
-          // // ->process($fq, 'limesurvey_complete') // 
-          // ;
-//         
-        // // feedback if all is good
-        // $this->logger->info('OK', array('fq.id' => $fq->getId()));
-      // }
-      // catch (\Exception $e) {
-        // $debug = new stdClass();
-        // $debug->file = $e->getFile();
-        // $debug->line = $e->getLine();
-        // $this->logger->debug(Debug::toString($debug));
-        // $this->logger->error($e->getMessage());
-      // }
-    // }
-    // $em->flush();
-    // $em->clear();
+    $em = $this->getContainer()->get('doctrine')->getManager();
     
-    // test
-    $rpanel = new Rpanel();
-    $result = $rpanel->findAllAgencies();
-    $this->logger->info(Debug::toString($result));
+    // find all except with state 'email_sent'
+    $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+      ->findByStateNot($params['state_codes']['email_sent']);
+    
+    $this->logger->info("Found [{$fqs->count()}] fq.", array('execute'));
+    foreach ($fqs as $fq) {
+      try {
+        $this
+          ->process($fq, 'bigcommerce_pending')
+          ->process($fq, 'bigcommerce_complete')
+          // ->process($fq, 'limesurvey_created')
+          // ->process($fq, 'rpanel_complete')
+          // ->process($fq, 'limesurvey_complete') // 
+          ;
+        
+        // feedback if all is good
+        $this->logger->info('OK', array('fq.id' => $fq->getId()));
+      }
+      catch (\Exception $e) {
+        $debug = new stdClass();
+        $debug->file = $e->getFile();
+        $debug->line = $e->getLine();
+        $this->logger->debug(Debug::toString($debug));
+        $this->logger->error($e->getMessage());
+      }
+    }
+    $em->flush();
+    $em->clear();
   }
 
   /**
