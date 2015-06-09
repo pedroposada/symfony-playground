@@ -30,6 +30,23 @@ parameters:
       dir:                              "src/PSL/ClipperBundle/Resources/limesurvey_lss"
       brand_adoption:                   "limesurvey_survey__brand_adoption.lss"
     redirect:                           http://dev-limesurvey.pslgroup.com/index.php/[SID]/lang-[LANG]?token=[TOKEN]
+    
+  # Rpanel
+  rpanel:
+    databases:
+      rpanel:
+        dbname:                         rpanel_rpanel
+        user:                           root
+        password:                       null
+        host:                           127.0.0.1
+        driver:                         pdo_mysql
+      translateapi:
+        dbname:                         rpanel_translateapi
+        user:                           root
+        password:                       null
+        host:                           127.0.0.1
+        driver:                         pdo_mysql
+        
 
 
 # GremoBuzzBundle Configuration
@@ -72,18 +89,6 @@ doctrine:
     connections:
       default:
         dbname:           clipper
-        user:             root
-        password:         null
-        host:             127.0.0.1
-        driver:           pdo_mysql
-      rpanel:
-        dbname:           rpanel_rpanel
-        user:             root
-        password:         null
-        host:             127.0.0.1
-        driver:           pdo_mysql
-      translateapi:
-        dbname:           rpanel_translateapi
         user:             root
         password:         null
         host:             127.0.0.1
