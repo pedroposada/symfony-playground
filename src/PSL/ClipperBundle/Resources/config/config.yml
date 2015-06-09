@@ -29,6 +29,7 @@ parameters:
     lss:
       dir:                              "src/PSL/ClipperBundle/Resources/limesurvey_lss"
       brand_adoption:                   "limesurvey_survey__brand_adoption.lss"
+    redirect:                           http://dev-limesurvey.pslgroup.com/index.php/[SID]/lang-[LANG]?token=[TOKEN]
 
 
 # GremoBuzzBundle Configuration
@@ -63,3 +64,27 @@ nelmio_cors:
 # Monolog
 monolog:
     channels: ["clipper"]
+    
+# doctrine
+doctrine:
+  dbal:
+    default_connection:   default
+    connections:
+      default:
+        dbname:           clipper
+        user:             root
+        password:         null
+        host:             127.0.0.1
+        driver:           pdo_mysql
+      rpanel:
+        dbname:           rpanel_rpanel
+        user:             root
+        password:         null
+        host:             127.0.0.1
+        driver:           pdo_mysql
+      translateapi:
+        dbname:           rpanel_translateapi
+        user:             root
+        password:         null
+        host:             127.0.0.1
+        driver:           pdo_mysql
