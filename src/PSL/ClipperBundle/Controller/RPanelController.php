@@ -1,6 +1,12 @@
 <?php
+/**
+ * PSL/ClipperBundle/Controller/RPanelController.php
+ */
+namespace PSL\ClipperBundle\Controller;
 
-namespace PSL\ClipperBundle\Utils;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+
+use Doctrine\DBAL;
 
 use \Exception as Exception;
 use \stdClass as stdClass;
@@ -8,15 +14,8 @@ use \stdClass as stdClass;
 /**
  * Helper class to communicate with the back end of RPanel 
  */
-class Rpanel
+class Rpanel extends Controller
 {
-  protected $container;
-  
-  /**
-   * constructor
-   */
-  public 
-  
   /**
    * Find all agencies.
    * 
@@ -37,13 +36,18 @@ class Rpanel
    * @param int $created_by - the userid who created the project
    * @param int $proj_type - a numeral value for the project type
    * 
-   * @return mixed returns a project
+   * @return A string representation of the last inserted ID.
    */
   public function createFeasibilityProject($proj_name, $proj_status, $created_by, $proj_type)
   {
     $conn = getConnection();
     
-    return $conn->fetchAll('SELECT * FROM Agencies');
+    $conn->insert('feasibility_project', array('proj_name' => $proj_name, 
+                                               'proj_status' => $proj_status,
+                                               'created_by' => $created_by,
+                                               'proj_type' => $proj_type));
+    
+    return $conn->lastInsertId();
   }
   
   /**
@@ -51,7 +55,7 @@ class Rpanel
    */
   private function getConnection()
   {
-    $config = new \Doctrine\DBAL\Configuration();
+    $config = new Configuration();
     $connectionParams = array(
         'dbname' => 'rpanel_rpanel',
         'user' => 'root',
@@ -59,7 +63,7 @@ class Rpanel
         'host' => '127.0.0.1',
         'driver' => 'pdo_mysql',
     );
-    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+    return DriverManager::getConnection($connectionParams, $config);
   }
   
 }

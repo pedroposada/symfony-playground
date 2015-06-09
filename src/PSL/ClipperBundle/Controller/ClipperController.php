@@ -28,6 +28,9 @@ use PSL\ClipperBundle\Controller\GoogleSpreadsheetController;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQProject;
 
+use \stdClass as stdClass;
+use \Exception as Exception;
+
 /**
  * Rest Controller for Clipper
  *
@@ -38,87 +41,83 @@ use PSL\ClipperBundle\Entity\FirstQProject;
  */
 class ClipperController extends FOSRestController
 {
-
+    
   /**
    * Validate a FristQ request
-   *
+   * 
    * @ApiDoc(
    *   resource=true,
    *   statusCodes = {
    *     200 = "Returned when successful",
    *   }
    * )
-   *
+   * 
    * The data is coming from an AJAX call performed on a 3rd party site
    *
    * @param ParamFetcher $paramFetcher Paramfetcher
-   *
+   * 
    * @requestparam(name="loi", default="", description="LOI.")
    * @requestparam(name="ir", default="", description="IR.")
    * @requestparam(name="title", default="", description="Title.")
    * @requestparam(name="name", default="", description="Name.")
    * @requestparam(name="patient_type", default="", description="Patient type.")
-   * @requestparam(name="num_participants", default="", description="Number of
-   * participants.")
+   * @requestparam(name="num_participants", default="", description="Number of participants.")
    * @requestparam(name="market", default="", description="Market.")
-   * @requestparam(name="specialty", default="", description="Specialty.")
+   * @requestparam(name="specialty", default="", description="Specialty.") 
    * @requestparam(name="timestamp", default="", description="Timestamp.")
    * @requestparam(name="brand", default="", description="Brands.")
-   *
+   * 
    * @return \Symfony\Component\BrowserKit\Response
    */
   public function postClipperValidationAction(ParamFetcher $paramFetcher)
   {
     // Object to return to remote form
     $returnObject = array();
-
+    
     try {
       // get $_POST values
-      $form_data = new \stdClass();
-      $form_data->loi = 10;
-      // hard coded for now
-      $form_data->ir = 10;
-      // hard coded for now
+      $form_data = new stdClass();
+      $form_data->loi = 10; // hard coded for now
+      $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name');
-      $form_data->patient_type = $paramFetcher->get('patient_type');
+      $form_data->patient_type = 35; //$paramFetcher->get('patient_type');
       $form_data->num_participants = $paramFetcher->get('num_participants');
       $form_data->market = $paramFetcher->get('market');
       $form_data->specialty = $paramFetcher->get('specialty');
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->brand = explode("|", $paramFetcher->get('brand'));
-
+      
       // Google Spreadsheet validation
       $gsc = New GoogleSpreadsheetController();
-      $gsc->setContainer($this->container);
+      $gsc->setContainer($this->container); 
       $gs_result = $gsc->requestFeasibility($form_data);
-
+      
       // Bigcommerce product creation
-      $price = 1234.45;
-      // $googlesheet_result price// from google sheet
+      $price = 1234.45;  // $googlesheet_result price// from google sheet
       $bc_product = $this->getBigcommerceProduct($form_data->timestamp, $price);
-
+      
       // Save into the database
       $this->createFirstQProject(serialize($form_data), serialize($gs_result), $bc_product);
-
+      
       // build response
       $returnObject['product']['id'] = $bc_product->id;
       $returnObject['product']['description'] = $gs_result->description;
-    }
+    } 
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
-
+      
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
-    }
+    } 
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
     }
-
-    return new Response($returnObject);
-  }
+      
+      return new Response($returnObject);
+    }
 
   /**
    * Retrieve a clipper.
@@ -155,7 +154,7 @@ class ClipperController extends FOSRestController
   {
 
     if( empty($timestamp) ) {
-      throw new \Exception('Error while creating Bigcommerce product.');
+      throw new Exception('Error while creating Bigcommerce product.');
     }
 
     // Get parameters
@@ -185,7 +184,7 @@ class ClipperController extends FOSRestController
       return $product;
     }
     else {
-      throw new \Exception('Error while creating Bigcommerce product.');
+      throw new Exception('Error while creating Bigcommerce product.');
     }
   }
 
