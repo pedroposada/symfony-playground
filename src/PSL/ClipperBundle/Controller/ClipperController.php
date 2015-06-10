@@ -81,8 +81,8 @@ class ClipperController extends FOSRestController
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name');
-      $form_data->patient_type = 35; //$paramFetcher->get('patient_type');
-      $form_data->num_participants = $paramFetcher->get('num_participants');
+      $form_data->patient_type = $paramFetcher->get('patient_type');
+      $form_data->num_participants = 35; // hard coded for now //$paramFetcher->get('num_participants');
       $form_data->market = $paramFetcher->get('market');
       $form_data->specialty = $paramFetcher->get('specialty');
       $form_data->timestamp = $paramFetcher->get('timestamp');
