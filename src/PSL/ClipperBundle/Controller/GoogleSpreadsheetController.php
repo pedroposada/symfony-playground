@@ -67,7 +67,10 @@ class GoogleSpreadsheetController extends Controller
       'C8' => $form_data->specialty
     );
     // cells to return
-    $return = array('F3', 'F8');
+    $return = array('F3', 'F5', 'F7', 'F8', 
+                    'F10', 'F12', 'F14', 'F15', 
+                    'F16', 'F17', 'F20', 'F21', 
+                    'F22', 'F24', 'F26', 'F27');
     
     // Google Sheets object
     $sheets = $this->setupFeasibilitySheet();
@@ -87,6 +90,7 @@ class GoogleSpreadsheetController extends Controller
         
         $feasibility->feasibility = TRUE;
         $feasibility->description = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
+        $feasibility->result = $result;
       }
       else {
           throw new Exception('Error retrieving results.');
@@ -97,60 +101,6 @@ class GoogleSpreadsheetController extends Controller
     }
 
     return $feasibility;
-  }
-  
-  
-  /**
-   * Returns data for Feasibility Quota
-   *
-   * @param mixed $data - contains different values for the quota
-   * 
-   * @return 
-   */
-  public function requestFeasibilityQuota($data) 
-  {
-    // google_sheet object to return
-    $google_sheet = new stdClass();
-    
-    // mapping of cell to data to send
-    $data = array(
-      'C10' => $data->loi,
-      'C18' => $data->ir,
-      'C7' => $data->market,
-      'C8' => $data->specialty
-    );
-    
-    // cells to return
-    $return = array('F3', 'F5', 'F7', 'F8', 
-                    'F10', 'F12', 'F14', 'F15', 
-                    'F16', 'F17', 'F20', 'F21', 
-                    'F22', 'F24', 'F26', 'F27');
-    
-    // Google Sheets object
-    $sheets = $this->setupFeasibilitySheet();
-    
-    if ($sheets) {
-      // get Spreadsheet parameters
-      $spreadsheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.spreadsheet_name');
-      $worksheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.worksheet_name');
-      // $sheet_id = $this->container->getParameter('psl_clipper.google_spreadsheets.sheet_id');
-      
-      // retrieve result
-      $result = $sheets->batchSetGet($spreadsheet_name, $worksheet_name, $data, $return);
-      
-      if ($result) {
-        $google_sheet->feasibility = TRUE;
-        $google_sheet->results = $result;
-      }
-      else {
-          throw new Exception('Error retrieving results.');
-      }
-    }
-    else {
-      throw new Exception('Error retrieving sheet.');
-    }
-
-    return $google_sheet;
   }
   
   /**
