@@ -34,6 +34,7 @@ parameters:
     
   # Rpanel
   rpanel:
+    user_id:                          7777 # Userid is the user ID of the one created by Guohui for you
     databases:
       rpanel:
         dbname:                       rpanel_rpanel

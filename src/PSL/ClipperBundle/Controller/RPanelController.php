@@ -48,10 +48,10 @@ class RPanelController extends Controller
   public function createFeasibilityProject(FirstQProject $fq)
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
-    $conn->insert('feasibility_project', array('proj_name' => $fq->name,        // 'Name of FirstQ project'
-                                               'proj_status' => $fq->status,    // 1
+    $conn->insert('feasibility_project', array('proj_name' => "FirstQ Project " . $fq->getFormDataByField('timestamp'),        // 'Name of FirstQ project'
+                                               'proj_status' => 1,    // 1
                                                'created_by' => $fq->created_by, // userid
-                                               'proj_type' => $fq->type));      // 1
+                                               'proj_type' => 1));      // 1
     
     // returned the last inserted auto increment
     return $conn->lastInsertId();
