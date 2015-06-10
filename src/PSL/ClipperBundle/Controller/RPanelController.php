@@ -6,16 +6,37 @@ namespace PSL\ClipperBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-use Doctrine\DBAL;
-
 use \Exception as Exception;
 use \stdClass as stdClass;
 
 /**
  * Helper class to communicate with the back end of RPanel 
  */
-class Rpanel extends Controller
+class RPanelController extends Controller
 {
+  private $params;
+  
+  function __construct($params) 
+  {
+    $this->params = $params;
+  }
+  
+  /**
+   * function to open a connection to the RPanel DBs
+   */
+  private function getConnection($db = array())
+  {
+    $config = new \Doctrine\DBAL\Configuration();
+    $connectionParams = array(
+      'dbname' => $db['dbname'],
+      'user' => $db['user'],
+      'password' => $db['password'],
+      'host' => $db['host'],
+      'driver' => $db['driver'],
+    );
+    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+  }
+  
   /**
    * Find all agencies.
    * 
@@ -23,7 +44,7 @@ class Rpanel extends Controller
    */
   public function findAllAgencies()
   {
-    $conn = $this->getConnection();
+    $conn = $this->getConnection($this->params['databases']['rpanel']);
     
     return $conn->fetchAll('SELECT * FROM Agencies');
   }
@@ -37,8 +58,7 @@ class Rpanel extends Controller
    */
   public function createFeasibilityProject($project)
   {
-    
-    $conn = $this->getConnection();
+    $conn = $this->getConnection($this->params['databases']['rpanel']);
     $conn->insert('feasibility_project', array('proj_name' => $project->name, 
                                                'proj_status' => $project->status,
                                                'created_by' => $project->created_by,
@@ -58,8 +78,7 @@ class Rpanel extends Controller
    */
   public function createFeasibilityProjectQuota($project, $folio, $google_sheet)
   {
-    
-    $conn = $this->getConnection();
+    $conn = $this->getConnection($this->params['databases']['rpanel']);
     $conn->insert('feasibility_project_quota', array('proj_id' => $project->id,                     // feasibility_project.projid,
                                                     'respondent_req' => $folio->respondant_req,     // [Number of respondents required],
                                                     'specialty_id' => $folio->specialty_id,         // [Specialty ID from MDM],
@@ -95,31 +114,6 @@ class Rpanel extends Controller
     
     // returned the last inserted auto increment
     return $conn->lastInsertId();
-  }
-   
-   
-   
-   
-   
-   
-   
-   
-   
-     
-  /**
-   * function to open a connection to the RPanel DB
-   */
-  private function getConnection()
-  {
-    $config = new Configuration();
-    $connectionParams = array(
-        'dbname' => 'rpanel_rpanel',
-        'user' => 'root',
-        'password' => '',
-        'host' => '127.0.0.1',
-        'driver' => 'pdo_mysql',
-    );
-    return DriverManager::getConnection($connectionParams, $config);
   }
   
 }

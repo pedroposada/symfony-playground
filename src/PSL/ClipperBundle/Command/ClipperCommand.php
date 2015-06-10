@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\LockHandler;
 use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
 
@@ -30,6 +31,15 @@ class ClipperCommand extends ContainerAwareCommand
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    // create the lock
+    $lock = new LockHandler('clipper:cron');
+    if (!$lock->lock()) {
+      $output->writeln('The command is already running in another process.');
+
+      return 0;
+    }
+    
+    
     $params = $this->getContainer()->getParameter('clipper');
     $this->logger = $this->getContainer()->get('monolog.logger.clipper');
     $em = $this->getContainer()->get('doctrine')->getManager();
@@ -60,6 +70,8 @@ class ClipperCommand extends ContainerAwareCommand
         $this->logger->error($e->getMessage());
       }
     }
+    
+    // persist data to db
     $em->flush();
     $em->clear();
   }
