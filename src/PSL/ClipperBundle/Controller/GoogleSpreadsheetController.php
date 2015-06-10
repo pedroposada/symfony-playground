@@ -70,7 +70,7 @@ class GoogleSpreadsheetController extends Controller
     $return = array('F3', 'F8');
     
     // Google Sheets object
-    $sheets = $this->setupFeasibilitySheets();
+    $sheets = $this->setupFeasibilitySheet();
     
     if ($sheets) {
       // get Spreadsheet parameters
@@ -114,10 +114,10 @@ class GoogleSpreadsheetController extends Controller
     
     // mapping of cell to data to send
     $data = array(
-      'C10' => $form_data->loi,
-      'C18' => $form_data->ir,
-      'C7' => $form_data->market,
-      'C8' => $form_data->specialty
+      'C10' => $data->loi,
+      'C18' => $data->ir,
+      'C7' => $data->market,
+      'C8' => $data->specialty
     );
     
     // cells to return
@@ -127,7 +127,7 @@ class GoogleSpreadsheetController extends Controller
                     'F22', 'F24', 'F26', 'F27');
     
     // Google Sheets object
-    $sheets = $this->setupFeasibilitySheets();
+    $sheets = $this->setupFeasibilitySheet();
     
     if ($sheets) {
       // get Spreadsheet parameters
@@ -158,33 +158,8 @@ class GoogleSpreadsheetController extends Controller
    *
    * @return array - the full uri in an array
    */
-  private function setupFeasibilitySheets() 
+  private function setupFeasibilitySheet() 
   {
-    // Google Spreadsheet parameters
-    $client_id = $this->container->getParameter('psl_clipper.google_spreadsheets.client_id');
-    $service_account_name = $this->container->getParameter('psl_clipper.google_spreadsheets.service_account_name');
-    $p12_file_name = $this->container->getParameter('psl_clipper.google_spreadsheets.p12_file_name');
-    $p12_file_uri = $this->returnFileUri($p12_file_name, '/Resources/config');
-    
-    // Google Sheets object
-    return GoogleSheets::withProperties($client_id, $service_account_name, $p12_file_uri[0]);
-  }
-  
-  /**
-   * Return a GoogleSheets object with all proper parameters set and ready to  
-   *
-   * @return array - the full uri in an array
-   */
-  private function setupFeasibilityQuotaSheets() 
-  {
-    
-    /**
-     * @TODO: this might be a different sheet
-     * - client id
-     * - service account name
-     * - add p12 file
-     */
-    
     // Google Spreadsheet parameters
     $client_id = $this->container->getParameter('psl_clipper.google_spreadsheets.client_id');
     $service_account_name = $this->container->getParameter('psl_clipper.google_spreadsheets.service_account_name');

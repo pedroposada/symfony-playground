@@ -92,6 +92,9 @@ class Rpanel extends Controller
                                                     'r_panel_usage' => $google_sheet->results['F14'],    // [Col F Row 14 in Google Sheet],
                                                     'r_hono_handling' => $google_sheet->results['F15'],  // [Col F Row 15 in Google Sheet],
                                                     'r_client_cur' => $google_sheet->results['F12']));   // [Col F Row 12 in Google Sheet]);
+    
+    // returned the last inserted auto increment
+    return $conn->lastInsertId();
   }
    
    
