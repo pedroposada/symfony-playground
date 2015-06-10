@@ -166,10 +166,5 @@ class RPanelController extends Controller
                                                  'CREATED_DATE' => $fq->created_date, // Now()
                                                  'CREATED_BY' => $fq->created_by));   // [UserID created by Guohui]
   }
-
-  public function createProjectDetail()
-  {
-    
-  }
   
 }
