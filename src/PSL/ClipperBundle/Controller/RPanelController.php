@@ -26,17 +26,10 @@ class RPanelController extends Controller
   /**
    * function to open a connection to the RPanel DBs
    */
-  private function getConnection($db = array())
+  private function getConnection($dbconfig = array())
   {
     $config = new \Doctrine\DBAL\Configuration();
-    $connectionParams = array(
-      'dbname' => $db['dbname'],
-      'user' => $db['user'],
-      'password' => $db['password'],
-      'host' => $db['host'],
-      'driver' => $db['driver'],
-    );
-    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+    return \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
   }
   
   /**
@@ -172,6 +165,11 @@ class RPanelController extends Controller
                                                  'LINK_URL' => $fq->link_url,         // [Link URL from LimeSurvey]
                                                  'CREATED_DATE' => $fq->created_date, // Now()
                                                  'CREATED_BY' => $fq->created_by));   // [UserID created by Guohui]
+  }
+
+  public function createProjectDetail()
+  {
+    
   }
   
 }
