@@ -23,6 +23,12 @@ class RPanelController extends Controller
   
   /**
    * function to open a connection to the RPanel DBs
+   * @param $dbconfig assoc array of database connection settings like
+   *  dbname =>   name
+   *  user =>     username
+   *  password => password
+   *  host =>     localhost
+   *  driver =>   mysql
    */
   private function getConnection($dbconfig = array())
   {
@@ -31,23 +37,11 @@ class RPanelController extends Controller
   }
   
   /**
-   * Find all agencies.
-   * 
-   * @return mixed
-   */
-  public function findAllAgencies()
-  {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
-    
-    return $conn->fetchAll('SELECT * FROM Agencies');
-  }
-  
-  /**
    * Create a feasibility project and returns it.
    * 
    * @param mixed $project - A project standard class
    * 
-   * @return A string representation of the last inserted ID.
+   * @return feasibility_project.projid.
    */
   public function createFeasibilityProject($project)
   {

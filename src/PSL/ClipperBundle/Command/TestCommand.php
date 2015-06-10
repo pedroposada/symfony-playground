@@ -33,6 +33,7 @@ class TestCommand extends ContainerAwareCommand
   protected function execute(InputInterface $input, OutputInterface $output)
   {
     $rpanel = new RPanelController($this->getContainer()->getParameter('rpanel'));
-    Debug::dump($rpanel->findAllAgencies()); 
+    // Debug::dump($rpanel->findAllAgencies());
+     
   }
 }

@@ -27,6 +27,41 @@ class FirstQProject
     
     protected $updated;
 
+    /**
+     * Get specific value from FormDataRaw array
+     * 
+     * @return mixed string|int|array
+     */
+    public function getFormDataByField($field_name) 
+    {
+      $response = array();
+      
+      $raw = $this->getFormDataRaw();
+      $unserialized = unserialize($raw);
+      if (isset($unserialized->{$field_name})) {
+        $response = (array)$unserialized->{$field_name};
+      }
+      
+      return $response;
+    }
+
+    /**
+     * Get specific value from SheetDataRaw array
+     * 
+     * @return mixed string|int|array
+     */
+    public function getSheetDataByField($field_name) 
+    {
+      $response = array();
+      
+      $raw = $this->getSheetDataRaw();
+      $unserialized = unserialize($raw);
+      if (isset($unserialized->{$field_name})) {
+        $response = (array)$unserialized->{$field_name};
+      }
+      
+      return $response;
+    }
 
     /**
      * Get id

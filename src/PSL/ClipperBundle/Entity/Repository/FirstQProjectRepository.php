@@ -45,16 +45,4 @@ class FirstQProjectRepository extends EntityRepository
     return $this->matching($criteria);
   }
   
-  public function getFormDataByField(FirstQProject $fq, $field_name) 
-  {
-    $response = array();
-    $raw = $fq->getFormDataRaw();
-    $unserialized = unserialize($raw);
-    if (isset($unserialized->{$field_name})) {
-      $response = (array)$unserialized->{$field_name};
-    }
-    
-    return $response;
-  }
-  
 }

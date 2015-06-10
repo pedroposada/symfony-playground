@@ -232,13 +232,13 @@ class ClipperController extends FOSRestController
     // Get parameters
     $parameters_ls = $this->container->getParameter('limesurvey');
     
-    $redirect = strtr($parameters_ls['redirect'], array(
+    $destination = strtr($parameters_ls['destination'], array(
       '[SID]' => $sid,
       '[LANG]' => 'en',
-      '[TOKEN]' => $slug
+      '[SLUG]' => $slug
     ));
     
-    return $this->redirect($redirect);
+    return $this->redirect($destination);
   }
 
 }

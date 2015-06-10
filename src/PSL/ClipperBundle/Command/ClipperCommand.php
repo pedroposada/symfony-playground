@@ -18,7 +18,7 @@ use Doctrine\Common\Util\Debug as Debug;
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
-use PSL\ClipperBundle\Utils\Rpanel as Rpanel;
+use PSL\ClipperBundle\Controller\RPanelController as Rpanel;
 
 class ClipperCommand extends ContainerAwareCommand
 {
@@ -48,7 +48,7 @@ class ClipperCommand extends ContainerAwareCommand
     $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
       ->findByStateNot($params['state_codes']['email_sent']);
     
-    $this->logger->info("Found [{$fqs->count()}] fq.", array('execute'));
+    $this->logger->info("Found [{$fqs->count()}] FirstQProject(s).", array('execute'));
     foreach ($fqs as $fq) {
       try {
         $this
@@ -98,6 +98,7 @@ class ClipperCommand extends ContainerAwareCommand
   }
   
   /**
+   * state == bigcommerce_pending
    * Ads BigCommerce Order Id to this FirstQProject
    */
   private function bigcommerce_pending(FirstQProject $fq)
@@ -144,6 +145,7 @@ class ClipperCommand extends ContainerAwareCommand
   }
 
   /**
+   * state == bigcommerce_complete
    * Creates LimeSurvey fo this FirstQProject
    */
   private function bigcommerce_complete(FirstQProject $fq)
@@ -203,9 +205,20 @@ class ClipperCommand extends ContainerAwareCommand
     return $fq;
   }
 
+  /**
+   * state == limesurvey_created
+   * Write data into Rpanel
+   */
+   private function limesurvey_created(FirstQProject $fq) 
+   {
+     // createlimeSurveyURL($baseURL, $sid, $num_participants);
+     $rpanel = new Rpanel();
+   }
+
 
   /**
    * Helper function to replace questions for LS Survey template 
+   * 
    * @see bigcommerce_complete
    * @param $brands array of brand names
    * @return string
@@ -251,4 +264,27 @@ XML;
     return $output;
   }
 
+  /**
+   * Helper function for LimeSurvey URLs
+   * 
+   * @param $baseURL string, base URL for limesurvey surveys, settings
+   * @param $sid int, limesurvey survey id, stored in FQ entity
+   * @param $num_participants int, stored in FormDataRaw in FQ entity
+   * @return array, list of URLs for r-panel participants
+   */
+   private function createlimeSurveyURL($baseURL, $sid, $num_participants) 
+   {
+     $urls = array();
+     
+     foreach (range(1, $num_participants) as $value) {
+      $urls[] = strtr($baseURL, array(
+        '[SID]' => $sid,
+        '[LANG]' => 'en',
+        '[SLUG]' => com_create_guid(), 
+      ));
+     }
+      
+     return $urls;
+   }
+   
 }
