@@ -24,17 +24,10 @@ class RPanelController extends Controller
   /**
    * function to open a connection to the RPanel DBs
    */
-  private function getConnection($db = array())
+  private function getConnection($dbconfig = array())
   {
     $config = new \Doctrine\DBAL\Configuration();
-    $connectionParams = array(
-      'dbname' => $db['dbname'],
-      'user' => $db['user'],
-      'password' => $db['password'],
-      'host' => $db['host'],
-      'driver' => $db['driver'],
-    );
-    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+    return \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
   }
   
   /**
@@ -111,6 +104,11 @@ class RPanelController extends Controller
                                                     'r_panel_usage' => $google_sheet->results['F14'],    // [Col F Row 14 in Google Sheet],
                                                     'r_hono_handling' => $google_sheet->results['F15'],  // [Col F Row 15 in Google Sheet],
                                                     'r_client_cur' => $google_sheet->results['F12']));   // [Col F Row 12 in Google Sheet]);
+  }
+
+  public function createProjectDetail()
+  {
+    
   }
   
 }
