@@ -47,7 +47,7 @@ class RPanelController extends Controller
    */
   public function createFeasibilityProject(FirstQProject $fq)
   {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
+    $conn = $this->getConnection($this->params['databases']['translateapi']);
     $conn->insert('feasibility_project', array('proj_name' => "FirstQ Project " . $fq->getFormDataByField('timestamp'),        // 'Name of FirstQ project'
                                                'proj_status' => 1,    // 1
                                                'created_by' => $fq->created_by, // userid
@@ -64,7 +64,7 @@ class RPanelController extends Controller
    */
   public function createFeasibilityProjectQuota(FirstQProject $fq)
   {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
+    $conn = $this->getConnection($this->params['databases']['translateapi']);
     $conn->insert('feasibility_project_quota', array('proj_id' => $fq->proj_id,                  // feasibility_project.projid,
                                                     'respondent_req' => $fq->respondant_req,     // [Number of respondents required],
                                                     'specialty_id' => $fq->specialty_id,         // [Specialty ID from MDM],
@@ -104,7 +104,7 @@ class RPanelController extends Controller
    * Creates a Feasibility project quota
    * 
    * @param FirstQProject $fq - a firstQ project object
-   * @return feasibility_project.projid.
+   * @return PROJECT.project_sk.
    */
   public function createProject(FirstQProject $fq)
   {
