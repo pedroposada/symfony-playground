@@ -8,16 +8,16 @@ namespace PSL\ClipperBundle\Utils;
  * This is a wrapper object used to transport data from RPanel action to action
  * It extends the FirstQProject because it also has all the FirstQProject properties
  */
-class RPanelFirstQProject extends FirstQProject
+class RPanelProject
 {
   
   protected $fq; // populated entitiy object
   
-  protected $proj_id; // id in rpanel database
+  protected $proj_id; // id value is based upon rpanel database row creation
   
-  protected $project_sk; // id in translateapi database 
+  protected $project_sk; // id value is based upon translateapi database row creation
   
-  protected $proj_name; // might be from the $firstQProject->form_data_raw
+  protected $proj_name;
   
   protected $specialty_id; // mapped with MDMMapping
   
@@ -31,11 +31,9 @@ class RPanelFirstQProject extends FirstQProject
   
   protected $estimate_date;
   
-  protected $google_sheet; // associative array from unserialized $firstQProject->sheet_data_raw
-  
   protected $project_type;
   
-  protected $ltid; // link type id
+  protected $ltid; // id value is based upon translateapi database row creation
   
   protected $link_url;
   
@@ -118,7 +116,7 @@ class RPanelFirstQProject extends FirstQProject
    *
    * @return string
    */
-  public function getProjectSK()
+  public function getProjectName()
   {
       return $this->proj_name;
   }
@@ -231,24 +229,6 @@ class RPanelFirstQProject extends FirstQProject
       return $this->estimate_date;
   }
   
-  /**
-   * Set google_sheet
-   */
-  public function setGoogleSheet($gs)
-  {
-      $this->google_sheet = $gs;
-  }
-
-  /**
-   * Get google_sheet
-   *
-   * @return associative array
-   */
-  public function getGoogleSheet()
-  {
-      return $this->google_sheet;
-  }
-
   /**
    * Set project_type
    */
