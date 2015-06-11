@@ -48,19 +48,21 @@ class ClipperCommand extends ContainerAwareCommand
     $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
       ->findByStateNot($params['state_codes']['email_sent']);
     
-    $this->logger->info("Found [{$fqs->count()}] FirstQProject(s).", array('execute'));
+    $this->logger->info("Found [{$fqs->count()}] FirstQProject(s) for processing.", array('execute'));
     foreach ($fqs as $fq) {
       try {
+        
         $this
+          // process states
           ->process($fq, 'bigcommerce_pending')
           ->process($fq, 'bigcommerce_complete')
-          // ->process($fq, 'limesurvey_created')
-          // ->process($fq, 'rpanel_complete')
-          // ->process($fq, 'limesurvey_complete') // 
+          ->process($fq, 'limesurvey_created')
+          ->process($fq, 'rpanel_complete')
+          ->process($fq, 'limesurvey_complete') // next state will be "email_sent"
           ;
         
         // feedback if all is good
-        $this->logger->info('OK', array('fq.id' => $fq->getId()));
+        $this->logger->info("OK processing FirstQProject with id: [{$fq->getId()}]");
       }
       catch (\Exception $e) {
         $debug = new stdClass();
@@ -212,7 +214,27 @@ class ClipperCommand extends ContainerAwareCommand
    private function limesurvey_created(FirstQProject $fq) 
    {
      // createlimeSurveyURL($baseURL, $sid, $num_participants);
-     $rpanel = new Rpanel();
+     return $fq;
+   }
+
+  /**
+   * state == rpanel_complete
+   * Check if we have reached quota with num_participants in limesurvey
+   */
+   private function rpanel_complete(FirstQProject $fq) 
+   {
+     
+     return $fq;
+   }
+
+  /**
+   * state == limesurvey_complete
+   * Get results from limesurvey and send email with them as csv
+   */
+   private function limesurvey_complete(FirstQProject $fq) 
+   {
+     
+     return $fq;
    }
 
 
