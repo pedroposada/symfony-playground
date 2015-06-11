@@ -203,13 +203,39 @@ class ClipperCommand extends ContainerAwareCommand
       throw new Exception("Could not activate survey for fq->id: [{$fq->getId()}]");
     }
     
-    // save sid
+    // activate tokens
+    $response = $ls->activate_tokens(array(
+      'iSurveyID' => $iSurveyID, 
+    ));
+    if (!isset($response['status']) || $response['status'] != 'OK') {
+      throw new Exception("Could not activate survey tokens for fq->id: [{$fq->getId()}]");
+    }
+    
+    // add participants
     $num_participants = current($fq->getFormDataByField('num_participants'));
-    $ls_data = array(
+    $participants = array();
+    foreach (range(1, $num_participants) as $value) {
+      $participants[] = array(
+        'email' => "fq{$value}@pslgroup.com",
+        'lastname' => "fq{$value}",
+        'firstname' => "fq{$value}",
+      );
+    }
+    $response = $ls->add_participants(array(
+      'iSurveyID' => $iSurveyID, 
+      'participantData' => $participants, 
+    ));
+    if (isset($response['status'])) {
+      throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+    }
+    
+    // save limesurvey raw data
+    $ls_raw_data = array(
+      'participants' => $response,
       'sid' => $iSurveyID, 
-      'urls' => $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $num_participants),   
+      'urls' => $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $response),   
     );
-    $fq->setLimesurveyDataRaw(serialize($ls_data));
+    $fq->setLimesurveyDataRaw(serialize($ls_raw_data));
     
     return $fq;
   }
@@ -345,16 +371,16 @@ XML;
    * @param $num_participants int, stored in FormDataRaw in FQ entity
    * @return array, list of URLs for r-panel participants
    */
-   private function createlimeSurveyParticipantsURLs($baseURL, $sid, $num_participants) 
+   private function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants) 
    {
      $urls = array();
      
-     foreach (range(1, $num_participants) as $value) {
+     foreach ($participants as $participant) {
       $uuid4 = Uuid::uuid4();
       $urls[] = strtr($baseURL, array(
         '[SID]' => $sid,
         '[LANG]' => 'en',
-        '[SLUG]' => $uuid4->toString(), 
+        '[SLUG]' => $participants['token'], 
       ));
      }
       

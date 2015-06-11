@@ -113,6 +113,73 @@ class LimeSurvey
     return $this->call('activate_survey', $param_arr);
   }
   
+  /**
+  * RPC routine to to initialise the survey's collection of tokens where new participant tokens may be later added
+  */
+  public function activate_tokens($args = array()) 
+  {
+    /**
+     * @access public
+     * @param string $sSessionKey Auth credentials
+     * @param integer $iSurveyID ID of the survey where a token table will be created for
+     * @param array $aAttributeFields An array of integer describing any additional attribute fields
+     * @return array Status=>OK when successfull, otherwise the error description
+     */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'additional_attributes' => array(), 
+    ), $args);
+    
+    return $this->call('activate_tokens', $param_arr);
+  }
+  
+  
+  /**
+  * RPC Routine to add participants to the tokens collection of the survey.
+  * Returns the inserted data including additional new information like the Token entry ID and the token string.
+  */
+  // SAMPLE RESPONSE, array of arrays
+  // 0 => 
+  // array (size=17)
+    // 'sent' => string 'N' (length=1)
+    // 'remindersent' => string 'N' (length=1)
+    // 'remindercount' => int 0
+    // 'completed' => string 'N' (length=1)
+    // 'usesleft' => int 1
+    // 'email' => string 'fq1@pslgroup.com' (length=16)
+    // 'lastname' => string 'fq1' (length=3)
+    // 'firstname' => string 'fq1' (length=3)
+    // 'token' => string 'xfeyad3sr65qmrf' (length=15)
+    // 'tid' => string '5' (length=1)
+    // 'participant_id' => null
+    // 'emailstatus' => null
+    // 'language' => null
+    // 'blacklisted' => null
+    // 'validfrom' => null
+    // 'validuntil' => null
+    // 'mpid' => null
+  public function add_participants($args = array())
+  {
+    /**
+    * @param string $sSessionKey Auth credentials
+    * @param int $iSurveyID Id of the Survey
+    * @param struct $aParticipantData 
+    *   Data of the participants to be added, 
+    *   2-dimensional array/structure containing your participants data, Example: 
+    *   [ {"email":"me@example.com","lastname":"Bond","firstname":"James"} ]
+    * @param bool createTokenKey Optional - Defaults to true and determins if the access token automatically created
+    * @return array The values added
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'participantData' => array(), 
+      'createTokenKey' => TRUE, 
+    ), $args);
+    
+    return $this->call('add_participants', $param_arr);
+  }
   
   /**
   * RPC Routine to export responses.
