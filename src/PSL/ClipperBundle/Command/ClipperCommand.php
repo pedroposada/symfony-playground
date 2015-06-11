@@ -237,7 +237,6 @@ class ClipperCommand extends ContainerAwareCommand
      $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
      $rpanel_project->setProjectType('jit');
      $rpanel_project->setLinkType('full');
-     $rpanel_project->setLinkUrl(); // ??
      
      $rpc = new RPanelController();
      $rpc->setContainer($this->container);

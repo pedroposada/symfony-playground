@@ -6,7 +6,7 @@ namespace PSL\ClipperBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-use PSL\ClipperBundle\Entity\RPanelProject as RPanelProject;
+use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 
 use \Exception as Exception;
 use \stdClass as stdClass;
@@ -183,10 +183,12 @@ class RPanelController extends Controller
   public function feasibilityLinkFullUrl(RPanelProject $rp)
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
-    $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),                        // feasibility_link_type.ltid
-                                                 'LINK_URL' => $rp->getLimesurveyDataByField('urls'), // [Link URL from LimeSurvey]
+    foreach ($rp->getLimesurveyDataByField('urls') as $url) {
+      $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),                      // feasibility_link_type.ltid
+                                                 'LINK_URL' => $url,                                  // [Link URL from LimeSurvey]
                                                  'CREATED_DATE' => $rp->getCreatedDate(),             // Now()
                                                  'CREATED_BY' => $rp->getCreatedBy()));               // [UserID created by Guohui]
+    }
   }
   
 }
