@@ -11,7 +11,7 @@ namespace PSL\ClipperBundle\Utils;
 class RPanelProject
 {
   
-  protected $fq; // populated entitiy object
+  protected $fq; // entitiy object
   
   protected $proj_id; // id value is based upon rpanel database row creation
   
