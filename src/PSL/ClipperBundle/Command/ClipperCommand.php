@@ -136,13 +136,11 @@ class ClipperCommand extends ContainerAwareCommand
         $fq->setBcOrderId($pids[$fq->getBcProductId()]);
         $this->logger->info("Found BcProductId: [{$pids[$fq->getBcProductId()]}] for fq->id: [{$fq->getId()}]");
       }
-      else {
-        throw new Exception("No completed order found for fq->id: [{$fq->getId()}] with prodcut id: [{$fq->getBcProductId()}]");
-      }
     }
     else {
       $this->logger
         ->debug("No Completed Order(s) found with status code [{$params['order_status_code_completed']}] in BigCommerce.", array('bigcommerce_pending'));
+      throw new Exception("No completed order found for fq->id: [{$fq->getId()}] with prodcut id: [{$fq->getBcProductId()}]");
     }
 
     return $fq;
@@ -204,9 +202,10 @@ class ClipperCommand extends ContainerAwareCommand
     }
     
     // save sid
+    $num_participants = current($fq->getFormDataByField('num_participants'));
     $ls_data = array(
       'sid' => $iSurveyID, 
-      'urls' => $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $fq->getFormDataByField('num_participants')),   
+      'urls' => $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $num_participants),   
     );
     $fq->setLimesurveyDataRaw(serialize($ls_data));
     
@@ -229,7 +228,7 @@ class ClipperCommand extends ContainerAwareCommand
    */
    private function rpanel_complete(FirstQProject $fq) 
    {
-     
+     throw new Exception("No data for fq->id: [{$fq->getId()}] " . __FUNCTION__);
      return $fq;
    }
 
@@ -239,7 +238,7 @@ class ClipperCommand extends ContainerAwareCommand
    */
    private function limesurvey_complete(FirstQProject $fq) 
    {
-     
+     throw new Exception("No data for fq->id: [{$fq->getId()}] " . __FUNCTION__);
      return $fq;
    }
 
