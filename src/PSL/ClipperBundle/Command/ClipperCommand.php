@@ -20,7 +20,7 @@ use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
-use PSL\ClipperBundle\Controller\RPanelController as Rpanel;
+use PSL\ClipperBundle\Controller\RPanelController as RPanelController;
 use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
 
@@ -239,7 +239,7 @@ class ClipperCommand extends ContainerAwareCommand
      $rpanel_project->setLinkType('full');
      $rpanel_project->setLinkUrl(); // ??
      
-     $rpc = New RPanelController();
+     $rpc = new RPanelController();
      $rpc->setContainer($this->container);
      
      // Create Feasibility Project and set the project id
