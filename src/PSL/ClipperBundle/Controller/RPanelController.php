@@ -183,10 +183,10 @@ class RPanelController extends Controller
   public function feasibilityLinkFullUrl(RPanelProject $rp)
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
-    $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),            // feasibility_link_type.ltid
-                                                 'LINK_URL' => $rp->getLinkUrl(),         // [Link URL from LimeSurvey]
-                                                 'CREATED_DATE' => $rp->getCreatedDate(), // Now()
-                                                 'CREATED_BY' => $rp->getCreatedBy()));   // [UserID created by Guohui]
+    $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),                        // feasibility_link_type.ltid
+                                                 'LINK_URL' => $rp->getLimesurveyDataByField('urls'), // [Link URL from LimeSurvey]
+                                                 'CREATED_DATE' => $rp->getCreatedDate(),             // Now()
+                                                 'CREATED_BY' => $rp->getCreatedBy()));               // [UserID created by Guohui]
   }
   
 }
