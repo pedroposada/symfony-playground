@@ -11,6 +11,8 @@ namespace PSL\ClipperBundle\Utils;
 class RPanelFirstQProject extends FirstQProject
 {
   
+  protected $fq; // populated entitiy object
+  
   protected $proj_id; // id in rpanel database
   
   protected $project_sk; // id in translateapi database 
@@ -57,9 +59,14 @@ class RPanelFirstQProject extends FirstQProject
   // link_type ('full')
   
   
-  function __construct() 
+  function __construct(FirstQProject $fq) 
   {
-    
+    $this->fq = $fq;
+  }
+  
+  function __call($callback, $param_arr)
+  {
+    call_user_func_array(array($this->fq, $callback), $param_arr);
   }
   
   /**
