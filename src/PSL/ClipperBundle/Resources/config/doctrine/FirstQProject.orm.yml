@@ -27,16 +27,16 @@ PSL\ClipperBundle\Entity\FirstQProject:
     form_data_raw:
       type: text
       options:
-        comment: result of the form submission, as json or as associative array
+        comment: result of the form submission, as json or as associative array serialized
     sheet_data_raw:
       type: text
       options:
-        comment: result of the Google Spreadsheet as json or as associative array
-    limesurvey_sid:
-      type: integer
+        comment: result of the Google Spreadsheet as json or as associative array serialized
+    limesurvey_data_raw:
+      type: text
       nullable: true
       options:
-        comment: LimeSurvey survey id
+        comment: LimeSurvey raw data as associative array serialized
     state:
       type: string
       length: 100

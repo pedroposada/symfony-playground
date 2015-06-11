@@ -14,6 +14,8 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\LockHandler;
 use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
+use Rhumsaa\Uuid\Uuid;
+use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
@@ -148,7 +150,7 @@ class ClipperCommand extends ContainerAwareCommand
 
   /**
    * state == bigcommerce_complete
-   * Creates LimeSurvey fo this FirstQProject
+   * Creates LimeSurvey Survey fo this FirstQProject
    */
   private function bigcommerce_complete(FirstQProject $fq)
   {
@@ -202,7 +204,11 @@ class ClipperCommand extends ContainerAwareCommand
     }
     
     // save sid
-    $fq->setLimesurveySid($iSurveyID);
+    $ls_data = array(
+      'sid' => $iSurveyID, 
+      'urls' => $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $fq->getFormDataByField('num_participants')),   
+    );
+    $fq->setLimesurveyDataRaw(serialize($ls_data));
     
     return $fq;
   }
@@ -294,15 +300,16 @@ XML;
    * @param $num_participants int, stored in FormDataRaw in FQ entity
    * @return array, list of URLs for r-panel participants
    */
-   private function createlimeSurveyURL($baseURL, $sid, $num_participants) 
+   private function createlimeSurveyParticipantsURLs($baseURL, $sid, $num_participants) 
    {
      $urls = array();
      
      foreach (range(1, $num_participants) as $value) {
+      $uuid4 = Uuid::uuid4();
       $urls[] = strtr($baseURL, array(
         '[SID]' => $sid,
         '[LANG]' => 'en',
-        '[SLUG]' => com_create_guid(), 
+        '[SLUG]' => $uuid4->toString(), 
       ));
      }
       

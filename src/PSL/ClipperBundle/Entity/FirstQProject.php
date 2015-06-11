@@ -19,7 +19,7 @@ class FirstQProject
 
     protected $sheet_data_raw;
     
-    protected $limesurvey_sid;
+    protected $limesurvey_data_raw;
 
     protected $state;
     
@@ -55,6 +55,24 @@ class FirstQProject
       $response = array();
       
       $raw = $this->getSheetDataRaw();
+      $unserialized = unserialize($raw);
+      if (isset($unserialized->{$field_name})) {
+        $response = (array)$unserialized->{$field_name};
+      }
+      
+      return $response;
+    }
+
+    /**
+     * Get specific value from SheetDataRaw array
+     * 
+     * @return mixed string|int|array
+     */
+    public function getLimesurveyDataByField($field_name) 
+    {
+      $response = array();
+      
+      $raw = $this->getLimesurveyDataRaw($field_name);
       $unserialized = unserialize($raw);
       if (isset($unserialized->{$field_name})) {
         $response = (array)$unserialized->{$field_name};
@@ -253,25 +271,25 @@ class FirstQProject
     }
 
     /**
-     * Set limesurvey_sid
+     * Set limesurvey_data_raw
      *
-     * @param integer $limesurveySid
+     * @param string $limesurveyDataRaw
      * @return FirstQProject
      */
-    public function setLimesurveySid($limesurveySid)
+    public function setLimesurveyDataRaw($limesurveyDataRaw)
     {
-        $this->limesurvey_sid = $limesurveySid;
+        $this->limesurvey_data_raw = $limesurveyDataRaw;
 
         return $this;
     }
 
     /**
-     * Get limesurvey_sid
+     * Get limesurvey_data_raw
      *
-     * @return integer 
+     * @return string 
      */
-    public function getLimesurveySid()
+    public function getLimesurveyDataRaw()
     {
-        return $this->limesurvey_sid;
+        return $this->limesurvey_data_raw;
     }
 }

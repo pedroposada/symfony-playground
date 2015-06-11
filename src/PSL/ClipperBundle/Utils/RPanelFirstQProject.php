@@ -11,7 +11,7 @@ namespace PSL\ClipperBundle\Utils;
 class RPanelFirstQProject extends FirstQProject
 {
   
-  protected $fq; // populated entitiy object
+  protected $fq; // entitiy object
   
   protected $proj_id; // id in rpanel database
   
