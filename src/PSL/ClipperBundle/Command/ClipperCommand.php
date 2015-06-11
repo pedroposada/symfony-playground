@@ -21,6 +21,8 @@ use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Controller\RPanelController as Rpanel;
+use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
+use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
 
 class ClipperCommand extends ContainerAwareCommand
 {
@@ -215,10 +217,55 @@ class ClipperCommand extends ContainerAwareCommand
   /**
    * state == limesurvey_created
    * Write data into Rpanel
+   * 
+   * This step inserts data into a remote database
+   * The RPanel Project object is used to keep all data from step to step 
    */
    private function limesurvey_created(FirstQProject $fq) 
    {
-     // createlimeSurveyURL($baseURL, $sid, $num_participants);
+     // set up the RPanel Project object
+     // and add other values
+     $rpanel_project = new RPanelProject($fq);
+     $rpanel_project->setProjName('FirstQ Project ' . $rp->getFormDataByField('timestamp'));
+     $rpanel_project->setCreatedBy('7777');
+     $rpanel_project->setSpecialtyId(MDMMapping::map('specialty', $fq->getFormDataByField('specialty')));
+     $rpanel_project->setCountryId(MDMMapping::map('country', $fq->getFormDataByField('market')));
+     $rpanel_project->setIncidenceRate(100);
+     $rpanel_project->setLength(5);
+     $rpanel_project->setFieldDuration(1);
+     $rpanel_project->setEstimateDate(date('Y-m-d H:i:s'));
+     $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
+     $rpanel_project->setProjectType('jit');
+     $rpanel_project->setLinkType('full');
+     $rpanel_project->setLinkUrl(); // ??
+     
+     $rpc = New RPanelController();
+     $rpc->setContainer($this->container);
+     
+     // Create Feasibility Project and set the project id
+     $proj_id = $rpc->createFeasibilityProject($rpanel_project); // returns feasibility_project.projid
+     $rpanel_project->setProjId($proj_id);
+     
+     // Create Feasibility Project Quota
+     $rpc->createFeasibilityProjectQuota($rpanel_project);
+     
+     // Update Feasibility Project
+     $rpc->updateFeasibilityProject($rpanel_project);
+     
+     // Create Project and insert project_sk
+     $project_sk = $rpc->createProject($rpanel_project); // returns PROJECT.project_sk
+     $rpanel_project->setProjectSK($project_sk);
+     
+     // Create Project Detail
+     $rpc->createProjectDetail($rpanel_project);
+     
+     // Create Feasibility Link Type and insert LTId
+     $ltid = $rpc->feasibilityLinkType($rpanel_project); // returns feasibility_link_type.ltid
+     $rpanel_project->setLTId($ltid);
+     
+     // Create Feasibility Full Url
+     $rpc->feasibilityLinkFullUrl($rpanel_project);
+     
      return $fq;
    }
 
