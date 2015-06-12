@@ -1,8 +1,9 @@
 <?php
 
-use  PSL\ClipperBundle\Entity;
-
 namespace PSL\ClipperBundle\Utils;
+
+use  PSL\ClipperBundle\Entity\FirstQProject;
+
 
 /**
  * This is a wrapper object used to transport data from RPanel action to action
@@ -29,6 +30,8 @@ class RPanelProject
   
   protected $field_duration;
   
+  protected $google_sheet;
+  
   protected $estimate_date;
   
   protected $project_type;
@@ -36,6 +39,8 @@ class RPanelProject
   protected $ltid; // id value is based upon translateapi database row creation
   
   protected $link_url;
+  
+  protected $link_type;
   
   protected $created_by;
   
@@ -54,7 +59,6 @@ class RPanelProject
   // brand_id (1)
   // interview_length (LoI, FormData),
   // email_template_id (0)
-  // link_type ('full')
   
   
   function __construct(FirstQProject $fq) 
@@ -64,7 +68,7 @@ class RPanelProject
   
   function __call($callback, $param_arr)
   {
-    call_user_func_array(array($this->fq, $callback), $param_arr);
+    return call_user_func_array(array($this->fq, $callback), $param_arr);
   }
   
   /**
@@ -108,7 +112,7 @@ class RPanelProject
    */
   public function setProjName($name)
   {
-      $this->project_sk = $name;
+      $this->proj_name = $name;
   }
 
   /**
@@ -212,6 +216,24 @@ class RPanelProject
   }
   
   /**
+   * Set num_participants
+   */
+  public function setNumParticipants($num)
+  {
+      $this->num_participants = $num;
+  }
+
+  /**
+   * Get num_participants
+   *
+   * @return int
+   */
+  public function getNumParticipants()
+  {
+      return $this->num_participants;
+  }
+  
+  /**
    * Set estimate_date
    */
   public function setEstimateDate($date)
@@ -281,6 +303,24 @@ class RPanelProject
   public function getLinkUrl()
   {
       return $this->link_url;
+  }
+  
+  /**
+   * Set link_type
+   */
+  public function setLinkType($type)
+  {
+      $this->link_type = $type;
+  }
+
+  /**
+   * Get link_type
+   *
+   * @return string
+   */
+  public function getLinkType()
+  {
+      return $this->link_type;
   }
   
   /**

@@ -221,32 +221,48 @@ class ClipperCommand extends ContainerAwareCommand
    * This step inserts data into a remote database
    * The RPanel Project object is used to keep all data from step to step 
    */
-   private function limesurvey_created(FirstQProject $fq) 
+   private function limesurvey_created(FirstQProject $fq)
    {
+     // database parameters
+     $params_rp = $this->getContainer()->getParameter('rpanel');
+     
      // set up the RPanel Project object
      // and add other values
      $rpanel_project = new RPanelProject($fq);
-     $rpanel_project->setProjName('FirstQ Project ' . $rp->getFormDataByField('timestamp'));
+     $timestamp = $fq->getFormDataByField('timestamp');
+     $rpanel_project->setProjName('FirstQ Project ' . (string)$timestamp[0]);
      $rpanel_project->setCreatedBy('7777');
-     $rpanel_project->setSpecialtyId(MDMMapping::map('specialty', $fq->getFormDataByField('specialty')));
-     $rpanel_project->setCountryId(MDMMapping::map('country', $fq->getFormDataByField('market')));
+     $specialtyId = $fq->getFormDataByField('specialty');
+     $rpanel_project->setSpecialtyId(MDMMapping::map('specialties', (string)$specialtyId[0]));
+     // $countryId = $fq->getFormDataByField('market');
+     // $rpanel_project->setCountryId(MDMMapping::map('countries', (string)$countryId[0]));
+     $rpanel_project->setCountryId(10); // @TODO: this is a hard coded value up until we get the proper mapping
      $rpanel_project->setIncidenceRate(100);
      $rpanel_project->setLength(5);
      $rpanel_project->setFieldDuration(1);
+     $num_participants = $fq->getFormDataByField('num_participants');
+     $rpanel_project->setNumParticipants((int)$num_participants[0]);
      $rpanel_project->setEstimateDate(date('Y-m-d H:i:s'));
      $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
      $rpanel_project->setProjectType('jit');
      $rpanel_project->setLinkType('full');
      
-     $rpc = new RPanelController();
-     $rpc->setContainer($this->container);
+     $gs_result = $rpanel_project->getSheetDataByField('result');
+     foreach ($gs_result as $key => &$value) {
+      $search = array('$', ',');
+      $value = str_replace($search, "", $value);
+     }
+     
+     // Setup RPanel Controller
+     $rpc = new RPanelController($params_rp);
+     $rpc->setContainer($this->getContainer());
      
      // Create Feasibility Project and set the project id
      $proj_id = $rpc->createFeasibilityProject($rpanel_project); // returns feasibility_project.projid
      $rpanel_project->setProjId($proj_id);
      
      // Create Feasibility Project Quota
-     $rpc->createFeasibilityProjectQuota($rpanel_project);
+     $rpc->createFeasibilityProjectQuota($rpanel_project, $gs_result);
      
      // Update Feasibility Project
      $rpc->updateFeasibilityProject($rpanel_project);
