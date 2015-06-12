@@ -61,7 +61,7 @@ class ClipperCommand extends ContainerAwareCommand
           // process states
           ->process($fq, 'bigcommerce_pending')
           ->process($fq, 'bigcommerce_complete')
-          ->process($fq, 'limesurvey_created')
+          // ->process($fq, 'limesurvey_created')
           ->process($fq, 'rpanel_complete')
           ->process($fq, 'limesurvey_complete') // next state will be "email_sent"
           ;
@@ -305,22 +305,23 @@ class ClipperCommand extends ContainerAwareCommand
       
       $participants = array();
       foreach ($fq->getLimesurveyDataByField('participants') as $participant) {
-        $response = $ls->get_participant_properties(array(
+        $request = array(
           'iSurveyID' => $fq->getLimesurveyDataByField('sid'), 
           'iTokenID' => $participant['tid'], 
           'aTokenProperties' => array('completed'), // The properties to get
-        ));
+        );
+        $response = $ls->get_participant_properties($request);
         if (isset($response['status'])) {
-          throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+          throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_participant_properties]");
           break;
         }
         if (current($response) == 'N') {
-          throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}]");
+          throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
           break;
         }
       }
       
-      // if we get here then deactivate survey
+      // if we get this far then deactivate survey
       $response = $ls->set_survey_properties(array(
         'iSurveyID' => $fq->getLimesurveyDataByField('sid'), 
         'aSurveyData' => array(
@@ -328,7 +329,7 @@ class ClipperCommand extends ContainerAwareCommand
         ), 
       ));
       if (isset($response['status'])) {
-        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
       }
      
       return $fq;
@@ -338,22 +339,30 @@ class ClipperCommand extends ContainerAwareCommand
    * state == limesurvey_complete
    * Get results from limesurvey and send email with csv
    */
-   private function limesurvey_complete(FirstQProject $fq) 
+   public function limesurvey_complete(FirstQProject $fq) 
    {
      // config connection to LS
      $params_ls = $this->getContainer()->getParameter('limesurvey');
      $ls = new LimeSurvey();
      $ls->configure($params_ls['api']);
      // get lime survey results
+     $response = $ls->export_responses(array(
+       'iSurveyID' => $fq->getLimesurveyDataByField('sid'),
+     ));
+     if (isset($response['status'])) {
+       throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+     }
      
-     
-     // send email
+     // if we get this far then send email
+     $csv = base64_decode($response);
      $params_clip = $this->getContainer()->getParameter('clipper');
      $message = \Swift_Message::newInstance()
         ->setSubject($params_clip['email_ls_results']['subject'])
         ->setFrom($params_clip['email_ls_results']['from'])
         ->setTo($params_clip['email_ls_results']['to'])
-        ->setBody($params_clip['email_ls_results']['body']);
+        ->setBody($params_clip['email_ls_results']['body'])
+        ->attach(\Swift_Attachment($csv))
+        ;
      $this->getContainer()->get('mailer')->send($message);
      
      return $fq;
@@ -416,7 +425,7 @@ XML;
    * @param $num_participants int, stored in FormDataRaw in FQ entity
    * @return array, list of URLs for r-panel participants
    */
-   private function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants) 
+   public function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants) 
    {
      $urls = array();
      
@@ -424,7 +433,7 @@ XML;
       $urls[] = strtr($baseURL, array(
         '[SID]' => $sid,
         '[LANG]' => 'en',
-        '[SLUG]' => $participants['token'], 
+        '[SLUG]' => $participant['token'], 
       ));
      }
       

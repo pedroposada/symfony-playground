@@ -37,7 +37,8 @@
         "gedmo/doctrine-extensions": "dev-master",
         "nelmio/cors-bundle": "~1.0",
         "symfony/finder": "^2.7",
-        "ramsey/uuid": "~2.8"
+        "ramsey/uuid": "~2.8",
+        "symfony/var-dumper": "^2.7"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

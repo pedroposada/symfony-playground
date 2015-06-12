@@ -41,10 +41,9 @@ class TestCommand extends ContainerAwareCommand
     
     
     // get LS settings
-    $params_ls = $this->getContainer()->getParameter('limesurvey');
-    
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // $params_ls = $this->getContainer()->getParameter('limesurvey');
+    // $ls = new LimeSurvey();
+    // $ls->configure($params_ls['api']);
     
     // // activate tokens
     // $response = $ls->activate_tokens(array(
@@ -64,13 +63,22 @@ class TestCommand extends ContainerAwareCommand
       // 'iSurveyID' => 723936, 
       // 'participantData' => $participants, 
     // ));
-    $response = $ls->get_participant_properties(array(
-      'iSurveyID' => 723936, 
-      'iTokenID' => 5, 
-      'aTokenProperties' => array('completed', 'token'), // The properties to get
-    ));
+    // $response = $ls->get_participant_properties(array(
+      // 'iSurveyID' => 723936, 
+      // 'iTokenID' => 5, 
+      // 'aTokenProperties' => array('completed', 'token'), // The properties to get
+    // ));
+    // list_participants
+    // $participants = $ls->list_participants(array(
+      // 'iSurveyID' => 723936,
+    // ));
+    // $cc = new \PSL\ClipperBundle\Command\ClipperCommand();
+    // $ls_raw_data = new stdClass();
+    // $ls_raw_data->participants = $participants;
+    // $ls_raw_data->sid = 723936; 
+    // $ls_raw_data->urls = $cc->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], 723936, $participants);
     
-    Debug::dump($response);
+    echo serialize($ls_raw_data);
     
   }
 }

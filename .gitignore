@@ -10,3 +10,4 @@
 /vendor/
 /web/bundles/
 .DS_Storeapp/config/parameters.yml
+src/PSL/ClipperBundle/Command/TestCommand.php

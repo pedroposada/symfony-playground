@@ -72,6 +72,14 @@ class LimeSurvey
   }
   
   /**
+   * @return $this as strings
+   */
+   public function __toString()
+   {
+     return print_r($this, 1);
+   }
+  
+  /**
   * RPC Routine to import a survey - imports lss,csv,xls or survey zip archive.
   */
   public function import_survey($args = array()) 
@@ -288,6 +296,33 @@ class LimeSurvey
       'sSessionKey' => $this->session_key,
       'iSurveyID' => null, 
       'aSurveyData' => array(), 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
+  
+  /**
+  * RPC Routine to return the ids and info of token/participants of a survey.
+  * if $bUnused is true, user will get the list of not completed tokens (token_return functionality).
+  * Parameters iStart and ilimit are used to limit the number of results of this call.
+  */
+  public function list_participants($args = array()) 
+  {
+    /**
+    * @access public
+    * @param string $sSessionKey Auth credentials
+    * @param int $iSurveyID Id of the survey to list participants
+    * @param int $iStart Start id of the token list
+    * @param int $iLimit Number of participants to return
+    * @param bool $bUnused If you want unused tokensm, set true
+    * @return array The list of tokens
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'iStart' => null, 
+      'iLimit' => null, 
+      'bUnused' => true, 
     ), $args);
     
     return $this->call(__FUNCTION__, $param_arr);
