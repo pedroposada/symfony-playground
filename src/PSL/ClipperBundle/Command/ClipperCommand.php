@@ -280,7 +280,7 @@ class ClipperCommand extends ContainerAwareCommand
      $rpc->setContainer($this->getContainer());
      
      // Create Feasibility Project and set the project id
-     $proj_id = $rpc->createFeasibilityProject($rpanel_project); // returns feasibility_project.projid
+     $proj_id = $rpc->createFeasibilityProject($rpanel_project);
      $rpanel_project->setProjId($proj_id);
      
      // Create Feasibility Project Quota
@@ -290,14 +290,14 @@ class ClipperCommand extends ContainerAwareCommand
      $rpc->updateFeasibilityProject($rpanel_project);
      
      // Create Project and insert project_sk
-     $project_sk = $rpc->createProject($rpanel_project); // returns PROJECT.project_sk
+     $project_sk = $rpc->createProject($rpanel_project);
      $rpanel_project->setProjectSK($project_sk);
      
      // Create Project Detail
-     $rpc->createProjectDetail($rpanel_project);
+     $rpc->createProjectDetail($rpanel_project, $gs_result);
      
      // Create Feasibility Link Type and insert LTId
-     $ltid = $rpc->feasibilityLinkType($rpanel_project); // returns feasibility_link_type.ltid
+     $ltid = $rpc->feasibilityLinkType($rpanel_project);
      $rpanel_project->setLTId($ltid);
      
      // Create Feasibility Full Url

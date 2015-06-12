@@ -67,7 +67,7 @@ class RPanelController extends Controller
   {
     $conn = $this->getConnection($this->params['databases']['translateapi']);
     $conn->insert('feasibility_project_quota', array('proj_id' => $rp->getProjId(),              // feasibility_project.projid,
-                                                    'respondent_req' => $rp->getNumParticipants(),     // [Number of respondents required],
+                                                    'respondent_req' => $rp->getNumParticipants(), // [Number of respondents required],
                                                     'specialty_id' => $rp->getSpecialtyId(),     // [Specialty ID from MDM],
                                                     'country' => $rp->getCountryId(),            // [Country ID from MDM],
                                                     'incidence_rate' => $rp->getIncidenceRate(), // [Incidence Rate, ask Claire, might be 100],
@@ -123,9 +123,9 @@ class RPanelController extends Controller
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
     $conn->insert('PROJECT', array('project_code' => $rp->getProjId(),       // feasibility_project.projid
-                                  'client_id' => $rp->getCreatedBy(),         // [ClientID provided by Guohui]
+                                  'client_id' => $rp->getCreatedBy(),        // [ClientID provided by Guohui]
                                   'status_id' => 1,                          // 1
-                                  'pm_details' => $rp->getProjectName(),            // feasibility_project.proj_name
+                                  'pm_details' => $rp->getProjectName(),     // feasibility_project.proj_name
                                   'brand_id' => 1,                           // 1
                                   'project_type' => $rp->getProjectType())); // 'jit'
     
@@ -142,15 +142,15 @@ class RPanelController extends Controller
   public function createProjectDetail(RPanelProject $rp, $gs_result)
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
-    $conn->insert('PROJECT_DETAIL', array('project_sk' => $rp->getProjectSK(),                      // PROJECT.project_sk,
-                                          'specialty_id' => $rp->getSpecialtyId(),                  // feasibility_project_quota.specialty_id,
-                                          'country_id' => $rp->getCountryId(),                      // feasibility_project_quota.country,
-                                          'hono_amount' => (int)$gs_result['F26'],                  // feasibility_project_quota.r_hono_offer,
-                                          'hono_currency' => $gs_result['F27'],                     // feasibility_project_quota.r_hono_cur,
-                                          'interview_length' => $rp->getLength(),                   // feasibility_project_quota.length,
-                                          'email_template_id' => 0,                                 // 0,
-                                          'sample_invites' => $gs_result['F8'],                     // feasibility_project_quota.r_sample,
-                                          'quota' => $rp->getNumParticipants())); // feasibility_project_quota.respondent_req
+    $conn->insert('PROJECT_DETAIL', array('project_sk' => $rp->getProjectSK(),     // PROJECT.project_sk,
+                                          'specialty_id' => $rp->getSpecialtyId(), // feasibility_project_quota.specialty_id,
+                                          'country_id' => $rp->getCountryId(),     // feasibility_project_quota.country,
+                                          'hono_amount' => (int)$gs_result['F26'], // feasibility_project_quota.r_hono_offer,
+                                          'hono_currency' => $gs_result['F27'],    // feasibility_project_quota.r_hono_cur,
+                                          'interview_length' => $rp->getLength(),  // feasibility_project_quota.length,
+                                          'email_template_id' => 0,                // 0,
+                                          'sample_invites' => $gs_result['F8'],    // feasibility_project_quota.r_sample,
+                                          'quota' => $rp->getNumParticipants()));  // feasibility_project_quota.respondent_req
     
   }
   
@@ -164,10 +164,10 @@ class RPanelController extends Controller
   public function feasibilityLinkType(RPanelProject $rp)
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
-    $conn->insert('feasibility_link_type', array('proj_id' => $rp->getProjId(),          // feasibility_project.projid
+    $conn->insert('feasibility_link_type', array('proj_id' => $rp->getProjId(),             // feasibility_project.projid
                                                  'quote_id' => $rp->getProjectSK(),         // PROJECT.project_sk
                                                  'link_type' => $rp->getLinkType(),         // 'full'
-                                                 'created_by' => $rp->getCreatedBy(),        // [UserID created by Guohui]
+                                                 'created_by' => $rp->getCreatedBy(),       // [UserID created by Guohui]
                                                  'created_date' => $rp->getCreatedDate())); // Now()
     
     // returned the last inserted auto increment
@@ -183,10 +183,10 @@ class RPanelController extends Controller
   {
     $conn = $this->getConnection($this->params['databases']['rpanel']);
     foreach ($rp->getLimesurveyDataByField('urls') as $url) {
-      $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),                      // feasibility_link_type.ltid
-                                                 'LINK_URL' => $url,                                  // [Link URL from LimeSurvey]
-                                                 'CREATED_DATE' => $rp->getCreatedDate(),             // Now()
-                                                 'CREATED_BY' => $rp->getCreatedBy()));               // [UserID created by Guohui]
+      $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),          // feasibility_link_type.ltid
+                                                 'LINK_URL' => $url,                      // [Link URL from LimeSurvey]
+                                                 'CREATED_DATE' => $rp->getCreatedDate(), // Now()
+                                                 'CREATED_BY' => $rp->getCreatedBy()));   // [UserID created by Guohui]
     }
   }
   
