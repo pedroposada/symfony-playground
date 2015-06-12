@@ -12,6 +12,11 @@ parameters:
   
   # Clipper settings
   clipper:
+    email_ls_results:
+      to:                             "pedro.posada@pslgroup.com"
+      from:                           "pedro.posada@pslgroup.com"
+      subject:                        "FirstQ Survey Results"
+      body:                           "Survey results for Survey ID: [SID]"
     state_codes:
       bigcommerce_pending:            "BIGCOMMERCE_PENDING"
       bigcommerce_complete:           "BIGCOMMERCE_COMPLETE"
@@ -29,8 +34,8 @@ parameters:
     lss:
       dir:                            "src/PSL/ClipperBundle/Resources/limesurvey_lss"
       brand_adoption:                 "limesurvey_survey__brand_adoption.lss"
-    url_destination:                      http://dev-limesurvey.pslgroup.com/index.php/[SID]/lang-[LANG]?token=[SLUG]
-    url_redirect:                         http://localhost:8000/clipper/limesurvey/[SID]/[SLUG]
+    url_destination:                  "http://dev-limesurvey.pslgroup.com/index.php/[SID]/lang-[LANG]?token=[SLUG]"
+    url_redirect:                     "http://localhost:8000/clipper/limesurvey/[SID]/[SLUG]"
     
   # Rpanel
   rpanel:

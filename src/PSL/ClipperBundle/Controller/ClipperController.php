@@ -8,6 +8,7 @@ namespace PSL\ClipperBundle\Controller;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -238,7 +239,8 @@ class ClipperController extends FOSRestController
       '[SLUG]' => $slug
     ));
     
-    return $this->redirect($destination);
+    // return $this->redirect($destination);
+    return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
   }
 
 }

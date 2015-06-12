@@ -92,7 +92,7 @@ class LimeSurvey
       'DestSurveyID' => null,
     ), $args);
     
-    return $this->call('import_survey', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
   
   /**
@@ -110,9 +110,76 @@ class LimeSurvey
       'iSurveyID' => null, 
     ), $args);
     
-    return $this->call('activate_survey', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
   
+  /**
+  * RPC routine to to initialise the survey's collection of tokens where new participant tokens may be later added
+  */
+  public function activate_tokens($args = array()) 
+  {
+    /**
+     * @access public
+     * @param string $sSessionKey Auth credentials
+     * @param integer $iSurveyID ID of the survey where a token table will be created for
+     * @param array $aAttributeFields An array of integer describing any additional attribute fields
+     * @return array Status=>OK when successfull, otherwise the error description
+     */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'additional_attributes' => array(), 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
+  
+  
+  /**
+  * RPC Routine to add participants to the tokens collection of the survey.
+  * Returns the inserted data including additional new information like the Token entry ID and the token string.
+  */
+  // SAMPLE RESPONSE, array of arrays
+  // 0 => 
+  // array (size=17)
+    // 'sent' => string 'N' (length=1)
+    // 'remindersent' => string 'N' (length=1)
+    // 'remindercount' => int 0
+    // 'completed' => string 'N' (length=1)
+    // 'usesleft' => int 1
+    // 'email' => string 'fq1@pslgroup.com' (length=16)
+    // 'lastname' => string 'fq1' (length=3)
+    // 'firstname' => string 'fq1' (length=3)
+    // 'token' => string 'xfeyad3sr65qmrf' (length=15)
+    // 'tid' => string '5' (length=1)
+    // 'participant_id' => null
+    // 'emailstatus' => null
+    // 'language' => null
+    // 'blacklisted' => null
+    // 'validfrom' => null
+    // 'validuntil' => null
+    // 'mpid' => null
+  public function add_participants($args = array())
+  {
+    /**
+    * @param string $sSessionKey Auth credentials
+    * @param int $iSurveyID Id of the Survey
+    * @param struct $aParticipantData 
+    *   Data of the participants to be added, 
+    *   2-dimensional array/structure containing your participants data, Example: 
+    *   [ {"email":"me@example.com","lastname":"Bond","firstname":"James"} ]
+    * @param bool createTokenKey Optional - Defaults to true and determins if the access token automatically created
+    * @return array The values added
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'participantData' => array(), 
+      'createTokenKey' => TRUE, 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
   
   /**
   * RPC Routine to export responses.
@@ -146,7 +213,84 @@ class LimeSurvey
       'aFields' => null,
     ), $args);
     
-    return $this->call('export_responses', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
+
+  /**
+   * RPC Routine to return settings of a token/participant of a survey
+   * 
+   * The following properties of tokens can be read or set:
+   * aTokenProperties
+   *  tid             int     Token ID; read-only property
+      completed       string  N or Y
+      participant_id    
+      language        string  
+      usesleft    
+      firstname       String  Participant's first name
+      lastname        String  Participant's last name
+      email           String  Participant's e-mail address
+      blacklisted   
+      validfrom   
+      sent    
+      validuntil    
+      remindersent    
+      mpid    
+      emailstatus   
+      remindercount
+   */
+   public function get_participant_properties($args = array())
+   {
+     /**
+      * @access public
+      * @param string $sSessionKey Auth credentials
+      * @param int $iSurveyID Id of the Survey to get token properties
+      * @param int $iTokenID Id of the participant to check
+      * @param array $aTokenProperties The properties to get
+      * @return array The requested values
+      */
+      $param_arr = array_merge(array(
+        'sSessionKey' => $this->session_key,
+        'iSurveyID' => null, 
+        'iTokenID' => null, 
+        'aTokenProperties' => array(), // The properties to get
+      ), $args);
     
+      return $this->call(__FUNCTION__, $param_arr);
+   }
+
+  /**
+   * RPC Routine to set survey properties.
+   * 
+   * Available properties
+   * 
+      Allways:
+        sid
+        language
+        additional_languages
+        active
+      When survey active:
+        anonymized
+        datestamp
+        savetimings
+        ipaddr
+        refurl
+   */
+  public function set_survey_properties($args = array()) 
+  {
+    /**
+    * @access public
+    * @param string $sSessionKey Auth credentials
+    * @param integer $iSurveyID - ID of the survey
+    * @param array|struct $aSurveyData - An array with the particular fieldnames as keys and their values to set on that particular survey
+    * @return array Of succeeded and failed nodifications according to internal validation.
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'aSurveyData' => array(), 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
+
 }
