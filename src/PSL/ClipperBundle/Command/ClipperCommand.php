@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
 use Rhumsaa\Uuid\Uuid;
@@ -159,11 +160,7 @@ class ClipperCommand extends ContainerAwareCommand
     
     // config connection to LS
     $ls = new LimeSurvey();
-    $ls->configure(array(
-      'ls_baseurl' => $params_ls['api']['ls_baseurl'],
-      'ls_password' => $params_ls['api']['ls_password'],
-      'ls_user' => $params_ls['api']['ls_user']
-    ));
+    $ls->configure($params_ls['api']);
     
     // get Survey template and replace tokens
     $finder = new Finder();
@@ -230,11 +227,10 @@ class ClipperCommand extends ContainerAwareCommand
     }
     
     // save limesurvey raw data
-    $ls_raw_data = array(
-      'participants' => $response,
-      'sid' => $iSurveyID, 
-      'urls' => $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $response),   
-    );
+    $ls_raw_data = new stdClass();
+    $ls_raw_data->participants = $response;
+    $ls_raw_data->sid = $iSurveyID; 
+    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $response);
     $fq->setLimesurveyDataRaw(serialize($ls_raw_data));
     
     return $fq;
@@ -300,17 +296,66 @@ class ClipperCommand extends ContainerAwareCommand
    */
    private function rpanel_complete(FirstQProject $fq) 
    {
-     throw new Exception("No data for fq->id: [{$fq->getId()}] " . __FUNCTION__);
-     return $fq;
+      // get LS settings
+      $params_ls = $this->getContainer()->getParameter('limesurvey');
+      
+      // config connection to LS
+      $ls = new LimeSurvey();
+      $ls->configure($params_ls['api']);
+      
+      $participants = array();
+      foreach ($fq->getLimesurveyDataByField('participants') as $participant) {
+        $response = $ls->get_participant_properties(array(
+          'iSurveyID' => $fq->getLimesurveyDataByField('sid'), 
+          'iTokenID' => $participant['tid'], 
+          'aTokenProperties' => array('completed'), // The properties to get
+        ));
+        if (isset($response['status'])) {
+          throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+          break;
+        }
+        if (current($response) == 'N') {
+          throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}]");
+          break;
+        }
+      }
+      
+      // if we get here then deactivate survey
+      $response = $ls->set_survey_properties(array(
+        'iSurveyID' => $fq->getLimesurveyDataByField('sid'), 
+        'aSurveyData' => array(
+          'active' => 'N',
+        ), 
+      ));
+      if (isset($response['status'])) {
+        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+      }
+     
+      return $fq;
    }
 
   /**
    * state == limesurvey_complete
-   * Get results from limesurvey and send email with them as csv
+   * Get results from limesurvey and send email with csv
    */
    private function limesurvey_complete(FirstQProject $fq) 
    {
-     throw new Exception("No data for fq->id: [{$fq->getId()}] " . __FUNCTION__);
+     // config connection to LS
+     $params_ls = $this->getContainer()->getParameter('limesurvey');
+     $ls = new LimeSurvey();
+     $ls->configure($params_ls['api']);
+     // get lime survey results
+     
+     
+     // send email
+     $params_clip = $this->getContainer()->getParameter('clipper');
+     $message = \Swift_Message::newInstance()
+        ->setSubject($params_clip['email_ls_results']['subject'])
+        ->setFrom($params_clip['email_ls_results']['from'])
+        ->setTo($params_clip['email_ls_results']['to'])
+        ->setBody($params_clip['email_ls_results']['body']);
+     $this->getContainer()->get('mailer')->send($message);
+     
      return $fq;
    }
 

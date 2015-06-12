@@ -12,6 +12,11 @@ parameters:
   
   # Clipper settings
   clipper:
+    email_ls_results:
+      to:                             "pedro.posada@pslgroup.com"
+      from:                           "pedro.posada@pslgroup.com"
+      subject:                        "FirstQ Survey Results"
+      body:                           "Survey results for Survey ID: [SID]"
     state_codes:
       bigcommerce_pending:            "BIGCOMMERCE_PENDING"
       bigcommerce_complete:           "BIGCOMMERCE_COMPLETE"

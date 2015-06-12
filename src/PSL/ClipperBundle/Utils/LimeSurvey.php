@@ -92,7 +92,7 @@ class LimeSurvey
       'DestSurveyID' => null,
     ), $args);
     
-    return $this->call('import_survey', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
   
   /**
@@ -110,7 +110,7 @@ class LimeSurvey
       'iSurveyID' => null, 
     ), $args);
     
-    return $this->call('activate_survey', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
   
   /**
@@ -131,7 +131,7 @@ class LimeSurvey
       'additional_attributes' => array(), 
     ), $args);
     
-    return $this->call('activate_tokens', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
   
   
@@ -178,7 +178,7 @@ class LimeSurvey
       'createTokenKey' => TRUE, 
     ), $args);
     
-    return $this->call('add_participants', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
   
   /**
@@ -213,7 +213,84 @@ class LimeSurvey
       'aFields' => null,
     ), $args);
     
-    return $this->call('export_responses', $param_arr);
+    return $this->call(__FUNCTION__, $param_arr);
   }
+
+  /**
+   * RPC Routine to return settings of a token/participant of a survey
+   * 
+   * The following properties of tokens can be read or set:
+   * aTokenProperties
+   *  tid             int     Token ID; read-only property
+      completed       string  N or Y
+      participant_id    
+      language        string  
+      usesleft    
+      firstname       String  Participant's first name
+      lastname        String  Participant's last name
+      email           String  Participant's e-mail address
+      blacklisted   
+      validfrom   
+      sent    
+      validuntil    
+      remindersent    
+      mpid    
+      emailstatus   
+      remindercount
+   */
+   public function get_participant_properties($args = array())
+   {
+     /**
+      * @access public
+      * @param string $sSessionKey Auth credentials
+      * @param int $iSurveyID Id of the Survey to get token properties
+      * @param int $iTokenID Id of the participant to check
+      * @param array $aTokenProperties The properties to get
+      * @return array The requested values
+      */
+      $param_arr = array_merge(array(
+        'sSessionKey' => $this->session_key,
+        'iSurveyID' => null, 
+        'iTokenID' => null, 
+        'aTokenProperties' => array(), // The properties to get
+      ), $args);
     
+      return $this->call(__FUNCTION__, $param_arr);
+   }
+
+  /**
+   * RPC Routine to set survey properties.
+   * 
+   * Available properties
+   * 
+      Allways:
+        sid
+        language
+        additional_languages
+        active
+      When survey active:
+        anonymized
+        datestamp
+        savetimings
+        ipaddr
+        refurl
+   */
+  public function set_survey_properties($args = array()) 
+  {
+    /**
+    * @access public
+    * @param string $sSessionKey Auth credentials
+    * @param integer $iSurveyID - ID of the survey
+    * @param array|struct $aSurveyData - An array with the particular fieldnames as keys and their values to set on that particular survey
+    * @return array Of succeeded and failed nodifications according to internal validation.
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'aSurveyData' => array(), 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
+
 }
