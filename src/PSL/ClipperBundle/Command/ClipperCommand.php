@@ -421,7 +421,6 @@ XML;
      $urls = array();
      
      foreach ($participants as $participant) {
-      $uuid4 = Uuid::uuid4();
       $urls[] = strtr($baseURL, array(
         '[SID]' => $sid,
         '[LANG]' => 'en',
