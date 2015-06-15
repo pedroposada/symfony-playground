@@ -155,7 +155,7 @@ class TestCommand extends ContainerAwareCommand
         
     $mailer = $this->getContainer()->get('mailer');
     $mailer->send($message, $failures);
-    dump($mailer);
+    // dump($mailer);
     
   }
 }
