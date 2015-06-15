@@ -28,6 +28,7 @@ use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
 class ClipperCommand extends ContainerAwareCommand
 {
   private $logger;
+  static $timestamp;
 
   protected function configure()
   {
@@ -36,6 +37,8 @@ class ClipperCommand extends ContainerAwareCommand
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    self::$timestamp = time();
+    
     // create the lock
     $lock = new LockHandler('clipper:cron');
     if (!$lock->lock()) {
@@ -298,6 +301,7 @@ class ClipperCommand extends ContainerAwareCommand
    {
       // get LS settings
       $params_ls = $this->getContainer()->getParameter('limesurvey');
+      $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
       
       // config connection to LS
       $ls = new LimeSurvey();
@@ -306,7 +310,7 @@ class ClipperCommand extends ContainerAwareCommand
       $participants = array();
       foreach ($fq->getLimesurveyDataByField('participants') as $participant) {
         $request = array(
-          'iSurveyID' => $fq->getLimesurveyDataByField('sid'), 
+          'iSurveyID' => $iSurveyID, 
           'iTokenID' => $participant['tid'], 
           'aTokenProperties' => array('completed'), // The properties to get
         );
@@ -322,15 +326,17 @@ class ClipperCommand extends ContainerAwareCommand
       }
       
       // if we get this far then deactivate survey
-      $response = $ls->set_survey_properties(array(
-        'iSurveyID' => $fq->getLimesurveyDataByField('sid'), 
-        'aSurveyData' => array(
-          'active' => 'N',
-        ), 
-      ));
-      if (isset($response['status'])) {
-        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
-      }
+      // $response = $ls->set_survey_properties(array(
+        // 'iSurveyID' => $iSurveyID, 
+        // 'aSurveyData' => array(
+          // // 'active' => 'N'
+          // 'expire' => self::$timestamp,
+        // ), 
+      // ));
+      // if (isset($response['status'])) {
+        // Debug::dump($ls, 6);
+        // throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
+      // }
      
       return $fq;
    }
@@ -341,13 +347,15 @@ class ClipperCommand extends ContainerAwareCommand
    */
    public function limesurvey_complete(FirstQProject $fq) 
    {
+     $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
+     
      // config connection to LS
      $params_ls = $this->getContainer()->getParameter('limesurvey');
      $ls = new LimeSurvey();
      $ls->configure($params_ls['api']);
      // get lime survey results
      $response = $ls->export_responses(array(
-       'iSurveyID' => $fq->getLimesurveyDataByField('sid'),
+       'iSurveyID' => $iSurveyID,
      ));
      if (isset($response['status'])) {
        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
@@ -360,10 +368,16 @@ class ClipperCommand extends ContainerAwareCommand
         ->setSubject($params_clip['email_ls_results']['subject'])
         ->setFrom($params_clip['email_ls_results']['from'])
         ->setTo($params_clip['email_ls_results']['to'])
-        ->setBody($params_clip['email_ls_results']['body'])
-        ->attach(\Swift_Attachment($csv))
+        ->setBody(strtr($params_clip['email_ls_results']['body'], array(
+          '[SID]' => $iSurveyID,
+        )))
+        ->attach(\Swift_Attachment::newInstance($csv))
         ;
-     $this->getContainer()->get('mailer')->send($message);
+        
+     $failures = array(); // addresses of failed emails
+     if (!$this->getContainer()->get('mailer')->send($message, $failures)) {
+       throw new Exception("Failed sending email to: " . implode(', ', $failures));
+     }
      
      return $fq;
    }

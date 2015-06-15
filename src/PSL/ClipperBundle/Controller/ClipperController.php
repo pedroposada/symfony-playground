@@ -233,7 +233,7 @@ class ClipperController extends FOSRestController
     // Get parameters
     $parameters_ls = $this->container->getParameter('limesurvey');
     
-    $destination = strtr($parameters_ls['destination'], array(
+    $destination = strtr($parameters_ls['url_destination'], array(
       '[SID]' => $sid,
       '[LANG]' => 'en',
       '[SLUG]' => $slug

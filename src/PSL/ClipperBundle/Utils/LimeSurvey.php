@@ -18,6 +18,7 @@ class LimeSurvey
   private $ls_baseurl;
   private $ls_user;
   private $ls_password;
+  private $param_arr;
   
   /**
    * Configure the API client with the required credentials.
@@ -296,6 +297,39 @@ class LimeSurvey
       'sSessionKey' => $this->session_key,
       'iSurveyID' => null, 
       'aSurveyData' => array(), 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
+  
+  /**
+   * RPC Routine to get survey properties.
+   * active autonumber_start  emailnotificationto nokeyboard  showwelcome
+additional_languages  autoredirect  emailresponseto owner_id  showxquestions
+admin bounce_email  expires printanswers  sid
+adminemail  bounceaccountencryption faxto publicgraphs  startdate
+alloweditaftercompletion  bounceaccounthost format  publicstatistics  template
+allowjumps  bounceaccountpass googleanalyticsapikey refurl  tokenanswerspersistence
+allowprev bounceaccounttype googleanalyticsstyle  savetimings tokenlength
+allowregister bounceaccountuser htmlemail sendconfirmation  usecaptcha
+allowsave bounceprocessing  ipaddr  showgroupinfo usecookie
+anonymized  bouncetime  language  shownoanswer  usetokens
+assessments datecreated listpublic  showprogress  
+attributedescriptions datestamp navigationdelay showqnumcode
+   */
+  public function get_survey_properties($args = array()) 
+  {
+    /**
+    * @access public
+    * @param string $sSessionKey Auth credentials
+    * @param int $iSurveyID The id of the Survey to be checked
+    * @param array $aSurveySettings The properties to get
+    * @return array
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'aSurveySettings' => array(), 
     ), $args);
     
     return $this->call(__FUNCTION__, $param_arr);
