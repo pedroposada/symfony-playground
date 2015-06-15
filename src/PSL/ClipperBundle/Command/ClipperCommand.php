@@ -17,6 +17,8 @@ use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
@@ -378,7 +380,6 @@ class ClipperCommand extends ContainerAwareCommand
      }
      
      // if we get this far then send email
-     $csv = base64_decode($response);
      $params_clip = $this->getContainer()->getParameter('clipper');
      $message = \Swift_Message::newInstance()
         ->setSubject($params_clip['email_ls_results']['subject'])
@@ -387,12 +388,24 @@ class ClipperCommand extends ContainerAwareCommand
         ->setBody(strtr($params_clip['email_ls_results']['body'], array(
           '[SID]' => $iSurveyID,
         )))
-        ->attach(\Swift_Attachment::newInstance($csv))
+        // ->attach(\Swift_Attachment::newInstance($csv))
         ;
         
+     // attachment
+     $fs = new Filesystem();
+     $csv = base64_decode($response);
+     try {
+       $fs->dumpFile('/tmp/file.csv', $csv);
+     } 
+     catch (IOExceptionInterface $e) {
+       throw new Exception("[limesurvey_complete] - An error occurred while creating your file at " . $e->getPath());
+     }
+     $message->attach(\Swift_Attachment::fromPath('/tmp/file.csv'));
+     
+     // send   
      $failures = array(); // addresses of failed emails
      if (!$this->getContainer()->get('mailer')->send($message, $failures)) {
-       throw new Exception("Failed sending email to: " . implode(', ', $failures));
+       throw new Exception("[limesurvey_complete] - Failed sending email to: " . implode(', ', $failures));
      }
      
      return $fq;
