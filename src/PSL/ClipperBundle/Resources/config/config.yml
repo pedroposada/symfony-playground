@@ -1,102 +1,21 @@
-# # PSL/ClipperBundle/Resources/config/config.yml
-# parameters:
-#   
-  # # BigCommerce Settings
-  # bigcommerce:
-    # api:
-      # username:                       "pedro.posada"
-      # store_url:                      "https://store-th2odj.mybigcommerce.com"
-      # api_key:                        "4e3d9f3523585f0126abb48f80ac0ff544816916"
-    # order_status_code_completed:      10 # numeric code in bigcommerce for Completed orders
-    # category_code_firstq:             18 # numeric code in bigcommerce for FirstQ category
-#   
-  # # Clipper settings
-  # clipper:
-    # email_ls_results:
-      # to:                             "pedro.posada@pslgroup.com"
-      # from:                           "pedro.posada@pslgroup.com"
-      # subject:                        "FirstQ Survey Results"
-      # body:                           "Survey results for Survey ID: [SID]"
-    # state_codes:
-      # bigcommerce_pending:            "BIGCOMMERCE_PENDING"
-      # bigcommerce_complete:           "BIGCOMMERCE_COMPLETE"
-      # limesurvey_created:             "LIMESURVEY_CREATED"
-      # rpanel_complete:                "RPANEL_COMPLETE"
-      # limesurvey_complete:            "LIMESURVEY_COMPLETE"
-      # email_sent:                     "EMAIL_SENT"
-#       
-  # # LimeSurvey settings
-  # limesurvey:
-    # api:
-      # ls_baseurl:                     "http://dev-limesurvey.pslgroup.com/index.php/admin/remotecontrol"
-      # ls_password:                    "admin"
-      # ls_user:                        "admin"
-    # lss:
-      # dir:                            "src/PSL/ClipperBundle/Resources/limesurvey_lss"
-      # brand_adoption:                 "limesurvey_survey__brand_adoption.lss"
-    # url_destination:                  "http://dev-limesurvey.pslgroup.com/index.php/[SID]/lang-[LANG]?token=[SLUG]"
-    # url_redirect:                     "http://localhost:8000/clipper/limesurvey/[SID]/[SLUG]"
-#     
-  # # Rpanel
-  # rpanel:
-    # user_id:                          7777 # Userid is the user ID of the one created by Guohui for you
-    # databases:
-      # rpanel:
-        # dbname:                       rpanel_rpanel
-        # user:                         root
-        # password:                     null
-        # host:                         127.0.0.1
-        # driver:                       pdo_mysql
-      # translateapi:
-        # dbname:                       rpanel_translateapi
-        # user:                         root
-        # password:                     null
-        # host:                         127.0.0.1
-        # driver:                       pdo_mysql
-#         
-# 
-# 
-# # GremoBuzzBundle Configuration
-# gremo_buzz:
-  # client: "native" # allowed "curl", "multi_curl" or "native"
-  # options:
-    # ignore_errors: true
-    # max_redirects: 5
-    # timeout: 5
-    # verify_peer: true
-# 
-# # PSL Clipper Configuration
-# psl_clipper:
-  # google_spreadsheets:
-    # client_id : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p.apps.googleusercontent.com"
-    # service_account_name : "329683285506-mg5og1lcjfsh9n4gjrq7sgl94f4h8o4p@developer.gserviceaccount.com"
-    # p12_file_name : "Sheets-15a60218c7c8_0.p12"
-    # spreadsheet_name : "Feas"
-    # worksheet_name : "UI"
-# 
-# # Nelmio CORS
-# nelmio_cors:
-    # paths:
-      # '^/clipper/ws':
-          # allow_credentials: true
-          # allow_origin: ['*']
-          # allow_headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']
-          # allow_methods: ['POST','GET','DELETE','PUT','OPTIONS']
-          # expose_headers: []
-          # max_age: 3600
-# 
-# # Monolog
-# monolog:
-    # channels: ["clipper"]
-#     
-# # doctrine
-# doctrine:
-  # dbal:
-    # default_connection:   default
-    # connections:
-      # default:
-        # dbname:           clipper
-        # user:             root
-        # password:         null
-        # host:             127.0.0.1
-        # driver:           pdo_mysql
+# PSL/ClipperBundle/Resources/config/config.yml
+
+# GremoBuzzBundle Configuration
+gremo_buzz:
+  client: "native" # allowed "curl", "multi_curl" or "native"
+  options:
+    ignore_errors: true
+    max_redirects: 5
+    timeout: 5
+    verify_peer: true
+ 
+# Nelmio CORS
+nelmio_cors:
+  paths:
+    '^/clipper/ws':
+      allow_credentials: true
+      allow_origin: ['*']
+      allow_headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']
+      allow_methods: ['POST','GET','DELETE','PUT','OPTIONS']
+      expose_headers: []
+      max_age: 3600

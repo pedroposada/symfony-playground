@@ -155,7 +155,7 @@ class ClipperController extends FOSRestController
   {
 
     if( empty($timestamp) ) {
-      throw new Exception('Error while creating Bigcommerce product.');
+      throw new Exception('Error while creating Bigcommerce product. Missing parameter.');
     }
 
     // Get parameters
@@ -173,7 +173,7 @@ class ClipperController extends FOSRestController
     $fields = array(
       'name' => $name,
       'price' => $price,
-      'categories' => array(18), // FirstQ
+      'categories' => array($parameters_bigcommerce['category_code_firstq']), // FirstQ
       'type' => 'digital',
       'availability' => 'available',
       'weight' => 0.0,
