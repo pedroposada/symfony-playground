@@ -9,12 +9,6 @@ parameters:
   database_user:                      [*db_user*]
   database_password:                  ~
   
-  # Mailer settings
-  mailer_transport:                   [*mailer_transport*]
-  mailer_host:                        [*mailer_user*]
-  mailer_user:                        ~
-  mailer_password:                    ~
-  
   # Locale
   locale:                             [*locale*]
   
@@ -98,3 +92,24 @@ doctrine:
         password:                     [*doctrine_dbal_connections_default_password*]
         host:                         [*doctrine_dbal_connections_default_host*]
         driver:                       [*doctrine_dbal_connections_default_driver*]
+        
+        
+# Swiftmailer Configuration
+swiftmailer:
+    transport:            [*swiftmailer_transport*]
+    username:             [*swiftmailer_username*]
+    password:             [*swiftmailer_password*]
+    host:                 [*swiftmailer_host*]
+    port:                 [*swiftmailer_port*]
+    encryption:           ~
+    auth_mode:            ~
+    spool:
+        type:                 file
+        path:                 "%kernel.cache_dir%/swiftmailer/spool"
+    sender_address:       ~
+    antiflood:
+        threshold:            99
+        sleep:                0
+    delivery_address:     ~
+    disable_delivery:     ~
+    logging:              "%kernel.debug%"
