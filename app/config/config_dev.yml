@@ -43,7 +43,3 @@ monolog:
 
 assetic:
     use_controller: true
-
-swiftmailer:
-   delivery_address: pedro.posada@pslgroup.com
-   disable_delivery: true

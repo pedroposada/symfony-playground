@@ -191,7 +191,7 @@ class ClipperCommand extends ContainerAwareCommand
       'sImportDataType' => 'lss', 
       'sNewSurveyName' => "Clipper test - " . $fq->getId(), 
     ));
-    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'import_survey'));
+    $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'import_survey'));
     if (!is_int($iSurveyID)) {
       throw new Exception("Could not import survey for fq->id: [{$fq->getId()}]");
     }
@@ -200,7 +200,7 @@ class ClipperCommand extends ContainerAwareCommand
     $response = $ls->activate_survey(array(
       'iSurveyID' => $iSurveyID, 
     ));
-    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'activate_survey'));
+    $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
       throw new Exception("Could not activate survey for fq->id: [{$fq->getId()}]");
     }

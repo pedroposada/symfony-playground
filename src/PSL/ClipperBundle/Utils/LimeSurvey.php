@@ -11,14 +11,14 @@ use \Exception as Exception;
   
 class LimeSurvey
 {
-  private $response;
   private $session_key;
   private $release_session_key;
-  private $client;
   private $ls_baseurl;
   private $ls_user;
   private $ls_password;
-  private $param_arr;
+  public $client;
+  public $response;
+  public $param_arr;
   
   /**
    * Configure the API client with the required credentials.
