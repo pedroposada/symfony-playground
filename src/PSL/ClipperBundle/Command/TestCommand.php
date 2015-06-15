@@ -78,71 +78,84 @@ class TestCommand extends ContainerAwareCommand
     // $ls_raw_data->participants = $participants;
     // $ls_raw_data->sid = 723936; 
     // $ls_raw_data->urls = $cc->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], 723936, $participants);
-    $response = $ls->get_survey_properties(array(
-      'iSurveyID' => 698791, 
-      'aSurveySettings' => array (
-        'active',
-        'autonumber_start',
-        'emailnotificationto',
-        'nokeyboard',
-        'showwelcome',
-        'additional_languages',
-        'autoredirect',
-        'emailresponseto',
-        'owner_id',
-        'showxquestions',
-        'admin',
-        'bounce_email',
-        'expires',
-        'printanswers',
-        'sid',
-        'adminemail',
-        'bounceaccountencryption',
-        'faxto',
-        'publicgraphs',
-        'startdate',
-        'alloweditaftercompletion',
-        'bounceaccounthost',
-        'format',
-        'publicstatistics',
-        'template',
-        'allowjumps',
-        'bounceaccountpass',
-        'googleanalyticsapikey',
-        'refurl',
-        'tokenanswerspersistence',
-        'allowprev',
-        'bounceaccounttype',
-        'googleanalyticsstyle',
-        'savetimings',
-        'tokenlength',
-      'allowregister',
-        'bounceaccountuser',
-        'htmlemail',
-        'sendconfirmation',
-        'usecaptcha',
-      'allowsave',
-        'bounceprocessing',
-        'ipaddr',
-        'showgroupinfo',
-        'usecookie',
-        'anonymized',
-        'bouncetime',
-        'language',
-        'shownoanswer',
-        'usetokens',
-      'assessments',
-        'datecreated',
-        'listpublic',
-        'showprogress',
-      'attributedescriptions',
-        'datestamp',
-        'navigationdelay',
-        'showqnumcode',
-      ) // The properties to get
-    ));
+    // $response = $ls->get_survey_properties(array(
+      // 'iSurveyID' => 698791, 
+      // 'aSurveySettings' => array (
+        // 'active',
+        // 'autonumber_start',
+        // 'emailnotificationto',
+        // 'nokeyboard',
+        // 'showwelcome',
+        // 'additional_languages',
+        // 'autoredirect',
+        // 'emailresponseto',
+        // 'owner_id',
+        // 'showxquestions',
+        // 'admin',
+        // 'bounce_email',
+        // 'expires',
+        // 'printanswers',
+        // 'sid',
+        // 'adminemail',
+        // 'bounceaccountencryption',
+        // 'faxto',
+        // 'publicgraphs',
+        // 'startdate',
+        // 'alloweditaftercompletion',
+        // 'bounceaccounthost',
+        // 'format',
+        // 'publicstatistics',
+        // 'template',
+        // 'allowjumps',
+        // 'bounceaccountpass',
+        // 'googleanalyticsapikey',
+        // 'refurl',
+        // 'tokenanswerspersistence',
+        // 'allowprev',
+        // 'bounceaccounttype',
+        // 'googleanalyticsstyle',
+        // 'savetimings',
+        // 'tokenlength',
+      // 'allowregister',
+        // 'bounceaccountuser',
+        // 'htmlemail',
+        // 'sendconfirmation',
+        // 'usecaptcha',
+      // 'allowsave',
+        // 'bounceprocessing',
+        // 'ipaddr',
+        // 'showgroupinfo',
+        // 'usecookie',
+        // 'anonymized',
+        // 'bouncetime',
+        // 'language',
+        // 'shownoanswer',
+        // 'usetokens',
+      // 'assessments',
+        // 'datecreated',
+        // 'listpublic',
+        // 'showprogress',
+      // 'attributedescriptions',
+        // 'datestamp',
+        // 'navigationdelay',
+        // 'showqnumcode',
+      // ) // The properties to get
+    // ));
     
-    Debug::dump($response,6);
+    // Debug::dump($response,6);
+    $params_clip = $this->getContainer()->getParameter('clipper');
+    $message = \Swift_Message::newInstance()
+        ->setSubject($params_clip['email_ls_results']['subject'])
+        ->setFrom($params_clip['email_ls_results']['from'])
+        ->setTo($params_clip['email_ls_results']['to'])
+        ->setBody(strtr($params_clip['email_ls_results']['body'], array(
+          '[SID]' => 77777,
+        )))
+        ;
+        
+    $mailer = $this->getContainer()->get('mailer');
+    $mailer->send($message, $failures);
+    dump($mailer);
     
   }
 }

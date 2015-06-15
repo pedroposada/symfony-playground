@@ -235,7 +235,8 @@ class ClipperCommand extends ContainerAwareCommand
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $response;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($params_ls['url_destination'], $iSurveyID, $response);
+    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs(
+      $this->getContainer()->getParameter('limesurvey.url_destination_base_sid'), $iSurveyID, $response);
     $fq->setLimesurveyDataRaw(serialize($ls_raw_data));
     
     return $fq;
@@ -383,13 +384,16 @@ class ClipperCommand extends ContainerAwareCommand
      // if we get this far then send email
      $params_clip = $this->getContainer()->getParameter('clipper');
      $message = \Swift_Message::newInstance()
-        ->setSubject($params_clip['email_ls_results']['subject'])
         ->setFrom($params_clip['email_ls_results']['from'])
         ->setTo($params_clip['email_ls_results']['to'])
-        ->setBody(strtr($params_clip['email_ls_results']['body'], array(
+        ->setSubject(strtr($params_clip['email_ls_results']['subject'], array(
+          '[URL]' => $this->getContainer()->getParameter('limesurvey.url_destination_base_sid'),
           '[SID]' => $iSurveyID,
         )))
-        // ->attach(\Swift_Attachment::newInstance($csv))
+        ->setBody(strtr($params_clip['email_ls_results']['body'], array(
+          '[URL]' => $this->getContainer()->getParameter('limesurvey.url_destination_base_sid'),
+          '[SID]' => $iSurveyID,
+        )))
         ;
         
      // attachment
@@ -408,6 +412,7 @@ class ClipperCommand extends ContainerAwareCommand
      if (!$this->getContainer()->get('mailer')->send($message, $failures)) {
        throw new Exception("[limesurvey_complete] - Failed sending email to: " . implode(', ', $failures));
      }
+     $this->logger->debug("Email: [{$message->toString()}]");
      
      return $fq;
    }

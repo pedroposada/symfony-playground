@@ -4,13 +4,13 @@ parameters:
   # Database settings
   database_driver:                    pdo_mysql
   database_host:                      [*db_host*]
-  database_port:                      ~
+  database_port:                      [*db_port*]
   database_name:                      [*db_name*]
   database_user:                      [*db_user*]
-  database_password:                  ~
+  database_password:                  [*db_pass*]
   
   # Locale
-  locale:                             [*locale*]
+  locale:                             en
   
   # secret key
   secret:                             [*secret*]
@@ -29,8 +29,8 @@ parameters:
     email_ls_results:
       to:                             [*clipper_email_ls_results_to*]
       from:                           [*clipper_email_ls_results_from*]
-      subject:                        [*clipper_email_ls_results_subject*]
-      body:                           [*clipper_email_ls_results_body*]
+      subject:                        "FirstQ Survey Results - %limesurvey.url_destination_base_sid%"
+      body:                           "FirstQ Survey results for Survey ID: [SID]. URL: %limesurvey.url_destination_base_sid%"
     state_codes:
       bigcommerce_pending:            "BIGCOMMERCE_PENDING"
       bigcommerce_complete:           "BIGCOMMERCE_COMPLETE"
@@ -46,10 +46,11 @@ parameters:
       ls_password:                    [*limesurvey_api_ls_password*]
       ls_user:                        [*limesurvey_api_ls_user*]
     lss:
-      dir:                            [*limesurvey_lss_dir*]
-      brand_adoption:                 [*limesurvey_lss_brand_adoption*]
-    url_destination:                  [*limesurvey_url_destination*]
-    url_redirect:                     [*limesurvey_url_redirect*]
+      dir:                              [*limesurvey_lss_dir*]
+      brand_adoption:                   [*limesurvey_lss_brand_adoption*]
+  limesurvey.url_destination_base_sid:  "%limesurvey.url_destination_base%/sid/[SID]"
+  limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
+  limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]"
     
   # Rpanel
   rpanel:
@@ -68,6 +69,7 @@ parameters:
         host:                         [*rpanel_databases_translateapi_host*]
         driver:                       [*rpanel_databases_translateapi_driver*]
         
+
 # PSL Clipper Configuration
 psl_clipper:
   google_spreadsheets:
@@ -77,23 +79,12 @@ psl_clipper:
     spreadsheet_name :                [*psl_clipper_google_spreadsheets_spreadsheet_name*]
     worksheet_name :                  [*psl_clipper_google_spreadsheets_worksheet_name*]
 
+
 # Monolog
 monolog:
     channels:                         ["clipper"]
     
-# doctrine
-doctrine:
-  dbal:
-    default_connection:               [*doctrine_dbal_default_connection*]
-    connections:
-      default:
-        dbname:                       [*doctrine_dbal_connections_default_dbname*]
-        user:                         [*doctrine_dbal_connections_default_user*]
-        password:                     [*doctrine_dbal_connections_default_password*]
-        host:                         [*doctrine_dbal_connections_default_host*]
-        driver:                       [*doctrine_dbal_connections_default_driver*]
-        
-        
+
 # Swiftmailer Configuration
 swiftmailer:
     transport:                        [*swiftmailer_transport*]
@@ -101,15 +92,10 @@ swiftmailer:
     password:                         [*swiftmailer_password*]
     host:                             [*swiftmailer_host*]
     port:                             [*swiftmailer_port*]
-    encryption:                       ~
-    auth_mode:                        ~
-    spool:
-        type:                         file
-        path:                         "%kernel.cache_dir%/swiftmailer/spool"
-    sender_address:                   ~
+    encryption:                       [*swiftmailer_encryption*]
+    auth_mode:                        [*swiftmailer_auth_mode*]
+    sender_address:                   [*swiftmailer_sender_address*]
     antiflood:
         threshold:                    99
         sleep:                        0
-    delivery_address:                 ~
-    disable_delivery:                 ~
     logging:                          "%kernel.debug%"
