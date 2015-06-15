@@ -235,7 +235,7 @@ class ClipperCommand extends ContainerAwareCommand
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $response;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($params_ls['url_redirect'], $iSurveyID, $response);
+    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($params_ls['url_destination'], $iSurveyID, $response);
     $fq->setLimesurveyDataRaw(serialize($ls_raw_data));
     
     return $fq;

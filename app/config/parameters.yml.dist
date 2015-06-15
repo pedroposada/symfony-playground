@@ -96,20 +96,20 @@ doctrine:
         
 # Swiftmailer Configuration
 swiftmailer:
-    transport:            [*swiftmailer_transport*]
-    username:             [*swiftmailer_username*]
-    password:             [*swiftmailer_password*]
-    host:                 [*swiftmailer_host*]
-    port:                 [*swiftmailer_port*]
-    encryption:           ~
-    auth_mode:            ~
+    transport:                        [*swiftmailer_transport*]
+    username:                         [*swiftmailer_username*]
+    password:                         [*swiftmailer_password*]
+    host:                             [*swiftmailer_host*]
+    port:                             [*swiftmailer_port*]
+    encryption:                       ~
+    auth_mode:                        ~
     spool:
-        type:                 file
-        path:                 "%kernel.cache_dir%/swiftmailer/spool"
-    sender_address:       ~
+        type:                         file
+        path:                         "%kernel.cache_dir%/swiftmailer/spool"
+    sender_address:                   ~
     antiflood:
-        threshold:            99
-        sleep:                0
-    delivery_address:     ~
-    disable_delivery:     ~
-    logging:              "%kernel.debug%"
+        threshold:                    99
+        sleep:                        0
+    delivery_address:                 ~
+    disable_delivery:                 ~
+    logging:                          "%kernel.debug%"
