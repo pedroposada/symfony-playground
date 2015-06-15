@@ -66,7 +66,7 @@ class ClipperCommand extends ContainerAwareCommand
           // process states
           ->process($fq, 'bigcommerce_pending')
           ->process($fq, 'bigcommerce_complete')
-          // ->process($fq, 'limesurvey_created')
+          ->process($fq, 'limesurvey_created')
           ->process($fq, 'rpanel_complete')
           ->process($fq, 'limesurvey_complete') // next state will be "email_sent"
           ;
@@ -371,12 +371,13 @@ class ClipperCommand extends ContainerAwareCommand
      $params_ls = $this->getContainer()->getParameter('limesurvey');
      $ls = new LimeSurvey();
      $ls->configure($params_ls['api']);
+     
      // get lime survey results
      $response = $ls->export_responses(array(
        'iSurveyID' => $iSurveyID,
      ));
-     if (isset($response['status'])) {
-       throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+     if (is_array($response)) {
+       throw new Exception("LS export_responses error: [{implode(', ', $response)}] for fq->id: [{$fq->getId()}] - limesurvey_complete");
      }
      
      // if we get this far then send email
