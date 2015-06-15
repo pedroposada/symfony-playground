@@ -378,17 +378,16 @@ class ClipperCommand extends ContainerAwareCommand
       }
       
       // if we get this far then deactivate survey
-      // $response = $ls->set_survey_properties(array(
-        // 'iSurveyID' => $iSurveyID, 
-        // 'aSurveyData' => array(
-          // // 'active' => 'N'
-          // 'expire' => self::$timestamp,
-        // ), 
-      // ));
-      // if (isset($response['status'])) {
-        // dump($ls);
-        // throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
-      // }
+      $response = $ls->set_survey_properties(array(
+        'iSurveyID' => $iSurveyID, 
+        'aSurveyData' => array(
+          'expires' => self::$timestamp,
+        ), 
+      ));
+      if (isset($response['status'])) {
+        $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
+        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
+      }
      
       return $fq;
    }

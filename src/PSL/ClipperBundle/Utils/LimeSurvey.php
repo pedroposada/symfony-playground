@@ -296,7 +296,7 @@ class LimeSurvey
     $param_arr = array_merge(array(
       'sSessionKey' => $this->session_key,
       'iSurveyID' => null, 
-      'aSurveyData' => array(), 
+      'aSurveySettings' => array(), 
     ), $args);
     
     return $this->call(__FUNCTION__, $param_arr);
