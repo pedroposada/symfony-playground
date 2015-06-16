@@ -15,6 +15,7 @@ use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
+use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -133,21 +134,26 @@ class ClipperCommand extends ContainerAwareCommand
         ->debug("Found [{$count}] Completed Order(s) in BigCommerce. Status code [{$params['order_status_code_completed']}]", array('bigcommerce_pending'));
       //...
       $pids = array();
+      // loop though products for each order
       foreach ( $orders as $order ) {
-        // loop though products for each order
         $products = Bigcommerce::getOrderProducts($order->id);
         foreach ( $products as $product ) {
           $pids[$product->product_id] = $order->id;
         }
       }
+      
+      // try to match order with product
       if (isset($pids[$fq->getBcProductId()])) {
         $fq->setBcOrderId($pids[$fq->getBcProductId()]);
         $this->logger->info("Found BcProductId: [{$pids[$fq->getBcProductId()]}] for fq->id: [{$fq->getId()}]");
       }
+      else {
+        // bail if no orders match this product
+        throw new Exception("No completed order found for fq->id: [{$fq->getId()}] with prodcut id: [{$fq->getBcProductId()}]");
+      }
     }
     else {
-      $this->logger
-        ->debug("No Completed Order(s) found with status code [{$params['order_status_code_completed']}] in BigCommerce.", array('bigcommerce_pending'));
+      $this->logger->debug("No Completed Order(s) found in BigCommerce.", array('bigcommerce_pending'));
       throw new Exception("No completed order found for fq->id: [{$fq->getId()}] with prodcut id: [{$fq->getBcProductId()}]");
     }
 
@@ -179,8 +185,8 @@ class ClipperCommand extends ContainerAwareCommand
     $lss = $file->getContents();
     $tokens = array(
       '_PATIENT_TYPE_' => "Diabetes Patients",
-      '_SPECIALTY_' => implode(",", array("Diabetes", "Cardiology")),
-      '_MARKET_' => implode(",", array("US", "UK")),
+      '_SPECIALTY_' => implode(",", $fq->getFormDataByField('specialty')),
+      '_MARKET_' => implode(",", $fq->getFormDataByField('market')),
       '_BRAND_' => $this->clipperBrands(array("Brand1", "Brand2")),
     );
     $lss = strtr($lss, $tokens);
@@ -214,7 +220,7 @@ class ClipperCommand extends ContainerAwareCommand
     }
     
     // add participants
-    $num_participants = current($fq->getFormDataByField('num_participants'));
+    $num_participants = current($fq->getSheetDataByField('r_sample')); // number of tokens for participants
     $participants = array();
     foreach (range(1, $num_participants) as $value) {
       $participants[] = array(
@@ -235,8 +241,8 @@ class ClipperCommand extends ContainerAwareCommand
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $response;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs(
-      $this->getContainer()->getParameter('limesurvey.url_destination_base_sid'), $iSurveyID, $response);
+    $ls_raw_data->urls = $this
+      ->createlimeSurveyParticipantsURLs($this->getContainer()->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
     $fq->setLimesurveyDataRaw(serialize($ls_raw_data));
     
     return $fq;
@@ -257,11 +263,10 @@ class ClipperCommand extends ContainerAwareCommand
      // set up the RPanel Project object
      // and add other values
      $rpanel_project = new RPanelProject($fq);
-     $timestamp = $fq->getFormDataByField('timestamp');
-     $rpanel_project->setProjName('FirstQ Project ' . (string)$timestamp[0]);
-     $rpanel_project->setCreatedBy('7777');
+     $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
+     $rpanel_project->setCreatedBy($params_rp['user_id']);
      $specialtyId = $fq->getFormDataByField('specialty');
-     $rpanel_project->setSpecialtyId(MDMMapping::map('specialties', (string)$specialtyId[0]));
+     $rpanel_project->setSpecialtyId(MDMMapping::map('specialties', (string)current($specialtyId)));
      // $countryId = $fq->getFormDataByField('market');
      // $rpanel_project->setCountryId(MDMMapping::map('countries', (string)$countryId[0]));
      $rpanel_project->setCountryId(10); // @TODO: this is a hard coded value up until we get the proper mapping
@@ -281,33 +286,62 @@ class ClipperCommand extends ContainerAwareCommand
       $value = str_replace($search, "", $value);
      }
      
-     // Setup RPanel Controller
+     // connect db
      $rpc = new RPanelController($params_rp);
-     $rpc->setContainer($this->getContainer());
+     $config = new \Doctrine\DBAL\Configuration();
+     $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['translateapi'], $config);
+     $conn->connect(); // connects and immediately starts a new transaction
+     $rpc->setConnection($conn);
      
-     // Create Feasibility Project and set the project id
-     $proj_id = $rpc->createFeasibilityProject($rpanel_project);
-     $rpanel_project->setProjId($proj_id);
+     try {
+       $conn->beginTransaction();
+       
+       // Create Feasibility Project and set the project id
+       $proj_id = $rpc->createFeasibilityProject($rpanel_project);
+       $rpanel_project->setProjId($proj_id);
+       
+       // Create Feasibility Project Quota
+       $rpc->createFeasibilityProjectQuota($rpanel_project, $gs_result);
+       
+       // Update Feasibility Project - Launch project
+       $rpc->updateFeasibilityProject($rpanel_project);
+       
+       $conn->commit();
+     }
+     catch (\Exception $e) {
+       $conn->rollBack();
+       throw $e;
+     }
      
-     // Create Feasibility Project Quota
-     $rpc->createFeasibilityProjectQuota($rpanel_project, $gs_result);
+     // connect db
+     $config = new \Doctrine\DBAL\Configuration();
+     $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['rpanel'], $config);
+     $conn->connect(); // connects and immediately starts a new transaction
+     $rpc->setConnection($conn);
+
+     try {
+       $conn->beginTransaction();
+       
+       // Create Project and insert project_sk
+       $project_sk = $rpc->createProject($rpanel_project);
+       $rpanel_project->setProjectSK($project_sk);
+       
+       // Create Project Detail
+       $rpc->createProjectDetail($rpanel_project, $gs_result);
+       
+       // Create Feasibility Link Type and insert LTId
+       $ltid = $rpc->feasibilityLinkType($rpanel_project);
+       $rpanel_project->setLTId($ltid);
+       
+       // Create Feasibility Full Url
+       $rpc->feasibilityLinkFullUrl($rpanel_project);
      
-     // Update Feasibility Project
-     $rpc->updateFeasibilityProject($rpanel_project);
-     
-     // Create Project and insert project_sk
-     $project_sk = $rpc->createProject($rpanel_project);
-     $rpanel_project->setProjectSK($project_sk);
-     
-     // Create Project Detail
-     $rpc->createProjectDetail($rpanel_project, $gs_result);
-     
-     // Create Feasibility Link Type and insert LTId
-     $ltid = $rpc->feasibilityLinkType($rpanel_project);
-     $rpanel_project->setLTId($ltid);
-     
-     // Create Feasibility Full Url
-     $rpc->feasibilityLinkFullUrl($rpanel_project);
+       $conn->commit();
+     }
+     catch (\Exception $e) {
+       $conn->rollBack();
+       throw $e;
+     }
      
      return $fq;
    }
@@ -326,8 +360,11 @@ class ClipperCommand extends ContainerAwareCommand
       $ls = new LimeSurvey();
       $ls->configure($params_ls['api']);
       
-      $participants = array();
-      foreach ($fq->getLimesurveyDataByField('participants') as $participant) {
+      // check if quota has been reached
+      $quota = $fq->getFormDataByField('num_participants'); // get total quota
+      $participants = new ArrayCollection($fq->getLimesurveyDataByField('participants'));
+      $participant = $participants->first();
+      while ($quota > 0) {
         $request = array(
           'iSurveyID' => $iSurveyID, 
           'iTokenID' => $participant['tid'], 
@@ -336,26 +373,30 @@ class ClipperCommand extends ContainerAwareCommand
         $response = $ls->get_participant_properties($request);
         if (isset($response['status'])) {
           throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_participant_properties]");
-          break;
         }
-        if (current($response) == 'N') {
-          throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
-          break;
+        if (current($response) == 'Y') {
+          $quota--;
         }
+        $participant = $participants->next();
       }
       
-      // if we get this far then deactivate survey
-      // $response = $ls->set_survey_properties(array(
-        // 'iSurveyID' => $iSurveyID, 
-        // 'aSurveyData' => array(
-          // // 'active' => 'N'
-          // 'expire' => self::$timestamp,
-        // ), 
-      // ));
-      // if (isset($response['status'])) {
-        // Debug::dump($ls, 6);
-        // throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
-      // }
+      // if we still have quota left, then exit
+      if ($quota > 0) {
+        throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
+      }
+      
+      // quota reached, expire survey
+      $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
+      $response = $ls->set_survey_properties(array(
+        'iSurveyID' => $iSurveyID, 
+        'aSurveyData' => array(
+          'expires' => self::$timestamp,
+        ), 
+      ));
+      if (isset($response['status'])) {
+        $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
+        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
+      }
      
       return $fq;
    }

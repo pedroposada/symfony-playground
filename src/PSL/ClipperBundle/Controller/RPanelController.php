@@ -17,6 +17,7 @@ use \stdClass as stdClass;
 class RPanelController extends Controller
 {
   private $params;
+  private $conn;
   
   function __construct($params) 
   {
@@ -24,18 +25,12 @@ class RPanelController extends Controller
   }
   
   /**
-   * function to open a connection to the RPanel DBs
-   * @param $dbconfig assoc array of database connection settings like
-   *  dbname =>   name
-   *  user =>     username
-   *  password => password
-   *  host =>     localhost
-   *  driver =>   mysql
+   * set connection to DB
+   * @param $connection 
    */
-  private function getConnection($dbconfig = array())
+  public function setConnection(\Doctrine\DBAL\Connection $connection)
   {
-    $config = new \Doctrine\DBAL\Configuration();
-    return \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
+    $this->conn = $connection;
   }
   
   /**
@@ -47,7 +42,7 @@ class RPanelController extends Controller
    */
   public function createFeasibilityProject(RPanelProject $rp)
   {
-    $conn = $this->getConnection($this->params['databases']['translateapi']);
+    $conn = $this->conn;
     $conn->insert('feasibility_project', array('proj_name' => $rp->getProjectName(), // 'Name of FirstQ project'
                                                'proj_status' => 1,                   // 1
                                                'created_by' => $rp->getCreatedBy(),  // userid
@@ -65,7 +60,7 @@ class RPanelController extends Controller
    */
   public function createFeasibilityProjectQuota(RPanelProject $rp, $gs_result)
   {
-    $conn = $this->getConnection($this->params['databases']['translateapi']);
+    $conn = $this->conn;
     $conn->insert('feasibility_project_quota', array('proj_id' => $rp->getProjId(),              // feasibility_project.projid,
                                                     'respondent_req' => $rp->getNumParticipants(), // [Number of respondents required],
                                                     'specialty_id' => $rp->getSpecialtyId(),     // [Specialty ID from MDM],
@@ -107,7 +102,7 @@ class RPanelController extends Controller
    */
   public function updateFeasibilityProject(RPanelProject $rp)
   {
-    $conn = $this->getConnection($this->params['databases']['translateapi']);
+    $conn = $this->conn;
     $conn->update('feasibility_project', array('proj_status' => 2,                      // 2
                                                'launch_date' => $rp->getCreatedDate()), // Now()
                                          array('proj_id' => $rp->getProjId()));         // proj_id
@@ -121,7 +116,7 @@ class RPanelController extends Controller
    */
   public function createProject(RPanelProject $rp)
   {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
+    $conn = $this->conn;
     $conn->insert('PROJECT', array('project_code' => $rp->getProjId(),       // feasibility_project.projid
                                   'client_id' => $rp->getCreatedBy(),        // [ClientID provided by Guohui]
                                   'status_id' => 1,                          // 1
@@ -141,7 +136,7 @@ class RPanelController extends Controller
    */
   public function createProjectDetail(RPanelProject $rp, $gs_result)
   {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
+    $conn = $this->conn;
     $conn->insert('PROJECT_DETAIL', array('project_sk' => $rp->getProjectSK(),     // PROJECT.project_sk,
                                           'specialty_id' => $rp->getSpecialtyId(), // feasibility_project_quota.specialty_id,
                                           'country_id' => $rp->getCountryId(),     // feasibility_project_quota.country,
@@ -163,7 +158,7 @@ class RPanelController extends Controller
    */
   public function feasibilityLinkType(RPanelProject $rp)
   {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
+    $conn = $this->conn;
     $conn->insert('feasibility_link_type', array('proj_id' => $rp->getProjId(),             // feasibility_project.projid
                                                  'quote_id' => $rp->getProjectSK(),         // PROJECT.project_sk
                                                  'link_type' => $rp->getLinkType(),         // 'full'
@@ -181,7 +176,7 @@ class RPanelController extends Controller
    */
   public function feasibilityLinkFullUrl(RPanelProject $rp)
   {
-    $conn = $this->getConnection($this->params['databases']['rpanel']);
+    $conn = $this->conn;
     foreach ($rp->getLimesurveyDataByField('urls') as $url) {
       $conn->insert('feasibility_link_full_url', array('LTID' => $rp->getLTId(),          // feasibility_link_type.ltid
                                                  'LINK_URL' => $url,                      // [Link URL from LimeSurvey]

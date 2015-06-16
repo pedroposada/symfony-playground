@@ -21,7 +21,7 @@ parameters:
       username:                       [*bigcommerce_api_username*]
       store_url:                      [*bigcommerce_api_store_url*]
       api_key:                        [*bigcommerce_api_api_key*]
-    order_status_code_completed:      [*bigcommerce_order_status_code_completed*] # numeric code in bigcommerce for Completed orders
+    order_status_code_completed:      10 # numeric code in bigcommerce for Completed orders
     category_code_firstq:             [*bigcommerce_category_code_firstq*] # numeric code in bigcommerce for FirstQ category
   
   # Clipper settings
@@ -94,7 +94,6 @@ swiftmailer:
     port:                             [*swiftmailer_port*]
     encryption:                       [*swiftmailer_encryption*]
     auth_mode:                        [*swiftmailer_auth_mode*]
-    sender_address:                   [*swiftmailer_sender_address*]
     antiflood:
         threshold:                    99
         sleep:                        0

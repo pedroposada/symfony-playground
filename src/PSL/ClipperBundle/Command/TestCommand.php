@@ -143,19 +143,30 @@ class TestCommand extends ContainerAwareCommand
     // ));
     
     // Debug::dump($response,6);
-    $params_clip = $this->getContainer()->getParameter('clipper');
-    $message = \Swift_Message::newInstance()
-        ->setSubject($params_clip['email_ls_results']['subject'])
-        ->setFrom($params_clip['email_ls_results']['from'])
-        ->setTo($params_clip['email_ls_results']['to'])
-        ->setBody(strtr($params_clip['email_ls_results']['body'], array(
-          '[SID]' => 77777,
-        )))
-        ;
-        
-    $mailer = $this->getContainer()->get('mailer');
-    $mailer->send($message, $failures);
-    dump($mailer);
+    // $params_clip = $this->getContainer()->getParameter('clipper');
+    // $message = \Swift_Message::newInstance()
+        // ->setSubject($params_clip['email_ls_results']['subject'])
+        // ->setFrom($params_clip['email_ls_results']['from'])
+        // ->setTo($params_clip['email_ls_results']['to'])
+        // ->setBody(strtr($params_clip['email_ls_results']['body'], array(
+          // '[SID]' => 77777,
+        // )))
+        // ;
+//         
+    // $mailer = $this->getContainer()->get('mailer');
+    // $mailer->send($message, $failures);
+    // dump($mailer);
+    
+    
+    // if we get this far then deactivate survey
+      $response = $ls->set_survey_properties(array(
+        'iSurveyID' => 547988, 
+        'aSurveySettings' => array(
+          // 'active' => 'N'
+          'expires' => time(),
+        ), 
+      ));
+      dump($ls);
     
   }
 }

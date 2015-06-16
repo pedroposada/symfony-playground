@@ -11,3 +11,4 @@
 /web/bundles/
 src/PSL/ClipperBundle/Command/TestCommand.php
 app/config/parameters.yml
+src/PSL/ClipperBundle/Command/TestCommand.php
