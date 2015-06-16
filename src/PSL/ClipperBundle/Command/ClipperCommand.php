@@ -15,6 +15,7 @@ use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
+use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -219,7 +220,7 @@ class ClipperCommand extends ContainerAwareCommand
     }
     
     // add participants
-    $num_participants = current($fq->getSheetDataByField('r_sample'));
+    $num_participants = current($fq->getSheetDataByField('r_sample')); // number of tokens for participants
     $participants = array();
     foreach (range(1, $num_participants) as $value) {
       $participants[] = array(
@@ -240,8 +241,8 @@ class ClipperCommand extends ContainerAwareCommand
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $response;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs(
-      $this->getContainer()->getParameter('limesurvey.url_destination'), $iSurveyID, $response);
+    $ls_raw_data->urls = $this
+      ->createlimeSurveyParticipantsURLs($this->getContainer()->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
     $fq->setLimesurveyDataRaw(serialize($ls_raw_data));
     
     return $fq;
@@ -359,8 +360,11 @@ class ClipperCommand extends ContainerAwareCommand
       $ls = new LimeSurvey();
       $ls->configure($params_ls['api']);
       
-      $participants = array();
-      foreach ($fq->getLimesurveyDataByField('participants') as $participant) {
+      // check if quota has been reached
+      $quota = $fq->getFormDataByField('num_participants'); // get total quota
+      $participants = new ArrayCollection($fq->getLimesurveyDataByField('participants'));
+      $participant = $participants->first();
+      while ($quota > 0) {
         $request = array(
           'iSurveyID' => $iSurveyID, 
           'iTokenID' => $participant['tid'], 
@@ -369,15 +373,20 @@ class ClipperCommand extends ContainerAwareCommand
         $response = $ls->get_participant_properties($request);
         if (isset($response['status'])) {
           throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_participant_properties]");
-          break;
         }
-        if (current($response) == 'N') {
-          throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
-          break;
+        if (current($response) == 'Y') {
+          $quota--;
         }
+        $participant = $participants->next();
       }
       
-      // if we get this far then deactivate survey
+      // if we still have quota left, then exit
+      if ($quota > 0) {
+        throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
+      }
+      
+      // quota reached, expire survey
+      $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
       $response = $ls->set_survey_properties(array(
         'iSurveyID' => $iSurveyID, 
         'aSurveyData' => array(

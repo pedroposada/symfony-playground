@@ -223,5 +223,23 @@ class ClipperController extends FOSRestController
     $em->persist($firstq_project);
     $em->flush();
   }
+  
+  /**
+   * redirect users to LimeSurvey Survey page
+   * /clipper/limesurvey/{sid}/{slug}/{lang}
+   */
+  public function redirectLimeSurveyAction($sid, $slug, $lang)
+  {
+    // Get parameters
+    $limesurvey_url_destination = $this->container->getParameter('limesurvey.url_destination');
+    
+    $destination = strtr($limesurvey_url_destination, array(
+      '[SID]' => $sid,
+      '[LANG]' => 'en',
+      '[SLUG]' => $slug
+    ));
+    
+    return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
+  }
 
 }
