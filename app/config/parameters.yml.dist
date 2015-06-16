@@ -10,10 +10,10 @@ parameters:
   database_password:                  [*db_pass*]
   
   # Locale
-  locale:                             en
+  locale:                             "en"
   
   # secret key
-  secret:                             [*secret*]
+  secret:                             "[*secret*]"
   
   # BigCommerce Settings
   bigcommerce:
@@ -42,15 +42,17 @@ parameters:
   # LimeSurvey settings
   limesurvey:
     api:
-      ls_baseurl:                     [*limesurvey_api_ls_baseurl*]
-      ls_password:                    [*limesurvey_api_ls_password*]
-      ls_user:                        [*limesurvey_api_ls_user*]
+      ls_baseurl:                     "[*limesurvey_api_ls_baseurl*]"
+      ls_password:                    "[*limesurvey_api_ls_password*]"
+      ls_user:                        "[*limesurvey_api_ls_user*]"
     lss:
-      dir:                              [*limesurvey_lss_dir*]
-      brand_adoption:                   [*limesurvey_lss_brand_adoption*]
+      dir:                              "[*limesurvey_lss_dir*]"
+      brand_adoption:                   "[*limesurvey_lss_brand_adoption*]"
   limesurvey.url_destination_base_sid:  "%limesurvey.url_destination_base%/sid/[SID]"
   limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
   limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]"
+  limesurvey.url_redirect:              "[*limesurvey.url_redirect*]/[SID]/[SLUG]"
+  limesurvey.url_exit:                  "[*limesurvey.url_exit*]"
     
   # Rpanel
   rpanel:

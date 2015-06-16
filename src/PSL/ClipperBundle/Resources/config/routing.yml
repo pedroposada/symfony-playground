@@ -3,7 +3,7 @@ psl_clipper_limesurvey_redirect:
   defaults: { _controller: PSLClipperBundle:Clipper:redirectLimeSurvey }
   requirements:
     sid: \d+
-
+    
 # Automatic routes
 clipper:
   type:     rest

@@ -241,5 +241,5 @@ class ClipperController extends FOSRestController
     
     return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
   }
-
+  
 }

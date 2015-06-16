@@ -177,17 +177,18 @@ class ClipperCommand extends ContainerAwareCommand
     $finder = new Finder();
     $iterator = $finder
       ->files()
-      ->name($params_ls['lss']['brand_adoption']) // TODO: use $params['lss'][fq->getFormData('FirstQ Folio name”')]
+      ->name($params_ls['lss']['brand_adoption']) // TODO: use $params['lss'][fq->getFormData('name')]
       ->in($params_ls['lss']['dir'])
       ;
     $files = iterator_to_array($iterator);
     $file = current($files);
     $lss = $file->getContents();
     $tokens = array(
-      '_PATIENT_TYPE_' => "Diabetes Patients",
+      '_PATIENT_TYPE_' => $fq->getFormDataByField('patient_type'),
       '_SPECIALTY_' => implode(",", $fq->getFormDataByField('specialty')),
       '_MARKET_' => implode(",", $fq->getFormDataByField('market')),
-      '_BRAND_' => $this->clipperBrands(array("Brand1", "Brand2")),
+      '_BRAND_' => $this->clipperBrands($fq->getFormDataByField('brand')),
+      '_URL_EXIT_' => $this->getContainer()->getParameter('limesurvey.url_exit'),
     );
     $lss = strtr($lss, $tokens);
     
@@ -362,27 +363,17 @@ class ClipperCommand extends ContainerAwareCommand
       
       // check if quota has been reached
       $quota = $fq->getFormDataByField('num_participants'); // get total quota
-      $participants = new ArrayCollection($fq->getLimesurveyDataByField('participants'));
-      $participant = $participants->first();
-      while ($quota > 0) {
-        $request = array(
-          'iSurveyID' => $iSurveyID, 
-          'iTokenID' => $participant['tid'], 
-          'aTokenProperties' => array('completed'), // The properties to get
-        );
-        $response = $ls->get_participant_properties($request);
-        if (isset($response['status'])) {
-          throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_participant_properties]");
-        }
-        if (current($response) == 'Y') {
-          $quota--;
-        }
-        $participant = $participants->next();
+      $response = $ls->get_summary(array(
+        'iSurveyID' => $iSurveyID, 
+        'sStatName' => 'completed_responses', 
+      ));
+      if (isset($response['status'])) {
+        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
       }
       
-      // if we still have quota left, then exit
-      if ($quota > 0) {
-        throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
+      // if completed is less than quota, then exit
+      if ($quota > $response) {
+        throw new Exception("Quota has not been reached yet for fq->id: [{$fq->getId()}]");
       }
       
       // quota reached, expire survey
