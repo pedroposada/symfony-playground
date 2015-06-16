@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\VarDumper;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -240,6 +241,17 @@ class ClipperController extends FOSRestController
     ));
     
     return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
+  }
+  
+  /**  
+   * Simple debug output
+   */
+  public function debugAction(Request $request)
+  {
+    // comment out line below to override display of dump(request)
+    $debug = dump($request);
+    // $debug = 'any output';
+    return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
   }
   
 }

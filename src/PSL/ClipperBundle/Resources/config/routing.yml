@@ -10,10 +10,6 @@ clipper:
   resource: PSL\ClipperBundle\Controller\ClipperController
   prefix:   /ws
 
-psl_clipper_googlespreadsheets_feasibility:
-  path:     /clipper-gs/feasibility/{loi}/{ir}/{country}/{specialty}
-  defaults: { _controller: PSLClipperBundle:GoogleSpreadsheet:requestFeasibility }
-
-psl_clipper_googlespreadsheets_universes:
-  path:     /clipper-gs/universes/{country}/{specialty}
-  defaults: { _controller: PSLClipperBundle:GoogleSpreadsheet:requestUniverses }
+psl_clipper_debug:
+  path:     /debug
+  defaults: { _controller: PSLClipperBundle:Clipper:debug }
