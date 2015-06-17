@@ -304,18 +304,27 @@ class LimeSurvey
   
   /**
    * RPC Routine to get survey properties.
-   * active autonumber_start  emailnotificationto nokeyboard  showwelcome
-additional_languages  autoredirect  emailresponseto owner_id  showxquestions
-admin bounce_email  expires printanswers  sid
-adminemail  bounceaccountencryption faxto publicgraphs  startdate
-alloweditaftercompletion  bounceaccounthost format  publicstatistics  template
-allowjumps  bounceaccountpass googleanalyticsapikey refurl  tokenanswerspersistence
-allowprev bounceaccounttype googleanalyticsstyle  savetimings tokenlength
-allowregister bounceaccountuser htmlemail sendconfirmation  usecaptcha
-allowsave bounceprocessing  ipaddr  showgroupinfo usecookie
-anonymized  bouncetime  language  shownoanswer  usetokens
-assessments datecreated listpublic  showprogress  
-attributedescriptions datestamp navigationdelay showqnumcode
+   * 
+   * active                     autonumber_start            emailnotificationto 
+   * nokeyboard                 showwelcome                 additional_languages        
+   * autoredirect               emailresponseto             owner_id  
+   * showxquestions             admin                       expires 
+   * printanswers               sid                         adminemail  
+   * bounceaccountencryption    faxto                       publicgraphs  
+   * startdate                  alloweditaftercompletion    bounceaccounthost 
+   * format                     publicstatistics            template
+   * allowjumps                 bounceaccountpass           googleanalyticsapikey 
+   * refurl                     tokenanswerspersistence     allowprev 
+   * bounceaccounttype          googleanalyticsstyle        savetimings 
+   * tokenlength                allowregister               bounceaccountuser 
+   * htmlemail                  sendconfirmation            usecaptcha
+   * allowsave                  bounceprocessing            ipaddr  
+   * showgroupinfo              usecookie                   anonymized  
+   * bouncetime                 language                    shownoanswer  
+   * usetokens                  assessments                 datecreated 
+   * listpublic                 showprogress                attributedescriptions 
+   * datestamp                  navigationdelay             showqnumcode
+   * bounce_email
    */
   public function get_survey_properties($args = array()) 
   {
@@ -361,5 +370,40 @@ attributedescriptions datestamp navigationdelay showqnumcode
     
     return $this->call(__FUNCTION__, $param_arr);
   }
+  
+  /**
+   * RPC routine to get survey summary, regarding token usage and survey participation.
+   * Returns the requested value as string.
+   * 
+   *  Available statistics:
+   * 
+   *  Survey stats              Token stats
+   * 
+      all                       array of all stats
+      completed_responses       token_count
+      incomplete_responses      token_invalid
+      full_responses            token_sent
+                                token_opted_out
+                                token_completed
+   * 
+   */
+  public function get_summary($args = array()) 
+  {
+    /**
+    * @access public
+    * @param string $sSessionKey Auth credentials
+    * @param int $iSurveyID Id of the Survey to get summary
+    * @param string $sStatName Name of the sumamry option
+    * @return string The requested value
+    */
+    $param_arr = array_merge(array(
+      'sSessionKey' => $this->session_key,
+      'iSurveyID' => null, 
+      'sStatName' => null, 
+    ), $args);
+    
+    return $this->call(__FUNCTION__, $param_arr);
+  }
+
 
 }

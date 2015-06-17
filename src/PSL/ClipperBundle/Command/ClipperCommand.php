@@ -114,7 +114,7 @@ class ClipperCommand extends ContainerAwareCommand
    * state == bigcommerce_pending
    * Ads BigCommerce Order Id to this FirstQProject
    */
-  private function bigcommerce_pending(FirstQProject $fq)
+  public function bigcommerce_pending(FirstQProject $fq)
   {
     $params = $this->getContainer()->getParameter('bigcommerce');
 
@@ -164,7 +164,7 @@ class ClipperCommand extends ContainerAwareCommand
    * state == bigcommerce_complete
    * Creates LimeSurvey Survey fo this FirstQProject
    */
-  private function bigcommerce_complete(FirstQProject $fq)
+  public function bigcommerce_complete(FirstQProject $fq)
   {
     // get LS settings
     $params_ls = $this->getContainer()->getParameter('limesurvey');
@@ -177,17 +177,18 @@ class ClipperCommand extends ContainerAwareCommand
     $finder = new Finder();
     $iterator = $finder
       ->files()
-      ->name($params_ls['lss']['brand_adoption']) // TODO: use $params['lss'][fq->getFormData('FirstQ Folio name”')]
+      ->name($params_ls['lss']['brand_adoption']) // TODO: use $params['lss'][fq->getFormData('name')]
       ->in($params_ls['lss']['dir'])
       ;
     $files = iterator_to_array($iterator);
     $file = current($files);
     $lss = $file->getContents();
     $tokens = array(
-      '_PATIENT_TYPE_' => "Diabetes Patients",
+      '_PATIENT_TYPE_' => $fq->getFormDataByField('patient_type'),
       '_SPECIALTY_' => implode(",", $fq->getFormDataByField('specialty')),
       '_MARKET_' => implode(",", $fq->getFormDataByField('market')),
-      '_BRAND_' => $this->clipperBrands(array("Brand1", "Brand2")),
+      '_BRAND_' => $this->clipperBrands($fq->getFormDataByField('brand')),
+      '_URL_EXIT_' => $this->getContainer()->getParameter('limesurvey.url_exit'),
     );
     $lss = strtr($lss, $tokens);
     
@@ -255,7 +256,7 @@ class ClipperCommand extends ContainerAwareCommand
    * This step inserts data into a remote database
    * The RPanel Project object is used to keep all data from step to step 
    */
-   private function limesurvey_created(FirstQProject $fq)
+   public function limesurvey_created(FirstQProject $fq)
    {
      // database parameters
      $params_rp = $this->getContainer()->getParameter('rpanel');
@@ -361,39 +362,28 @@ class ClipperCommand extends ContainerAwareCommand
    * state == rpanel_complete
    * Check if we have reached quota with num_participants in limesurvey
    */
-   private function rpanel_complete(FirstQProject $fq) 
+   public function rpanel_complete(FirstQProject $fq) 
    {
-      // get LS settings
-      $params_ls = $this->getContainer()->getParameter('limesurvey');
       $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
       
       // config connection to LS
+      $params_ls = $this->getContainer()->getParameter('limesurvey');
       $ls = new LimeSurvey();
       $ls->configure($params_ls['api']);
       
       // check if quota has been reached
       $quota = $fq->getFormDataByField('num_participants'); // get total quota
-      $participants = new ArrayCollection($fq->getLimesurveyDataByField('participants'));
-      $participant = $participants->first();
-      while ($quota > 0) {
-        $request = array(
-          'iSurveyID' => $iSurveyID, 
-          'iTokenID' => $participant['tid'], 
-          'aTokenProperties' => array('completed'), // The properties to get
-        );
-        $response = $ls->get_participant_properties($request);
-        if (isset($response['status'])) {
-          throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_participant_properties]");
-        }
-        if (current($response) == 'Y') {
-          $quota--;
-        }
-        $participant = $participants->next();
+      $response = $ls->get_summary(array(
+        'iSurveyID' => $iSurveyID, 
+        'sStatName' => 'completed_responses', 
+      ));
+      if (isset($response['status'])) {
+        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
       }
       
-      // if we still have quota left, then exit
-      if ($quota > 0) {
-        throw new Exception("Quota has not been reached for fq->id: [{$fq->getId()}] on [get_participant_properties]");
+      // if completed is less than quota, then exit
+      if ($quota > $response) {
+        throw new Exception("Quota has not been reached yet for fq->id: [{$fq->getId()}]");
       }
       
       // quota reached, expire survey
