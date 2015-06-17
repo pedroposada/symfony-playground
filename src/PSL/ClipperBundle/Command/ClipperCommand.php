@@ -265,21 +265,32 @@ class ClipperCommand extends ContainerAwareCommand
      // and add other values
      $rpanel_project = new RPanelProject($fq);
      $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
+     $rpanel_project->setProjStatus($params_rp['default_table_values']['proj_status']);
+     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
      $rpanel_project->setCreatedBy($params_rp['user_id']);
      $specialtyId = $fq->getFormDataByField('specialty');
      $rpanel_project->setSpecialtyId(MDMMapping::map('specialties', (string)current($specialtyId)));
      // $countryId = $fq->getFormDataByField('market');
      // $rpanel_project->setCountryId(MDMMapping::map('countries', (string)$countryId[0]));
      $rpanel_project->setCountryId(10); // @TODO: this is a hard coded value up until we get the proper mapping
-     $rpanel_project->setIncidenceRate(100);
-     $rpanel_project->setLength(5);
-     $rpanel_project->setFieldDuration(1);
+     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incidence_rate']);
+     $rpanel_project->setLength($params_rp['default_table_values']['length']);
+     $rpanel_project->setTargetSize($params_rp['default_table_values']['target_size']);
+     $rpanel_project->setTargetList($params_rp['default_table_values']['target_list']);
+     $rpanel_project->setFeasibilityFile($params_rp['default_table_values']['feasibility_file']);
+     $rpanel_project->setRespondent($params_rp['default_table_values']['respondent']);
+     $rpanel_project->setDuration($params_rp['default_table_values']['duration']);
+     $rpanel_project->setFieldDuration($params_rp['default_table_values']['field_duration']);
+     $rpanel_project->setStatusId($params_rp['default_table_values']['status_id']);
+     $rpanel_project->setBrandId($params_rp['default_table_values']['brand_id']);
+     $rpanel_project->setEmailTemplateId($params_rp['default_table_values']['email_template_id']);
      $num_participants = $fq->getFormDataByField('num_participants');
      $rpanel_project->setNumParticipants((int)$num_participants[0]);
      $rpanel_project->setEstimateDate(date('Y-m-d H:i:s'));
      $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
-     $rpanel_project->setProjectType('jit');
-     $rpanel_project->setLinkType('full');
+     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
+     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
+     
      
      $gs_result = $rpanel_project->getSheetDataByField('result');
      foreach ($gs_result as $key => &$value) {

@@ -43,10 +43,10 @@ class RPanelController extends Controller
   public function createFeasibilityProject(RPanelProject $rp)
   {
     $conn = $this->conn;
-    $conn->insert('feasibility_project', array('proj_name' => $rp->getProjectName(), // 'Name of FirstQ project'
-                                               'proj_status' => 1,                   // 1
+    $conn->insert('feasibility_project', array('proj_name' => $rp->getProjName(), // 'Name of FirstQ project'
+                                               'proj_status' => $rp->getProjStatus(), // 1
                                                'created_by' => $rp->getCreatedBy(),  // userid
-                                               'proj_type' => 1));                   // 1
+                                               'proj_type' => $rp->getProjType())); // 1
     
     // returned the last inserted auto increment
     // feasibility_project.projid
@@ -67,11 +67,11 @@ class RPanelController extends Controller
                                                     'country' => $rp->getCountryId(),            // [Country ID from MDM],
                                                     'incidence_rate' => $rp->getIncidenceRate(), // [Incidence Rate, ask Claire, might be 100],
                                                     'length' => $rp->getLength(),                // [Length of interview, ask Claire, I think it is 5],
-                                                    'target_size' => 0,                          // 0,
-                                                    'target_list' => 0,                          // 0,
-                                                    'feasibility_file' => 0,                     // 0,
-                                                    'respondent' => 0,                           // 0,
-                                                    'duration' => 0,                             // 0,
+                                                    'target_size' => $rp->getTargetSize(),       // 0,
+                                                    'target_list' => $rp->getTargetList(),       // 0,
+                                                    'feasibility_file' => $rp->getFeasibilityFile(), // 0,
+                                                    'respondent' => $rp->getRespondent(),        // 0,
+                                                    'duration' => $rp->getDuration(),            // 0,
                                                     'field_duration' => $rp->getFieldDuration(), // [Field Duration in days, most likely 1],
                                                     'r_uni_size' => (int)$gs_result['F3'],        // [Col F Row 3 in Google Sheet],
                                                     'r_uni_feasible' => (int)$gs_result['F5'],    // [Col F Row 5 in Google Sheet],
@@ -119,9 +119,9 @@ class RPanelController extends Controller
     $conn = $this->conn;
     $conn->insert('PROJECT', array('project_code' => $rp->getProjId(),       // feasibility_project.projid
                                   'client_id' => $rp->getCreatedBy(),        // [ClientID provided by Guohui]
-                                  'status_id' => 1,                          // 1
-                                  'pm_details' => $rp->getProjectName(),     // feasibility_project.proj_name
-                                  'brand_id' => 1,                           // 1
+                                  'status_id' => $rp->getStatusId(),         // 1
+                                  'pm_details' => $rp->getProjName(),        // feasibility_project.proj_name
+                                  'brand_id' => $rp->getBrandId(),           // 1
                                   'project_type' => $rp->getProjectType())); // 'jit'
     
     // returned the last inserted auto increment
@@ -143,7 +143,7 @@ class RPanelController extends Controller
                                           'hono_amount' => (int)$gs_result['F26'], // feasibility_project_quota.r_hono_offer,
                                           'hono_currency' => $gs_result['F27'],    // feasibility_project_quota.r_hono_cur,
                                           'interview_length' => $rp->getLength(),  // feasibility_project_quota.length,
-                                          'email_template_id' => 0,                // 0,
+                                          'email_template_id' => $rp->getEmailTemplateId(), // 0,
                                           'sample_invites' => $gs_result['F8'],    // feasibility_project_quota.r_sample,
                                           'quota' => $rp->getNumParticipants()));  // feasibility_project_quota.respondent_req
     

@@ -20,6 +20,10 @@ class RPanelProject
   
   protected $proj_name;
   
+  protected $proj_status;
+  
+  protected $proj_type;
+  
   protected $specialty_id; // mapped with MDMMapping
   
   protected $country_id; // mapped with MDMMapping
@@ -28,7 +32,25 @@ class RPanelProject
   
   protected $length;
   
+  protected $target_size;
+  
+  protected $target_list;
+  
+  protected $feasibility_file;
+  
+  protected $respondent;
+  
+  protected $duration;
+  
   protected $field_duration;
+  
+  protected $status_id;
+  
+  protected $brand_id;
+  
+  protected $email_template_id;
+  
+  protected $num_participants;
   
   protected $google_sheet;
   
@@ -45,21 +67,6 @@ class RPanelProject
   protected $created_by;
   
   protected $created_date;
-  
-  // hard coded values not added for now
-  
-  // proj_status (1)
-  // proj_type (1)
-  // target_size (0), 
-  // target_list (0), 
-  // feasibility_file (0), 
-  // respondent (0), 
-  // duration (0), 
-  // status_id (1)
-  // brand_id (1)
-  // interview_length (LoI, FormData),
-  // email_template_id (0)
-  
   
   function __construct(FirstQProject $fq) 
   {
@@ -120,11 +127,47 @@ class RPanelProject
    *
    * @return string
    */
-  public function getProjectName()
+  public function getProjName()
   {
       return $this->proj_name;
   }
-  
+
+  /**
+   * Set proj_status;
+   */
+  public function setProjStatus($status)
+  {
+      $this->proj_status = $status;
+  }
+
+  /**
+   * Get proj_status;
+   *
+   * @return int
+   */
+  public function getProjStatus()
+  {
+      return $this->proj_status;
+  }
+
+  /**
+   * Set proj_type;
+   */
+  public function setProjType($type)
+  {
+      $this->proj_type = $type;
+  }
+
+  /**
+   * Get proj_type;
+   *
+   * @return int
+   */
+  public function getProjType()
+  {
+      return $this->proj_type;
+  }
+
   /**
    * Set specialty_id
    */
@@ -196,7 +239,97 @@ class RPanelProject
   {
       return $this->length;
   }
+
+  /**
+   * Set target_size
+   */
+  public function setTargetSize($size)
+  {
+      $this->target_size = $size;
+  }
+
+  /**
+   * Get target_size
+   *
+   * @return int
+   */
+  public function getTargetSize()
+  {
+      return $this->target_size;
+  }
+
+  /**
+   * Set target_list
+   */
+  public function setTargetList($list)
+  {
+      $this->target_list = $list;
+  }
+
+  /**
+   * Get target_list
+   *
+   * @return int
+   */
+  public function getTargetList()
+  {
+      return $this->target_list;
+  }
+
+  /**
+   * Set feasibility_file
+   */
+  public function setFeasibilityFile($file)
+  {
+      $this->feasibility_file = $file;
+  }
+
+  /**
+   * Get feasibility_file
+   *
+   * @return int
+   */
+  public function getFeasibilityFile()
+  {
+      return $this->feasibility_file;
+  }
+
+  /**
+   * Set respondent
+   */
+  public function setRespondent($respondent)
+  {
+      $this->respondent = $respondent;
+  }
+
+  /**
+   * Get respondent
+   *
+   * @return int
+   */
+  public function getRespondent()
+  {
+      return $this->respondent;
+  }
   
+  /**
+   * Set duration
+   */
+  public function setDuration($duration)
+  {
+      $this->duration = $duration;
+  }
+
+  /**
+   * Get duration
+   *
+   * @return int
+   */
+  public function getDuration()
+  {
+      return $this->duration;
+  }
+
   /**
    * Set field_duration
    */
@@ -214,7 +347,61 @@ class RPanelProject
   {
       return $this->field_duration;
   }
-  
+
+  /**
+   * Set status_id
+   */
+  public function setStatusId($id)
+  {
+      $this->status_id = $id;
+  }
+
+  /**
+   * Get status_id
+   *
+   * @return int
+   */
+  public function getStatusId()
+  {
+      return $this->status_id;
+  }
+
+  /**
+   * Set brand_id
+   */
+  public function setBrandId($id)
+  {
+      $this->brand_id = $id;
+  }
+
+  /**
+   * Get brand_id
+   *
+   * @return int
+   */
+  public function getBrandId()
+  {
+      return $this->brand_id;
+  }
+
+  /**
+   * Set email_template_id
+   */
+  public function setEmailTemplateId($id)
+  {
+      $this->email_template_id = $id;
+  }
+
+  /**
+   * Get email_template_id
+   *
+   * @return int
+   */
+  public function getEmailTemplateId()
+  {
+      return $this->email_template_id;
+  }
+
   /**
    * Set num_participants
    */
