@@ -76,10 +76,7 @@ class ClipperCommand extends ContainerAwareCommand
         $this->logger->info("OK processing FirstQProject with id: [{$fq->getId()}]");
       }
       catch (\Exception $e) {
-        $debug = new stdClass();
-        $debug->file = $e->getFile();
-        $debug->line = $e->getLine();
-        $this->logger->debug(Debug::toString($debug));
+        $this->logger->debug("File: {$e->getFile()} - {$e->getLine()}");
         $this->logger->error($e->getMessage());
       }
     }
@@ -377,7 +374,7 @@ class ClipperCommand extends ContainerAwareCommand
         'iSurveyID' => $iSurveyID, 
         'sStatName' => 'completed_responses', 
       ));
-      if (isset($response['status'])) {
+      if (is_array($response) && isset($response['status'])) {
         throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
       }
       
@@ -394,7 +391,7 @@ class ClipperCommand extends ContainerAwareCommand
           'expires' => self::$timestamp,
         ), 
       ));
-      if (isset($response['status'])) {
+      if (is_array($response) && isset($response['status'])) {
         $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
         throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
       }
