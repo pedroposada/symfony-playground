@@ -114,7 +114,7 @@ class ClipperCommand extends ContainerAwareCommand
    * state == bigcommerce_pending
    * Ads BigCommerce Order Id to this FirstQProject
    */
-  private function bigcommerce_pending(FirstQProject $fq)
+  public function bigcommerce_pending(FirstQProject $fq)
   {
     $params = $this->getContainer()->getParameter('bigcommerce');
 
@@ -164,7 +164,7 @@ class ClipperCommand extends ContainerAwareCommand
    * state == bigcommerce_complete
    * Creates LimeSurvey Survey fo this FirstQProject
    */
-  private function bigcommerce_complete(FirstQProject $fq)
+  public function bigcommerce_complete(FirstQProject $fq)
   {
     // get LS settings
     $params_ls = $this->getContainer()->getParameter('limesurvey');
@@ -256,7 +256,7 @@ class ClipperCommand extends ContainerAwareCommand
    * This step inserts data into a remote database
    * The RPanel Project object is used to keep all data from step to step 
    */
-   private function limesurvey_created(FirstQProject $fq)
+   public function limesurvey_created(FirstQProject $fq)
    {
      // database parameters
      $params_rp = $this->getContainer()->getParameter('rpanel');
@@ -351,13 +351,12 @@ class ClipperCommand extends ContainerAwareCommand
    * state == rpanel_complete
    * Check if we have reached quota with num_participants in limesurvey
    */
-   private function rpanel_complete(FirstQProject $fq) 
+   public function rpanel_complete(FirstQProject $fq) 
    {
-      // get LS settings
-      $params_ls = $this->getContainer()->getParameter('limesurvey');
       $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
       
       // config connection to LS
+      $params_ls = $this->getContainer()->getParameter('limesurvey');
       $ls = new LimeSurvey();
       $ls->configure($params_ls['api']);
       

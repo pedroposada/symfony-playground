@@ -26,6 +26,8 @@ use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
 use Bigcommerce\Api\Client as Bigcommerce;
 
+// custom
+use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Controller\GoogleSpreadsheetController;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQProject;
@@ -231,16 +233,33 @@ class ClipperController extends FOSRestController
    */
   public function redirectLimeSurveyAction($sid, $slug, $lang)
   {
-    // Get parameters
-    $limesurvey_url_destination = $this->container->getParameter('limesurvey.url_destination');
+    $response = null;
     
-    $destination = strtr($limesurvey_url_destination, array(
-      '[SID]' => $sid,
-      '[LANG]' => 'en',
-      '[SLUG]' => $slug
+    // config connection to LS
+    $params_ls = $this->container->getParameter('limesurvey');
+    $ls = new LimeSurvey();
+    $ls->configure($params_ls['api']);
+    $response = $ls->get_survey_properties(array(
+      'iSurveyID' => $sid, 
+      'aSurveySettings' => array('expires'), 
     ));
     
-    return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
+    if (!is_null($response['expires'])) {
+      // display message
+      $response = $this->render('PSLClipperBundle:Clipper:reachedQuota.html.twig');
+    }
+    else {
+      // redirect
+      $limesurvey_url_destination = $this->container->getParameter('limesurvey.url_destination');
+      $destination = strtr($limesurvey_url_destination, array(
+        '[SID]' => $sid,
+        '[LANG]' => 'en',
+        '[SLUG]' => $slug
+      ));
+      $response = new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
+    }
+    
+    return $response;
   }
   
   /**  
