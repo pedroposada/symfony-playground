@@ -52,7 +52,7 @@ parameters:
   limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
   limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]"
   limesurvey.url_redirect_base:         "[*limesurvey.url_redirect_base*]"
-  limesurvey.url_redirect:              "%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]"
+  limesurvey.url_redirect:              "%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]"
   limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/debug"
     
   # Rpanel
