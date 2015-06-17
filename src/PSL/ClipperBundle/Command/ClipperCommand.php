@@ -367,7 +367,7 @@ class ClipperCommand extends ContainerAwareCommand
         'sStatName' => 'completed_responses', 
       ));
       if (isset($response['status'])) {
-        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
+        throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
       }
       
       // if completed is less than quota, then exit
@@ -385,7 +385,7 @@ class ClipperCommand extends ContainerAwareCommand
       ));
       if (isset($response['status'])) {
         $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
-        throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
+        throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
       }
      
       return $fq;

@@ -159,17 +159,17 @@ class TestCommand extends ContainerAwareCommand
     
     
     // if we get this far then deactivate survey
-      // $response = $ls->get_summary(array(
-        // 'iSurveyID' => 366841, 
-        // 'sStatName' => 'token_invalid', 
-      // ));
-      
-      $response = $ls->get_survey_properties(array(
-        'iSurveyID' => 643645, 
-        'aSurveySettings' => array('expires'), 
+      $response = $ls->get_summary(array(
+        'iSurveyID' => 447428, 
+        'sStatName' => 'completed_responses', 
       ));
       
-      dump($ls);
+      // $response = $ls->get_survey_properties(array(
+        // 'iSurveyID' => 643645, 
+        // 'aSurveySettings' => array('expires'), 
+      // ));
+      
+      dump($response);
     
   }
 }
