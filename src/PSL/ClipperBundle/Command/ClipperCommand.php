@@ -184,7 +184,7 @@ class ClipperCommand extends ContainerAwareCommand
     $file = current($files);
     $lss = $file->getContents();
     $tokens = array(
-      '_PATIENT_TYPE_' => $fq->getFormDataByField('patient_type'),
+      '_PATIENT_TYPE_' => current($fq->getFormDataByField('patient_type')),
       '_SPECIALTY_' => implode(",", $fq->getFormDataByField('specialty')),
       '_MARKET_' => implode(",", $fq->getFormDataByField('market')),
       '_BRAND_' => $this->clipperBrands($fq->getFormDataByField('brand')),
