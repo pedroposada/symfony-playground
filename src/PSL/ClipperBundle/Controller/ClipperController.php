@@ -244,7 +244,7 @@ class ClipperController extends FOSRestController
       'aSurveySettings' => array('expires'), 
     ));
     
-    if (!is_null($response['expires'])) {
+    if (isset($response['expires']) && !is_null($response['expires'])) {
       // display message
       $response = $this->render('PSLClipperBundle:Clipper:reachedQuota.html.twig');
     }
