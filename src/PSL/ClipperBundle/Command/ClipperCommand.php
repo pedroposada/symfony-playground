@@ -273,7 +273,7 @@ class ClipperCommand extends ContainerAwareCommand
      // $countryId = $fq->getFormDataByField('market');
      // $rpanel_project->setCountryId(MDMMapping::map('countries', (string)$countryId[0]));
      $rpanel_project->setCountryId(10); // @TODO: this is a hard coded value up until we get the proper mapping
-     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incident_rate']);
+     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incidence_rate']);
      $rpanel_project->setLength($params_rp['default_table_values']['length']);
      $rpanel_project->setTargetSize($params_rp['default_table_values']['target_size']);
      $rpanel_project->setTargetList($params_rp['default_table_values']['target_list']);
