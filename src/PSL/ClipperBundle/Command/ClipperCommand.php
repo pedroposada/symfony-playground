@@ -197,7 +197,7 @@ class ClipperCommand extends ContainerAwareCommand
     ));
     $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'import_survey'));
     if (!is_int($iSurveyID)) {
-      throw new Exception("Could not import survey for fq->id: [{$fq->getId()}]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [import_survey]");
     }
     
     // activate S
@@ -206,7 +206,7 @@ class ClipperCommand extends ContainerAwareCommand
     ));
     $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Could not activate survey for fq->id: [{$fq->getId()}]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_survey]");
     }
     
     // activate tokens
@@ -214,13 +214,17 @@ class ClipperCommand extends ContainerAwareCommand
       'iSurveyID' => $iSurveyID, 
     ));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Could not activate survey tokens for fq->id: [{$fq->getId()}]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_tokens]");
     }
     
     // add participants
-    $num_participants = current($fq->getSheetDataByField('r_sample')); // number of tokens for participants
+    $participants_sample = current($fq->getSheetDataByField('participants_sample')); // number of tokens (links) for participants
+    if (empty($participants_sample)) {
+      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fq->getId()}] on [bigcommerce_complete]");
+    }
+    
     $participants = array();
-    foreach (range(1, $num_participants) as $value) {
+    for ($i = 0; $i < $participants_sample; $i++) { 
       $participants[] = array(
         'email' => "fq{$value}@pslgroup.com",
         'lastname' => "fq{$value}",
@@ -231,8 +235,8 @@ class ClipperCommand extends ContainerAwareCommand
       'iSurveyID' => $iSurveyID, 
       'participantData' => $participants, 
     ));
-    if (isset($response['status'])) {
-      throw new Exception("[{$response['status']}] for fq->id: [{$fq->getId()}]");
+    if (is_array($response) && isset($response['status'])) {
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [add_participants]");
     }
     
     // save limesurvey raw data
@@ -510,7 +514,7 @@ XML;
    * 
    * @param $baseURL string, base URL for limesurvey surveys, settings
    * @param $sid int, limesurvey survey id, stored in FQ entity
-   * @param $num_participants int, stored in FormDataRaw in FQ entity
+   * @param $participants int, stored in FormDataRaw in FQ entity
    * @return array, list of URLs for r-panel participants
    */
    public function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants) 
