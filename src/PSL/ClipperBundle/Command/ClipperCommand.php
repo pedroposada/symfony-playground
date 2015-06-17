@@ -391,7 +391,7 @@ class ClipperCommand extends ContainerAwareCommand
       $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
       $response = $ls->set_survey_properties(array(
         'iSurveyID' => $iSurveyID, 
-        'aSurveyData' => array(
+        'aSurveySettings' => array(
           'expires' => self::$timestamp,
         ), 
       ));
