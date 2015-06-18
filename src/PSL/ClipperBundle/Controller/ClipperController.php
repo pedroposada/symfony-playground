@@ -98,7 +98,7 @@ class ClipperController extends FOSRestController
       $gs_result = $gsc->requestFeasibility($form_data);
       
       // Bigcommerce product creation
-      $price = 1234.45;  // $googlesheet_result price// from google sheet
+      $price = str_replace(',', '', $gs_result->price); // google sheet result [F24]
       $bc_product = $this->getBigcommerceProduct($form_data->timestamp, $price);
       
       // Save into the database

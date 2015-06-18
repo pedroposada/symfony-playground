@@ -8,10 +8,7 @@
  * @version 1.0
  * @date 2015-05-27
  * 
- * @TODO: tasks 
- * - return object or serialized array of data from the spreadsheet to the CLipper Controller
- * 
- **/
+ */
 
 namespace PSL\ClipperBundle\Controller;
 
@@ -90,6 +87,8 @@ class GoogleSpreadsheetController extends Controller
         
         $feasibility->feasibility = TRUE;
         $feasibility->description = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
+        $feasibility->participants_sample = $result['F8']; 
+        $feasibility->price = $result['F24'];
         $feasibility->result = $result;
       }
       else {
