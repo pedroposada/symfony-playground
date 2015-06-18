@@ -633,7 +633,7 @@ _BRAND_
     <surveyls_endtext><![CDATA[Thanks for completing our survey]]></surveyls_endtext>
     <!-- <surveyls_url><![CDATA[http://site1.pedrop.csb.pslgroup.com]]></surveyls_url> -->
     <!-- <surveyls_urldescription><![CDATA[Clipper Project]]></surveyls_urldescription> -->
-    <surveyls_url><![CDATA[_URL_EXIT_?lstoken={PASSTHRU:lstoken}]]></surveyls_url>
+    <surveyls_url><![CDATA[_URL_EXIT_]]></surveyls_url>
     <surveyls_email_invite_subj><![CDATA[Invitation to participate in a survey]]></surveyls_email_invite_subj>
     <surveyls_email_invite><![CDATA[Dear {FIRSTNAME},<br />
 <br />
