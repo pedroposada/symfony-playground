@@ -50,10 +50,10 @@ parameters:
       brand_adoption:                   "[*limesurvey_lss_brand_adoption*]"
   limesurvey.url_destination_base_sid:  "%limesurvey.url_destination_base%/sid/[SID]"
   limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
-  limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]"
+  limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?lstoken={PASSTHRU:lstoken}"
   limesurvey.url_redirect_base:         "[*limesurvey.url_redirect_base*]"
   limesurvey.url_redirect:              "%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]"
-  limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/debug"
+  limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/exit"
     
   # Rpanel
   rpanel:

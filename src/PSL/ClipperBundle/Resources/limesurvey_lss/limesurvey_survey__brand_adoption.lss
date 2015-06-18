@@ -98,14 +98,6 @@
     <specialtype/>
     <defaultvalue><![CDATA[_SPECIALTY_]]></defaultvalue>
    </row>
-   <row>
-    <qid><![CDATA[3045]]></qid>
-    <scale_id><![CDATA[0]]></scale_id>
-    <sqid><![CDATA[3265]]></sqid>
-    <language><![CDATA[en]]></language>
-    <specialtype/>
-    <defaultvalue><![CDATA[_MID_]]></defaultvalue>
-   </row>
   </rows>
  </defaultvalues>
  <groups>
@@ -463,21 +455,6 @@ _BRAND_
     <scale_id><![CDATA[0]]></scale_id>
     <same_default><![CDATA[0]]></same_default>
    </row>
-   <row>
-    <qid><![CDATA[3265]]></qid>
-    <parent_qid><![CDATA[3045]]></parent_qid>
-    <sid><![CDATA[723936]]></sid>
-    <gid><![CDATA[165]]></gid>
-    <type><![CDATA[T]]></type>
-    <title><![CDATA[SQ003]]></title>
-    <question><![CDATA[Mid]]></question>
-    <other><![CDATA[N]]></other>
-    <mandatory><![CDATA[N]]></mandatory>
-    <question_order><![CDATA[3]]></question_order>
-    <language><![CDATA[en]]></language>
-    <scale_id><![CDATA[0]]></scale_id>
-    <same_default><![CDATA[0]]></same_default>
-   </row>
   </rows>
  </subquestions>
  <question_attributes>
@@ -585,7 +562,7 @@ _BRAND_
     <allowregister><![CDATA[N]]></allowregister>
     <allowsave><![CDATA[Y]]></allowsave>
     <autonumber_start><![CDATA[136]]></autonumber_start>
-    <autoredirect><![CDATA[N]]></autoredirect>
+    <autoredirect><![CDATA[Y]]></autoredirect>
     <allowprev><![CDATA[Y]]></allowprev>
     <printanswers><![CDATA[N]]></printanswers>
     <ipaddr><![CDATA[N]]></ipaddr>

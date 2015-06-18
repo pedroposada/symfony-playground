@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Maximum reached</title>
+    <title>{% block title %}{% endblock %}</title>
 
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
@@ -23,13 +23,7 @@
   <body>
     <div class="container">
       <div class="jumbotron">
-        <h1>Maximum reached</h1>
-        <p class="lead">
-          We have reached the maximum number of participants for this study.
-        </p>
-        <p class="lead">
-          Your time and responses are very valuable to us. We apologize for this inconvenience.
-        </p>
+        {% block body %}{% endblock %}
       </div>
     </div>
 

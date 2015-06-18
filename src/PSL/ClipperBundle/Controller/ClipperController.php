@@ -20,6 +20,7 @@ use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\RequestParam;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\RouteRedirectView;
@@ -246,7 +247,7 @@ class ClipperController extends FOSRestController
     
     if (isset($response['expires']) && !is_null($response['expires'])) {
       // display message
-      $response = $this->render('PSLClipperBundle:Clipper:reachedQuota.html.twig');
+      $response = $this->render('PSLClipperBundle:Clipper:maximum.html.twig');
     }
     else {
       // redirect
@@ -264,13 +265,31 @@ class ClipperController extends FOSRestController
   
   /**  
    * Simple debug output
+   * /clipper/limesurvey/debug
+   * 
+   * @param ParamFetcher $paramFetcher Paramfetcher
    */
-  public function debugAction(Request $request)
+  public function debugAction(ParamFetcher $paramFetcher)
   {
     // comment out line below to override display of dump(request)
-    $debug = dump($request);
+    $debug = dump($paramFetcher);
     // $debug = 'any output';
     return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
+  }
+  
+  /**  
+   * Simple debug output
+   * /clipper/limesurvey/exit
+   * 
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   * 
+   * @QueryParam(name="lstoken", default="(empty)", description="LimeSurvey Participant Token.")
+   */
+  public function exitAction(ParamFetcher $paramFetcher)
+  {
+    $response = $this->render('PSLClipperBundle:Clipper:exit.html.twig', array('token' => $paramFetcher->get('lstoken')));
+    
+    return $response;
   }
   
 }

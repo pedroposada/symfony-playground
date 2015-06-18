@@ -1,0 +1,15 @@
+{# src/Blogger/BlogBundle/Resources/views/maximum.html.twig #}
+
+{% extends 'PSLClipperBundle:Clipper:base.html.twig' %}
+
+{% block title %}Thank you{% endblock %}
+
+{% block body %}
+<h1>Thank you</h1>
+<p class="lead">
+  Thanks for completing the survey.
+</p>
+<small>
+  Participant token: {{ token }}.
+</small>
+{% endblock %}

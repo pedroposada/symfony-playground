@@ -171,15 +171,7 @@ class ClipperCommand extends ContainerAwareCommand
     $ls->configure($params_ls['api']);
     
     // get Survey template and replace tokens
-    $finder = new Finder();
-    $iterator = $finder
-      ->files()
-      ->name($params_ls['lss']['brand_adoption']) // TODO: use $params['lss'][fq->getFormData('name')]
-      ->in($params_ls['lss']['dir'])
-      ;
-    $files = iterator_to_array($iterator);
-    $file = current($files);
-    $lss = $file->getContents();
+    $lss = file_get_contents($params_ls['lss']['dir'] . '/' . $params_ls['lss']['brand_adoption']);
     $tokens = array(
       '_PATIENT_TYPE_' => current($fq->getFormDataByField('patient_type')),
       '_SPECIALTY_' => implode(",", $fq->getFormDataByField('specialty')),
