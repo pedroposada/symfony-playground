@@ -75,6 +75,9 @@ class ClipperController extends FOSRestController
    */
   public function postClipperValidationAction(ParamFetcher $paramFetcher)
   {
+    
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    
     // Object to return to remote form
     $returnObject = array();
     
@@ -113,11 +116,13 @@ class ClipperController extends FOSRestController
       
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
+      $this->logger->debug("Doctrine exception: {$e}");
     } 
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
+      $this->logger->debug("General exception: {$e}");
     }
       
       return new Response($returnObject);
@@ -185,6 +190,7 @@ class ClipperController extends FOSRestController
     $product = Bigcommerce::createProduct($fields);
 
     if( $product ) {
+      $this->logger->info("Bigcommerce project {$product->id} was created.");
       return $product;
     }
     else {
