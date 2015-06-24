@@ -64,12 +64,14 @@ class ClipperController extends FOSRestController
    * @requestparam(name="loi", default="", description="LOI.")
    * @requestparam(name="ir", default="", description="IR.")
    * @requestparam(name="title", default="", description="Title.")
-   * @requestparam(name="name", default="", description="Name.")
+   * @requestparam(name="name", default="", description="Name of the firstq project.")
+   * @requestparam(name="name_full", default="", description="Full name of the firstq project.")
    * @requestparam(name="patient_type", default="", description="Patient type.")
    * @requestparam(name="num_participants", default="", description="Number of participants.")
-   * @requestparam(name="market", default="", description="Market.")
-   * @requestparam(name="specialty", default="", description="Specialty.") 
+   * @requestparam(name="market", default="", description="Market.", array=true)
+   * @requestparam(name="specialty", default="", description="Specialty.", array=true) 
    * @requestparam(name="timestamp", default="", description="Timestamp.")
+   * @requestparam(name="survey_brand", default="", description="Brands.", array=true)
    * @requestparam(name="brand", default="", description="Brands.")
    * 
    * @return \Symfony\Component\BrowserKit\Response
@@ -89,28 +91,54 @@ class ClipperController extends FOSRestController
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name');
+      $form_data->name_full = $paramFetcher->get('name_full');
       $form_data->patient_type = $paramFetcher->get('patient_type');
       $form_data->num_participants = 35; // hard coded for now //$paramFetcher->get('num_participants');
-      $form_data->market = $paramFetcher->get('market');
-      $form_data->specialty = $paramFetcher->get('specialty');
       $form_data->timestamp = $paramFetcher->get('timestamp');
-      $form_data->brand = explode("|", $paramFetcher->get('brand'));
+      $form_data->markets = $paramFetcher->get('market');
+      $form_data->specialties = $paramFetcher->get('specialty');
+      $form_data->brand = $paramFetcher->get('survey_brand');
       
       // Google Spreadsheet validation
       $gsc = New GoogleSpreadsheetController();
-      $gsc->setContainer($this->container); 
-      $gs_result = $gsc->requestFeasibility($form_data);
+      $gsc->setContainer($this->container);
+      
+      $gs_result_array = array();
+      $gs_result_total = 0;
+      
+      foreach ($form_data->markets as $market_key => $market_value) {
+        foreach ($form_data->specialties as $specialty_key => $specialty_value) {
+          $form_data_object = new stdClass();
+          $form_data_object->loi = 10; // hard coded for now
+          $form_data_object->ir = 10; // hard coded for now
+          $form_data_object->market = $market_value;
+          $form_data_object->specialty = $specialty_value;
+          // check feasibility
+          $gs_result = $gsc->requestFeasibility($form_data_object);
+          // add results
+          if ($gs_result) {
+            $gs_result_array[] = $gs_result;
+            $gs_result_total += str_replace(',', '', $gs_result->price);
+          }
+        }
+      }
+      
+      // Description of the product
+      $description = '<p>Market: ' . implode(', ', $form_data->markets) . '</p>';
+      $description .= '<p>Specialty: ' . implode(', ', $form_data->specialties) . '</p>';
+      $description .= '<p>Quota: ' . $form_data->num_participants . '</p>'; 
+      $description .= '<p>Brands: ' . implode(', ', $form_data->brand) . '</p>';
+      $description .= '<h4>Total price: $' . number_format($gs_result_total, 2, ',', ',') . '</h4>';
       
       // Bigcommerce product creation
-      $price = str_replace(',', '', $gs_result->price); // google sheet result [F24]
-      $bc_product = $this->getBigcommerceProduct($form_data->timestamp, $price);
-      
+      $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
       // Save into the database
-      $this->createFirstQProject(serialize($form_data), serialize($gs_result), $bc_product);
+      $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $bc_product);
       
       // build response
       $returnObject['product']['id'] = $bc_product->id;
-      $returnObject['product']['description'] = $gs_result->description;
+      $returnObject['product']['name'] = 'FirstQ '. $form_data->name_full;
+      $returnObject['product']['description'] = $description;
     } 
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
@@ -160,10 +188,10 @@ class ClipperController extends FOSRestController
    *
    * @return mixed product
    */
-  private function getBigcommerceProduct($timestamp, $price)
+  private function getBigcommerceProduct($form_data, $price, $description)
   {
 
-    if( empty($timestamp) ) {
+    if( empty($form_data->timestamp) ) {
       throw new Exception('Error while creating Bigcommerce product. Missing parameter.');
     }
 
@@ -178,11 +206,12 @@ class ClipperController extends FOSRestController
     ));
 
     // create new object
-    $name = "FirstQ Project {$timestamp}";
+    $name = "FirstQ {$form_data->name_full} - {$form_data->timestamp}";
     $fields = array(
       'name' => $name,
       'price' => $price,
       'categories' => array($parameters_bigcommerce['category_code_firstq']), // FirstQ
+      'description' => $description,
       'type' => 'digital',
       'availability' => 'available',
       'weight' => 0.0,
@@ -190,8 +219,9 @@ class ClipperController extends FOSRestController
 
     $product = Bigcommerce::createProduct($fields);
 
-    if( $product ) {
+    if($product) {
       $this->logger->info("Bigcommerce project {$product->id} was created.");
+      
       return $product;
     }
     else {
@@ -253,7 +283,7 @@ class ClipperController extends FOSRestController
     
     if (isset($response['expires']) && !is_null($response['expires'])) {
       // display message
-      $response = $this->render('PSLClipperBundle:Clipper:maximum.html.twig');
+      return $this->render('PSLClipperBundle:Clipper:maximum.html.twig');
     }
     else {
       // redirect
@@ -263,10 +293,8 @@ class ClipperController extends FOSRestController
         '[LANG]' => 'en',
         '[SLUG]' => $slug
       ));
-      $response = new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
+      return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
     }
-    
-    return $response;
   }
   
   /**  
@@ -297,5 +325,4 @@ class ClipperController extends FOSRestController
     
     return $response;
   }
-  
 }

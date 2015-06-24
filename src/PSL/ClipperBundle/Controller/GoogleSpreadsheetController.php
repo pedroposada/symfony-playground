@@ -82,12 +82,9 @@ class GoogleSpreadsheetController extends Controller
       $result = $sheets->batchSetGet($spreadsheet_name, $worksheet_name, $data, $return);
       
       if ($result) {
-        $f3 = str_replace(',', '', $result['F3']);
-        $percent = round(($result['F8'] / $f3) * 100, 2);
-        $size = $result['F3'];
-        
+        $feasibility->market = $form_data->market;
+        $feasibility->specialty = $form_data->specialty;
         $feasibility->feasibility = TRUE;
-        $feasibility->description = 'Size of Universe Represented ' . $size . " - " . 'Percent of Universe Represented ' .  $percent . '%';
         $feasibility->participants_sample = $result['F8']; 
         $feasibility->price = $result['F24'];
         $feasibility->result = $result;

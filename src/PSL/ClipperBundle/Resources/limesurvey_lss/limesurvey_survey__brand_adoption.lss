@@ -557,7 +557,7 @@ _BRAND_
     <template><![CDATA[default]]></template>
     <language><![CDATA[en]]></language>
     <additional_languages/>
-    <datestamp><![CDATA[N]]></datestamp>
+    <datestamp><![CDATA[Y]]></datestamp>
     <usecookie><![CDATA[N]]></usecookie>
     <allowregister><![CDATA[N]]></allowregister>
     <allowsave><![CDATA[Y]]></allowsave>

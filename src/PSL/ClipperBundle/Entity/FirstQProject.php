@@ -46,6 +46,21 @@ class FirstQProject
     }
 
     /**
+     * Get the Sheet Data unserialized
+     * 
+     * @return mixed string|int|array
+     */
+    public function getSheetDataUnserialized() 
+    {
+      $unserialized = unserialize($this->getSheetDataRaw());
+      if (isset($unserialized)) {
+        $response = $unserialized;
+      }
+      
+      return $response;
+    }
+
+    /**
      * Get specific value from SheetDataRaw array
      * 
      * @return mixed string|int|array
@@ -76,6 +91,21 @@ class FirstQProject
       $unserialized = unserialize($raw);
       if (isset($unserialized->{$field_name})) {
         $response = (array)$unserialized->{$field_name};
+      }
+      
+      return $response;
+    }
+
+    /**
+     * Get the Limesurvey Data unserialized
+     * 
+     * @return mixed string|int|array
+     */
+    public function getLimesurveyDataUnserialized() 
+    {
+      $unserialized = unserialize($this->getLimesurveyDataRaw());
+      if (isset($unserialized)) {
+        $response = $unserialized;
       }
       
       return $response;

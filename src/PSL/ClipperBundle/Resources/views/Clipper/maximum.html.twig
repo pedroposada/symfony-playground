@@ -1,15 +1,19 @@
 {# src/Blogger/BlogBundle/Resources/views/maximum.html.twig #}
 
-{% extends '::base.html.twig' %}
+{% extends 'PSLClipperBundle:Clipper:base.html.twig' %}
 
 {% block title %}Maximum reached{% endblock %}
 
 {% block body %}
-<h1>Maximum reached</h1>
+<center>
 <p class="lead">
   We have reached the maximum number of participants for this study.
 </p>
 <p class="lead">
   Your time and responses are very valuable to us. We apologize for this inconvenience.
 </p>
+<p class="lead">
+  <a href="http://habcentral.habcommunity.com/"><img src="http://external.dev.csb.pslgroup.com/remote/som-ad.png" alt=""/></a>
+</p>
+</center>
 {% endblock %}
