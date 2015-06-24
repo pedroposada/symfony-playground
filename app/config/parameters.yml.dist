@@ -3,11 +3,11 @@ parameters:
   
   # Database settings
   database_driver:                    pdo_mysql
-  database_host:                      [*db_host*]
+  database_host:                      "[*db_host*]"
   database_port:                      [*db_port*]
-  database_name:                      [*db_name*]
-  database_user:                      [*db_user*]
-  database_password:                  [*db_pass*]
+  database_name:                      "[*db_name*]"
+  database_user:                      "[*db_user*]"
+  database_password:                  "[*db_pass*]"
   
   # Locale
   locale:                             "en"
@@ -18,17 +18,17 @@ parameters:
   # BigCommerce Settings
   bigcommerce:
     api:
-      username:                       [*bigcommerce_api_username*]
-      store_url:                      [*bigcommerce_api_store_url*]
-      api_key:                        [*bigcommerce_api_api_key*]
+      username:                       "[*bigcommerce_api_username*]"
+      store_url:                      "[*bigcommerce_api_store_url*]"
+      api_key:                        "[*bigcommerce_api_api_key*]"
     order_status_code_completed:      10 # numeric code in bigcommerce for Completed orders
     category_code_firstq:             [*bigcommerce_category_code_firstq*] # numeric code in bigcommerce for FirstQ category
   
   # Clipper settings
   clipper:
     email_ls_results:
-      to:                             [*clipper_email_ls_results_to*]
-      from:                           [*clipper_email_ls_results_from*]
+      to:                             "[*clipper_email_ls_results_to*]"
+      from:                           "[*clipper_email_ls_results_from*]"
       subject:                        "FirstQ Survey Results - %limesurvey.url_destination_base_sid%"
       body:                           "FirstQ Survey results for Survey ID: [SID]. URL: %limesurvey.url_destination_base_sid%"
     state_codes:
@@ -50,30 +50,30 @@ parameters:
       brand_adoption:                   "[*limesurvey_lss_brand_adoption*]"
   limesurvey.url_destination_base_sid:  "%limesurvey.url_destination_base%/sid/[SID]"
   limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
-  limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?lstoken={PASSTHRU:lstoken}"
+  limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?lstoken=[SLUG]"
   limesurvey.url_redirect_base:         "[*limesurvey.url_redirect_base*]"
   limesurvey.url_redirect:              "%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]"
-  limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/exit"
+  limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/exit?lstoken={PASSTHRU:lstoken}"
     
   # Rpanel
   rpanel:
     user_id:                          [*rpanel_user_id*] # Userid is the user ID of the one created by Guohui for you
     databases:
       rpanel:
-        dbname:                       [*rpanel_databases_rpanel_dbname*]
-        user:                         [*rpanel_databases_rpanel_user*]
-        password:                     [*rpanel_databases_rpanel_password*]
-        host:                         [*rpanel_databases_rpanel_host*]
-        driver:                       [*rpanel_databases_rpanel_driver*]
+        dbname:                       "[*rpanel_databases_rpanel_dbname*]"
+        user:                         "[*rpanel_databases_rpanel_user*]"
+        password:                     "[*rpanel_databases_rpanel_password*]"
+        host:                         "[*rpanel_databases_rpanel_host*]"
+        driver:                       "[*rpanel_databases_rpanel_driver*]"
       translateapi:
-        dbname:                       [*rpanel_databases_translateapi_dbname*]
-        user:                         [*rpanel_databases_translateapi_user*]
-        password:                     [*rpanel_databases_translateapi_password*]
-        host:                         [*rpanel_databases_translateapi_host*]
-        driver:                       [*rpanel_databases_translateapi_driver*]
+        dbname:                       "[*rpanel_databases_translateapi_dbname*]"
+        user:                         "[*rpanel_databases_translateapi_user*]"
+        password:                     "[*rpanel_databases_translateapi_password*]"
+        host:                         "[*rpanel_databases_translateapi_host*]"
+        driver:                       "[*rpanel_databases_translateapi_driver*]"
     default_table_values:
-      proj_status:                    [*rpanel_default_table_values_proj_status*]
-      proj_type:                      [*rpanel_default_table_values_proj_type*]
+      proj_status:                    "[*rpanel_default_table_values_proj_status*]"
+      proj_type:                      "[*rpanel_default_table_values_proj_type*]"
       incidence_rate:                 [*rpanel_default_table_values_incidence_rate*]
       length:                         [*rpanel_default_table_values_length*]
       field_duration:                 [*rpanel_default_table_values_field_duration*]
@@ -91,11 +91,11 @@ parameters:
 # PSL Clipper Configuration
 psl_clipper:
   google_spreadsheets:
-    client_id :                       [*psl_clipper_google_spreadsheets_client_id*]
-    service_account_name :            [*psl_clipper_google_spreadsheets_service_account_name*]
-    p12_file_name :                   [*psl_clipper_google_spreadsheets_p12_file_name*]
-    spreadsheet_name :                [*psl_clipper_google_spreadsheets_spreadsheet_name*]
-    worksheet_name :                  [*psl_clipper_google_spreadsheets_worksheet_name*]
+    client_id :                       "[*psl_clipper_google_spreadsheets_client_id*]"
+    service_account_name :            "[*psl_clipper_google_spreadsheets_service_account_name*]"
+    p12_file_name :                   "[*psl_clipper_google_spreadsheets_p12_file_name*]"
+    spreadsheet_name :                "[*psl_clipper_google_spreadsheets_spreadsheet_name*]"
+    worksheet_name :                  "[*psl_clipper_google_spreadsheets_worksheet_name*]"
 
 
 # Monolog
@@ -105,13 +105,13 @@ monolog:
 
 # Swiftmailer Configuration
 swiftmailer:
-    transport:                        [*swiftmailer_transport*]
-    username:                         [*swiftmailer_username*]
-    password:                         [*swiftmailer_password*]
-    host:                             [*swiftmailer_host*]
-    port:                             [*swiftmailer_port*]
-    encryption:                       [*swiftmailer_encryption*]
-    auth_mode:                        [*swiftmailer_auth_mode*]
+    transport:                        "[*swiftmailer_transport*]"
+    username:                         "[*swiftmailer_username*]"
+    password:                         "[*swiftmailer_password*]"
+    host:                             "[*swiftmailer_host*]"
+    port:                             "[*swiftmailer_port*]"
+    encryption:                       "[*swiftmailer_encryption*]"
+    auth_mode:                        "[*swiftmailer_auth_mode*]"
     antiflood:
         threshold:                    99
         sleep:                        0
