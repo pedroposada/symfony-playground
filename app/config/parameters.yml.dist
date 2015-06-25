@@ -47,7 +47,8 @@ parameters:
       ls_user:                        "[*limesurvey_api_ls_user*]"
     lss:
       dir:                              "[*limesurvey_lss_dir*]"
-      brand_adoption:                   "[*limesurvey_lss_brand_adoption*]"
+      brand_adoption:                   "limesurvey_survey__brand_adoption.lss"
+      nps_plus:                         "limesurvey_survey__nps_plus.lss"
   limesurvey.url_destination_base_sid:  "%limesurvey.url_destination_base%/sid/[SID]"
   limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
   limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?lstoken=[SLUG]"

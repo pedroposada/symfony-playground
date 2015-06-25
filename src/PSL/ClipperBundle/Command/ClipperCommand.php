@@ -171,7 +171,8 @@ class ClipperCommand extends ContainerAwareCommand
     $ls->configure($params_ls['api']);
     
     // get Survey template and replace tokens
-    $lss = file_get_contents($params_ls['lss']['dir'] . '/' . $params_ls['lss']['brand_adoption']);
+    // @TODO: replace "$params_ls['lss']['nps_plus']" dynamically with value from form_data_raw
+    $lss = file_get_contents($params_ls['lss']['dir'] . '/' . $params_ls['lss']['nps_plus']);
     
     // array for limesurvey data
     $ls_data_raw_array = array();
@@ -229,7 +230,7 @@ class ClipperCommand extends ContainerAwareCommand
       }
       
       // add participants
-      $participants_sample = current($value->participants_sample); // number of tokens (links) for participants
+      $participants_sample = $value->participants_sample; // number of tokens (links) for participants
       // $participants_sample = 2;
       if (empty($participants_sample)) {
         throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fq->getId()}] on [bigcommerce_complete]");
