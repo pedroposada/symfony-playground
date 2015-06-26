@@ -1,7 +1,7 @@
 (function($){
   $( document ).ready(function(){
     
-    var clipperurl = "http://external.dev.csb.pslgroup.com";
+    var clipperurl = "http://external.dev.csb.pslgroup.com/clipper-001/web";
     
     // brands
     $('#brands, .survey-brand-input').autocomplete({
