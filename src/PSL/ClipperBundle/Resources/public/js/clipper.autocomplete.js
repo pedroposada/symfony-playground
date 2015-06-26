@@ -24,7 +24,7 @@
     });
     
     // conditions
-    $('#conditions').autocomplete({
+    $('#conditions, #field_survey_patient_type').autocomplete({
       ajaxSettings: {
         dataType: 'json',
       },
