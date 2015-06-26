@@ -38,6 +38,8 @@ parameters:
       rpanel_complete:                "RPANEL_COMPLETE"
       limesurvey_complete:            "LIMESURVEY_COMPLETE"
       email_sent:                     "EMAIL_SENT"
+  clipper.brands:                     "Resources/terms/brands.xml"
+  clipper.conditions:                 "Resources/terms/conditions.xml"
       
   # LimeSurvey settings
   limesurvey:
