@@ -11,9 +11,13 @@ clipper:
   prefix:   /ws
 
 psl_clipper_debug:
-  path:     /limesurvey/debug
+  path:     /debug
   defaults: { _controller: PSLClipperBundle:Clipper:debug }
 
 psl_clipper_exit:
   path:     /limesurvey/exit
   defaults: { _controller: PSLClipperBundle:Clipper:exit }
+
+psl_clipper_autocomplete:
+  path:     /autocomplete
+  defaults: { _controller: PSLClipperBundle:Clipper:autocomplete }

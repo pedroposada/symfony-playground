@@ -35,7 +35,14 @@ class ClipperCommand extends ContainerAwareCommand
 
   protected function configure()
   {
-    $this->setName('clipper:cron')->setDescription('Get FirstQ orders from BigCommerce and process them.');
+    $this->setName('clipper:cron')
+      ->setDescription('Get FirstQ orders from BigCommerce and process them.')
+      ->addArgument(
+        'fqid',
+        InputArgument::OPTIONAL,
+        'FirstQ Project ID (UUID)'
+      )
+      ;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
@@ -46,18 +53,35 @@ class ClipperCommand extends ContainerAwareCommand
     $lock = new LockHandler('clipper:cron');
     if (!$lock->lock()) {
       $output->writeln('The command is already running in another process.');
-
       return 0;
     }
     
-    
+    // globals
     $params = $this->getContainer()->getParameter('clipper');
     $this->logger = $this->getContainer()->get('monolog.logger.clipper');
     $em = $this->getContainer()->get('doctrine')->getManager();
     
-    // find all except with state 'email_sent'
-    $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
-      ->findByStateNot($params['state_codes']['email_sent']);
+    // fqs
+    $fqs = new ArrayCollection();
+    $fqid = $input->getArgument('fqid');
+    if ($fqid) {
+      // get single fq
+      $f = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+        ->find($fqid);
+      
+      if (!$f) {
+        $output->writeln("Invalid fqid [{$fqid}].");
+        return 0;
+      }
+      
+      $fqs->add($f);
+    }
+    else {
+      // get multiple find all except with state 'email_sent'
+      $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+        ->findByStateNot($params['state_codes']['email_sent']);
+    }
+    
     
     $this->logger->info("Found [{$fqs->count()}] FirstQProject(s) for processing.", array('execute'));
     foreach ($fqs as $fq) {

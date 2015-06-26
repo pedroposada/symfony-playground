@@ -13,6 +13,7 @@ use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\VarDumper;
+use Symfony\Component\Config\FileLocator;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -46,116 +47,176 @@ use \Exception as Exception;
  */
 class ClipperController extends FOSRestController
 {
-    
   /**
-   * Validate a FristQ request
-   * 
+   * Autocomplete callback for input text field
+   *
    * @ApiDoc(
    *   resource=true,
    *   statusCodes = {
    *     200 = "Returned when successful",
    *   }
    * )
-   * 
+   *
    * The data is coming from an AJAX call performed on a 3rd party site
    *
    * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @QueryParam(name="group", default="brands", description="Name of group of keywords, used in file name")
+   * @QueryParam(name="keyword", default="", description="User input text in autocomplete field")
    * 
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getClipperAutocompleteAction(ParamFetcher $paramFetcher)
+  {
+    $group = $paramFetcher->get('group');
+    $result = array();
+    $file = $this->container->getParameter('clipper.' . $group);
+    $kernel = $this->container->get('kernel');
+    $path = $kernel->locateResource("@PSLClipperBundle/{$file}");
+    $input = $paramFetcher->get('keyword');
+    
+    if (!empty($input)) {
+      $doc = new \DOMDocument();
+      $doc->preserveWhiteSpace = false;
+      $doc->Load($path);
+      $xpath = new \DOMXPath($doc);
+      
+      // returns first 20 items
+      $expression = '//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")][position() <= 20]';
+      
+      $results = $xpath->query($expression);
+      foreach ($results as $node) {
+        $result[] = $node->nodeValue;
+      }
+    }
+    
+    
+    return new Response($result);
+  }
+
+  /**
+   * Validate a FristQ request
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *   }
+   * )
+   *
+   * The data is coming from an AJAX call performed on a 3rd party site
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
    * @requestparam(name="loi", default="", description="LOI.")
    * @requestparam(name="ir", default="", description="IR.")
    * @requestparam(name="title", default="", description="Title.")
-   * @requestparam(name="name", default="", description="Name of the firstq project.")
-   * @requestparam(name="name_full", default="", description="Full name of the firstq project.")
+   * @requestparam(name="name", default="", description="Name of the firstq
+   * project.")
+   * @requestparam(name="name_full", default="", description="Full name of the
+   * firstq project.")
    * @requestparam(name="patient_type", default="", description="Patient type.")
-   * @requestparam(name="num_participants", default="", description="Number of participants.")
+   * @requestparam(name="num_participants", default="", description="Number of
+   * participants.")
    * @requestparam(name="market", default="", description="Market.", array=true)
-   * @requestparam(name="specialty", default="", description="Specialty.", array=true) 
+   * @requestparam(name="specialty", default="", description="Specialty.",
+   * array=true)
    * @requestparam(name="timestamp", default="", description="Timestamp.")
-   * @requestparam(name="survey_brand", default="", description="Brands.", array=true)
+   * @requestparam(name="survey_brand", default="", description="Brands.",
+   * array=true)
    * @requestparam(name="brand", default="", description="Brands.")
-   * 
+   *
    * @return \Symfony\Component\BrowserKit\Response
    */
   public function postClipperValidationAction(ParamFetcher $paramFetcher)
   {
-    
+
     $this->logger = $this->container->get('monolog.logger.clipper');
-    
+
     // Object to return to remote form
     $returnObject = array();
-    
+
     try {
       // get $_POST values
       $form_data = new stdClass();
-      $form_data->loi = 10; // hard coded for now
-      $form_data->ir = 10; // hard coded for now
+      $form_data->loi = 10;
+      // hard coded for now
+      $form_data->ir = 10;
+      // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name');
       $form_data->name_full = $paramFetcher->get('name_full');
       $form_data->patient_type = $paramFetcher->get('patient_type');
-      $form_data->num_participants = 35; // hard coded for now //$paramFetcher->get('num_participants');
+      $form_data->num_participants = 35;
+      // hard coded for now //$paramFetcher->get('num_participants');
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
       $form_data->brand = $paramFetcher->get('survey_brand');
-      
+
       // Google Spreadsheet validation
       $gsc = New GoogleSpreadsheetController();
       $gsc->setContainer($this->container);
-      
+
       $gs_result_array = array();
       $gs_result_total = 0;
-      
-      foreach ($form_data->markets as $market_key => $market_value) {
-        foreach ($form_data->specialties as $specialty_key => $specialty_value) {
+
+      foreach ( $form_data->markets as $market_key => $market_value ) {
+        foreach ( $form_data->specialties as $specialty_key => $specialty_value ) {
           $form_data_object = new stdClass();
-          $form_data_object->loi = 10; // hard coded for now
-          $form_data_object->ir = 10; // hard coded for now
+          $form_data_object->loi = 10;
+          // hard coded for now
+          $form_data_object->ir = 10;
+          // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
           // add results
-          if ($gs_result) {
+          if( $gs_result ) {
             $gs_result_array[] = $gs_result;
             $gs_result_total += str_replace(',', '', $gs_result->price);
           }
         }
       }
-      
+
       // Description of the product
+      // @TODO: use TWIG template to format output
       $description = '<p>Market: ' . implode(', ', $form_data->markets) . '</p>';
       $description .= '<p>Specialty: ' . implode(', ', $form_data->specialties) . '</p>';
-      $description .= '<p>Quota: ' . $form_data->num_participants . '</p>'; 
+      $description .= '<p>Quota: ' . $form_data->num_participants . '</p>';
       $description .= '<p>Brands: ' . implode(', ', $form_data->brand) . '</p>';
-      $description .= '<h4>Total price: $' . number_format($gs_result_total, 2, ',', ',') . '</h4>';
-      
+      // $description .= '<h4>Total price: $' . number_format($gs_result_total,
+      // 2, ',', ',') . '</h4>';
+      // @TODO: change hardcoded price
+      $description .= '<h4>Total price: $' . number_format(4995, 2, ',', ',') . '</h4>';
+
       // Bigcommerce product creation
       $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
       // Save into the database
       $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $bc_product);
-      
+
       // build response
       $returnObject['product']['id'] = $bc_product->id;
-      $returnObject['product']['name'] = 'FirstQ '. $form_data->name_full;
+      $returnObject['product']['name'] = 'FirstQ ' . $form_data->name_full;
       $returnObject['product']['description'] = $description;
-    } 
+    }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
-      
+
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
       $this->logger->debug("Doctrine exception: {$e}");
-    } 
+    }
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
       $this->logger->debug("General exception: {$e}");
     }
-      
-      return new Response($returnObject);
-    }
+
+    return new Response($returnObject);
+  }
 
   /**
    * Retrieve a clipper.
@@ -210,7 +271,8 @@ class ClipperController extends FOSRestController
     $fields = array(
       'name' => $name,
       'price' => $price,
-      'categories' => array($parameters_bigcommerce['category_code_firstq']), // FirstQ
+      'categories' => array($parameters_bigcommerce['category_code_firstq']), //
+      // FirstQ
       'description' => $description,
       'type' => 'digital',
       'availability' => 'available',
@@ -219,9 +281,9 @@ class ClipperController extends FOSRestController
 
     $product = Bigcommerce::createProduct($fields);
 
-    if($product) {
+    if( $product ) {
       $this->logger->info("Bigcommerce project {$product->id} was created.");
-      
+
       return $product;
     }
     else {
@@ -263,7 +325,7 @@ class ClipperController extends FOSRestController
     $em->persist($firstq_project);
     $em->flush();
   }
-  
+
   /**
    * redirect users to LimeSurvey Survey page
    * /clipper/limesurvey/{sid}/{slug}/{lang}
@@ -271,17 +333,17 @@ class ClipperController extends FOSRestController
   public function redirectLimeSurveyAction($sid, $slug, $lang)
   {
     $response = null;
-    
+
     // config connection to LS
     $params_ls = $this->container->getParameter('limesurvey');
     $ls = new LimeSurvey();
     $ls->configure($params_ls['api']);
     $response = $ls->get_survey_properties(array(
-      'iSurveyID' => $sid, 
-      'aSurveySettings' => array('expires'), 
+      'iSurveyID' => $sid,
+      'aSurveySettings' => array('expires'),
     ));
-    
-    if (isset($response['expires']) && !is_null($response['expires'])) {
+
+    if( isset($response['expires']) && !is_null($response['expires']) ) {
       // display message
       return $this->render('PSLClipperBundle:Clipper:maximum.html.twig');
     }
@@ -293,14 +355,15 @@ class ClipperController extends FOSRestController
         '[LANG]' => 'en',
         '[SLUG]' => $slug
       ));
-      return new RedirectResponse($destination, 301); // http status code 301 Moved Permanently
+      return new RedirectResponse($destination, 301);
+      // http status code 301 Moved Permanently
     }
   }
-  
-  /**  
+
+  /**
    * Simple debug output
-   * /clipper/limesurvey/debug
-   * 
+   * /debug
+   *
    * @param ParamFetcher $paramFetcher Paramfetcher
    */
   public function debugAction(ParamFetcher $paramFetcher)
@@ -310,19 +373,33 @@ class ClipperController extends FOSRestController
     // $debug = 'any output';
     return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
   }
-  
-  /**  
+
+  /**
    * Simple debug output
    * /clipper/limesurvey/exit
-   * 
+   *
    * @param ParamFetcher $paramFetcher Paramfetcher
-   * 
-   * @QueryParam(name="lstoken", default="(empty)", description="LimeSurvey Participant Token.")
+   *
+   * @QueryParam(name="lstoken", default="(empty)", description="LimeSurvey
+   * Participant Token.")
    */
   public function exitAction(ParamFetcher $paramFetcher)
   {
     $response = $this->render('PSLClipperBundle:Clipper:exit.html.twig', array('token' => $paramFetcher->get('lstoken')));
-    
+
     return $response;
   }
+
+  /**
+   * Simple debug output
+   * /clipper/autocomplete
+   *
+   */
+  public function autocompleteAction()
+  {
+    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
+
+    return $response;
+  }
+
 }

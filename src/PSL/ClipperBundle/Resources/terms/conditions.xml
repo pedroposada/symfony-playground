@@ -1,0 +1,693 @@
+<?xml version="1.0"?>
+
+<resultset>
+
+	<row>
+		<field name="name">Acne</field>
+	</row>
+
+	<row>
+		<field name="name">Addictions</field>
+	</row>
+
+	<row>
+		<field name="name">ADHD</field>
+	</row>
+
+	<row>
+		<field name="name">AIDS and HIV</field>
+	</row>
+
+	<row>
+		<field name="name">Allergies</field>
+	</row>
+
+	<row>
+		<field name="name">Anaemia</field>
+	</row>
+
+	<row>
+		<field name="name">Anaesthesiology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Angina Pectoris/MI</field>
+	</row>
+
+	<row>
+		<field name="name">Anxiety</field>
+	</row>
+
+	<row>
+		<field name="name">ARDS</field>
+	</row>
+
+	<row>
+		<field name="name">Arrhythmias</field>
+	</row>
+
+	<row>
+		<field name="name">Arthritis</field>
+	</row>
+
+	<row>
+		<field name="name">Asthma</field>
+	</row>
+
+	<row>
+		<field name="name">Bacterial Infections</field>
+	</row>
+
+	<row>
+		<field name="name">Bladder Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Bone Marrow and PBSC Transplantation</field>
+	</row>
+
+	<row>
+		<field name="name">Brain Tumours</field>
+	</row>
+
+	<row>
+		<field name="name">Breast Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Burns</field>
+	</row>
+
+	<row>
+		<field name="name">Cardiology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Cardiomyopathies</field>
+	</row>
+
+	<row>
+		<field name="name">Cataract</field>
+	</row>
+
+	<row>
+		<field name="name">Cholecystitis</field>
+	</row>
+
+	<row>
+		<field name="name">Cholesterol/Lipid disorders</field>
+	</row>
+
+	<row>
+		<field name="name">Cirrhosis</field>
+	</row>
+
+	<row>
+		<field name="name">Clinical Pharmacology</field>
+	</row>
+
+	<row>
+		<field name="name">Colorectal Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Congestive Heart Failure</field>
+	</row>
+
+	<row>
+		<field name="name">Contraception</field>
+	</row>
+
+	<row>
+		<field name="name">COPD</field>
+	</row>
+
+	<row>
+		<field name="name">Corneal disease</field>
+	</row>
+
+	<row>
+		<field name="name">Cystic Fibrosis</field>
+	</row>
+
+	<row>
+		<field name="name">Dementia</field>
+	</row>
+
+	<row>
+		<field name="name">Dental and Oral Disorders</field>
+	</row>
+
+	<row>
+		<field name="name">Depression</field>
+	</row>
+
+	<row>
+		<field name="name">Dermatitis</field>
+	</row>
+
+	<row>
+		<field name="name">Dermatofibrosarcoma Protuberans (DFSP)</field>
+	</row>
+
+	<row>
+		<field name="name">Dermatology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Diabetes</field>
+	</row>
+
+	<row>
+		<field name="name">Diagnostic Radiology</field>
+	</row>
+
+	<row>
+		<field name="name">Dialysis</field>
+	</row>
+
+	<row>
+		<field name="name">Dyslipidemia</field>
+	</row>
+
+	<row>
+		<field name="name">Eating Disorders</field>
+	</row>
+
+	<row>
+		<field name="name">Ebola</field>
+	</row>
+
+	<row>
+		<field name="name">Emergency Medicine</field>
+	</row>
+
+	<row>
+		<field name="name">End-stage renal disease</field>
+	</row>
+
+	<row>
+		<field name="name">Endocrinology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Epilepsy</field>
+	</row>
+
+	<row>
+		<field name="name">Erectile Dysfunction</field>
+	</row>
+
+	<row>
+		<field name="name">Esophagitis-GERD</field>
+	</row>
+
+	<row>
+		<field name="name">Fibromyalgia</field>
+	</row>
+
+	<row>
+		<field name="name">Fungal Infections</field>
+	</row>
+
+	<row>
+		<field name="name">Gastric Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Gastro Other</field>
+	</row>
+
+	<row>
+		<field name="name">Gastroenterology</field>
+	</row>
+
+	<row>
+		<field name="name">General Orthopaedics</field>
+	</row>
+
+	<row>
+		<field name="name">Genetics</field>
+	</row>
+
+	<row>
+		<field name="name">Genitourinary Other</field>
+	</row>
+
+	<row>
+		<field name="name">Geriatrics</field>
+	</row>
+
+	<row>
+		<field name="name">GIST</field>
+	</row>
+
+	<row>
+		<field name="name">Glaucoma</field>
+	</row>
+
+	<row>
+		<field name="name">Glomerulonephritis</field>
+	</row>
+
+	<row>
+		<field name="name">H. Pylori/Ulcer</field>
+	</row>
+
+	<row>
+		<field name="name">Haematology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Haemophilia</field>
+	</row>
+
+	<row>
+		<field name="name">Hair Loss</field>
+	</row>
+
+	<row>
+		<field name="name">Head and Neck Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Hepa/Biliary Other</field>
+	</row>
+
+	<row>
+		<field name="name">Hepatitis</field>
+	</row>
+
+	<row>
+		<field name="name">Herpes</field>
+	</row>
+
+	<row>
+		<field name="name">HPV/Cervical Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">HRT</field>
+	</row>
+
+	<row>
+		<field name="name">Hypereosinophilic Syndrome (HES)</field>
+	</row>
+
+	<row>
+		<field name="name">Hyperphosphataemia</field>
+	</row>
+
+	<row>
+		<field name="name">Hypertension</field>
+	</row>
+
+	<row>
+		<field name="name">IBD</field>
+	</row>
+
+	<row>
+		<field name="name">Immunisation</field>
+	</row>
+
+	<row>
+		<field name="name">Immunology</field>
+	</row>
+
+	<row>
+		<field name="name">Infectious Other</field>
+	</row>
+
+	<row>
+		<field name="name">Infertility</field>
+	</row>
+
+	<row>
+		<field name="name">Influenza</field>
+	</row>
+
+	<row>
+		<field name="name">Influenza A (H1N1)</field>
+	</row>
+
+	<row>
+		<field name="name">Intensive Care</field>
+	</row>
+
+	<row>
+		<field name="name">Interstitial Lung Disease</field>
+	</row>
+
+	<row>
+		<field name="name">Interventional Cardiology</field>
+	</row>
+
+	<row>
+		<field name="name">Interventional Radiology</field>
+	</row>
+
+	<row>
+		<field name="name">Irritable Bowel Syndrome</field>
+	</row>
+
+	<row>
+		<field name="name">Kidney Stones</field>
+	</row>
+
+	<row>
+		<field name="name">l</field>
+	</row>
+
+	<row>
+		<field name="name">Leukaemias</field>
+	</row>
+
+	<row>
+		<field name="name">Liver Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Lung Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Lupus</field>
+	</row>
+
+	<row>
+		<field name="name">Lymphomas</field>
+	</row>
+
+	<row>
+		<field name="name">Melanoma</field>
+	</row>
+
+	<row>
+		<field name="name">Meningitis</field>
+	</row>
+
+	<row>
+		<field name="name">Menopause</field>
+	</row>
+
+	<row>
+		<field name="name">Migraine</field>
+	</row>
+
+	<row>
+		<field name="name">Multiple Sclerosis</field>
+	</row>
+
+	<row>
+		<field name="name">Myelodysplastic Syndrome</field>
+	</row>
+
+	<row>
+		<field name="name">Myeloma</field>
+	</row>
+
+	<row>
+		<field name="name">Nephrology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Neurologic Other</field>
+	</row>
+
+	<row>
+		<field name="name">Nutritional/Metabolic Other</field>
+	</row>
+
+	<row>
+		<field name="name">Ob/Gyn Other</field>
+	</row>
+
+	<row>
+		<field name="name">Obesity</field>
+	</row>
+
+	<row>
+		<field name="name">Oncology</field>
+	</row>
+
+	<row>
+		<field name="name">Oncology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Ophth. Other</field>
+	</row>
+
+	<row>
+		<field name="name">Ophthalmic Surgery</field>
+	</row>
+
+	<row>
+		<field name="name">Organ Transplantation</field>
+	</row>
+
+	<row>
+		<field name="name">ORL Plastic/Recon. Surg.</field>
+	</row>
+
+	<row>
+		<field name="name">Orthopaedics</field>
+	</row>
+
+	<row>
+		<field name="name">Orthopaedics Other</field>
+	</row>
+
+	<row>
+		<field name="name">Osteoarthritis</field>
+	</row>
+
+	<row>
+		<field name="name">Osteomyelitis</field>
+	</row>
+
+	<row>
+		<field name="name">Osteonecrosis</field>
+	</row>
+
+	<row>
+		<field name="name">Osteoporosis</field>
+	</row>
+
+	<row>
+		<field name="name">Otitis Media</field>
+	</row>
+
+	<row>
+		<field name="name">Otorhino. Other</field>
+	</row>
+
+	<row>
+		<field name="name">Ovarian Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Paediatrics</field>
+	</row>
+
+	<row>
+		<field name="name">Pain</field>
+	</row>
+
+	<row>
+		<field name="name">Pain Management</field>
+	</row>
+
+	<row>
+		<field name="name">Pancreatic Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Pancreatitis</field>
+	</row>
+
+	<row>
+		<field name="name">Parkinson's</field>
+	</row>
+
+	<row>
+		<field name="name">Pathology</field>
+	</row>
+
+	<row>
+		<field name="name">Pituitary</field>
+	</row>
+
+	<row>
+		<field name="name">Pneumonia</field>
+	</row>
+
+	<row>
+		<field name="name">Pregnancy</field>
+	</row>
+
+	<row>
+		<field name="name">Prostate Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Psoriasis</field>
+	</row>
+
+	<row>
+		<field name="name">Psychiatry Other</field>
+	</row>
+
+	<row>
+		<field name="name">Pulmonary Hypertension</field>
+	</row>
+
+	<row>
+		<field name="name">Pulmonary Other</field>
+	</row>
+
+	<row>
+		<field name="name">Radiation Oncology</field>
+	</row>
+
+	<row>
+		<field name="name">Radiology</field>
+	</row>
+
+	<row>
+		<field name="name">Renal Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Renal Failure</field>
+	</row>
+
+	<row>
+		<field name="name">Respiratory Infections</field>
+	</row>
+
+	<row>
+		<field name="name">Restless Legs Syndrome (RLS)</field>
+	</row>
+
+	<row>
+		<field name="name">Rheumatoid Arthritis</field>
+	</row>
+
+	<row>
+		<field name="name">Rheumatology Other</field>
+	</row>
+
+	<row>
+		<field name="name">Rhinitis</field>
+	</row>
+
+	<row>
+		<field name="name">SARS</field>
+	</row>
+
+	<row>
+		<field name="name">Schizophrenia and Bipolar Disorder</field>
+	</row>
+
+	<row>
+		<field name="name">Sepsis</field>
+	</row>
+
+	<row>
+		<field name="name">Sleep Apnoea</field>
+	</row>
+
+	<row>
+		<field name="name">Sleep Disorders / Apnoea</field>
+	</row>
+
+	<row>
+		<field name="name">Smoking Related Disorders</field>
+	</row>
+
+	<row>
+		<field name="name">Sports Medicine</field>
+	</row>
+
+	<row>
+		<field name="name">STDs</field>
+	</row>
+
+	<row>
+		<field name="name">Stroke</field>
+	</row>
+
+	<row>
+		<field name="name">Surgery</field>
+	</row>
+
+	<row>
+		<field name="name">Thalassemia</field>
+	</row>
+
+	<row>
+		<field name="name">Thrombosis</field>
+	</row>
+
+	<row>
+		<field name="name">Thyroid Disorders</field>
+	</row>
+
+	<row>
+		<field name="name">Transfusion</field>
+	</row>
+
+	<row>
+		<field name="name">Transplant Surgery Other</field>
+	</row>
+
+	<row>
+		<field name="name">Trauma</field>
+	</row>
+
+	<row>
+		<field name="name">undefined</field>
+	</row>
+
+	<row>
+		<field name="name">Urinary Incontinence</field>
+	</row>
+
+	<row>
+		<field name="name">Urinary Tract Infections</field>
+	</row>
+
+	<row>
+		<field name="name">Urology</field>
+	</row>
+
+	<row>
+		<field name="name">Uterine Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Vaginal Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Valvular Heart Disease</field>
+	</row>
+
+	<row>
+		<field name="name">Vascular Disorders</field>
+	</row>
+
+	<row>
+		<field name="name">Viral Infections</field>
+	</row>
+
+	<row>
+		<field name="name">Vulvar Cancer</field>
+	</row>
+
+	<row>
+		<field name="name">Workplace Injuries</field>
+	</row>
+
+</resultset>

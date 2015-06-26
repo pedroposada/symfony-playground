@@ -1,0 +1,26 @@
+{% extends 'PSLClipperBundle:Clipper:base.html.twig' %}
+
+{% block title %}Autocomplete{% endblock %}
+
+{% block body %}
+<!-- Autocomplete theme -->
+<link rel="stylesheet" href="{{ asset('bundles/pslclipper/css/jquery.autocomplete.css') }}">
+<center>
+  <!-- Autocomplete brands -->
+  <p class="lead">
+    <input type="text" name="brand" id="brands"/>
+  </p>
+  <!-- Autocomplete conditions -->
+  <p class="lead">
+    <input type="text" name="condition" id="conditions"/>
+  </p>
+</center>
+{% endblock %}
+
+{% block scripts %}
+<!-- Autocomplete -->
+<script src="{{ asset('bundles/pslclipper/js/jquery.autocomplete.min.js') }}"></script>
+<!-- Clipper JS -->
+<script src="{{ asset('bundles/pslclipper/js/clipper.autocomplete.js') }}"></script>
+{% endblock %}
+
