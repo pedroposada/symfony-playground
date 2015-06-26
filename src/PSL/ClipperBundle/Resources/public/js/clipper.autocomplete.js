@@ -2,7 +2,7 @@
   $( document ).ready(function(){
     
     // brands
-    $('#brands').autocomplete({
+    $('#brands, .survey-brand-input').autocomplete({
       ajaxSettings: {
         dataType: 'json',
       },
