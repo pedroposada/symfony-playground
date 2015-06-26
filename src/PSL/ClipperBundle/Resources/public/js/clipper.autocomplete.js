@@ -1,13 +1,16 @@
 (function($){
   $( document ).ready(function(){
     
+    var clipperurl = "http://external.dev.csb.pslgroup.com";
+    
     // brands
     $('#brands, .survey-brand-input').autocomplete({
       ajaxSettings: {
         dataType: 'json',
       },
       paramName: 'keyword',
-      serviceUrl: 'http://localhost:8000/clipper/ws/clipper/autocomplete?group=brands',
+      // serviceUrl: 'http://localhost:8000/clipper/ws/clipper/autocomplete?group=brands',
+      serviceUrl: clipperurl + '/clipper/ws/clipper/autocomplete?group=brands',
       onSelect: function (suggestion) {
         alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
       },
@@ -26,7 +29,7 @@
         dataType: 'json',
       },
       paramName: 'keyword',
-      serviceUrl: 'http://localhost:8000/clipper/ws/clipper/autocomplete?group=conditions',
+      serviceUrl: clipperurl + '/clipper/ws/clipper/autocomplete?group=conditions',
       onSelect: function (suggestion) {
         alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
       },
