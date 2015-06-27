@@ -3,6 +3,10 @@
     
     var clipperurl = "http://external.dev.csb.pslgroup.com/clipper-001/web";
     
+    // styles
+    // <link rel="stylesheet" href="http://external.dev.csb.pslgroup.com/clipper-001/web/bundles/pslclipper/css/jquery.autocomplete.css">
+    $('head').append('<link rel="stylesheet" type="text/css" href="' + clipperurl + '/bundles/pslclipper/css/jquery.autocomplete.css">');
+    
     // brands
     $('#brands, .survey-brand-input').autocomplete({
       ajaxSettings: {
