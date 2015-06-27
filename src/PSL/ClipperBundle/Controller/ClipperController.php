@@ -260,6 +260,7 @@ class ClipperController extends FOSRestController
     $parameters_bigcommerce = $this->container->getParameter('bigcommerce');
 
     // setup bigcommerce
+    Bigcommerce::failOnError();
     Bigcommerce::configure(array(
       'username' => $parameters_bigcommerce['api']['username'],
       'store_url' => $parameters_bigcommerce['api']['store_url'],
@@ -287,7 +288,9 @@ class ClipperController extends FOSRestController
       return $product;
     }
     else {
-      $this->logger->error(Bigcommerce::getLastError());
+      $last_error = Bigcommerce::getLastError();
+      $this->logger->error($last_error);
+      $this->logger->debug(print_r($produc,1));
       throw new Exception('Error while creating Bigcommerce product.');
     }
   }
