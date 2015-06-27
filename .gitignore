@@ -10,4 +10,6 @@
 /vendor/
 /web/bundles/
 src/PSL/ClipperBundle/Command/TestCommand.php
-app/config/parameters.yml
+app/config/parameters.ymlsrc/PSL/ClipperBundle/Resources/public/images/fwreports-second-orig.png
+src/PSL/ClipperBundle/Resources/public/images/fwreports-second.xcf
+src/PSL/ClipperBundle/Resources/public/js/ls.js
