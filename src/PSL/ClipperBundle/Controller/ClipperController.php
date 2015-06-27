@@ -287,6 +287,7 @@ class ClipperController extends FOSRestController
       return $product;
     }
     else {
+      $this->logger->error(Bigcommerce::getLastError());
       throw new Exception('Error while creating Bigcommerce product.');
     }
   }
