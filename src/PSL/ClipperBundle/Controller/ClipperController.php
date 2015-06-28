@@ -82,6 +82,7 @@ class ClipperController extends FOSRestController
       $xpath = new \DOMXPath($doc);
       
       // returns first 20 items
+      $input = strtolower($input);
       $expression = '//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")][position() <= 20]';
       
       $results = $xpath->query($expression);
@@ -194,7 +195,7 @@ class ClipperController extends FOSRestController
       // Bigcommerce product creation
       // $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
       $bc_product = new stdClass();
-      $bc_product->id = 99999;
+      $bc_product->id = 103;
       // Save into the database
       $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $bc_product);
 
