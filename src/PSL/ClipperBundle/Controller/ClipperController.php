@@ -192,7 +192,9 @@ class ClipperController extends FOSRestController
       $description .= '<h4>Total price: $' . number_format(4995, 2, ',', ',') . '</h4>';
 
       // Bigcommerce product creation
-      $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
+      // $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
+      $bc_product = new stdClass();
+      $bc_product->id = 99999;
       // Save into the database
       $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $bc_product);
 
@@ -289,8 +291,8 @@ class ClipperController extends FOSRestController
     }
     else {
       $last_error = Bigcommerce::getLastError();
-      $this->logger->error(print_r($last_error, 1));
-      $this->logger->debug(print_r($produc,1));
+      $this->logger->error(json_encode($last_error));
+      $this->logger->debug(json_encode($produc));
       throw new Exception('Error while creating Bigcommerce product.');
     }
   }
