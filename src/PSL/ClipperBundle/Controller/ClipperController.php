@@ -193,6 +193,7 @@ class ClipperController extends FOSRestController
       $description .= '<h4>Total price: $' . number_format(4995, 2, ',', ',') . '</h4>';
 
       // Bigcommerce product creation
+      // @TODO: uncomment this line, but first fix 'undefined' error in front-end
       // $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
       $bc_product = new stdClass();
       $bc_product->id = 103;
@@ -201,7 +202,9 @@ class ClipperController extends FOSRestController
 
       // build response
       $returnObject['product']['id'] = $bc_product->id;
-      $returnObject['product']['name'] = 'FirstQ ' . $form_data->name_full;
+      // $returnObject['product']['name'] = 'FirstQ ' . $form_data->name_full;
+      // @TODO: The '+' was missing and that is why we are hardcoding the title for now
+      $returnObject['product']['name'] = 'FirstQ NPS+';
       $returnObject['product']['description'] = $description;
     }
     catch (\Doctrine\ORM\ORMException $e) {
