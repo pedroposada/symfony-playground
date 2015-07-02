@@ -2,9 +2,9 @@
 parameters:
   
   # Database settings
-  database_driver:                    pdo_mysql
+  database_driver:                    "pdo_mysql"
   database_host:                      "[*db_host*]"
-  database_port:                      [*db_port*]
+  database_port:                      "[*db_port*]"
   database_name:                      "[*db_name*]"
   database_user:                      "[*db_user*]"
   database_password:                  "[*db_pass*]"
@@ -22,7 +22,7 @@ parameters:
       store_url:                      "[*bigcommerce_api_store_url*]"
       api_key:                        "[*bigcommerce_api_api_key*]"
     order_status_code_completed:      10 # numeric code in bigcommerce for Completed orders
-    category_code_firstq:             [*bigcommerce_category_code_firstq*] # numeric code in bigcommerce for FirstQ category
+    category_code_firstq:             "[*bigcommerce_category_code_firstq*]" # numeric code in bigcommerce for FirstQ category
   
   # Clipper settings
   clipper:
@@ -60,7 +60,7 @@ parameters:
     
   # Rpanel
   rpanel:
-    user_id:                          [*rpanel_user_id*] # Userid is the user ID of the one created by Guohui for you
+    user_id:                          "[*rpanel_user_id*]" # Userid is the user ID of the one created by Guohui for you
     databases:
       rpanel:
         dbname:                       "[*rpanel_databases_rpanel_dbname*]"
@@ -77,19 +77,19 @@ parameters:
     default_table_values:
       proj_status:                    "[*rpanel_default_table_values_proj_status*]"
       proj_type:                      "[*rpanel_default_table_values_proj_type*]"
-      incidence_rate:                 [*rpanel_default_table_values_incidence_rate*]
-      length:                         [*rpanel_default_table_values_length*]
-      field_duration:                 [*rpanel_default_table_values_field_duration*]
-      project_type:                   [*rpanel_default_table_values_project_type*]
-      link_type:                      [*rpanel_default_table_values_link_type*]
-      target_size:                    [*rpanel_default_table_values_target_size*]
-      target_list:                    [*rpanel_default_table_values_target_list*]
-      feasibility_file:               [*rpanel_default_table_values_feasibility_file*]
-      respondent:                     [*rpanel_default_table_values_respondent*]
-      duration:                       [*rpanel_default_table_values_duration*]
-      status_id:                      [*rpanel_default_table_values_status_id*]
-      brand_id:                       [*rpanel_default_table_values_brand_id*]
-      email_template_id:              [*rpanel_default_table_values_email_template_id*]
+      incidence_rate:                 "[*rpanel_default_table_values_incidence_rate*]"
+      length:                         "[*rpanel_default_table_values_length*]"
+      field_duration:                 "[*rpanel_default_table_values_field_duration*]"
+      project_type:                   "[*rpanel_default_table_values_project_type*]"
+      link_type:                      "[*rpanel_default_table_values_link_type*]"
+      target_size:                    "[*rpanel_default_table_values_target_size*]"
+      target_list:                    "[*rpanel_default_table_values_target_list*]"
+      feasibility_file:               "[*rpanel_default_table_values_feasibility_file*]"
+      respondent:                     "[*rpanel_default_table_values_respondent*]"
+      duration:                       "[*rpanel_default_table_values_duration*]"
+      status_id:                      "[*rpanel_default_table_values_status_id*]"
+      brand_id:                       "[*rpanel_default_table_values_brand_id*]"
+      email_template_id:              "[*rpanel_default_table_values_email_template_id*]"
 
 # PSL Clipper Configuration
 psl_clipper:

@@ -1,0 +1,120 @@
+<p>
+<script id="form-addtocart-template" type="text/template">// <![CDATA[
+<div class="firstq-product">
+        <div class="firstq-product-description">
+            <h4 id="firstq-title"></h4>
+            <img id="firstq-img"/>
+            <div id="firstq-desc"></div>
+            <div class="firstq-product-form">
+            
+            <form method="post" action="http://clipper4.mybigcommerce.com/cart.php" onsubmit="return check_add_to_cart(this, false) " enctype="multipart/form-data" id="productDetailsAddToCartForm">
+              <input type="hidden" name="action" value="add">
+              <input type="hidden" name="product_id" value="" id="firstq-product-id">
+              <div class="addto">
+                <div class="add-to-cart">
+                  <div class="DetailRow">
+                    <input type="image" id="add-to-cart-submit-button" class="btn add-to-cart AddCartButton" value="" src="template/CustomImages/add_to_cart.png">
+                  </div>
+                </div>
+              </div>
+            </form>
+            
+        </div>
+        </div>
+    </div>
+// ]]></script>
+<script id="form-brand-template" type="text/template">// <![CDATA[
+<div class="survey-brand">
+        <input type="text" name="survey_brand[]" size="25" class="survey-brand-input"><span class="remove-brand-button">- remove</span>
+    </div>
+// ]]></script>
+</p>
+<div class="container">
+<div class="row"><!-- Form -->
+<div class="col-md-6">
+<p><strong>NPS+ delivers</strong> Sed posuere consectetur est at lobortis. Donec id elit non mi porta gravida at eget metus. Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
+<form id="poc" action=""><!--Survey-->
+<div class="survey-form-group">
+<div class="form-group">
+<div class="form-label"><label for="field_survey_name">FirstQ Folio name</label></div>
+<div class="form-input"><select id="field_survey_name" class="form-control" name="name">
+<option value="_none">- Select a value -</option>
+<option value="FQ1">Brand Adoption</option>
+<option value="FQ2">Usage - current and future</option>
+<option value="FQ3">Brand profiles</option>
+<option value="FQ4">Brand barriers</option>
+<option selected="selected" value="FQ5">NPS+</option>
+</select></div>
+</div>
+<div class="form-group">
+<div class="form-label"><label for="field_survey_title">Survey title</label></div>
+<div class="form-input"><input id="field_survey_title" type="text" name="title" value="NPS+ 1" size="40" /></div>
+</div>
+<div class="form-group">
+<div class="form-label"><label for="field_survey_market">Market</label></div>
+<div class="form-input"><select id="field_survey_market" class="form-control" name="market[]" multiple="multiple">
+<option value="USA">USA</option>
+<option value="UK">UK</option>
+<option value="Germany">Germany</option>
+<option value="France">France</option>
+<option value="Italy">Italy</option>
+<option value="Spain">Spain</option>
+<option value="EU5">EU5</option>
+</select></div>
+</div>
+<div class="form-group">
+<div class="form-label"><label for="field_survey_specialty">Specialty</label></div>
+<div class="form-input"><select id="field_survey_specialty" class="form-control" name="specialty[]" multiple="multiple">
+<option value="Anaesthesiology">Anaesthesiology</option>
+<option value="Cardiology">Cardiology</option>
+<option value="Dermatology">Dermatology</option>
+<option value="Endocrinology">Endocrinology</option>
+<option value="Gastroenterology">Gastroenterology</option>
+<option value="General Surgery">General Surgery</option>
+<option value="GPs / PCPs">GPs / PCPs</option>
+<option value="Haematology">Haematology</option>
+<option value="IMs">IMs</option>
+<option value="Neurology">Neurology</option>
+<option value="Obs / Gyn">Obs / Gyn</option>
+<option value="Oncology">Oncology</option>
+<option value="Ophthalmology">Ophthalmology</option>
+<option value="Orthopaedics">Orthopaedics</option>
+<option value="Paediatrics">Paediatrics</option>
+<option value="Psychiatry">Psychiatry</option>
+<option value="Respirology">Respirology</option>
+<option value="Rheumatology">Rheumatology</option>
+<option value="Urology">Urology</option>
+</select></div>
+</div>
+<div class="form-group">
+<div class="form-label"><label for="field_survey_patient_type">Patient type</label></div>
+<div class="form-input"><input id="field_survey_patient_type" type="text" name="patient_type" size="40" /></div>
+</div>
+<div class="form-group">
+<div class="form-label"><label for="field_survey_brand">Brand</label></div>
+<div id="form-input-brand" class="form-input">
+<div class="survey-brand"><input class="survey-brand-input" type="text" name="survey_brand[]" size="25" /></div>
+</div>
+<div class="add-brand"><span id="add-brand-button">+ add brand</span></div>
+</div>
+</div>
+<!--/Survey--> <input id="form-timestamp" type="hidden" name="timestamp" value="" /> <input class="btn btn-primary" type="image" src="http://clipper4.mybigcommerce.com/template/CustomImages/submit_to_calculate.png" /></form><!-- /form --><hr />
+<div class="well">
+<div id="loader"><img style="display: block; margin-left: auto; margin-right: auto;" src="http://clipper4.mybigcommerce.com/template/CustomImages/loading.gif" alt="" /></div>
+<div id="rawOut">&nbsp;</div>
+</div>
+</div>
+<!-- Output -->
+<div class="col-md-6">
+<div id="addToCartBox" style="height: 500px; overflow: hidden;">&nbsp;</div>
+</div>
+</div>
+<!-- /row --></div>
+<!-- /container -->
+<p>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript" src="http://external.dev.csb.pslgroup.com/remote/remote-ajax.js"></script>
+<script type="text/javascript" src="http://external.dev.csb.pslgroup.com/clipper-001/web/bundles/pslclipper/js/jquery.autocomplete.min.js"></script>
+<script type="text/javascript" src="http://external.dev.csb.pslgroup.com/clipper-001/web/bundles/pslclipper/js/clipper.autocomplete.js"></script>
+</p>
