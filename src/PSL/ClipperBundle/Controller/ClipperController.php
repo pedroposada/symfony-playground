@@ -83,7 +83,7 @@ class ClipperController extends FOSRestController
       
       // returns first 20 items
       $input = strtolower($input);
-      $expression = '//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")][position() <= 20]';
+      $expression = '(//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")])[position() <= 20]';
       
       $results = $xpath->query($expression);
       foreach ($results as $node) {
