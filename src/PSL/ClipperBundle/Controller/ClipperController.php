@@ -30,7 +30,7 @@ use Bigcommerce\Api\Client as Bigcommerce;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
-use PSL\ClipperBundle\Controller\GoogleSpreadsheetController;
+use PSL\ClipperBundle\Controller\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQProject;
 
@@ -83,8 +83,7 @@ class ClipperController extends FOSRestController
       
       // returns first 20 items
       $input = strtolower($input);
-      $expression = '//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")][position() <= 20]';
-      
+      $expression = '(//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")])[position() <= 20]';
       $results = $xpath->query($expression);
       foreach ($results as $node) {
         $result[] = $node->nodeValue;
@@ -131,7 +130,6 @@ class ClipperController extends FOSRestController
    */
   public function postClipperValidationAction(ParamFetcher $paramFetcher)
   {
-
     $this->logger = $this->container->get('monolog.logger.clipper');
 
     // Object to return to remote form
@@ -156,9 +154,8 @@ class ClipperController extends FOSRestController
       $form_data->brand = $paramFetcher->get('survey_brand');
 
       // Google Spreadsheet validation
-      $gsc = New GoogleSpreadsheetController();
-      $gsc->setContainer($this->container);
-
+      $gsc = $this->get('google_spreadsheet');
+      
       $gs_result_array = array();
       $gs_result_total = 0;
 

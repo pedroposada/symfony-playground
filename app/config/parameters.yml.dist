@@ -91,14 +91,13 @@ parameters:
       brand_id:                       [*rpanel_default_table_values_brand_id*]
       email_template_id:              [*rpanel_default_table_values_email_template_id*]
 
-# PSL Clipper Configuration
-psl_clipper:
+  # PSL Clipper Configuration
   google_spreadsheets:
-    client_id :                       "[*psl_clipper_google_spreadsheets_client_id*]"
-    service_account_name :            "[*psl_clipper_google_spreadsheets_service_account_name*]"
-    p12_file_name :                   "[*psl_clipper_google_spreadsheets_p12_file_name*]"
-    spreadsheet_name :                "[*psl_clipper_google_spreadsheets_spreadsheet_name*]"
-    worksheet_name :                  "[*psl_clipper_google_spreadsheets_worksheet_name*]"
+    client_id :                       "[*google_spreadsheets_client_id*]"
+    service_account_name :            "[*google_spreadsheets_service_account_name*]"
+    p12_file_name :                   "[*google_spreadsheets_p12_file_name*]"
+    spreadsheet_name :                "[*google_spreadsheets_spreadsheet_name*]"
+    worksheet_name :                  "[*google_spreadsheets_worksheet_name*]"
 
 
 # Monolog

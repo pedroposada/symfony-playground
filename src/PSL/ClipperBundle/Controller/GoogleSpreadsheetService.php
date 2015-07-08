@@ -1,8 +1,8 @@
 <?php
 /**
- * PSL/ClipperBundle/Controller/GoogleSpeadsheetController.php
+ * PSL/ClipperBundle/Controller/GoogleSpreadsheetService.php
  * 
- * Google Speadsheet Controller Class
+ * Google Speadsheet Service Class
  * This is the class that controls all interactions with a Google Spreadsheet specified in the configuration
  * 
  * @version 1.0
@@ -12,7 +12,6 @@
 
 namespace PSL\ClipperBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Config\FileLocator;
 
 use PSL\ClipperBundle\Entity\FeasibilityRequest;
@@ -21,8 +20,36 @@ use PSL\ClipperBundle\Utils\GoogleSheets;
 use \stdClass as stdClass;
 use \Exception as Exception;
 
-class GoogleSpreadsheetController extends Controller
+class GoogleSpreadsheetService
 {
+  
+  protected $client_id;
+  
+  protected $service_account_name;
+  
+  protected $p12_file_name;
+  
+  protected $spreadsheet_name;
+  
+  protected $worksheet_name;
+  
+  protected $p12_file_path;
+  
+  /**
+   * Constructor function 
+   * 
+   * @param array $params - the array of parameters for the Google Spreadsheet connection 
+   */
+  public function __construct($params)
+  {
+    $this->client_id = $params['client_id'];
+    $this->service_account_name = $params['service_account_name'];
+    $this->p12_file_name = $params['p12_file_name'];
+    $this->spreadsheet_name = $params['spreadsheet_name'];
+    $this->worksheet_name = $params['worksheet_name'];
+    $this->p12_file_path = $params['p12_file_path'];
+  }
+  
   /**
    * Returns data from the Feasibility sheet
    *
@@ -73,13 +100,8 @@ class GoogleSpreadsheetController extends Controller
     $sheets = $this->setupFeasibilitySheet();
     
     if ($sheets) {
-      // get Spreadsheet parameters
-      $spreadsheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.spreadsheet_name');
-      $worksheet_name = $this->container->getParameter('psl_clipper.google_spreadsheets.worksheet_name');
-      // $sheet_id = $this->container->getParameter('psl_clipper.google_spreadsheets.sheet_id');
-      
       // retrieve result
-      $result = $sheets->batchSetGet($spreadsheet_name, $worksheet_name, $data, $return);
+      $result = $sheets->batchSetGet($this->spreadsheet_name, $this->worksheet_name, $data, $return);
       
       if ($result) {
         $feasibility->market = $form_data->market;
@@ -107,14 +129,9 @@ class GoogleSpreadsheetController extends Controller
    */
   private function setupFeasibilitySheet() 
   {
-    // Google Spreadsheet parameters
-    $client_id = $this->container->getParameter('psl_clipper.google_spreadsheets.client_id');
-    $service_account_name = $this->container->getParameter('psl_clipper.google_spreadsheets.service_account_name');
-    $p12_file_name = $this->container->getParameter('psl_clipper.google_spreadsheets.p12_file_name');
-    $p12_file_uri = $this->returnFileUri($p12_file_name, '/Resources/config');
-    
+    $p12_file_uri = $this->returnFileUri($this->p12_file_name);
     // Google Sheets object
-    return GoogleSheets::withProperties($client_id, $service_account_name, $p12_file_uri[0]);
+    return GoogleSheets::withProperties($this->client_id, $this->service_account_name, $p12_file_uri[0]);
   }
   
   /**
@@ -125,10 +142,9 @@ class GoogleSpreadsheetController extends Controller
    *
    * @return array - the full uri in an array
    */
-  private function returnFileUri($file_name, $folder_path) 
+  private function returnFileUri($file_name) 
   {
-    $bundlePath = $this->get('kernel')->getBundle('PSLClipperBundle')->getPath();
-    $directories = array($bundlePath . $folder_path);
+    $directories = array($this->p12_file_path);
     $locator = new FileLocator($directories);
     return $locator->locate($file_name, null, false);
   }

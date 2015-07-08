@@ -3,6 +3,7 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: @PSLClipperBundle/Resources/config/config.yml }
+    - { resource: @PSLClipperBundle/Resources/config/services.yml }
     - { resource: doctrine_extensions.yml }
 
 framework:
