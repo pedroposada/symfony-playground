@@ -38,6 +38,11 @@ parameters:
       rpanel_complete:                "RPANEL_COMPLETE"
       limesurvey_complete:            "LIMESURVEY_COMPLETE"
       email_sent:                     "EMAIL_SENT"
+    worldpay:
+      inst_id:                        "[*clipper_worldpay_inst_id*]"
+      form_action:                    "[*clipper_worldpay_form_action*]"
+      test_mode:                      "[*clipper_worldpay_test_mode*]"
+      cart_id:                        "[*clipper_worldpay_cart_id*]"
   clipper.brands:                     "Resources/terms/brands.xml"
   clipper.conditions:                 "Resources/terms/conditions.xml"
       

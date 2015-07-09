@@ -17,16 +17,6 @@ use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
  */
 class FirstQProjectRepository extends EntityRepository
 {
-  public function findByIdsAndState($ids = array(), $state)
-  {
-    $expr = Criteria::expr();
-    $criteria = Criteria::create();
-    $criteria->where($expr->in('bc_product_id', $ids));
-    $criteria->andWhere($expr->eq('state', $state));
-    
-    return $this->matching($criteria);
-  }
-  
   public function findByState($state)
   {
     $expr = Criteria::expr();
@@ -41,6 +31,15 @@ class FirstQProjectRepository extends EntityRepository
     $expr = Criteria::expr();
     $criteria = Criteria::create();
     $criteria->where($expr->neq('state', $state));
+    
+    return $this->matching($criteria);
+  }
+  
+  public function findByUserId($user_id)
+  {
+    $expr = Criteria::expr();
+    $criteria = Criteria::create();
+    $criteria->where($expr->eq('user_id', $user_id));
     
     return $this->matching($criteria);
   }

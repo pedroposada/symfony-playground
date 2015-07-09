@@ -26,7 +26,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
-use Bigcommerce\Api\Client as Bigcommerce;
+// use Bigcommerce\Api\Client as Bigcommerce;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
@@ -39,11 +39,6 @@ use \Exception as Exception;
 
 /**
  * Rest Controller for Clipper
- *
- * @TODO:
- * - monolog of errors and states
- *
- *
  */
 class ClipperController extends FOSRestController
 {
@@ -90,17 +85,17 @@ class ClipperController extends FOSRestController
       }
     }
     
-    
     return new Response($result);
   }
 
   /**
-   * Validate a FristQ request
+   * Inserts a new FristQ request
    *
    * @ApiDoc(
    *   resource=true,
    *   statusCodes = {
    *     200 = "Returned when successful",
+   *     400 = "Bad request or invalid data from the form",
    *   }
    * )
    *
@@ -111,48 +106,43 @@ class ClipperController extends FOSRestController
    * @requestparam(name="loi", default="", description="LOI.")
    * @requestparam(name="ir", default="", description="IR.")
    * @requestparam(name="title", default="", description="Title.")
-   * @requestparam(name="name", default="", description="Name of the firstq
-   * project.")
-   * @requestparam(name="name_full", default="", description="Full name of the
-   * firstq project.")
+   * @requestparam(name="name", default="", description="Name of the firstq project.")
+   * @requestparam(name="name_full", default="", description="Full name of the firstq project.")
    * @requestparam(name="patient_type", default="", description="Patient type.")
-   * @requestparam(name="num_participants", default="", description="Number of
-   * participants.")
+   * @requestparam(name="num_participants", default="", description="Number of participants.")
    * @requestparam(name="market", default="", description="Market.", array=true)
-   * @requestparam(name="specialty", default="", description="Specialty.",
-   * array=true)
+   * @requestparam(name="specialty", default="", description="Specialty.", array=true)
    * @requestparam(name="timestamp", default="", description="Timestamp.")
-   * @requestparam(name="survey_brand", default="", description="Brands.",
-   * array=true)
+   * @requestparam(name="survey_brand", default="", description="Brands.", array=true)
    * @requestparam(name="brand", default="", description="Brands.")
+   * @requestparam(name="firstq_id", default="", description="FirstQ project id.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function postClipperValidationAction(ParamFetcher $paramFetcher)
+  public function postOrderAction(ParamFetcher $paramFetcher)
   {
     $this->logger = $this->container->get('monolog.logger.clipper');
 
     // Object to return to remote form
     $returnObject = array();
-
+    $responseStatus = 200;
+    
     try {
       // get $_POST values
       $form_data = new stdClass();
-      $form_data->loi = 10;
-      // hard coded for now
-      $form_data->ir = 10;
-      // hard coded for now
+      $form_data->loi = 10; // hard coded for now
+      $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name');
       $form_data->name_full = $paramFetcher->get('name_full');
       $form_data->patient_type = $paramFetcher->get('patient_type');
-      $form_data->num_participants = 35;
-      // hard coded for now //$paramFetcher->get('num_participants');
+      $form_data->num_participants = 35; // hard coded for now
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
       $form_data->brand = $paramFetcher->get('survey_brand');
-
+      $form_data->firstq_id = $paramFetcher->get('firstq_id');
+      
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
       
@@ -162,10 +152,8 @@ class ClipperController extends FOSRestController
       foreach ( $form_data->markets as $market_key => $market_value ) {
         foreach ( $form_data->specialties as $specialty_key => $specialty_value ) {
           $form_data_object = new stdClass();
-          $form_data_object->loi = 10;
-          // hard coded for now
-          $form_data_object->ir = 10;
-          // hard coded for now
+          $form_data_object->loi = 10; // hard coded for now
+          $form_data_object->ir = 10; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
           // check feasibility
@@ -177,50 +165,101 @@ class ClipperController extends FOSRestController
           }
         }
       }
-
-      // Description of the product
-      // @TODO: use TWIG template to format output
-      $description = '<p>Market: ' . implode(', ', $form_data->markets) . '</p>';
-      $description .= '<p>Specialty: ' . implode(', ', $form_data->specialties) . '</p>';
-      $description .= '<p>Quota: ' . $form_data->num_participants . '</p>';
-      $description .= '<p>Brands: ' . implode(', ', $form_data->brand) . '</p>';
-      // $description .= '<h4>Total price: $' . number_format($gs_result_total,
-      // 2, ',', ',') . '</h4>';
-      // @TODO: change hardcoded price
-      $description .= '<h4>Total price: $' . number_format(4995, 2, ',', ',') . '</h4>';
-
-      // Bigcommerce product creation
-      // @TODO: uncomment this line, but first fix 'undefined' error in front-end
-      // $bc_product = $this->getBigcommerceProduct($form_data, $gs_result_total, $description);
-      $bc_product = new stdClass();
-      $bc_product->id = 103;
-      // Save into the database
-      $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $bc_product);
-
+      
+      // Save or update into the database
+      $firstq_uuid = $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $form_data->firstq_id);
+      
       // build response
-      $returnObject['product']['id'] = $bc_product->id;
-      // $returnObject['product']['name'] = 'FirstQ ' . $form_data->name_full;
-      // @TODO: The '+' was missing and that is why we are hardcoding the title for now
-      $returnObject['product']['name'] = 'FirstQ NPS+';
-      $returnObject['product']['description'] = $description;
+      // product
+      $returnObject['product']['price'] = number_format(4995, 2, ',', ',');
+      // worldpay parameters for the front end form
+      $parameters_clipper = $this->container->getParameter('clipper');
+      $returnObject['worldpay']['firstq_uid'] = $firstq_uuid;
+      $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
+      $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
+      $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
+      $returnObject['worldpay']['cart_id'] = $parameters_clipper['worldpay']['cart_id'];
     }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
 
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
+      $responseStatus = 400;
       $this->logger->debug("Doctrine exception: {$e}");
     }
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
+      $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
 
-    return new Response($returnObject);
+    return new Response($returnObject, $responseStatus);
   }
-
+  
+  /**
+   * Retrieve FirstQ orders.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param Request $request the request object
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getOrdersAction(Request $request) {
+    
+    // get user_id from request
+    $user_id = $request->query->get('user_id');
+    
+    $em = $this->getDoctrine()->getManager();
+    $firstq_projects = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByUserId($user_id);
+    
+    if (!$firstq_projects->isEmpty()) {
+      return new Response($firstq_projects);
+    }
+    else {
+      $message = 'No orders for this user.';
+      return new Response($message, 204); // No Content
+    }
+  }
+  
+  /**
+   * Retrieve a FirstQ order.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param Request $request - the request object
+   * @param string $uuid - Unique id of a FirstQ project
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getOrderAction(Request $request, $uuid) {
+    $em = $this->getDoctrine()->getManager();
+    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($uuid);
+    
+    if ($firstq_project) {
+      return new Response($firstq_project);
+    }
+    else {
+      $message = 'No order with this id: ' . $uuid;
+      return new Response($message, 204); // no content
+    }
+  }
+  
   /**
    * Retrieve a clipper.
    *
@@ -238,99 +277,50 @@ class ClipperController extends FOSRestController
   public function getClipperGetAction(Request $request)
   {
     $em = $this->getDoctrine()->getEntityManager();
-
     $fq = $em->getRepository('PSLClipperBundle:FirstQProject')->getLatestFQs();
 
     return new Response($fq);
   }
 
   /**
-   * Create a Bigcommerce Product
-   *
-   * @param integer $timestamp - timestamp of the request
-   * @param float $price - price returned by the Google Spreadsheet
-   *
-   * @return mixed product
-   */
-  private function getBigcommerceProduct($form_data, $price, $description)
-  {
-
-    if( empty($form_data->timestamp) ) {
-      throw new Exception('Error while creating Bigcommerce product. Missing parameter.');
-    }
-
-    // Get parameters
-    $parameters_bigcommerce = $this->container->getParameter('bigcommerce');
-
-    // setup bigcommerce
-    Bigcommerce::failOnError();
-    Bigcommerce::configure(array(
-      'username' => $parameters_bigcommerce['api']['username'],
-      'store_url' => $parameters_bigcommerce['api']['store_url'],
-      'api_key' => $parameters_bigcommerce['api']['api_key']
-    ));
-
-    // create new object
-    $name = "FirstQ {$form_data->name_full} - {$form_data->timestamp}";
-    $fields = array(
-      'name' => $name,
-      'price' => $price,
-      'categories' => array($parameters_bigcommerce['category_code_firstq']), //
-      // FirstQ
-      'description' => $description,
-      'type' => 'digital',
-      'availability' => 'available',
-      'weight' => 0.0,
-    );
-
-    $product = Bigcommerce::createProduct($fields);
-
-    if( $product ) {
-      $this->logger->info("Bigcommerce project {$product->id} was created.");
-
-      return $product;
-    }
-    else {
-      $last_error = Bigcommerce::getLastError();
-      $this->logger->error(json_encode($last_error));
-      $this->logger->debug(json_encode($produc));
-      throw new Exception('Error while creating Bigcommerce product.');
-    }
-  }
-
-  /**
    * Saves a new FirstQProject or update an existing one
    *
-   * @param string $form_data_serialized - product created
-   * @param string $gs_result_serialized - product created
-   * @param mixed $price - price returned by the Google Spreadsheet
+   * @param string $form_data_serialized - data from the form
+   * @param string $gs_result_serialized - data from google speadsheet
+   * @param string $firstq_uid - first q unique id, can be null
    */
-  private function createFirstQProject($form_data_serialized, $gs_result_serialized, $product)
+  private function createFirstQProject($form_data_serialized, $gs_result_serialized, $firstq_uuid)
   {
     // Get parameters
     $parameters_clipper = $this->container->getParameter('clipper');
-
-    // Check if object exists already
-    // Return and update if exists
-    // Create if new
-
-    // Create FirstQProject entity
-    $firstq_project = new FirstQProject();
-    // $firstq_project->setGuid(); // get from the item creation from Bigcommerce
-    // $firstq_project->setBcClientId(); // not used for this step
-    // $firstq_project->setBcClientName(); // not used for now
-    $firstq_project->setBcProductId($product->id);
-    // from the item creation from Bigcommerce
-    $firstq_project->setFormDataRaw($form_data_serialized);
-    // from form
-    $firstq_project->setSheetDataRaw($gs_result_serialized);
-    // from GoogleSheet
-    $firstq_project->setState($parameters_clipper['state_codes']['bigcommerce_pending']);
-
     $em = $this->getDoctrine()->getManager();
-
+    
+    $firstq_project;
+    
+    if (!empty($firstq_uuid)) {
+      // Check if object exists already
+      $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uid);
+      if (!$firstq_project) {
+        // Create FirstQProject entity
+        $firstq_project = new FirstQProject();
+      }
+    }
+    else {
+      // Create FirstQProject entity
+      $firstq_project = new FirstQProject();
+    }
+    
+    // from form
+    $firstq_project->setFormDataRaw($form_data_serialized);
+    // from GoogleSheet
+    $firstq_project->setSheetDataRaw($gs_result_serialized);
+    // set initial state
+    $firstq_project->setState($parameters_clipper['state_codes']['order_pending']);
+    
     $em->persist($firstq_project);
     $em->flush();
+    
+    return $firstq_project->getId();
   }
 
   /**

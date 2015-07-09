@@ -11,9 +11,7 @@ class FirstQProject
 {
     protected $id;
 
-    protected $bc_order_id;
-
-    protected $bc_product_id;
+    protected $user_id;
 
     protected $form_data_raw;
 
@@ -122,49 +120,26 @@ class FirstQProject
     }
 
     /**
-     * Set bc_order_id
+     * Set user_id
      *
-     * @param string $bcOrderId
+     * @param string $userId
      * @return FirstQProject
      */
-    public function setBcOrderId($bcOrderId)
+    public function setUserId($userId)
     {
-        $this->bc_order_id = $bcOrderId;
+        $this->user_id = $userId;
 
         return $this;
     }
 
     /**
-     * Get bc_order_id
+     * Get user_id
      *
      * @return string 
      */
-    public function getBcOrdertId()
+    public function getUserId()
     {
-        return $this->bc_order_id;
-    }
-
-    /**
-     * Set bc_product_id
-     *
-     * @param string $bcProductId
-     * @return FirstQProject
-     */
-    public function setBcProductId($bcProductId)
-    {
-        $this->bc_product_id = $bcProductId;
-
-        return $this;
-    }
-
-    /**
-     * Get bc_product_id
-     *
-     * @return string 
-     */
-    public function getBcProductId()
-    {
-        return $this->bc_product_id;
+        return $this->user_id;
     }
 
     /**
@@ -288,16 +263,6 @@ class FirstQProject
     public function setUpdatedValue()
     {
         // Add your code here
-    }
-
-    /**
-     * Get bc_order_id
-     *
-     * @return string 
-     */
-    public function getBcOrderId()
-    {
-        return $this->bc_order_id;
     }
 
     /**

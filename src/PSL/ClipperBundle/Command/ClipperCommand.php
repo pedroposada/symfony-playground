@@ -13,7 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Bigcommerce\Api\Client as Bigcommerce;
 use Doctrine\Common\Util\Debug as Debug;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
@@ -36,7 +35,7 @@ class ClipperCommand extends ContainerAwareCommand
   protected function configure()
   {
     $this->setName('clipper:cron')
-      ->setDescription('Get FirstQ orders from BigCommerce and process them.')
+      ->setDescription('Get FirstQ orders and process them.')
       ->addArgument(
         'fqid',
         InputArgument::OPTIONAL,
@@ -89,8 +88,7 @@ class ClipperCommand extends ContainerAwareCommand
         
         $this
           // process states
-          ->process($fq, 'bigcommerce_pending')
-          ->process($fq, 'bigcommerce_complete')
+          ->process($fq, 'order_complete')
           ->process($fq, 'limesurvey_created')
           ->process($fq, 'rpanel_complete')
           ->process($fq, 'limesurvey_complete') // next state will be "email_sent"
@@ -132,60 +130,10 @@ class ClipperCommand extends ContainerAwareCommand
   }
   
   /**
-   * state == bigcommerce_pending
-   * Ads BigCommerce Order Id to this FirstQProject
-   */
-  public function bigcommerce_pending(FirstQProject $fq)
-  {
-    $params = $this->getContainer()->getParameter('bigcommerce');
-
-    Bigcommerce::failOnError();
-    Bigcommerce::configure(array(
-      'username' => $params['api']['username'],
-      'store_url' => $params['api']['store_url'],
-      'api_key' => $params['api']['api_key']
-    ));
-    // look for orders marked complete
-    $fields = array(
-      'status_id' => $params['order_status_code_completed'],
-    );
-    $orders = Bigcommerce::getOrders($fields);
-    if ($count = count($orders)) {
-      $this->logger
-        ->debug("Found [{$count}] Completed Order(s) in BigCommerce. Status code [{$params['order_status_code_completed']}]", array('bigcommerce_pending'));
-      //...
-      $pids = array();
-      // loop though products for each order
-      foreach ( $orders as $order ) {
-        $products = Bigcommerce::getOrderProducts($order->id);
-        foreach ( $products as $product ) {
-          $pids[$product->product_id] = $order->id;
-        }
-      }
-      
-      // try to match order with product
-      if (isset($pids[$fq->getBcProductId()])) {
-        $fq->setBcOrderId($pids[$fq->getBcProductId()]);
-        $this->logger->info("Found BcProductId: [{$pids[$fq->getBcProductId()]}] for fq->id: [{$fq->getId()}]");
-      }
-      else {
-        // bail if no orders match this product
-        throw new Exception("No completed order found for fq->id: [{$fq->getId()}] with prodcut id: [{$fq->getBcProductId()}]");
-      }
-    }
-    else {
-      $this->logger->debug("No Completed Order(s) found in BigCommerce.", array('bigcommerce_pending'));
-      throw new Exception("No completed order found for fq->id: [{$fq->getId()}] with prodcut id: [{$fq->getBcProductId()}]");
-    }
-
-    return $fq;
-  }
-
-  /**
-   * state == bigcommerce_complete
+   * state == order_complete
    * Creates LimeSurvey Survey fo this FirstQProject
    */
-  public function bigcommerce_complete(FirstQProject $fq)
+  public function order_complete(FirstQProject $fq)
   {
     // get LS settings
     $params_ls = $this->getContainer()->getParameter('limesurvey');
