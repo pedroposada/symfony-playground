@@ -388,15 +388,22 @@ class ClipperController extends FOSRestController
   }
 
   /**
-   * Simple debug output
-   * /clipper/autocomplete
-   *
+   * flag order as order_complete and redirect to front-end
+   * /clipper/thankyou/{fquuid}
    */
-  public function autocompleteAction()
+  public function thankyouAction($fquuid)
   {
-    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
-
-    return $response;
+    $parameters_clipper = $this->container->getParameter('clipper');
+    $em = $this->getDoctrine()->getManager();
+    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($fquuid);
+    $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+    $em->persist($firstq_project);
+    $em->flush();
+    
+    $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
+    $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
+    
+    return new RedirectResponse($destination, 301);
   }
 
 }
