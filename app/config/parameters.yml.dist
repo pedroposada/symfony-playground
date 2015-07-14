@@ -32,8 +32,8 @@ parameters:
       subject:                        "FirstQ Survey Results - %limesurvey.url_destination_base_sid%"
       body:                           "FirstQ Survey results for Survey ID: [SID]. URL: %limesurvey.url_destination_base_sid%"
     state_codes:
-      bigcommerce_pending:            "BIGCOMMERCE_PENDING"
-      bigcommerce_complete:           "BIGCOMMERCE_COMPLETE"
+      order_pending:                  "ORDER_PENDING"
+      order_complete:                 "ORDER_COMPLETE"
       limesurvey_created:             "LIMESURVEY_CREATED"
       rpanel_complete:                "RPANEL_COMPLETE"
       limesurvey_complete:            "LIMESURVEY_COMPLETE"
@@ -45,6 +45,7 @@ parameters:
       cart_id:                        "[*clipper_worldpay_cart_id*]"
   clipper.brands:                     "Resources/terms/brands.xml"
   clipper.conditions:                 "Resources/terms/conditions.xml"
+  clipper.frontend.url:               "[*clipper.frontend.url*]"
       
   # LimeSurvey settings
   limesurvey:

@@ -423,5 +423,24 @@ class ClipperController extends FOSRestController
 
     return $response;
   }
-
+  
+  /**
+   * flag order as order_complete and redirect to front-end
+   * /clipper/thankyou/{fquuid}
+   */
+  public function thankyouAction($fquuid)
+  {
+    $parameters_clipper = $this->container->getParameter('clipper');
+    $em = $this->getDoctrine()->getManager();
+    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($fquuid);
+    $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+    $em->persist($firstq_project);
+    $em->flush();
+    
+    $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
+    $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
+    
+    return new RedirectResponse($destination, 301);
+  }
+  
 }

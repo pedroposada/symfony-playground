@@ -18,6 +18,6 @@ psl_clipper_exit:
   path:     /limesurvey/exit
   defaults: { _controller: PSLClipperBundle:Clipper:exit }
 
-psl_clipper_autocomplete:
-  path:     /autocomplete
-  defaults: { _controller: PSLClipperBundle:Clipper:autocomplete }
+psl_clipper_thankyou:
+  path:     /thankyou/{fquuid}
+  defaults: { _controller: PSLClipperBundle:Clipper:thankyou }

@@ -1,0 +1,118 @@
+BODY, TD, TR {
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 13px;
+	color : #000000;
+	
+}
+.personalise {
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 13px;
+	color : #ffffff;
+}
+.date {
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	color : #333333;
+}
+
+.author{
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	color : #333333;
+}
+
+.source {
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	color : #333333;
+}
+
+.reference {
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	color : #cc6633;
+	}
+	
+.navigation {
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	color : #cc6633;
+	font-weight: bold;
+	}
+	
+.Section {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #cc6633;
+	font-weight: bold;
+	}
+	
+.Title {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	color: #cc6633;
+	font-weight: bold;
+	}
+	
+	.subTitle {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #cc6633;
+	}
+	
+.Footer {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #666666;
+	}
+	
+.Privacy {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #cc6633;
+	}
+	
+	.referencetitle {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #cc6633;
+}
+	
+.reference {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #666666;
+		font-style : italic;
+	}
+	
+.smallfont {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10.5px;
+	color: #ffffff;
+	}
+	
+	.smallfont2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10.5px;
+	color: #333333;
+	}
+	
+	
+	
+
+A:link     {
+	color: Blue;
+	text-decoration: underline;
+}
+A:visited {
+	color: Maroon;
+	text-decoration: underline;
+}
+A:active {
+	color: Blue;
+	text-decoration: underline;
+}
+A:hover    {
+	color: #ff3300;
+	text-decoration: none;
+}

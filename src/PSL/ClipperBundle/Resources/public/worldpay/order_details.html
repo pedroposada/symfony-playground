@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <!-- HTML Redirect Example 0.1                                                           -->
+  <!-- Please note the code on this page is provided by WorldPay as a working example only.   -->
+  <!-- Any changes you make to the copies of these pages will not be supported by us.     -->
+  <!--
+  Visa Card Number: 4917610000000000
+  or, MasterCard Number: 5454545454545454
+  Expiry Date: A date later than today but within seven years from submission
+  Security Code: 123
+  -->
+  <!-- The name, style, and properties of the page are defined in between the 'head' tags. -->
+  <head>
+    <title>Order Details</title>
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta name="description" content="Junior HTML Example 0.1">
+    <meta name="keywords" content="Junior, html">
+
+  </head>
+
+  <!-- The content to be used on the page is placed between the 'body' tags. -->
+  <body>
+    <!-- This is an order details submission form, for more information on the elements within a form please refer to the section Order Details Form Structure. -->
+
+    <h1>ORDER DETAILS</h1>
+    <p>Hidden fields in "order details" page in Charles's UI.</p>
+    <ul>
+      <li>
+        form action = https://secure-test.worldpay.com/wcc/purchase
+      </li>
+      <li>
+        testMode = 100
+      </li>
+      <li>
+        instId = 211616
+      </li>
+      <li>
+        cartId = abc123
+      </li>
+      <li>
+        amount = 0
+      </li>
+      <li>
+        currency = GBP
+      </li>
+      <li>
+        MC_FQUUID = 2cc2dbb9-138c-11e5-8fa3-027763768d48
+      </li>
+    </ul>
+
+    <!-- <form action="https://secure-test.worldpay.com/wcc/purchase" name="BuyForm" method="post"> -->
+    <form action="http://localhost:8000/bundles/pslclipper/worldpay/payment.html" name="BuyForm" method="post">
+      <input type="hidden" name="instId"  value="1234567">
+      <input type="hidden" name="cartId" value="abc123">
+      <input type="hidden" name="currency" value="USD">
+      <input type="hidden" name="amount"  value="0">
+      <input type="hidden" name="testMode" value="100">
+      <input type="hidden" name="desc" value="">
+      <!-- FQ uuid -->
+      <input type="hidden" name="MC_FQUUID" value="2cc2dbb9-138c-11e5-8fa3-027763768d48">
+      <input type="submit" value="PAY WITH WORLDPAY">
+
+    </form>
+  </body>
+</html>
