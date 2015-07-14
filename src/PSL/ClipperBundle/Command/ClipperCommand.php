@@ -26,6 +26,7 @@ use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Controller\RPanelController as RPanelController;
 use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
+//use PSL\ClipperBundle\Service\SurveyBuilderService;
 
 class ClipperCommand extends ContainerAwareCommand
 {
@@ -40,8 +41,7 @@ class ClipperCommand extends ContainerAwareCommand
         'fqid',
         InputArgument::OPTIONAL,
         'FirstQ Project ID (UUID)'
-      )
-      ;
+      );
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
@@ -142,35 +142,33 @@ class ClipperCommand extends ContainerAwareCommand
     $ls = new LimeSurvey();
     $ls->configure($params_ls['api']);
     
-    // get Survey template and replace tokens
-    // @TODO: replace "$params_ls['lss']['nps_plus']" dynamically with value from form_data_raw
-    $lss = file_get_contents($params_ls['lss']['dir'] . '/' . $params_ls['lss']['nps_plus']);
-    
     // array for limesurvey data
     $ls_data_raw_array = array();
     
     // static data for Limesurvey
     $patient_type = current($fq->getFormDataByField('patient_type'));
-    $brands = $this->clipperBrands($fq->getFormDataByField('brand'));
+    $brands = $fq->getFormDataByField('brands'); //$this->clipperBrands($fq->getFormDataByField('brands'));
+    $statements = $fq->getFormDataByField('statements');
     $url_exit = $this->getContainer()->getParameter('limesurvey.url_exit');
     
     // array for multiple Market / Specialty
     $sheet_data = $fq->getSheetDataUnserialized();
-  
+    
     foreach ($sheet_data as $key => $value) {
       $specialty_id = MDMMapping::map('specialties', (string)$value->specialty);
       // $country_id = MDMMapping::map('countries', (string)$value->market);
       $country_id = 10; // @TODO: this is a hard coded value up until we get the proper mapping
       
-      $tokens = array(
-        '_PATIENT_TYPE_' => $patient_type,
-        '_SPECIALTY_' => $specialty_id,
-        '_MARKET_' => $country_id,
-        '_BRAND_' => $brands,
-        '_URL_EXIT_' => $url_exit,
-      );
+      $survey_data = new stdClass();
+      $survey_data->market = $specialty_id;
+      $survey_data->specialty = $country_id;
+      $survey_data->patients = $patient_type;
+      $survey_data->brands = $brands;
+      $survey_data->statements = $statements;
+      $survey_data->url_exit = $url_exit;
       
-      $lss = strtr($lss, $tokens);
+      $sc = $this->getContainer()->get('survey_builder');
+      $lss = $sc->createSurvey('nps', $survey_data);
       
       // import S into LS
       $iSurveyID = $ls->import_survey(array(

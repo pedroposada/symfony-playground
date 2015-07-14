@@ -26,13 +26,13 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
-// use Bigcommerce\Api\Client as Bigcommerce;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
-use PSL\ClipperBundle\Controller\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
-use PSL\ClipperBundle\Entity\FirstQProject;
+use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
+use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
+use PSL\ClipperBundle\Service\SurveyBuilderService;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
@@ -42,6 +42,13 @@ use \Exception as Exception;
  */
 class ClipperController extends FOSRestController
 {
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * API
+   * ----------------------------------------------------------------------------------------
+   */
+
   /**
    * Autocomplete callback for input text field
    *
@@ -103,19 +110,19 @@ class ClipperController extends FOSRestController
    *
    * @param ParamFetcher $paramFetcher Paramfetcher
    *
-   * @requestparam(name="loi", default="", description="LOI.")
-   * @requestparam(name="ir", default="", description="IR.")
-   * @requestparam(name="title", default="", description="Title.")
-   * @requestparam(name="name", default="", description="Name of the firstq project.")
-   * @requestparam(name="name_full", default="", description="Full name of the firstq project.")
-   * @requestparam(name="patient_type", default="", description="Patient type.")
+   * @requestparam(name="loi", default="", description="LOI number.")
+   * @requestparam(name="ir", default="", description="IR number.")
+   * @requestparam(name="title", default="", description="Title, user generated.")
+   * @requestparam(name="name", default="", description="Name of the folio.")
+   * @requestparam(name="name_full", default="", description="Full name of the folio, user generated (same as Title).")
+   * @requestparam(name="patient_type", default="", description="Patient type, user generated..")
    * @requestparam(name="num_participants", default="", description="Number of participants.")
-   * @requestparam(name="market", default="", description="Market.", array=true)
-   * @requestparam(name="specialty", default="", description="Specialty.", array=true)
+   * @requestparam(name="market", default="", description="Market array.", array=true)
+   * @requestparam(name="specialty", default="", description="Specialty array.", array=true)
    * @requestparam(name="timestamp", default="", description="Timestamp.")
-   * @requestparam(name="survey_brand", default="", description="Brands.", array=true)
-   * @requestparam(name="brand", default="", description="Brands.")
-   * @requestparam(name="firstq_id", default="", description="FirstQ project id.")
+   * @requestparam(name="survey_brand", default="", description="Brand array.", array=true)
+   * @requestparam(name="statement", default="", description="Statement array.", array=true)
+   * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -140,8 +147,9 @@ class ClipperController extends FOSRestController
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
-      $form_data->brand = $paramFetcher->get('survey_brand');
-      $form_data->firstq_id = $paramFetcher->get('firstq_id');
+      $form_data->brands = $paramFetcher->get('survey_brand');
+      $form_data->statements = $paramFetcher->get('statement');
+      $firstq_uuid = $paramFetcher->get('firstq_uuid');
       
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
@@ -167,14 +175,14 @@ class ClipperController extends FOSRestController
       }
       
       // Save or update into the database
-      $firstq_uuid = $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $form_data->firstq_id);
+      $firstq_uuid = $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $firstq_uuid);
       
       // build response
       // product
-      $returnObject['product']['price'] = number_format(4995, 2, ',', ',');
+      $returnObject['product']['price'] = number_format(4995, 2, '.', ','); // Hardcoded for now
       // worldpay parameters for the front end form
       $parameters_clipper = $this->container->getParameter('clipper');
-      $returnObject['worldpay']['firstq_uid'] = $firstq_uuid;
+      $returnObject['worldpay']['firstq_uuid'] = $firstq_uuid;
       $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
       $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
       $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
@@ -223,7 +231,11 @@ class ClipperController extends FOSRestController
     $firstq_projects = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByUserId($user_id);
     
     if (!$firstq_projects->isEmpty()) {
-      return new Response($firstq_projects);
+      $firstqs_formatted = array(); 
+      foreach ($firstq_projects as $key => $firstq_project) {
+        $firstqs_formatted[] = $firstq_project->getFormattedFirstQProject();
+      }
+      return new Response($firstqs_formatted);
     }
     else {
       $message = 'No orders for this user.';
@@ -252,7 +264,8 @@ class ClipperController extends FOSRestController
     $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($uuid);
     
     if ($firstq_project) {
-      return new Response($firstq_project);
+      $firstq_formatted = $firstq_project->getFormattedFirstQProject();
+      return new Response($firstq_formatted);
     }
     else {
       $message = 'No order with this id: ' . $uuid;
@@ -283,6 +296,12 @@ class ClipperController extends FOSRestController
   }
 
   /**
+   * ----------------------------------------------------------------------------------------
+   * HELPERS
+   * ----------------------------------------------------------------------------------------
+   */
+
+  /**
    * Saves a new FirstQProject or update an existing one
    *
    * @param string $form_data_serialized - data from the form
@@ -299,7 +318,7 @@ class ClipperController extends FOSRestController
     
     if (!empty($firstq_uuid)) {
       // Check if object exists already
-      $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uid);
+      $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uuid);
       if (!$firstq_project) {
         // Create FirstQProject entity
         $firstq_project = new FirstQProject();
@@ -322,6 +341,23 @@ class ClipperController extends FOSRestController
     
     return $firstq_project->getId();
   }
+  
+  /**
+   * Simple debug output
+   * /clipper/autocomplete
+   */
+  public function autocompleteAction()
+  {
+    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
+
+    return $response;
+  }
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * REDIRECT OR OUPUT
+   * ----------------------------------------------------------------------------------------
+   */
 
   /**
    * redirect users to LimeSurvey Survey page
@@ -368,6 +404,7 @@ class ClipperController extends FOSRestController
     // comment out line below to override display of dump(request)
     $debug = dump($paramFetcher);
     // $debug = 'any output';
+    // $debug = dump($debug);
     return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
   }
 
@@ -383,18 +420,6 @@ class ClipperController extends FOSRestController
   public function exitAction(ParamFetcher $paramFetcher)
   {
     $response = $this->render('PSLClipperBundle:Clipper:exit.html.twig', array('token' => $paramFetcher->get('lstoken')));
-
-    return $response;
-  }
-
-  /**
-   * Simple debug output
-   * /clipper/autocomplete
-   *
-   */
-  public function autocompleteAction()
-  {
-    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
 
     return $response;
   }

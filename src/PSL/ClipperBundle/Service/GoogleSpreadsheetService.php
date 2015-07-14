@@ -10,7 +10,7 @@
  * 
  */
 
-namespace PSL\ClipperBundle\Controller;
+namespace PSL\ClipperBundle\Service;
 
 use Symfony\Component\Config\FileLocator;
 
