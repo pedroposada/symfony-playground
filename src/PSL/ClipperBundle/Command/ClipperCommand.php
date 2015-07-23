@@ -26,7 +26,6 @@ use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Controller\RPanelController as RPanelController;
 use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
-//use PSL\ClipperBundle\Service\SurveyBuilderService;
 
 class ClipperCommand extends ContainerAwareCommand
 {
@@ -254,6 +253,8 @@ class ClipperCommand extends ContainerAwareCommand
     $rpanel_project = new RPanelProject($fq);
     $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
     $rpanel_project->setProjStatus($params_rp['default_table_values']['proj_status']);
+    $launch_date = $fq->getFormDataByField('launch_date');
+    $rpanel_project->setLaunchDate($launch_date[0]);
     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
     $rpanel_project->setCreatedBy($params_rp['user_id']);
     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incidence_rate']);
@@ -273,7 +274,7 @@ class ClipperCommand extends ContainerAwareCommand
     $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
-   
+    
     // array for multiple Market / Specialty
     $sheet_data = $fq->getSheetDataUnserialized();
     $gs_result_array = array();
@@ -372,8 +373,13 @@ class ClipperCommand extends ContainerAwareCommand
    */
   public function rpanel_complete(FirstQProject $fq) 
   {
-    $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-      
+    
+    // @TODO: Support multi market/specialty combo
+    $ls_data = $fq->getLimesurveyDataUnserialized();
+    
+    // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
+    $iSurveyID = $ls_data[0]->sid;
+    
     // config connection to LS
     $params_ls = $this->getContainer()->getParameter('limesurvey');
     $ls = new LimeSurvey();
@@ -403,6 +409,7 @@ class ClipperCommand extends ContainerAwareCommand
         'expires' => self::$timestamp,
       ), 
     ));
+    
     if (is_array($response) && isset($response['status'])) {
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
       throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
@@ -417,8 +424,12 @@ class ClipperCommand extends ContainerAwareCommand
    */
   public function limesurvey_complete(FirstQProject $fq) 
   {
-    $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-   
+    // @TODO: Support multi market/specialty combo
+    $ls_data = $fq->getLimesurveyDataUnserialized();
+    
+    // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
+    $iSurveyID = $ls_data[0]->sid;
+    
     // config connection to LS
     $params_ls = $this->getContainer()->getParameter('limesurvey');
     $ls = new LimeSurvey();
@@ -466,55 +477,6 @@ class ClipperCommand extends ContainerAwareCommand
     $this->logger->debug("Email: [{$message->toString()}]");
     
     return $fq;
-  }
-
-
-  /**
-   * Helper function to replace questions for LS Survey template 
-   * 
-   * @see bigcommerce_complete
-   * @param $brands array of brand names
-   * @return string
-   */
-  private function clipperBrands($brands = array()) 
-  {
-    $output = '';
-    
-    $xml = <<<XML
-  
-  <row>
-    <qid><![CDATA[_COUNTER_]]></qid>
-    <parent_qid><![CDATA[3035]]></parent_qid>
-    <sid><![CDATA[723936]]></sid>
-    <gid><![CDATA[175]]></gid>
-    <type><![CDATA[H]]></type>
-    <title><![CDATA[_SUB_QUESTION_ID_]]></title>
-    <question><![CDATA[_BRAND_]]></question>
-    <other><![CDATA[N]]></other>
-    <mandatory><![CDATA[N]]></mandatory>
-    <question_order><![CDATA[_QUESTION_ORDER_]]></question_order>
-    <language><![CDATA[en]]></language>
-    <scale_id><![CDATA[0]]></scale_id>
-    <same_default><![CDATA[0]]></same_default>
-  </row>
-  
-XML;
-    
-    $tokens = array(
-      '_COUNTER_' => 3165,
-      '_SUB_QUESTION_ID_' => 'SQ001',
-      '_BRAND_' => '',
-      '_QUESTION_ORDER_' => 1,
-    );
-    foreach ((array)$brands as $key => $brand) {
-      $tokens['_BRAND_'] = $brand;
-      $output .= strtr($xml, $tokens);
-      $tokens['_COUNTER_'] += 5;
-      $tokens['_QUESTION_ORDER_'] += 1;
-      $tokens['_SUB_QUESTION_ID_'] = 'SQ' . str_pad($tokens['_QUESTION_ORDER_'], 3, '0', STR_PAD_LEFT);
-    }
-  
-    return $output;
   }
 
   /**

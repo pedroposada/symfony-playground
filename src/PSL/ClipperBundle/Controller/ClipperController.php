@@ -26,6 +26,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
+use Stripe\Stripe;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
@@ -96,7 +97,7 @@ class ClipperController extends FOSRestController
   }
 
   /**
-   * Inserts a new FristQ request
+   * Inserts a new FristQ order.
    *
    * @ApiDoc(
    *   resource=true,
@@ -123,6 +124,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="survey_brand", default="", description="Brand array.", array=true)
    * @requestparam(name="statement", default="", description="Statement array.", array=true)
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
+   * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -149,6 +151,7 @@ class ClipperController extends FOSRestController
       $form_data->specialties = $paramFetcher->get('specialty');
       $form_data->brands = $paramFetcher->get('survey_brand');
       $form_data->statements = $paramFetcher->get('statement');
+      $form_data->launch_date = $paramFetcher->get('launch_date');
       $firstq_uuid = $paramFetcher->get('firstq_uuid');
       
       // Google Spreadsheet validation
@@ -179,14 +182,15 @@ class ClipperController extends FOSRestController
       
       // build response
       // product
-      $returnObject['product']['price'] = number_format(4995, 2, '.', ','); // Hardcoded for now
+      $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
+      $returnObject['product']['firstq_uuid'] = $firstq_uuid;
       // worldpay parameters for the front end form
-      $parameters_clipper = $this->container->getParameter('clipper');
-      $returnObject['worldpay']['firstq_uuid'] = $firstq_uuid;
-      $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
-      $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
-      $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
-      $returnObject['worldpay']['cart_id'] = $parameters_clipper['worldpay']['cart_id'];
+      // $parameters_clipper = $this->container->getParameter('clipper');
+      // $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
+      // $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
+      // $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
+      // $returnObject['worldpay']['cart_id'] = $parameters_clipper['worldpay']['cart_id'];
+      
     }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
@@ -274,27 +278,128 @@ class ClipperController extends FOSRestController
   }
   
   /**
-   * Retrieve a clipper.
+   * Process a FristQ Order
    *
    * @ApiDoc(
    *   resource=true,
    *   statusCodes = {
    *     200 = "Returned when successful",
+   *     400 = "Bad request or invalid data from the form",
    *   }
    * )
    *
-   * @param Request $request the request object
+   * The data is coming from an AJAX call performed on the front end
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @requestparam(name="stripeToken", default="", description="The Stripe token.")
+   * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
+   * @requestparam(name="amount", default="", description="Amount of the project.")
+   * @requestparam(name="email", default="", description="Email of the client.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getClipperGetAction(Request $request)
+  public function postOrderProcessAction(ParamFetcher $paramFetcher)
   {
-    $em = $this->getDoctrine()->getEntityManager();
-    $fq = $em->getRepository('PSLClipperBundle:FirstQProject')->getLatestFQs();
-
-    return new Response($fq);
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    
+    // Get parameters from the POST
+    $firstq_uuid = $paramFetcher->get('firstq_uuid');
+    $stripe_token = $paramFetcher->get('stripeToken');
+    $amount = (int)$paramFetcher->get('amount') * 100; // in cents
+    $email = $paramFetcher->get('email'); // not necessary
+    
+    // return error if empty
+    if (empty($firstq_uuid) || empty($stripe_token)) {
+      $message = 'Invalid request - missing parameters';
+      return new Response($message, 400); // invalid request
+    }
+    
+    // Validate if firstq exists and is not processed yet
+    $em = $this->getDoctrine()->getManager();
+    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uuid);
+    if (empty($firstq_project) || $firstq_project->getState() != 'ORDER_PENDING') {
+      $message = 'Error - FirstQ uuid is invalid';
+      return new Response($message, 400);
+    }
+    
+    // create the charge on Stripe's servers
+    // this will charge the user's card
+    try {
+      
+      $parameters_clipper = $this->container->getParameter('clipper');
+      
+      // initiate the Stripe  and charge
+      \Stripe\Stripe::setApiKey($parameters_clipper['stripe']['private_key']);
+      $charge = \Stripe\Charge::create(array(
+        "amount" => $amount, // amount in cents, again
+        "currency" => "usd",
+        "source" => $stripe_token,
+        "description" => $email
+        )
+      );
+      
+      // Check that it was paid:
+      if ($charge->paid == true) {
+        
+        // change status to order complete and return ok for redirect
+        $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+        $em->persist($firstq_project);
+        $em->flush();
+        
+        $firsq['fquuid'] = $firstq_uuid;
+        return new Response($message, 200);
+      } 
+      else {
+        // failed
+        $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
+        
+        $message = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
+        return new Response($message, 400); // no content
+      }
+    } 
+    catch (\Stripe\Error\Card $e) {
+      // Card was declined.
+      $e_json = $e->getJsonBody();
+      $err = $e_json['error'];
+      $errors['stripe'] = $err['message'];
+      
+      $this->logger->debug("Stripe/Card exception: {$e}");
+      
+      $message = 'Card was declined.';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\ApiConnection $e) {
+      // Network problem, perhaps try again.
+      $this->logger->debug("Stripe/ApiConnection exception: {$e}");
+      
+      $message = 'Network problem, perhaps try again.';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\InvalidRequest $e) {
+      // You screwed up in your programming. Shouldn't happen!
+      $this->logger->debug("Stripe/InvalidRequest exception: {$e}");
+      
+      $message = 'Invalid request';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\Api $e) {
+      // Stripe's servers are down!
+      $this->logger->debug("Stripe/Api exception: {$e}");
+      
+      $message = 'Network problem, perhaps try again.';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\Base $e) {
+      // Something else that's not the customer's fault.
+      $this->logger->debug("Stripe/Base exception: {$e}");
+      
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // no content
+    }
+    
   }
-
+  
   /**
    * ----------------------------------------------------------------------------------------
    * HELPERS
@@ -427,20 +532,34 @@ class ClipperController extends FOSRestController
   /**
    * flag order as order_complete and redirect to front-end
    * /clipper/thankyou/{fquuid}
+   * 
+   * @param string $fquuid FirstQ uuid
    */
   public function thankyouAction($fquuid)
   {
+    
+    // @TODO: this might no longer be needed since the front end will handle it
+    
     $parameters_clipper = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
     $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($fquuid);
-    $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
-    $em->persist($firstq_project);
-    $em->flush();
     
-    $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
-    $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
+    if ($firstq_project && $firstq_project->getState() == 'ORDER_PENDING') {
+      
+      $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+      $em->persist($firstq_project);
+      $em->flush();
+      
+      $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
+      $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
+    }
+    else {
+      $debug = 'Error - FirstQ uuid is invalid';
+      return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
+    }
     
     return new RedirectResponse($destination, 301);
+    
   }
   
 }

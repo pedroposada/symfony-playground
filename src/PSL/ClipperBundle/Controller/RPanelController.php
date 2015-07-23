@@ -105,7 +105,7 @@ class RPanelController extends Controller
   {
     $conn = $this->conn;
     $conn->update('feasibility_project', array('proj_status' => 2,                      // 2
-                                               'launch_date' => $rp->getCreatedDate()), // Now()
+                                               'launch_date' => $rp->getLaunchDate()),  // launch_date from form
                                                 array('proj_id' => $rp->getProjId()));  // proj_id
   }
   

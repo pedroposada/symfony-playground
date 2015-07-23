@@ -320,7 +320,7 @@ class FirstQProject
         $firstq_formatted['num_participants'] = $form_data->num_participants;
         $firstq_formatted['markets'] = $form_data->markets;
         $firstq_formatted['specialties'] = $form_data->specialties;
-        $firstq_formatted['brands'] = $form_data->brand;
+        $firstq_formatted['brands'] = $form_data->brands;
         $firstq['statements'] = $form_data->statements;
         switch ($this->state) {
             case 'ORDER_PENDING':

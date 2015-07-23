@@ -43,6 +43,9 @@ parameters:
       form_action:                    "[*clipper_worldpay_form_action*]"
       test_mode:                      "[*clipper_worldpay_test_mode*]"
       cart_id:                        "[*clipper_worldpay_cart_id*]"
+    stripe:
+      private_key:                    "[*clipper_stripe_private_key*]"
+      public_key:                     "[*clipper_stripe_public_key*]"
   clipper.brands:                     "Resources/terms/brands.xml"
   clipper.conditions:                 "Resources/terms/conditions.xml"
   clipper.frontend.url:               "[*clipper.frontend.url*]"
