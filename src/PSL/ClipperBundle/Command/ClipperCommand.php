@@ -23,7 +23,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
-use PSL\ClipperBundle\Controller\RPanelController as RPanelController;
+use PSL\ClipperBundle\Service\RPanelService as RPanelService;
 use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
 
@@ -199,8 +199,8 @@ class ClipperCommand extends ContainerAwareCommand
       }
       
       // add participants
-      $participants_sample = $value->participants_sample; // number of tokens (links) for participants
-      // $participants_sample = 2;
+      // $participants_sample = $value->participants_sample; // number of tokens (links) for participants
+      $participants_sample = 2;
       if (empty($participants_sample)) {
         throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fq->getId()}] on [bigcommerce_complete]");
       }
@@ -297,28 +297,29 @@ class ClipperCommand extends ContainerAwareCommand
       $gs_result_array[] = $gs_object;
     }
     
+    // Get RPanel service
+    $rps = $this->getContainer()->get('rpanel');
     // connect db
-    $rpc = new RPanelController($params_rp);
     $config = new \Doctrine\DBAL\Configuration();
     $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['translateapi'], $config);
     $conn->connect(); // connects and immediately starts a new transaction
-    $rpc->setConnection($conn);
+    $rps->setConnection($conn);
  
     try {
       $conn->beginTransaction();
       
       // Create Feasibility Project and set the project id
-      $proj_id = $rpc->createFeasibilityProject($rpanel_project);
+      $proj_id = $rps->createFeasibilityProject($rpanel_project);
       $rpanel_project->setProjId($proj_id);
  
       // Recursive for different google sheet result sets
       foreach ($gs_result_array as $key => $gs) {
         // Create Feasibility Project Quota
-        $rpc->createFeasibilityProjectQuota($rpanel_project, $gs);
+        $rps->createFeasibilityProjectQuota($rpanel_project, $gs);
       }
       
       // Update Feasibility Project - Launch project
-      $rpc->updateFeasibilityProject($rpanel_project);
+      $rps->updateFeasibilityProject($rpanel_project);
       
       $conn->commit();
     }
@@ -331,17 +332,17 @@ class ClipperCommand extends ContainerAwareCommand
     $config = new \Doctrine\DBAL\Configuration();
     $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['rpanel'], $config);
     $conn->connect(); // connects and immediately starts a new transaction
-    $rpc->setConnection($conn);
+    $rps->setConnection($conn);
 
     try {
       $conn->beginTransaction();
       
       // Create Project and insert project_sk
-      $project_sk = $rpc->createProject($rpanel_project);
+      $project_sk = $rps->createProject($rpanel_project);
       $rpanel_project->setProjectSK($project_sk);
       
       // Create Feasibility Link Type and insert LTId
-      $ltid = $rpc->feasibilityLinkType($rpanel_project);
+      $ltid = $rps->feasibilityLinkType($rpanel_project);
       $rpanel_project->setLTId($ltid);
       
       $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
@@ -350,11 +351,11 @@ class ClipperCommand extends ContainerAwareCommand
       foreach ($gs_result_array as $key => $gs) {
         
         //Create Project Detail 
-        $rpc->createProjectDetail($rpanel_project, $gs);
+        $rps->createProjectDetail($rpanel_project, $gs);
         
         // Create Feasibility Full Url
         $urls = $ls_data[$key]->urls;
-        $rpc->feasibilityLinkFullUrl($rpanel_project, $urls);
+        $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
       }
       
       $conn->commit();

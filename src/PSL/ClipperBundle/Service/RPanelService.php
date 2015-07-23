@@ -1,10 +1,8 @@
 <?php
 /**
- * PSL/ClipperBundle/Controller/RPanelController.php
+ * PSL/ClipperBundle/Service/RPanelService.php
  */
-namespace PSL\ClipperBundle\Controller;
-
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+namespace PSL\ClipperBundle\Service;
 
 use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 
@@ -14,7 +12,7 @@ use \stdClass as stdClass;
 /**
  * Helper class to communicate with the back end of RPanel 
  */
-class RPanelController extends Controller
+class RPanelService
 {
   private $params;
   private $conn;
