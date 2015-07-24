@@ -103,7 +103,7 @@ class RPanelService
   {
     $conn = $this->conn;
     $conn->update('feasibility_project', array('proj_status' => 2,                      // 2
-                                               'launch_date' => $rp->getLaunchDate()),  // launch_date from form
+                                               'launch_date' => $rp->getLaunchDate()),  // launch_date from form 'Y-m-d H:i:s'
                                                 array('proj_id' => $rp->getProjId()));  // proj_id
   }
   

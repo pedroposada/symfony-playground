@@ -253,7 +253,7 @@ class ClipperCommand extends ContainerAwareCommand
     $rpanel_project = new RPanelProject($fq);
     $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
     $rpanel_project->setProjStatus($params_rp['default_table_values']['proj_status']);
-    $launch_date = $fq->getFormDataByField('launch_date');
+    $launch_date = $fq->getFormDataByField('launch_date'); // Y-m-d H:i:s
     $rpanel_project->setLaunchDate($launch_date[0]);
     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
     $rpanel_project->setCreatedBy($params_rp['user_id']);

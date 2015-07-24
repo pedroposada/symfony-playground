@@ -12,6 +12,8 @@ class FirstQProject
     protected $id;
 
     protected $user_id;
+    
+    protected $order_id; // currently a Stripe Token
 
     protected $form_data_raw;
 
@@ -155,6 +157,32 @@ class FirstQProject
     public function getUserId()
     {
         return $this->user_id;
+    }
+
+    /**
+     * Set order_id
+     * 
+     * This is to hold the order id which is
+     * currently a stripeToken but can be anything
+     *
+     * @param string $userId
+     * @return FirstQProject
+     */
+    public function setOrderId($orderId)
+    {
+        $this->order_id = $orderId;
+
+        return $this;
+    }
+
+    /**
+     * Get order_id
+     *
+     * @return string 
+     */
+    public function getOrderId()
+    {
+        return $this->order_id;
     }
 
     /**

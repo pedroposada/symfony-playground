@@ -19,6 +19,12 @@ PSL\ClipperBundle\Entity\FirstQProject:
       length: 200
       options:
         comment: id of the user
+    order_id:
+      type: string
+      nullable: true
+      length: 200
+      options:
+        comment: id of the order
     form_data_raw:
       type: text
       options:

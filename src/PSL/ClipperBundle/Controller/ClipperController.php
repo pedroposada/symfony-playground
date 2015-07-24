@@ -37,6 +37,8 @@ use PSL\ClipperBundle\Service\SurveyBuilderService;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
+use \DateTime as DateTime;
+use \DateTimeZone as DateTimeZone;
 
 /**
  * Rest Controller for Clipper
@@ -151,7 +153,8 @@ class ClipperController extends FOSRestController
       $form_data->specialties = $paramFetcher->get('specialty');
       $form_data->brands = $paramFetcher->get('survey_brand');
       $form_data->statements = $paramFetcher->get('statement');
-      $form_data->launch_date = $paramFetcher->get('launch_date');
+      $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
+      $form_data->timezone_client = $paramFetcher->get('timezone_client');
       $firstq_uuid = $paramFetcher->get('firstq_uuid');
       
       // Google Spreadsheet validation
@@ -184,13 +187,10 @@ class ClipperController extends FOSRestController
       // product
       $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
-      // worldpay parameters for the front end form
-      // $parameters_clipper = $this->container->getParameter('clipper');
-      // $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
-      // $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
-      // $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
-      // $returnObject['worldpay']['cart_id'] = $parameters_clipper['worldpay']['cart_id'];
       
+      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
+      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
+      $returnObject['product']['end_date'] = $completion_date;  
     }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
@@ -344,6 +344,7 @@ class ClipperController extends FOSRestController
         
         // change status to order complete and return ok for redirect
         $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+        $firstq_project->setOrderId($stripe_token);
         $em->persist($firstq_project);
         $em->flush();
         
@@ -458,6 +459,110 @@ class ClipperController extends FOSRestController
     return $response;
   }
   
+  /**
+   * Calculation of Estimated completion time of a survey
+   * This value is just an estimate and not the real time of completion
+   * 
+   * @param timestamp $launch_date - timestamp of 'Y-m-d H:i:s'
+   * @param timezone $timezone_client - timezone of client
+   * @param array $timezone_adjusment - timezone of latest market 
+   * and adjustment longest time adjustment according to specialty/country  
+   * 
+   * @return formatted string date
+   */
+  private function calculateSurveyCompletionTime($launch_date, $timezone_client, $timezone_adjusment)
+  {
+    
+    /**
+     * launch_date = (Survey start Date/time)
+     * start_time = (Time from start date/time where the slowest selected geography hits 8:00 am on a weekday)
+     * estimation = (determine estimated completion time by region/specialty)
+     * 
+     * ex:
+     * 
+     * client in UK chooses now to start the survey US/Oncology
+     * 
+     * launch_date = now (thursday 23 july, 3pm UK time)
+     * tomorrow at 8 am of US
+     * 
+     * time of estimated survey ~ 2 hours for 35 people
+     * 
+     * 8 am + 2 hours = 10am + 6 hours timezone 
+     * completion time = 4pm, 24 july
+     * 
+     * 
+     * 
+     * client in UK chooses in 4 days start at 3pm US/Oncology
+     * 
+     * launch_date = sunday 27 july, 3pm UK time
+     * monday 28 at 8 am of US
+     *
+     * time of estimated survey ~ 2 hours for 35 people
+     *
+     * 8 am + 2 hours = 10am + 6 hours timezone    
+     * completion time = 4pm, 28 july  
+     * 
+     * // fake data
+     * // $launch_date = '2015-07-24 08:32:27';
+     * // $timezone_latest = new DateTimeZone('America/New_York');
+     * // $timezone_client = new DateTimeZone('Europe/Warsaw');
+     * // $adjusment = 2;
+     */
+    
+    // Date format
+    $date_format = 'Y-m-d H:i:s';
+    
+    // Find start day
+    // always the next day
+    $dtime = DateTime::createFromFormat($date_format, $launch_date);
+    $launch_timestamp = $dtime->getTimestamp();
+    $day_of_week = date('N', $launch_timestamp); // 1-Monday, 7-Sunday
+    $day_added = 1;
+    // if on Friday to Sunday, jump to Monday
+    if ($day_of_week >= 5) {
+      $day_added += 7 - $day_of_week;
+    }
+    
+    // Calculate the launch time
+    // always at 8 of the latest timezone (USA would be the latest)
+    $launch_date_array = explode(' ', $launch_date);
+    $time_to_answer = $timezone_adjusment['adjustment']; // will depend on factors
+    $time_to_start = 8 + $time_to_answer;
+    if ($time_to_start < 10) {
+      $time_to_start = '0' . (string)$time_to_start;
+    }
+    
+    // Assemble launch date/time
+    $latest_date = $launch_date_array[0] . ' ' . $time_to_start . ':00:00';
+    $latest_date_timestamp = strtotime(date($date_format, strtotime($latest_date)) . ' + '. $day_added .' day');
+    
+    // Set timezone difference from latest to client's
+    $date_end = new DateTime(date($date_format, $latest_date_timestamp), new DateTimeZone($timezone_adjusment['timezone']));
+    $date_end->setTimezone(new DateTimeZone($timezone_client));
+    $completion_time = $date_end->format($date_format);
+    
+    return $completion_time; 
+  }
+  
+  /**
+   * Verify the latest Timezone and Adjustment according to the order of market/country combination
+   * 
+   * @param array $markets - array of markets coming from the front facing form
+   * @param array $specialties - array of specialty coming from the front facing form
+   * 
+   * @return array of the timezone and the adjustment
+   */
+  public function latestTimezoneAndAdjustment($markets, $specialties)
+  {
+    // check according to data
+    
+    // @TODO: maping or data coming soon
+    $timezone_and_adjustment = array();
+    $timezone_and_adjustment['timezone'] = 'America/New_York';
+    $timezone_and_adjustment['adjustment'] = 2; 
+    
+    return $timezone_and_adjustment;
+  }
   /**
    * ----------------------------------------------------------------------------------------
    * REDIRECT OR OUPUT
