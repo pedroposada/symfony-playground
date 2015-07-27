@@ -127,6 +127,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="statement", default="", description="Statement array.", array=true)
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
+   * @requestparam(name="timezone_client", default="", description="Timezone of the client.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */

@@ -387,8 +387,8 @@ class ClipperCommand extends ContainerAwareCommand
     $ls->configure($params_ls['api']);
     
     // check if quota has been reached
-    $quota = $fq->getFormDataByField('num_participants'); // get total quota
-    // $quota = 1;
+    // $quota = $fq->getFormDataByField('num_participants'); // get total quota
+    $quota = 1;
     $response = $ls->get_summary(array(
       'iSurveyID' => $iSurveyID, 
       'sStatName' => 'completed_responses', 
@@ -439,6 +439,7 @@ class ClipperCommand extends ContainerAwareCommand
     // get lime survey results
     $response = $ls->export_responses(array(
       'iSurveyID' => $iSurveyID,
+      'sHeadingType' => 'full',
     ));
     if (is_array($response)) {
       throw new Exception("LS export_responses error: [{implode(', ', $response)}] for fq->id: [{$fq->getId()}] - limesurvey_complete");
