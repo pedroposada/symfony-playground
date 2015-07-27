@@ -12,6 +12,8 @@ class FirstQProject
     protected $id;
 
     protected $user_id;
+    
+    protected $order_id; // currently a Stripe Token
 
     protected $form_data_raw;
 
@@ -38,6 +40,21 @@ class FirstQProject
       $unserialized = unserialize($raw);
       if (isset($unserialized->{$field_name})) {
         $response = (array)$unserialized->{$field_name};
+      }
+      
+      return $response;
+    }
+    
+    /**
+     * Get the Form Data unserialized
+     * 
+     * @return mixed string|int|array
+     */
+    public function getFormDataUnserialized() 
+    {
+      $unserialized = unserialize($this->getFormDataRaw());
+      if (isset($unserialized)) {
+        $response = $unserialized;
       }
       
       return $response;
@@ -140,6 +157,32 @@ class FirstQProject
     public function getUserId()
     {
         return $this->user_id;
+    }
+
+    /**
+     * Set order_id
+     * 
+     * This is to hold the order id which is
+     * currently a stripeToken but can be anything
+     *
+     * @param string $userId
+     * @return FirstQProject
+     */
+    public function setOrderId($orderId)
+    {
+        $this->order_id = $orderId;
+
+        return $this;
+    }
+
+    /**
+     * Get order_id
+     *
+     * @return string 
+     */
+    public function getOrderId()
+    {
+        return $this->order_id;
     }
 
     /**
@@ -286,5 +329,42 @@ class FirstQProject
     public function getLimesurveyDataRaw()
     {
         return $this->limesurvey_data_raw;
+    }
+    
+    /**
+     * formats a FirstQProject as a simple object for the Front End
+     *
+     * @return mixed firstq formated object 
+     */
+    public function getFormattedFirstQProject() {
+      
+        $form_data = $this->getFormDataUnserialized();
+        
+        $firstq_formatted = array();
+        $firstq_formatted['id'] = $this->id;
+        $firstq_formatted['title'] = $form_data->title; // user generated
+        $firstq_formatted['name'] = $form_data->name; // folio type
+        $firstq_formatted['patient_type'] = $form_data->patient_type; // user generated
+        $firstq_formatted['num_participants'] = $form_data->num_participants;
+        $firstq_formatted['markets'] = $form_data->markets;
+        $firstq_formatted['specialties'] = $form_data->specialties;
+        $firstq_formatted['brands'] = $form_data->brands;
+        $firstq['statements'] = $form_data->statements;
+        switch ($this->state) {
+            case 'ORDER_PENDING':
+                $firstq_formatted['state'] = 'pending';
+                break;
+            case 'EMAIL_SENT':
+                $firstq_formatted['state'] = 'closed';
+                break;
+            default:
+                $firstq_formatted['state'] = 'active';
+                break;
+        }
+        $firstq_formatted['created'] = $this->created;
+        $firstq_formatted['price'] = number_format(4995, 2, ',', ','); // Hardcoded for now
+        $firstq_formatted['report_url'] = ''; // TBD
+        
+        return $firstq_formatted;
     }
 }

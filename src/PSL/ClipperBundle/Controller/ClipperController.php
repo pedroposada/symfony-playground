@@ -26,22 +26,32 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
-// use Bigcommerce\Api\Client as Bigcommerce;
+use Stripe\Stripe;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
-use PSL\ClipperBundle\Controller\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
-use PSL\ClipperBundle\Entity\FirstQProject;
+use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
+use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
+use PSL\ClipperBundle\Service\SurveyBuilderService;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
+use \DateTime as DateTime;
+use \DateTimeZone as DateTimeZone;
 
 /**
  * Rest Controller for Clipper
  */
 class ClipperController extends FOSRestController
 {
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * API
+   * ----------------------------------------------------------------------------------------
+   */
+
   /**
    * Autocomplete callback for input text field
    *
@@ -89,7 +99,7 @@ class ClipperController extends FOSRestController
   }
 
   /**
-   * Inserts a new FristQ request
+   * Inserts a new FristQ order.
    *
    * @ApiDoc(
    *   resource=true,
@@ -103,19 +113,21 @@ class ClipperController extends FOSRestController
    *
    * @param ParamFetcher $paramFetcher Paramfetcher
    *
-   * @requestparam(name="loi", default="", description="LOI.")
-   * @requestparam(name="ir", default="", description="IR.")
-   * @requestparam(name="title", default="", description="Title.")
-   * @requestparam(name="name", default="", description="Name of the firstq project.")
-   * @requestparam(name="name_full", default="", description="Full name of the firstq project.")
-   * @requestparam(name="patient_type", default="", description="Patient type.")
+   * @requestparam(name="loi", default="", description="LOI number.")
+   * @requestparam(name="ir", default="", description="IR number.")
+   * @requestparam(name="title", default="", description="Title, user generated.")
+   * @requestparam(name="name", default="", description="Name of the folio.")
+   * @requestparam(name="name_full", default="", description="Full name of the folio, user generated (same as Title).")
+   * @requestparam(name="patient_type", default="", description="Patient type, user generated..")
    * @requestparam(name="num_participants", default="", description="Number of participants.")
-   * @requestparam(name="market", default="", description="Market.", array=true)
-   * @requestparam(name="specialty", default="", description="Specialty.", array=true)
+   * @requestparam(name="market", default="", description="Market array.", array=true)
+   * @requestparam(name="specialty", default="", description="Specialty array.", array=true)
    * @requestparam(name="timestamp", default="", description="Timestamp.")
-   * @requestparam(name="survey_brand", default="", description="Brands.", array=true)
-   * @requestparam(name="brand", default="", description="Brands.")
-   * @requestparam(name="firstq_id", default="", description="FirstQ project id.")
+   * @requestparam(name="survey_brand", default="", description="Brand array.", array=true)
+   * @requestparam(name="statement", default="", description="Statement array.", array=true)
+   * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
+   * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
+   * @requestparam(name="timezone_client", default="", description="Timezone of the client.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -140,8 +152,11 @@ class ClipperController extends FOSRestController
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
-      $form_data->brand = $paramFetcher->get('survey_brand');
-      $form_data->firstq_id = $paramFetcher->get('firstq_id');
+      $form_data->brands = $paramFetcher->get('survey_brand');
+      $form_data->statements = $paramFetcher->get('statement');
+      $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
+      $form_data->timezone_client = $paramFetcher->get('timezone_client');
+      $firstq_uuid = $paramFetcher->get('firstq_uuid');
       
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
@@ -167,18 +182,16 @@ class ClipperController extends FOSRestController
       }
       
       // Save or update into the database
-      $firstq_uuid = $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $form_data->firstq_id);
+      $firstq_uuid = $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $firstq_uuid);
       
       // build response
       // product
-      $returnObject['product']['price'] = number_format(4995, 2, ',', ',');
-      // worldpay parameters for the front end form
-      $parameters_clipper = $this->container->getParameter('clipper');
-      $returnObject['worldpay']['firstq_uid'] = $firstq_uuid;
-      $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
-      $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
-      $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
-      $returnObject['worldpay']['cart_id'] = $parameters_clipper['worldpay']['cart_id'];
+      $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
+      $returnObject['product']['firstq_uuid'] = $firstq_uuid;
+      
+      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
+      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
+      $returnObject['product']['end_date'] = $completion_date;  
     }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
@@ -223,7 +236,11 @@ class ClipperController extends FOSRestController
     $firstq_projects = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByUserId($user_id);
     
     if (!$firstq_projects->isEmpty()) {
-      return new Response($firstq_projects);
+      $firstqs_formatted = array(); 
+      foreach ($firstq_projects as $key => $firstq_project) {
+        $firstqs_formatted[] = $firstq_project->getFormattedFirstQProject();
+      }
+      return new Response($firstqs_formatted);
     }
     else {
       $message = 'No orders for this user.';
@@ -252,7 +269,8 @@ class ClipperController extends FOSRestController
     $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($uuid);
     
     if ($firstq_project) {
-      return new Response($firstq_project);
+      $firstq_formatted = $firstq_project->getFormattedFirstQProject();
+      return new Response($firstq_formatted);
     }
     else {
       $message = 'No order with this id: ' . $uuid;
@@ -261,26 +279,134 @@ class ClipperController extends FOSRestController
   }
   
   /**
-   * Retrieve a clipper.
+   * Process a FristQ Order
    *
    * @ApiDoc(
    *   resource=true,
    *   statusCodes = {
    *     200 = "Returned when successful",
+   *     400 = "Bad request or invalid data from the form",
    *   }
    * )
    *
-   * @param Request $request the request object
+   * The data is coming from an AJAX call performed on the front end
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @requestparam(name="stripeToken", default="", description="The Stripe token.")
+   * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
+   * @requestparam(name="amount", default="", description="Amount of the project.")
+   * @requestparam(name="email", default="", description="Email of the client.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getClipperGetAction(Request $request)
+  public function postOrderProcessAction(ParamFetcher $paramFetcher)
   {
-    $em = $this->getDoctrine()->getEntityManager();
-    $fq = $em->getRepository('PSLClipperBundle:FirstQProject')->getLatestFQs();
-
-    return new Response($fq);
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    
+    // Get parameters from the POST
+    $firstq_uuid = $paramFetcher->get('firstq_uuid');
+    $stripe_token = $paramFetcher->get('stripeToken');
+    $amount = (int)$paramFetcher->get('amount') * 100; // in cents
+    $email = $paramFetcher->get('email'); // not necessary
+    
+    // return error if empty
+    if (empty($firstq_uuid) || empty($stripe_token)) {
+      $message = 'Invalid request - missing parameters';
+      return new Response($message, 400); // invalid request
+    }
+    
+    // Validate if firstq exists and is not processed yet
+    $em = $this->getDoctrine()->getManager();
+    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uuid);
+    if (empty($firstq_project) || $firstq_project->getState() != 'ORDER_PENDING') {
+      $message = 'Error - FirstQ uuid is invalid';
+      return new Response($message, 400);
+    }
+    
+    // create the charge on Stripe's servers
+    // this will charge the user's card
+    try {
+      
+      $parameters_clipper = $this->container->getParameter('clipper');
+      
+      // initiate the Stripe  and charge
+      \Stripe\Stripe::setApiKey($parameters_clipper['stripe']['private_key']);
+      $charge = \Stripe\Charge::create(array(
+        "amount" => $amount, // amount in cents, again
+        "currency" => "usd",
+        "source" => $stripe_token,
+        "description" => $email
+        )
+      );
+      
+      // Check that it was paid:
+      if ($charge->paid == true) {
+        
+        // change status to order complete and return ok for redirect
+        $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+        $firstq_project->setOrderId($stripe_token);
+        $em->persist($firstq_project);
+        $em->flush();
+        
+        $firsq['fquuid'] = $firstq_uuid;
+        return new Response($message, 200);
+      } 
+      else {
+        // failed
+        $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
+        
+        $message = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
+        return new Response($message, 400); // no content
+      }
+    } 
+    catch (\Stripe\Error\Card $e) {
+      // Card was declined.
+      $e_json = $e->getJsonBody();
+      $err = $e_json['error'];
+      $errors['stripe'] = $err['message'];
+      
+      $this->logger->debug("Stripe/Card exception: {$e}");
+      
+      $message = 'Card was declined.';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\ApiConnection $e) {
+      // Network problem, perhaps try again.
+      $this->logger->debug("Stripe/ApiConnection exception: {$e}");
+      
+      $message = 'Network problem, perhaps try again.';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\InvalidRequest $e) {
+      // You screwed up in your programming. Shouldn't happen!
+      $this->logger->debug("Stripe/InvalidRequest exception: {$e}");
+      
+      $message = 'Invalid request';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\Api $e) {
+      // Stripe's servers are down!
+      $this->logger->debug("Stripe/Api exception: {$e}");
+      
+      $message = 'Network problem, perhaps try again.';
+      return new Response($message, 400); // no content
+    } 
+    catch (\Stripe\Error\Base $e) {
+      // Something else that's not the customer's fault.
+      $this->logger->debug("Stripe/Base exception: {$e}");
+      
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // no content
+    }
+    
   }
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * HELPERS
+   * ----------------------------------------------------------------------------------------
+   */
 
   /**
    * Saves a new FirstQProject or update an existing one
@@ -299,7 +425,7 @@ class ClipperController extends FOSRestController
     
     if (!empty($firstq_uuid)) {
       // Check if object exists already
-      $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uid);
+      $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uuid);
       if (!$firstq_project) {
         // Create FirstQProject entity
         $firstq_project = new FirstQProject();
@@ -322,6 +448,127 @@ class ClipperController extends FOSRestController
     
     return $firstq_project->getId();
   }
+  
+  /**
+   * Simple debug output
+   * /clipper/autocomplete
+   */
+  public function autocompleteAction()
+  {
+    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
+
+    return $response;
+  }
+  
+  /**
+   * Calculation of Estimated completion time of a survey
+   * This value is just an estimate and not the real time of completion
+   * 
+   * @param timestamp $launch_date - timestamp of 'Y-m-d H:i:s'
+   * @param timezone $timezone_client - timezone of client
+   * @param array $timezone_adjusment - timezone of latest market 
+   * and adjustment longest time adjustment according to specialty/country  
+   * 
+   * @return formatted string date
+   */
+  private function calculateSurveyCompletionTime($launch_date, $timezone_client, $timezone_adjusment)
+  {
+    
+    /**
+     * launch_date = (Survey start Date/time)
+     * start_time = (Time from start date/time where the slowest selected geography hits 8:00 am on a weekday)
+     * estimation = (determine estimated completion time by region/specialty)
+     * 
+     * ex:
+     * 
+     * client in UK chooses now to start the survey US/Oncology
+     * 
+     * launch_date = now (thursday 23 july, 3pm UK time)
+     * tomorrow at 8 am of US
+     * 
+     * time of estimated survey ~ 2 hours for 35 people
+     * 
+     * 8 am + 2 hours = 10am + 6 hours timezone 
+     * completion time = 4pm, 24 july
+     * 
+     * 
+     * 
+     * client in UK chooses in 4 days start at 3pm US/Oncology
+     * 
+     * launch_date = sunday 27 july, 3pm UK time
+     * monday 28 at 8 am of US
+     *
+     * time of estimated survey ~ 2 hours for 35 people
+     *
+     * 8 am + 2 hours = 10am + 6 hours timezone    
+     * completion time = 4pm, 28 july  
+     * 
+     * // fake data
+     * // $launch_date = '2015-07-24 08:32:27';
+     * // $timezone_latest = new DateTimeZone('America/New_York');
+     * // $timezone_client = new DateTimeZone('Europe/Warsaw');
+     * // $adjusment = 2;
+     */
+    
+    // Date format
+    $date_format = 'Y-m-d H:i:s';
+    
+    // Find start day
+    // always the next day
+    $dtime = DateTime::createFromFormat($date_format, $launch_date);
+    $launch_timestamp = $dtime->getTimestamp();
+    $day_of_week = date('N', $launch_timestamp); // 1-Monday, 7-Sunday
+    $day_added = 1;
+    // if on Friday to Sunday, jump to Monday
+    if ($day_of_week >= 5) {
+      $day_added += 7 - $day_of_week;
+    }
+    
+    // Calculate the launch time
+    // always at 8 of the latest timezone (USA would be the latest)
+    $launch_date_array = explode(' ', $launch_date);
+    $time_to_answer = $timezone_adjusment['adjustment']; // will depend on factors
+    $time_to_start = 8 + $time_to_answer;
+    if ($time_to_start < 10) {
+      $time_to_start = '0' . (string)$time_to_start;
+    }
+    
+    // Assemble launch date/time
+    $latest_date = $launch_date_array[0] . ' ' . $time_to_start . ':00:00';
+    $latest_date_timestamp = strtotime(date($date_format, strtotime($latest_date)) . ' + '. $day_added .' day');
+    
+    // Set timezone difference from latest to client's
+    $date_end = new DateTime(date($date_format, $latest_date_timestamp), new DateTimeZone($timezone_adjusment['timezone']));
+    $date_end->setTimezone(new DateTimeZone($timezone_client));
+    $completion_time = $date_end->format($date_format);
+    
+    return $completion_time; 
+  }
+  
+  /**
+   * Verify the latest Timezone and Adjustment according to the order of market/country combination
+   * 
+   * @param array $markets - array of markets coming from the front facing form
+   * @param array $specialties - array of specialty coming from the front facing form
+   * 
+   * @return array of the timezone and the adjustment
+   */
+  public function latestTimezoneAndAdjustment($markets, $specialties)
+  {
+    // check according to data
+    
+    // @TODO: maping or data coming soon
+    $timezone_and_adjustment = array();
+    $timezone_and_adjustment['timezone'] = 'America/New_York';
+    $timezone_and_adjustment['adjustment'] = 2; 
+    
+    return $timezone_and_adjustment;
+  }
+  /**
+   * ----------------------------------------------------------------------------------------
+   * REDIRECT OR OUPUT
+   * ----------------------------------------------------------------------------------------
+   */
 
   /**
    * redirect users to LimeSurvey Survey page
@@ -368,6 +615,7 @@ class ClipperController extends FOSRestController
     // comment out line below to override display of dump(request)
     $debug = dump($paramFetcher);
     // $debug = 'any output';
+    // $debug = dump($debug);
     return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
   }
 
@@ -386,24 +634,38 @@ class ClipperController extends FOSRestController
 
     return $response;
   }
-
+  
   /**
    * flag order as order_complete and redirect to front-end
    * /clipper/thankyou/{fquuid}
+   * 
+   * @param string $fquuid FirstQ uuid
    */
   public function thankyouAction($fquuid)
   {
+    
+    // @TODO: this might no longer be needed since the front end will handle it
+    
     $parameters_clipper = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
     $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($fquuid);
-    $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
-    $em->persist($firstq_project);
-    $em->flush();
     
-    $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
-    $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
+    if ($firstq_project && $firstq_project->getState() == 'ORDER_PENDING') {
+      
+      $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
+      $em->persist($firstq_project);
+      $em->flush();
+      
+      $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
+      $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
+    }
+    else {
+      $debug = 'Error - FirstQ uuid is invalid';
+      return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
+    }
     
     return new RedirectResponse($destination, 301);
+    
   }
-
+  
 }

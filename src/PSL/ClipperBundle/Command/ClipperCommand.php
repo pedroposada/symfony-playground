@@ -23,7 +23,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
-use PSL\ClipperBundle\Controller\RPanelController as RPanelController;
+use PSL\ClipperBundle\Service\RPanelService as RPanelService;
 use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
 
@@ -40,8 +40,7 @@ class ClipperCommand extends ContainerAwareCommand
         'fqid',
         InputArgument::OPTIONAL,
         'FirstQ Project ID (UUID)'
-      )
-      ;
+      );
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
@@ -142,35 +141,33 @@ class ClipperCommand extends ContainerAwareCommand
     $ls = new LimeSurvey();
     $ls->configure($params_ls['api']);
     
-    // get Survey template and replace tokens
-    // @TODO: replace "$params_ls['lss']['nps_plus']" dynamically with value from form_data_raw
-    $lss = file_get_contents($params_ls['lss']['dir'] . '/' . $params_ls['lss']['nps_plus']);
-    
     // array for limesurvey data
     $ls_data_raw_array = array();
     
     // static data for Limesurvey
     $patient_type = current($fq->getFormDataByField('patient_type'));
-    $brands = $this->clipperBrands($fq->getFormDataByField('brand'));
+    $brands = $fq->getFormDataByField('brands'); //$this->clipperBrands($fq->getFormDataByField('brands'));
+    $statements = $fq->getFormDataByField('statements');
     $url_exit = $this->getContainer()->getParameter('limesurvey.url_exit');
     
     // array for multiple Market / Specialty
     $sheet_data = $fq->getSheetDataUnserialized();
-  
+    
     foreach ($sheet_data as $key => $value) {
       $specialty_id = MDMMapping::map('specialties', (string)$value->specialty);
       // $country_id = MDMMapping::map('countries', (string)$value->market);
       $country_id = 10; // @TODO: this is a hard coded value up until we get the proper mapping
       
-      $tokens = array(
-        '_PATIENT_TYPE_' => $patient_type,
-        '_SPECIALTY_' => $specialty_id,
-        '_MARKET_' => $country_id,
-        '_BRAND_' => $brands,
-        '_URL_EXIT_' => $url_exit,
-      );
+      $survey_data = new stdClass();
+      $survey_data->market = $specialty_id;
+      $survey_data->specialty = $country_id;
+      $survey_data->patients = $patient_type;
+      $survey_data->brands = $brands;
+      $survey_data->statements = $statements;
+      $survey_data->url_exit = $url_exit;
       
-      $lss = strtr($lss, $tokens);
+      $sc = $this->getContainer()->get('survey_builder');
+      $lss = $sc->createSurvey('nps', $survey_data);
       
       // import S into LS
       $iSurveyID = $ls->import_survey(array(
@@ -202,8 +199,8 @@ class ClipperCommand extends ContainerAwareCommand
       }
       
       // add participants
-      $participants_sample = $value->participants_sample; // number of tokens (links) for participants
-      // $participants_sample = 2;
+      // $participants_sample = $value->participants_sample; // number of tokens (links) for participants
+      $participants_sample = 2;
       if (empty($participants_sample)) {
         throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fq->getId()}] on [bigcommerce_complete]");
       }
@@ -256,6 +253,8 @@ class ClipperCommand extends ContainerAwareCommand
     $rpanel_project = new RPanelProject($fq);
     $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
     $rpanel_project->setProjStatus($params_rp['default_table_values']['proj_status']);
+    $launch_date = $fq->getFormDataByField('launch_date'); // Y-m-d H:i:s
+    $rpanel_project->setLaunchDate($launch_date[0]);
     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
     $rpanel_project->setCreatedBy($params_rp['user_id']);
     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incidence_rate']);
@@ -275,7 +274,7 @@ class ClipperCommand extends ContainerAwareCommand
     $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
-   
+    
     // array for multiple Market / Specialty
     $sheet_data = $fq->getSheetDataUnserialized();
     $gs_result_array = array();
@@ -298,28 +297,29 @@ class ClipperCommand extends ContainerAwareCommand
       $gs_result_array[] = $gs_object;
     }
     
+    // Get RPanel service
+    $rps = $this->getContainer()->get('rpanel');
     // connect db
-    $rpc = new RPanelController($params_rp);
     $config = new \Doctrine\DBAL\Configuration();
     $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['translateapi'], $config);
     $conn->connect(); // connects and immediately starts a new transaction
-    $rpc->setConnection($conn);
+    $rps->setConnection($conn);
  
     try {
       $conn->beginTransaction();
       
       // Create Feasibility Project and set the project id
-      $proj_id = $rpc->createFeasibilityProject($rpanel_project);
+      $proj_id = $rps->createFeasibilityProject($rpanel_project);
       $rpanel_project->setProjId($proj_id);
  
       // Recursive for different google sheet result sets
       foreach ($gs_result_array as $key => $gs) {
         // Create Feasibility Project Quota
-        $rpc->createFeasibilityProjectQuota($rpanel_project, $gs);
+        $rps->createFeasibilityProjectQuota($rpanel_project, $gs);
       }
       
       // Update Feasibility Project - Launch project
-      $rpc->updateFeasibilityProject($rpanel_project);
+      $rps->updateFeasibilityProject($rpanel_project);
       
       $conn->commit();
     }
@@ -332,17 +332,17 @@ class ClipperCommand extends ContainerAwareCommand
     $config = new \Doctrine\DBAL\Configuration();
     $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['rpanel'], $config);
     $conn->connect(); // connects and immediately starts a new transaction
-    $rpc->setConnection($conn);
+    $rps->setConnection($conn);
 
     try {
       $conn->beginTransaction();
       
       // Create Project and insert project_sk
-      $project_sk = $rpc->createProject($rpanel_project);
+      $project_sk = $rps->createProject($rpanel_project);
       $rpanel_project->setProjectSK($project_sk);
       
       // Create Feasibility Link Type and insert LTId
-      $ltid = $rpc->feasibilityLinkType($rpanel_project);
+      $ltid = $rps->feasibilityLinkType($rpanel_project);
       $rpanel_project->setLTId($ltid);
       
       $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
@@ -351,11 +351,11 @@ class ClipperCommand extends ContainerAwareCommand
       foreach ($gs_result_array as $key => $gs) {
         
         //Create Project Detail 
-        $rpc->createProjectDetail($rpanel_project, $gs);
+        $rps->createProjectDetail($rpanel_project, $gs);
         
         // Create Feasibility Full Url
         $urls = $ls_data[$key]->urls;
-        $rpc->feasibilityLinkFullUrl($rpanel_project, $urls);
+        $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
       }
       
       $conn->commit();
@@ -374,16 +374,21 @@ class ClipperCommand extends ContainerAwareCommand
    */
   public function rpanel_complete(FirstQProject $fq) 
   {
-    $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-      
+    
+    // @TODO: Support multi market/specialty combo
+    $ls_data = $fq->getLimesurveyDataUnserialized();
+    
+    // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
+    $iSurveyID = $ls_data[0]->sid;
+    
     // config connection to LS
     $params_ls = $this->getContainer()->getParameter('limesurvey');
     $ls = new LimeSurvey();
     $ls->configure($params_ls['api']);
     
     // check if quota has been reached
-    $quota = $fq->getFormDataByField('num_participants'); // get total quota
-    // $quota = 1;
+    // $quota = $fq->getFormDataByField('num_participants'); // get total quota
+    $quota = 1;
     $response = $ls->get_summary(array(
       'iSurveyID' => $iSurveyID, 
       'sStatName' => 'completed_responses', 
@@ -405,6 +410,7 @@ class ClipperCommand extends ContainerAwareCommand
         'expires' => self::$timestamp,
       ), 
     ));
+    
     if (is_array($response) && isset($response['status'])) {
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
       throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
@@ -419,8 +425,12 @@ class ClipperCommand extends ContainerAwareCommand
    */
   public function limesurvey_complete(FirstQProject $fq) 
   {
-    $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-   
+    // @TODO: Support multi market/specialty combo
+    $ls_data = $fq->getLimesurveyDataUnserialized();
+    
+    // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
+    $iSurveyID = $ls_data[0]->sid;
+    
     // config connection to LS
     $params_ls = $this->getContainer()->getParameter('limesurvey');
     $ls = new LimeSurvey();
@@ -429,6 +439,7 @@ class ClipperCommand extends ContainerAwareCommand
     // get lime survey results
     $response = $ls->export_responses(array(
       'iSurveyID' => $iSurveyID,
+      'sHeadingType' => 'full',
     ));
     if (is_array($response)) {
       throw new Exception("LS export_responses error: [{implode(', ', $response)}] for fq->id: [{$fq->getId()}] - limesurvey_complete");
@@ -468,55 +479,6 @@ class ClipperCommand extends ContainerAwareCommand
     $this->logger->debug("Email: [{$message->toString()}]");
     
     return $fq;
-  }
-
-
-  /**
-   * Helper function to replace questions for LS Survey template 
-   * 
-   * @see bigcommerce_complete
-   * @param $brands array of brand names
-   * @return string
-   */
-  private function clipperBrands($brands = array()) 
-  {
-    $output = '';
-    
-    $xml = <<<XML
-  
-  <row>
-    <qid><![CDATA[_COUNTER_]]></qid>
-    <parent_qid><![CDATA[3035]]></parent_qid>
-    <sid><![CDATA[723936]]></sid>
-    <gid><![CDATA[175]]></gid>
-    <type><![CDATA[H]]></type>
-    <title><![CDATA[_SUB_QUESTION_ID_]]></title>
-    <question><![CDATA[_BRAND_]]></question>
-    <other><![CDATA[N]]></other>
-    <mandatory><![CDATA[N]]></mandatory>
-    <question_order><![CDATA[_QUESTION_ORDER_]]></question_order>
-    <language><![CDATA[en]]></language>
-    <scale_id><![CDATA[0]]></scale_id>
-    <same_default><![CDATA[0]]></same_default>
-  </row>
-  
-XML;
-    
-    $tokens = array(
-      '_COUNTER_' => 3165,
-      '_SUB_QUESTION_ID_' => 'SQ001',
-      '_BRAND_' => '',
-      '_QUESTION_ORDER_' => 1,
-    );
-    foreach ((array)$brands as $key => $brand) {
-      $tokens['_BRAND_'] = $brand;
-      $output .= strtr($xml, $tokens);
-      $tokens['_COUNTER_'] += 5;
-      $tokens['_QUESTION_ORDER_'] += 1;
-      $tokens['_SUB_QUESTION_ID_'] = 'SQ' . str_pad($tokens['_QUESTION_ORDER_'], 3, '0', STR_PAD_LEFT);
-    }
-  
-    return $output;
   }
 
   /**

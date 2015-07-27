@@ -22,6 +22,8 @@ class RPanelProject
   
   protected $proj_status;
   
+  protected $launch_date; // Y-m-d H:i:s
+  
   protected $proj_type;
   
   protected $specialty_id; // mapped with MDMMapping
@@ -148,6 +150,24 @@ class RPanelProject
   public function getProjStatus()
   {
       return $this->proj_status;
+  }
+
+  /**
+   * Set launch_date;
+   */
+  public function setLaunchDate($launch_date)
+  {
+      $this->launch_date = $launch_date;
+  }
+
+  /**
+   * Get launch_date;
+   *
+   * @return date formatted as a string 'Y-m-d H:i:s'
+   */
+  public function getLaunchDate()
+  {
+      return $this->launch_date;
   }
 
   /**

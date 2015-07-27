@@ -1,8 +1,22 @@
 services:
   
   google_spreadsheet:
-    class: PSL\ClipperBundle\Controller\GoogleSpreadsheetService
+    class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
     arguments: [%google_spreadsheets%]
   
+  rpanel:
+    class: PSL\ClipperBundle\Service\RPanelService
+    arguments: [%rpanel%]
+  
   survey_builder:
-    class: PSL\ClipperBundle\Controller\SurveyBuilderService
+    class: PSL\ClipperBundle\Service\SurveyBuilderService
+    # @TODO: only get templating
+    arguments: [@service_container]
+    # arguments: [@templating]
+    # calls:
+      # - [setTemplating, ["@templating"]]
+      
+  # nps_plus_survey:
+    # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
+    # calls:
+      # - [setParentTemplating, ["@templating"]]
