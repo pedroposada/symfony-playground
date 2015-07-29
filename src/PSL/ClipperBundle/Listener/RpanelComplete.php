@@ -15,7 +15,7 @@ use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 class RpanelComplete extends FqProcess
 {
 
-  public function RpanelComplete(FirstQProjectEvent $event)
+  protected function main(FirstQProjectEvent $event)
   {
     // get FirstQProject object
     $fq = $event->getFirstQProject();
@@ -38,6 +38,8 @@ class RpanelComplete extends FqProcess
       'iSurveyID' => $iSurveyID,
       'sStatName' => 'completed_responses',
     ));
+    $this->logger->debug("completed_responses = {$response}");
+
     if( is_array($response) && isset($response['status']) ) {
       throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
     }

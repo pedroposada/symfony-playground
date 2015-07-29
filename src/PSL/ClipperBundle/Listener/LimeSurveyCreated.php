@@ -14,7 +14,7 @@ use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
 class LimeSurveyCreated extends FqProcess
 {
 
-  public function LimeSurveyCreated(FirstQProjectEvent $event)
+  protected function main(FirstQProjectEvent $event)
   {
     // get FirstQProject object
     $fq = $event->getFirstQProject();

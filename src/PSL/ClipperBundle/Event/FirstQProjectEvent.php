@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use PSL\ClipperBundle\Entity\FirstQProject;
 
-class FirstQProjectEvent extends Event implements EventDispatcherInterface
+class FirstQProjectEvent extends Event
 {
   protected $fq;
 

@@ -27,6 +27,10 @@ class FqProcess
   
   public function onMain(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)
   {
+    $this->logger->debug("eventName: {$eventName}");
+    $this->logger->debug("state: {$this->state}");
+    $this->logger->debug("next_state: {$this->next_state}");
+    
     $fq = $event->getFirstQProject();
     
     // check state 

@@ -16,7 +16,7 @@ use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 class LimeSurveyComplete extends FqProcess
 {
 
-  public function main(FirstQProjectEvent $event)
+  protected function main(FirstQProjectEvent $event)
   {
     // get FirstQProject object
     $fq = $event->getFirstQProject();
@@ -38,7 +38,8 @@ class LimeSurveyComplete extends FqProcess
       'sHeadingType' => 'full',
     ));
     if( is_array($response) ) {
-      throw new Exception("LS export_responses error: [{implode(', ', $response)}] for fq->id: [{$fq->getId()}] - limesurvey_complete");
+      $reponses = implode(', ', $response);
+      throw new Exception("LS export_responses error: [{$reponses}] for fq->id: [{$fq->getId()}] - limesurvey_complete");
     }
 
     // if we get this far then send email
