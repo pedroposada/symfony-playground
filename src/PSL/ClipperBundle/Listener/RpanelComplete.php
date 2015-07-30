@@ -26,7 +26,7 @@ class RpanelComplete extends FqProcess
     $iSurveyID = $ls_data->sid;
     
     // config connection to LS
-    $params_ls = $this->getContainer()->getParameter('limesurvey');
+    $params_ls = $this->container->getParameter('limesurvey');
     $ls = new LimeSurvey();
     $ls->configure($params_ls['api']);
     
@@ -59,7 +59,6 @@ class RpanelComplete extends FqProcess
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
       throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fqp->getId()}] on [set_survey_properties]");
     }
-   
 
   }
 
