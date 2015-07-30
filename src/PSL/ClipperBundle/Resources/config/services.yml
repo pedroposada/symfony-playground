@@ -24,6 +24,7 @@ services:
   # --------------------------- #
   #       Clipper events        #
   # --------------------------- #
+  # highest priority goes at the top of the list
   clipper.listener.order_complete:
     class: PSL\ClipperBundle\Listener\OrderComplete
     arguments: ["@service_container", "order_complete"]

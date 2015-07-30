@@ -10,7 +10,7 @@ final class ClipperEvents
      *
      * @var string
      */
-    const FQ_PROCESS            = 'fq_process';
+    const FQ_PROCESS                   = 'fq_process';
     
     // before
     const BEFORE_ORDER_COMPLETE        = 'before_order_complete';
