@@ -14,6 +14,7 @@ class FqProcess
   protected $logger;
   protected $current_state;
   protected $state;
+  static $timestamp;
 
   public function __construct(ContainerInterface $container, $state)
   {
@@ -23,6 +24,7 @@ class FqProcess
     $params = $this->container->getParameter('clipper');
     $this->next_state = current(array_slice($params['state_codes'], array_search($state, array_keys($params['state_codes'])) + 1, 1));
     $this->state = $params['state_codes'][$state];
+    self::$timestamp = time();
   }
   
   public function onMain(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)

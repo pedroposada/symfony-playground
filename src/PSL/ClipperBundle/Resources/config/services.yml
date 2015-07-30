@@ -26,8 +26,8 @@ services:
   # --------------------------- #
   # highest priority goes at the top of the list
   clipper.listener.order_complete:
-    class: PSL\ClipperBundle\Listener\OrderComplete
-    arguments: ["@service_container", "order_complete"]
+    class: PSL\ClipperBundle\Listener\LimeSurveyPending
+    arguments: ["@service_container", "limesurvey_pending"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 100 }
       

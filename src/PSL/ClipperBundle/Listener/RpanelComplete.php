@@ -23,8 +23,7 @@ class RpanelComplete extends FqProcess
     // @TODO: Support multi market/specialty combo
     $ls_data = $fq->getLimesurveyDataUnserialized();
 
-    // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-    $iSurveyID = $ls_data[0]->sid;
+    $iSurveyID = $ls_data->sid;
 
     // config connection to LS
     $params_ls = $this->container->getParameter('limesurvey');
