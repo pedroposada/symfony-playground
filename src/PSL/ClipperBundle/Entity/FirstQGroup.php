@@ -50,7 +50,19 @@ class FirstQGroup
      * @ORM\OneToMany(targetEntity="FirstQProject", mappedBy="group_uuid")
      */
     protected $projects;
-
+    
+    /**
+     * Project id for Rpanel DB
+     * This field does not persists
+     */
+    protected $proj_id;
+    
+    /**
+     * Project sk for Rpanel DB
+     * This field does not persists
+     */
+    protected $project_sk;
+    
     /**
      * Constructor
      */
@@ -248,6 +260,52 @@ class FirstQGroup
     public function setUpdatedValue()
     {
         // Add your code here
+    }
+    
+    /**
+     * Set proj_id
+     *
+     * @param string $proj_id
+     * @return FirstQGroup
+     */
+    public function setProjId($proj_id)
+    {
+        $this->proj_id = $proj_id;
+
+        return $this;
+    }
+
+    /**
+     * Get proj_id
+     *
+     * @return string 
+     */
+    public function getProjId()
+    {
+        return $this->proj_id;
+    }
+    
+    /**
+     * Set project_sk
+     *
+     * @param string $project_sk
+     * @return FirstQGroup
+     */
+    public function setProjectSk($project_sk)
+    {
+        $this->project_sk = $project_sk;
+
+        return $this;
+    }
+
+    /**
+     * Get project_sk
+     *
+     * @return string 
+     */
+    public function getProjectSk()
+    {
+        return $this->project_sk;
     }
     
     /**

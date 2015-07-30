@@ -34,4 +34,13 @@ class FirstQProjectRepository extends EntityRepository
     
     return $this->matching($criteria);
   }
+  
+  public function findByFirstQGroupUUID($id)
+  {
+    $expr = Criteria::expr();
+    $criteria = Criteria::create();
+    $criteria->where($expr->eq('group_uuid', $id));
+    
+    return $this->matching($criteria);
+  }
 }

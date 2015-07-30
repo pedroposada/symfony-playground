@@ -125,7 +125,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="specialty", default="", description="Specialty array.", array=true)
    * @requestparam(name="timestamp", default="", description="Timestamp.")
    * @requestparam(name="survey_brand", default="", description="Brand array.", array=true)
-   * @requestparam(name="statement", default="", description="Statement array.", array=true)
+   * @requestparam(name="attribute", default="", description="Attribute array.", array=true)
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
    * @requestparam(name="timezone_client", default="", description="Timezone of the client.")
@@ -154,7 +154,7 @@ class ClipperController extends FOSRestController
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
       $form_data->brands = $paramFetcher->get('survey_brand');
-      $form_data->statements = $paramFetcher->get('statement');
+      $form_data->attributes = $paramFetcher->get('attribute');
       $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
       $form_data->timezone_client = $paramFetcher->get('timezone_client');
       $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
@@ -172,6 +172,7 @@ class ClipperController extends FOSRestController
           $form_data_object->ir = 10; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
+          
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
           // add results
@@ -207,7 +208,7 @@ class ClipperController extends FOSRestController
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
-      $returnObject['error_message'] = $e->getMessage();
+      $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
@@ -238,7 +239,7 @@ class ClipperController extends FOSRestController
     $em = $this->getDoctrine()->getManager();
     $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
     
-    if ($firstq_groups || !$firstq_groups->isEmpty()) {
+    if (!empty($firstq_groups) && !$firstq_groups->isEmpty()) {
       $firstqs_formatted = array(); 
       foreach ($firstq_groups as $key => $firstq_group) {
         $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup();
