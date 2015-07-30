@@ -23,7 +23,7 @@ class NPSPlusSurvey extends LimeSurvey
   
   protected $brands;
   
-  protected $statements;
+  protected $attributes;
   
   protected $patients;
   
@@ -38,7 +38,7 @@ class NPSPlusSurvey extends LimeSurvey
     $this->market = $survey_data->market;
     $this->specialty = $survey_data->specialty;
     $this->brands = $survey_data->brands;
-    $this->statements = $survey_data->statements;
+    $this->attributes = $survey_data->attributes;
     $this->patients = $survey_data->patients;
     $this->url_exit = $survey_data->url_exit;
   }
@@ -821,13 +821,13 @@ $(document).ready(function(){
       
       // ------------------------------------------------------------------------------
       // Subquestion
-      // statements
+      // Attributes
       // ------------------------------------------------------------------------------
       
       $subquestions_4_0 = 40500;
       
       // loop through all brands
-      foreach ($this->statements as $key => $statement) {
+      foreach ($this->attributes as $key => $attribute) {
         $sub_index = $key + 1;
         $subquestion_row = $templating->render('PSLClipperBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
           array('qid' => $subquestions_4_0 + $index * 10 + $sub_index,
@@ -836,7 +836,7 @@ $(document).ready(function(){
             'gid' => $group_id,
             'type' => 'T',
             'title' => 'SQ00' . $sub_index,
-            'question' => $statement,
+            'question' => $attribute,
             'other' => 'N',
             'question_order' => $sub_index,
             'scale_id' => 0,
