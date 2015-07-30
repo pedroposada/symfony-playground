@@ -62,7 +62,7 @@ class LimeSurveyPending extends FqProcess
       'sNewSurveyName' => "Clipper test - " . $fqp->getId(), 
     ));
     
-    $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'import_survey'));
+    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'import_survey'));
     if (!is_int($iSurveyID)) {
       throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [import_survey]");
     }
@@ -71,7 +71,7 @@ class LimeSurveyPending extends FqProcess
     $response = $ls->activate_survey(array(
       'iSurveyID' => $iSurveyID, 
     ));
-    $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'activate_survey'));
+    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
       throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_survey]");
     }
