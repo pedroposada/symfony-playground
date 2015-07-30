@@ -112,5 +112,4 @@ class ClipperCommand extends ContainerAwareCommand
     $em->flush();
     $em->clear();
   }
-
 }
