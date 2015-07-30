@@ -97,7 +97,7 @@ class ClipperCommand extends ContainerAwareCommand
             ->process($fqg, $fq, 'limesurvey_pending')
             ->process($fqg, $fq, 'limesurvey_created')
             ->process($fqg, $fq, 'rpanel_complete')
-            ->process($fqg, $fq, 'limesurvey_complete') // next state will be "email_sent"
+            // ->process($fqg, $fq, 'limesurvey_complete') // next state will be "email_sent"
             ;
           
           // feedback if all is good
@@ -374,11 +374,10 @@ class ClipperCommand extends ContainerAwareCommand
   public function rpanel_complete(FirstQGroup $fqg, FirstQProject $fqp) 
   {
     
-    // @TODO: Support multi market/specialty combo
-    $ls_data = $fq->getLimesurveyDataUnserialized();
+    $ls_data = $fqp->getLimesurveyDataUnserialized();
     
     // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-    $iSurveyID = $ls_data[0]->sid;
+    $iSurveyID = $ls_data->sid;
     
     // config connection to LS
     $params_ls = $this->getContainer()->getParameter('limesurvey');
@@ -393,12 +392,12 @@ class ClipperCommand extends ContainerAwareCommand
       'sStatName' => 'completed_responses', 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [get_summary]");
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fqp->getId()}] on [get_summary]");
     }
     
     // if completed is less than quota, then exit
     if ($quota > $response) {
-      throw new Exception("Quota has not been reached yet for fq->id: [{$fq->getId()}]");
+      throw new Exception("Quota has not been reached yet for fq->id: [{$fqp->getId()}]");
     }
     
     // quota reached, expire survey
@@ -412,10 +411,10 @@ class ClipperCommand extends ContainerAwareCommand
     
     if (is_array($response) && isset($response['status'])) {
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fq->getId()}] on [set_survey_properties]");
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fqp->getId()}] on [set_survey_properties]");
     }
    
-    return $fq;
+    return $fqp;
   }
 
   /**
