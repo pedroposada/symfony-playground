@@ -22,8 +22,13 @@ class FqProcess
     $this->container = $container;
     $this->logger = $this->container->get('monolog.logger.clipper');
     $params = $this->container->getParameter('clipper');
-    $this->next_state = current(array_slice($params['state_codes'], array_search($state, array_keys($params['state_codes'])) + 1, 1));
+    
+    // find next state
+    $keys = array_keys($params['state_codes']);
+    $next_key = array_search($state, array_keys($params['state_codes'])) + 1;  
+    $this->next_state = isset($keys[$next_key]) ? current(array_slice($params['state_codes'], $next_key, 1)) : $params['state_codes'][$state];
     $this->state = $params['state_codes'][$state];
+    
     self::$timestamp = time();
   }
   

@@ -19,13 +19,13 @@ class LimeSurveyComplete extends FqProcess
   protected function main(FirstQProjectEvent $event)
   {
     // get FirstQProject object
-    $fq = $event->getFirstQProject();
+    $fqp = $event->getFirstQProject();
     
     // @TODO: Support multi market/specialty combo
-    $ls_data = $fq->getLimesurveyDataUnserialized();
+    $ls_data = $fqp->getLimesurveyDataUnserialized();
 
-    // $iSurveyID = current($fq->getLimesurveyDataByField('sid'));
-    $iSurveyID = $ls_data[0]->sid;
+    // $iSurveyID = current($fqp->getLimesurveyDataByField('sid'));
+    $iSurveyID = $ls_data->sid;
 
     // config connection to LS
     $params_ls = $this->container->getParameter('limesurvey');
@@ -39,7 +39,7 @@ class LimeSurveyComplete extends FqProcess
     ));
     if( is_array($response) ) {
       $reponses = implode(', ', $response);
-      throw new Exception("LS export_responses error: [{$reponses}] for fq->id: [{$fq->getId()}] - limesurvey_complete");
+      throw new Exception("LS export_responses error: [{$reponses}] for fq->id: [{$fqp->getId()}] - limesurvey_complete");
     }
 
     // if we get this far then send email
@@ -75,7 +75,6 @@ class LimeSurveyComplete extends FqProcess
     }
     $this->logger->debug("Email: [{$message->toString()}]");
 
-    return $fq;
   }
 
 }

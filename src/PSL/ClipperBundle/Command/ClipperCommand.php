@@ -63,7 +63,7 @@ class ClipperCommand extends ContainerAwareCommand
     $em = $this->getContainer()->get('doctrine')->getManager();
     
     // FirstQ Groups
-    $fq_groups = new ArrayCollection();
+    $fqgs = new ArrayCollection();
     $fqid = $input->getArgument('fqid');
     
     if ($fqid) {
@@ -75,26 +75,28 @@ class ClipperCommand extends ContainerAwareCommand
         return 0;
       }
       
-      $fq_groups->add($f);
+      $fqgs->add($f);
     }
     else {
       // get multiple find all except with state 'email_sent'
-      $fq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByState($params['state_codes']['order_complete']);
+      $fqgs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByState($params['state_codes']['order_complete']);
     }
     
-    $this->logger->info("Found [{$fq_groups->count()}] FirstQGroup(s) for processing.", array('execute'));
+    $this->logger->info("Found [{$fqgs->count()}] FirstQGroup(s) for processing.", array('execute'));
     
-    foreach ($fq_groups as $fqg) {
+    foreach ($fqgs as $fqg) {
       
       // load all FirstQProjects
-      $fqs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByFirstQGroupUUID($fqg->getId());
+      $fqps = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByFirstQGroupUUID($fqg->getId());
       
-      foreach ($fqs as $fq) {
+      foreach ($fqps as $fqp) {
         
         try {
           
           $dispatcher = $this->getContainer()->get('event_dispatcher'); 
-          $event = new FirstQProjectEvent($fqg, $fq);
+          $event = new FirstQProjectEvent($fqg, $fqp);
+          
+          // main event, triggers all listeners 
           $dispatcher->dispatch(ClipperEvents::FQ_PROCESS, $event);
           
           // feedback if all is good
