@@ -1,9 +1,9 @@
 <?php
 /**
- * PSL/ClipperBundle/Survey/NPSPlusSurvey.php
+ * PSL/ClipperBundle/Survey/ProfilesSurvey.php
  * 
- * NPS+ Survey Class
- * Handles all business logic for an NPS+ survey
+ * Profiles Survey Class
+ * Handles all business logic for an Profiles survey
  * Extends the Lime Survey class
  * 
  * @version 1.0
@@ -14,7 +14,7 @@ namespace PSL\ClipperBundle\Survey;
 
 use PSL\ClipperBundle\Survey\LimeSurvey;
 
-class NPSPlusSurvey extends LimeSurvey
+class ProfilesSurvey extends LimeSurvey
 {
   
   protected $market;
@@ -73,9 +73,9 @@ class NPSPlusSurvey extends LimeSurvey
     
     $survey_row = $templating->render('PSLClipperBundle:limesurvey:limesurveySurveyRow.xml.twig', 
       array('survey_id' => $sid,
-        'adminemail' => 'simon.rainville@pslgroup.com',
+        'adminemail' => 'steven.lee@pslgroup.com',
         'faxto' => '5149999999',
-        'bounce_email' => 'simon.rainville@pslgroup.com',
+        'bounce_email' => 'steven.lee@pslgroup.com',
       )
     );
     $this->addSurvey($survey_row);
@@ -249,7 +249,7 @@ class NPSPlusSurvey extends LimeSurvey
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
   $("#question{QID}").hide();
-  $(".question .subquestions-list input:radio").change(function(){  
+  $(".question-wrapper input:radio").change(function(){
     var name = $(this).attr("name");
     var n = name.indexOf("SQ");
     var subQuestion = name.substring(n);
@@ -258,17 +258,11 @@ $(document).ready(function(){
       $("#java{SGQ}" + subQuestion).val("A1");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", "checked");
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", false);
-      //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").addClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").removeClass("checked");
     }
     else {
       $("#java{SGQ}" + subQuestion).val("");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", false);
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", "checked");
-      //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").removeClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").addClass("checked");
     }
   });
 });
@@ -353,7 +347,7 @@ $(document).ready(function(){
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
   $("#question{QID}").hide();
-  $(".question .subquestions-list input:radio").change(function(){  
+  $(".question-wrapper input:radio").change(function(){
     var name = $(this).attr("name");
     var n = name.indexOf("SQ");
     var subQuestion = name.substring(n);
@@ -362,17 +356,11 @@ $(document).ready(function(){
       $("#java{SGQ}" + subQuestion).val("A1");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", "checked");
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", false);
-      //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").addClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").removeClass("checked");
     }
     else {
       $("#java{SGQ}" + subQuestion).val("");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", false);
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", "checked");
-      //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").removeClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").addClass("checked");
     }
   });
 });
@@ -471,7 +459,7 @@ $(document).ready(function(){
     
     $qid_1_0 = 30100;
     $question_1_0 = '<p>In a typical month what % of your patients for the treatment of ' . $this->patients . ' do you prescribe each of the following drugs? We realise it is not possible to know this exactly, but we would sincerely appreciate your best approximation. Please express your answer as a percentage. Your responses must add up to at least 100% and can be more if drugs are co-prescribed.</p>';
-    $question_1_0 .= '<script type="text/javascript" charset="utf-8">
+    $help_1_0 = '<script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
   var tbl = $("table.questions-list tbody");
   var total_percentage = $("table.questions-list tr.subquestions-list").not("[style*=\"display\"]").first().clone().attr("id", "total-percentage");
@@ -503,7 +491,7 @@ $(document).ready(function(){
         'type' => ':',
         'title' => 'G002Q001',
         'question' => $question_1_0,
-        'help' => '',
+        'help' => $help_1_0,
         'preg' => '',
         'other' => 'N',
         'mandatory' => 'N',
@@ -598,187 +586,10 @@ $(document).ready(function(){
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 2
 
-// NPS
-// ---------------------------------------------------------------------------------------------------------------------------
-    
-    
-    $gid_2 = 2200;
-    
-    $group_1_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyGroupRow.xml.twig', 
-      array('gid' => $gid_2,
-        'sid' => $sid,
-        'group_name' => 'NPS',
-        'group_order' => $group_order,
-      )
-    );
-    
-    $this->addGroup($group_1_row);
-    $group_order++;
-    
-    // ------------------------------------------------------------------------------
-    // group 2
-    // question 0
-    // If a colleague would ask you for your recommendation, how likely would you be to recommend each of the following drugs 
-    // for the treatment of {Patient}. Please select a response for each drug.
-    // 0= not at all likely, 10 = extremely likely
-    // ------------------------------------------------------------------------------
-    
-    $qid_2_0 = 30200;
-    $question_2_0 = '<p>If a colleague would ask you for your recommendation, how likely would you be to recommend each of the following drugs for the treatment of ' . $this->patients . '. Please select a response for each drug.</p><p>0= not at all likely, 10 = extremely likely</p>';
-    
-    $question_2_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-      array('qid' => $qid_2_0,
-        'parent_qid' => 0,
-        'sid' => $sid,
-        'gid' => $gid_2,
-        'type' => 'B',
-        'title' => 'G003Q001',
-        'question' => $question_2_0,
-        'help' => '',
-        'preg' => '',
-        'other' => 'N',
-        'mandatory' => 'Y',
-        'question_order' => 1,
-        'scale_id' => 0,
-        'same_default' => 0,
-        'relevance' => 1,
-      )
-    );
-    
-    $this->addQuestion($question_2_0_row);
-    
-    
-    // ------------------------------------------------------------------------------
-    // group 2
-    // question 0
-    // subquestions
-    // ------------------------------------------------------------------------------
-    
-    $subquestions_2_0 = 40400;
-    
-    // loop through all brands
-    foreach ($this->brands as $key => $brand) {
-      $index = $key + 1;
-      $subquestion_row = $templating->render('PSLClipperBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
-        array('qid' => $subquestions_2_0 + $index,
-          'parent_qid' => $qid_2_0,
-          'sid' => $sid,
-          'gid' => $gid_2,
-          'type' => 'T',
-          'title' => 'SQ00' . $index,
-          'question' => $brand,
-          'other' => 'N',
-          'question_order' => $index,
-          'scale_id' => 0,
-        )
-      );
-      
-      $this->addSubquestion($subquestion_row);
-    }
-
-    // ------------------------------------------------------------------------------
-    // group 2
-    // question 0
-    // attributes
-    // ------------------------------------------------------------------------------
-    
-    $attributes_2_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
-      array('qid' => $qid_2_0,
-        'attribute' => 'array_filter',
-        'value' => 'G001Q003',
-        'language' => '',
-      ));
-    
-    $this->addQuestionAttribute($attributes_2_0_row);
-
-// ---------------------------------------------------------------------------------------------------------------------------
-// group 3
-
-// Brand DNA
-// ---------------------------------------------------------------------------------------------------------------------------
-    
-    $gid_3 = 2300;
-    
-    // loop through all brands
-    // to create group, questions, answers, and all
-    foreach ($this->brands as $key => $brand) {
-      
-      // ------------------------------------------------------------------------------
-      // Group
-      // ------------------------------------------------------------------------------
-      
-      $index = $key + 1;
-      $group_id = $gid_3 + $index;
-      
-      $group_3_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyGroupRow.xml.twig', 
-        array('gid' => $group_id,
-          'sid' => $sid,
-          'group_name' => 'Brand DNA - ' . $brand,
-          'group_order' => $group_order,
-        )
-      );
-      
-      $this->addGroup($group_3_row);
-      $group_order++;
-      
-      // ------------------------------------------------------------------------------
-      // Question
-      // Thinking about the treatment of your {PATIENT}. How would you summarise in a short phrase of no more than 
-      // 10 words what {BRAND} means to you? Please use no more than 10 words.
-      // ------------------------------------------------------------------------------
-      
-      $qid_3_0 = 30300;
-      $question_3_0 = '<p>Thinking about the treatment of your ' . $this->patients . '. How would you summarise in a short phrase of no more than 10 words what ' . $brand . ' means to you? Please use no more than 10 words.</p>';
-      $title = 'G00' . $group_order . 'Q001';
-      $sgq = $sid . 'X' . $gid_0 . 'X' . $qid_0_2 . 'SQ00' . $index;
-      $question_3_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-        array('qid' => $qid_3_0 + $index,
-          'parent_qid' => 0,
-          'sid' => $sid,
-          'gid' => $gid_3 + $index,
-          'type' => 'T',
-          'title' => $title,
-          'question' => $question_3_0,
-          'help' => '',
-          'preg' => '',
-          'other' => 'N',
-          'mandatory' => 'N',
-          'question_order' => 1,
-          'scale_id' => 0,
-          'same_default' => 0,
-          'relevance' => '((' . $sgq . '.NAOK == "A1"))',
-        )
-      );
-      
-      $this->addQuestion($question_3_0_row);
-      
-      // ------------------------------------------------------------------------------
-      // condition
-      // ------------------------------------------------------------------------------
-      
-      $cid_3_0 = 500;
-      
-      $condition_3_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyConditionRow.xml.twig', 
-        array('cid' => $cid_3_0 + $index,
-          'qid' => $qid_3_0 + $index,
-          'cqid' => $qid_0_2,
-          'cfieldname' => $sgq,
-          'method' => '==',
-          'value' => 'A1',
-          'scenario' => 1,
-        )
-      );
-      
-      $this->addCondition($condition_3_row);
-    }
-    
-// ---------------------------------------------------------------------------------------------------------------------------
-// group 4
-
 // Brand Association
 // ---------------------------------------------------------------------------------------------------------------------------
     
-    $gid_4 = 2400;
+    $gid_2 = 2200;
 
     // loop through all brands
     foreach ($this->brands as $key => $brand) {
@@ -788,9 +599,9 @@ $(document).ready(function(){
       // ------------------------------------------------------------------------------
       
       $index = $key + 1;
-      $group_id = $gid_4 + $index;
+      $group_id = $gid_2 + $index;
       
-      $group_4_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyGroupRow.xml.twig', 
+      $group_2_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyGroupRow.xml.twig', 
         array('gid' => $group_id,
           'sid' => $sid,
           'group_name' => 'Brand Association - ' . $brand,
@@ -798,7 +609,7 @@ $(document).ready(function(){
         )
       );
       
-      $this->addGroup($group_4_row);
+      $this->addGroup($group_2_row);
       $group_order++;
       
       // ------------------------------------------------------------------------------
@@ -806,18 +617,18 @@ $(document).ready(function(){
       // Below are a series of statements. Please select "Yes" if you associate that statement with {BRAND} or "No" if you do not.
       // ------------------------------------------------------------------------------
       
-      $qid_4_0 = 30400 + $index;
-      $question_4_0 = '<p>Below are a series of statements. Please select "Yes" if you associate that statement with ' . $brand . 'or "No" if you do not.</p>';
+      $qid_2_0 = 30200 + $index;
+      $question_2_0 = '<p>Below are a series of statements. Please select "Yes" if you associate that statement with ' . $brand . 'or "No" if you do not.</p>';
       $title = 'G00' . $group_order . 'Q001';
       $sgq = $sid . 'X' . $gid_0 . 'X' . $qid_0_2 . 'SQ00' . $index;
-      $question_4_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-        array('qid' => $qid_4_0,
+      $question_2_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+        array('qid' => $qid_2_0,
           'parent_qid' => 0,
           'sid' => $sid,
           'gid' => $group_id,
           'type' => 'F',
           'title' => $title,
-          'question' => $question_4_0,
+          'question' => $question_2_0,
           'help' => '',
           'preg' => '',
           'other' => 'N',
@@ -829,21 +640,21 @@ $(document).ready(function(){
         )
       );
       
-      $this->addQuestion($question_4_0_row);
+      $this->addQuestion($question_2_0_row);
       
       // ------------------------------------------------------------------------------
       // Subquestion
       // statements
       // ------------------------------------------------------------------------------
       
-      $subquestions_4_0 = 40500;
+      $subquestions_2_0 = 40400;
       
       // loop through all brands
       foreach ($this->statements as $key => $statement) {
         $sub_index = $key + 1;
         $subquestion_row = $templating->render('PSLClipperBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
-          array('qid' => $subquestions_4_0 + $index * 10 + $sub_index,
-            'parent_qid' => $qid_4_0,
+          array('qid' => $subquestions_2_0 + $index * 10 + $sub_index,
+            'parent_qid' => $qid_2_0,
             'sid' => $sid,
             'gid' => $group_id,
             'type' => 'T',
@@ -862,35 +673,35 @@ $(document).ready(function(){
       // answers
       // ------------------------------------------------------------------------------
       
-      $answer_4_0_row_0 = $templating->render('PSLClipperBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
-        array('qid' => $qid_4_0,
+      $answer_2_0_row_0 = $templating->render('PSLClipperBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
+        array('qid' => $qid_2_0,
           'code' => 'A1',
           'answer' => 'Yes',
           'sortorder' => 1,
           'assessment_value' => 0,
         )
       );
-      $this->addAnswer($answer_4_0_row_0);
+      $this->addAnswer($answer_2_0_row_0);
       
-      $answer_4_0_row_1 = $templating->render('PSLClipperBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
-        array('qid' => $qid_4_0,
+      $answer_2_0_row_1 = $templating->render('PSLClipperBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
+        array('qid' => $qid_2_0,
           'code' => 'A2',
           'answer' => 'No',
           'sortorder' => 2,
           'assessment_value' => 1,
         )
       );
-      $this->addAnswer($answer_4_0_row_1);
+      $this->addAnswer($answer_2_0_row_1);
       
       // ------------------------------------------------------------------------------
       // condition
       // ------------------------------------------------------------------------------
       
-      $cid_4_0 = 540 + $index;
+      $cid_2_0 = 520 + $index;
       
-      $condition_4_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyConditionRow.xml.twig', 
-        array('cid' => $cid_4_0,
-          'qid' => $qid_4_0,
+      $condition_2_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyConditionRow.xml.twig', 
+        array('cid' => $cid_2_0,
+          'qid' => $qid_2_0,
           'cqid' => $qid_0_2, // Group 0 Question 2 condition
           'cfieldname' => $sgq,
           'method' => '==',
@@ -899,20 +710,20 @@ $(document).ready(function(){
         )
       );
       
-      $this->addCondition($condition_4_row);
+      $this->addCondition($condition_2_row);
       
       // ------------------------------------------------------------------------------
       // Question attributes
       // ------------------------------------------------------------------------------
       
-      $question_attribute_4_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
-        array('qid' => $qid_4_0,
+      $question_attribute_2_0_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
+        array('qid' => $qid_2_0,
           'attribute' => 'random_order',
           'value' => 1,
           'language' => '',
         ));
       
-      $this->addQuestionAttribute($question_attribute_4_0_row);
+      $this->addQuestionAttribute($question_attribute_2_0_row);
     }
 
     return $this;

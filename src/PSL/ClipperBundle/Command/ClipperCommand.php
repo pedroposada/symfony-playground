@@ -84,7 +84,6 @@ class ClipperCommand extends ContainerAwareCommand
     $this->logger->info("Found [{$fqs->count()}] FirstQProject(s) for processing.", array('execute'));
     foreach ($fqs as $fq) {
       try {
-        
         $this
           // process states
           ->process($fq, 'order_complete')
@@ -159,8 +158,8 @@ class ClipperCommand extends ContainerAwareCommand
       $country_id = 10; // @TODO: this is a hard coded value up until we get the proper mapping
       
       $survey_data = new stdClass();
-      $survey_data->market = $specialty_id;
-      $survey_data->specialty = $country_id;
+      $survey_data->market = $country_id;
+      $survey_data->specialty = $specialty_id;
       $survey_data->patients = $patient_type;
       $survey_data->brands = $brands;
       $survey_data->statements = $statements;
@@ -173,7 +172,7 @@ class ClipperCommand extends ContainerAwareCommand
       $iSurveyID = $ls->import_survey(array(
         'sImportData' => base64_encode($lss), // BASE 64 encoded data of a lss
         'sImportDataType' => 'lss', 
-        'sNewSurveyName' => "Clipper test - " . $fq->getId(), 
+        'sNewSurveyName' => "Clipper test - " . $fq->getId(),
       ));
       
       $this->logger->debug(Debug::toString($ls->client), array('bigcommerce_complete', 'import_survey'));
@@ -197,7 +196,7 @@ class ClipperCommand extends ContainerAwareCommand
       if (!isset($response['status']) || $response['status'] != 'OK') {
         throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_tokens]");
       }
-      
+        
       // add participants
       // $participants_sample = $value->participants_sample; // number of tokens (links) for participants
       $participants_sample = 2;
