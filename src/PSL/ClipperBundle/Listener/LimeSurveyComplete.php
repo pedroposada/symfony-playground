@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
+// use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 
 class LimeSurveyComplete extends FqProcess
 {
@@ -31,7 +31,7 @@ class LimeSurveyComplete extends FqProcess
 
     // config connection to LS
     $params_ls = $this->container->getParameter('limesurvey');
-    $ls = new LimeSurvey();
+    $ls = $this->container->get('limesurvey');
     $ls->configure($params_ls['api']);
 
     // get lime survey results

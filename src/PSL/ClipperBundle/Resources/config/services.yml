@@ -20,6 +20,9 @@ services:
     # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
     # calls:
       # - [setParentTemplating, ["@templating"]]
+      
+  limesurvey:
+    class: PSL\ClipperBundle\Utils\LimeSurvey
    
   # --------------------------- #
   #       Clipper events        #

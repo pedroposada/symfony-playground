@@ -28,6 +28,8 @@ class LimeSurveyCompleteTest extends WebTestCase
 
   public function testOnMain()
   {
+    // @TODO: Create a mockup of an FQ project with valid data
+    // @TODO: use mocked up FQ object to pass it in to onMain inside the event object
     $fqgs = $this->em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByState($this->params['state_codes']['order_complete']);
     $this->assertNotEmpty($fqgs);
     $fqg = $fqgs->first();
@@ -42,11 +44,12 @@ class LimeSurveyCompleteTest extends WebTestCase
     $lsc = new LimeSurveyComplete($this->container, 'limesurvey_complete');
 
     $lsc->onMain($event, 'limesurvey_complete', $this->dispatcher);
-    $result = $lsc->result;
 
-    $this->assertStringMatchesFormatFile($result['attachment_path'], $result['ls_export_responses']);
+    // test if attachment is created and matches the response from LimeSurvey
+    $this->assertStringMatchesFormatFile($lsc->result['attachment_path'], $lsc->result['ls_export_responses']);
     
-    $this->assertEmpty($result['email_failures']);
+    // test if no errors were returned sending the email
+    $this->assertEmpty($lsc->result['email_failures']);
   }
 
   /**
