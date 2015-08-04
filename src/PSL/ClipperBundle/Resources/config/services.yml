@@ -1,13 +1,16 @@
 services:
-  
+  clipper_cache:
+    class: PSL\ClipperBundle\Service\ClipperCacheService
+    arguments: [%clipper_cache%]
+
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
     arguments: [%google_spreadsheets%]
-  
+
   rpanel:
     class: PSL\ClipperBundle\Service\RPanelService
     arguments: [%rpanel%]
-  
+
   survey_builder:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
     # @TODO: only get templating
@@ -15,7 +18,7 @@ services:
     # arguments: [@templating]
     # calls:
       # - [setTemplating, ["@templating"]]
-      
+
   # nps_plus_survey:
     # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
     # calls:

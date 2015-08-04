@@ -1,17 +1,15 @@
 <?php
 /**
  * PSL/ClipperBundle/Utils/GoogleSheets.php
- * 
+ *
  * Google Sheets Class
  * This is the class is a Google Spreadsheet wrapper with helper functions
- * 
+ *
  * @version 1.0
  * @date 2015-05-27
- * 
- * @TODO: tasks 
+ *
+ * @TODO: tasks
  * - Handle and return proper errors or log them if possible
- * - Caching of the sheets 
- * 
  **/
 
 namespace PSL\ClipperBundle\Utils;
@@ -22,56 +20,62 @@ use Google\Spreadsheet\ServiceRequestFactory;
 use Google\Spreadsheet\SpreadsheetService;
 use Google\Spreadsheet\SpreadsheetFeed;
 
+use Google_Cache_Null;
+
 class GoogleSheets {
-  
+
   protected $client_id = '';
 
   protected $service_account_name = '';
 
   protected $p12_file_uri = '';
-  
+
+  protected $client = FALSE;
+
   public $service = FALSE;
 
-  function __construct() 
+  public $auth_token = FALSE;
+
+  function __construct()
   {
-      // Since the class requires parameters, 
+      // Since the class requires parameters,
       // it is initiated with a static class method
       // GoogleSheets::withProperties();
   }
-  
+
   /**
    * Public Static "Constructor" function
    */
-  public static function withProperties($client_id, $service_account_name, $p12_file_uri) 
+  public static function withProperties($client_id, $service_account_name, $p12_file_uri, $cached_token = FALSE)
   {
     $googleSheet = New GoogleSheets();
-    
+
     // Set all properties
     $googleSheet->client_id = $client_id;
     $googleSheet->service_account_name = $service_account_name;
     $googleSheet->p12_file_uri = $p12_file_uri;
-    
+    if (!empty($cached_token)) {
+      $googleSheet->auth_token = $cached_token;
+    }
+
     $googleSheet->service = $googleSheet->getGoogleService();
-    
+
     return $googleSheet;
   }
-  
+
   /**
    * Connect to the Google API and get a token.
    *
    * @return object - The spreadsheet service.
    */
-  private function getGoogleService() 
+  private function getGoogleService()
   {
-    
-    // @TODO: build caching mechanism
-    /*
-    $spreadsheetService = &drupal_static(__FUNCTION__);
+
+    static $spreadsheetService;
     if (isset($spreadsheetService)) {
       return $spreadsheetService;
     }
-    */
-    
+
     // Validate that the settings are good.
     if (empty($this->client_id) || empty($this->service_account_name) || empty($this->p12_file_uri)) {
       // print error
@@ -79,45 +83,49 @@ class GoogleSheets {
       $this->service = FALSE;
       return FALSE;
     }
-    
+
     if (!file_exists($this->p12_file_uri)) {
       // @TODO: log error
       // $error = 'P12 key file does not exist at' . $this->p12_file_uri;
       return FALSE;
     }
-    
+
     try {
-      
-      $client = new \Google_Client();
-      $client->setApplicationName("PSL Sheets");
-      
-      if (isset($_SESSION['service_token'])) {
-        $client->setAccessToken($_SESSION['service_token']);
-      }
-      $key = file_get_contents($this->p12_file_uri);
-      $cred = new \Google_Auth_AssertionCredentials(
-          $this->service_account_name,
-          array('https://spreadsheets.google.com/feeds'),
-          $key
-      );
-      $client->setAssertionCredentials($cred);
-      
-      if ($client->getAuth()->isAccessTokenExpired()) {
-        $client->getAuth()->refreshTokenWithAssertion($cred);
-      }
-      
-      $_SESSION['service_token'] = $client->getAccessToken();
+      if (empty($this->client)) {
+        $this->client = new \Google_Client();
+        //overwrite cache method; disable
+        $gcache_null = new Google_Cache_Null($this->client);
+        $this->client->setCache($gcache_null);
 
-      $token = json_decode($_SESSION['service_token']);
+        //setup client
+        $this->client->setApplicationName("PSL Sheets");
 
+        //checking cached token
+        if (!empty($this->auth_token)) {
+          //cached
+          $this->client->setAccessToken($this->auth_token);
+        }
+      }
+      //re-check token
+      if ($this->client->getAuth()->isAccessTokenExpired()) {
+        //no token / cache token were rejected
+        //assertion
+        $key = file_get_contents($this->p12_file_uri);
+        $cred = new \Google_Auth_AssertionCredentials(
+            $this->service_account_name,
+            array('https://spreadsheets.google.com/feeds'),
+            $key
+        );
+        $this->client->setAssertionCredentials($cred);
+
+        $this->client->getAuth()->refreshTokenWithAssertion($cred);
+        $this->auth_token = $this->client->getAccessToken();
+      }
+      $token = json_decode($this->auth_token);
       $accessToken = $token->access_token;
-      
       $serviceRequest = new DefaultServiceRequest($accessToken);
       ServiceRequestFactory::setInstance($serviceRequest);
-      
-      // $spreadsheetService = new Google\Spreadsheet\SpreadsheetService();
       $spreadsheetService = new SpreadsheetService();
-      
       return $spreadsheetService;
     }
     catch (Exception $e) {
@@ -136,36 +144,26 @@ class GoogleSheets {
    * @return array
    *  An array of the available spredsheets
    */
-  public function getSheets($reset = FALSE) 
+  public function getSheets($reset = FALSE)
   {
     if (!$service = $this->getGoogleService()) {
       // no need for an error here. It's handled in the service function
       return FALSE;
     }
 
-    // @TODO: build caching mechanism
-    /*
-    // How long should I cache this data?
-    $cache_time = 3600; // Put this in a parameter
-
-    if ($cache_time > 0 && !$reset) {
-      Look for this data in the cache.
-      $sheets = cache_get('psl_sheets:spreadsheets');
-      if (isset($sheets->data)) {
-        return $sheets->data;
-      }
+    static $sheet_array;
+    if ((isset($sheet_array)) && (!$reset)) {
+      return $sheet_array;
     }
-    */
+
     $spreadsheets = $service->getSpreadsheets();
-    
+
     $sheet_array = array();
     foreach ($spreadsheets as $sheet) {
       $id = $sheet->getId();
       $id = pathinfo($id);
       $sheet_array[$id['filename']] = $sheet->getTitle();
     }
-    // cache_set('psl_sheets:spreadsheets', $sheet_array, 'cache', time() + ~$cache_time);
-
     return $sheet_array;
   }
 
@@ -180,20 +178,19 @@ class GoogleSheets {
    * @return boolean|object
    *  Either false or the spreadsheet object.
    */
-  public function getSpreadsheet($spreadsheet, $reset = FALSE) 
+  public function getSpreadsheet($spreadsheet, $reset = FALSE)
   {
-    
-    // @TODO: build caching mechanism
-    // $spreadsheet_static = &drupal_static(__FUNCTION__);
+
+    static $spreadsheet_static;
 
     if (!$service = $this->getGoogleService()) {
       // no need for an error here. It's handled in the service function
       return FALSE;
     }
-    
+
     $sheets = $this->getSheets($reset);
     $sheets_by_name = array_flip($sheets);
-    
+
     if (isset($sheets_by_name[$spreadsheet])) {
       $id = $sheets_by_name[$spreadsheet];
     }
@@ -204,6 +201,10 @@ class GoogleSheets {
       // @TODO: log error
       // $error = 'Could not load spreadsheet with a name of ID of '. $spreadsheet;
       return FALSE;
+    }
+
+    if (empty($spreadsheet_static)) {
+      $spreadsheet_static = array();
     }
 
     // Try from static var
@@ -231,66 +232,50 @@ class GoogleSheets {
    *
    * @return object - The worksheet object
    */
-  public function getWorksheet($spreadsheet, $worksheet_name, $reset = FALSE) 
+  public function getWorksheet($spreadsheet, $worksheet_name, $reset = FALSE)
   {
+    static $worksheet;
+
+    if ((isset($worksheet)) && (!$reset)) {
+      return $worksheet;
+    }
+
     if (is_string($spreadsheet)) {
       $spreadsheet = $this->getSpreadsheet($spreadsheet, $reset);
     }
-    // @TODO: build caching mechanism
-    /*
-    $worksheet_static = &drupal_static(__FUNCTION__);
-    if (isset($worksheet_static[$spreadsheet->getTitle()][$worksheet_name]) && !$reset) {
-      return $worksheet_static[$spreadsheet->getTitle()][$worksheet_name];
-    }
-    */
-    
+
     $worksheetFeed = $spreadsheet->getWorksheets();
     $worksheet = $worksheetFeed->getByTitle($worksheet_name);
-    /*
-    $worksheet_static[$spreadsheet->getTitle()][$worksheet_name] = $worksheet;
-    
-    cache the worksheet ID mapping
-    $this->worksheetIdCache($spreadsheet->getTitle(), $worksheet_name, $worksheet->getWorksheetId());
-    */
+
     return $worksheet;
   }
 
   /**
    * Cache the worksheet ID
    *
-   * @param string $spreadsheet_name The name of the worksheet
-   * @param string $worksheet_name   The worksheet Name
-   * @param string $value            If set the cache will be set to this value.
+   * @param string  $spreadsheet_name The name of the worksheet
+   * @param string  $worksheet_name   The worksheet Name
+   * @param boolean $rest             Reset the cache
    *
    * @return string
    *  The ID of the worksheet
    */
-  private function worksheetIdCache($spreadsheet_name, $worksheet_name, $value = NULL) 
+  private function worksheetIdCache($spreadsheet_name, $worksheet_name, $reset = FALSE)
   {
-    
-    // @TODO: build caching mechanism
-    /*
-    $cid = 'psl_sheets:' . $spreadsheet_name . ':' . $worksheet_name . ':id';
-    
-    if ($value) {
-      cache_set($cid, $value);
+    static $id;
+    if ((isset($id)) && (!$reset)) {
+      return $id;
     }
-    else {
-      $cache = cache_get($cid);
-      if (!empty($cache->data)) {
-        $id = $cache->data;
-      }
-      else {
-        $worksheet = $this->getWorksheet($spreadsheet_name, $worksheet_name);
-        $id = $worksheet->getWorksheetId();
-        cache_set($cid, $id);
-      }
-    }
-    */
-    
-    $worksheet = $this->getWorksheet($spreadsheet_name, $worksheet_name);
-    $id = $worksheet->getWorksheetId();
-    
+
+    $key = implode('-', array($spreadsheet_name, $worksheet_name));
+    //Google cache - default using file
+    $id = $this->client->getCache()->get($key);
+    if ((empty($id)) || ($reset)) {
+      $worksheet = $this->getWorksheet($spreadsheet_name, $worksheet_name);
+      $id = $worksheet->getWorksheetId();
+      $this->client->getCache()->set($key, $id);
+     }
+
     return $id;
   }
 
@@ -302,20 +287,21 @@ class GoogleSheets {
    *
    * @return CellFeed - The cell feed for the worksheet.
    */
-  public function getCellFeedByID($worksheet_id, $reset = FALSE) 
+  public function getCellFeedByID($worksheet_id, $reset = FALSE)
   {
     if (!$service = $this->getGoogleService()) {
       // no need for an error here. It's handled in the service function
       return FALSE;
     }
-    // @TODO: build caching mechanism
-    /*
-    $cellfeed_static = &drupal_static(__FUNCTION__);
+
+    static $cellfeed_static;
+
     if (isset($cellfeed_static[$worksheet_id]) && !$reset) {
       return $cellfeed_static[$worksheet_id];
     }
-    */
-
+    if (empty($cellfeed_static)) {
+      $cellfeed_static = array();
+    }
     $cellFeed = $service->getCellFeed($worksheet_id);
     $cellfeed_static[$worksheet_id] = $cellFeed;
 
@@ -332,7 +318,7 @@ class GoogleSheets {
    * @return CellFeed - The cell feed for the worksheet
    *
    */
-  public function getCellFeed($spreadsheet, $worksheet_name, $reset = FALSE) 
+  public function getCellFeed($spreadsheet, $worksheet_name, $reset = FALSE)
   {
     $worksheet  = $this->getWorksheet($spreadsheet, $worksheet_name);
     $worksheet_id = $worksheet->getWorksheetId();
@@ -347,12 +333,12 @@ class GoogleSheets {
    * @param array  $data             - The data to send to the spreadsheet. Example
    *                                 array('A1' => 'hello', 'A2' => 'world')
    */
-  public function batchSetData($spreadsheet_name, $worksheet_id, $data) 
+  public function batchSetData($spreadsheet_name, $worksheet_id, $data)
   {
     $batch_request = new BatchRequest();
-    
+
     $cell_feed = $this->getCellFeedByID($worksheet_id);
-    
+
     foreach ($data as $pos => $value) {
       // Convert position from Sheet format to indexes A2 => 1, 2
       $pos = $this->convertAlphaNumPos($pos);
@@ -360,7 +346,7 @@ class GoogleSheets {
       $input->setContent($value);
       $batch_request->addEntry($input);
     }
-    
+
     $cell_feed->updateBatch($batch_request);
   }
 
@@ -372,7 +358,7 @@ class GoogleSheets {
    *
    * @return array - The cell values requested
    */
-  public function batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, $reset = FALSE) 
+  public function batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, $reset = FALSE)
   {
     $cell_feed = $this->getCellFeedByID($worksheet_id, $reset);
     $return = array();
@@ -395,19 +381,21 @@ class GoogleSheets {
    *
    * @return array  - The cell values requested
    */
-  public function batchSetGet($spreadsheet_name, $worksheet_name, $data, $cell_return) 
+  public function batchSetGet($spreadsheet_name, $worksheet_name, $data, $cell_return)
   {
-    
-    // @TODO: build caching mechanism
-    // $this->worksheetIdCache($spreadsheet_name, $worksheet_name);
-    
-    $worksheet  = $this->getWorksheet($spreadsheet_name, $worksheet_name);
-    
-    $worksheet_id = $worksheet->getWorksheetId();
-    
-    $this->batchSetData($spreadsheet_name, $worksheet_id, $data);
-    
-    return $this->batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, TRUE);
+    $worksheet_id = $this->worksheetIdCache($spreadsheet_name, $worksheet_name);
+
+    try {
+      $this->batchSetData($spreadsheet_name, $worksheet_id, $data);
+      $results = $this->batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, TRUE);
+    }
+    catch (\Google\Spreadsheet\Exception $e) {
+      $worksheet_id = $this->worksheetIdCache($spreadsheet_name, $worksheet_name, TRUE);
+      $this->batchSetData($spreadsheet_name, $worksheet_id, $data);
+      $results = $this->batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, TRUE);
+    }
+
+    return $results;
   }
 
   /**
@@ -417,14 +405,14 @@ class GoogleSheets {
    *
    * @return array - The row and col position.
    */
-  private function convertAlphaNumPos($pos) 
+  private function convertAlphaNumPos($pos)
   {
     $pos = strtoupper($pos);
 
     $col = preg_replace('/[0-9]+/', '', $pos);
-    
+
     // @TODO add error checking.
-    
+
     return array(
       'col' => $this->alpha2num($col),
       'row' => preg_replace('/[^0-9]+/', '', $pos),
@@ -438,7 +426,7 @@ class GoogleSheets {
    *
    * @return int - The converted column int
    */
-  private function alpha2num($col) 
+  private function alpha2num($col)
   {
     $col = str_pad($col,2,'0',STR_PAD_LEFT);
     $i = ($col{0} == '0') ? 0 : (ord($col{0}) - 64) * 26;
@@ -456,38 +444,17 @@ class GoogleSheets {
    * @return array
    *  An array of the CellFeed
    */
-  public function getCellArray($spreadsheet_name, $worksheet_name, $key = 'row') 
+  public function getCellArray($spreadsheet_name, $worksheet_name, $key = 'row')
   {
-    // @TODO: build caching mechanism
-    /*
-    $cid = "psl_sheets:cells:$spreadsheet_name:$worksheet_name";
-    $cached = cache_get($cid);
-    if (isset($cached->data)) {
-      $values = $cached->data;
-    }
-    else {
-      $cellFeed = $this->getCellFeed($spreadsheet_name, $worksheet_name);
-      $values = array();
-
-      foreach ($cellFeed->getEntries() as $entry) {
-        $row = $entry->getRow();
-        $col = $entry->getColumn();
-        $values['col'][$col][$row] = $values['row'][$row][$col] = $entry->getContent();
-      }
-
-      $expire = variable_get('psl_sheets_cache_worksheet_cells', 86400);
-      cache_set($cid, $values, 'cache', time() + $expire);
-    }
-    */
     $cellFeed = $this->getCellFeed($spreadsheet_name, $worksheet_name);
-    
+
     $values = array();
     foreach ($cellFeed->getEntries() as $entry) {
       $row = $entry->getRow();
       $col = $entry->getColumn();
       $values['col'][$col][$row] = $values['row'][$row][$col] = $entry->getContent();
     }
-    
+
     return $values[$key];
   }
 
@@ -508,7 +475,7 @@ class GoogleSheets {
    * @return array
    *  All of the values in the row.
    */
-  public function getCol($spreadsheet_name, $worksheet_name, $column, $start_row = 1, $end_row = NULL) 
+  public function getCol($spreadsheet_name, $worksheet_name, $column, $start_row = 1, $end_row = NULL)
   {
     $column = is_numeric($column) ? $column : $this->alpha2num($column);
     $cells = $this->getCellArray($spreadsheet_name, $worksheet_name, 'col');
@@ -539,7 +506,7 @@ class GoogleSheets {
    * @return array
    *  All of the values in the column.
    */
-  public function getRow($spreadsheet_name, $worksheet_name, $column, $start_col = 1, $end_col = NULL) 
+  public function getRow($spreadsheet_name, $worksheet_name, $column, $start_col = 1, $end_col = NULL)
   {
     $start_col = is_numeric($start_col) ? $start_col : $this->alpha2num($start_col);
     if (!empty($end_col)) {
@@ -555,24 +522,40 @@ class GoogleSheets {
 
     return $return;
   }
-  
+
   /**
    * Setter functions
    */
-  
+
   public function setClientId($client_id)
   {
     $this->client_id = $client_id;
   }
-  
+
   public function setServiceAccountName($service_account_name)
   {
       $this->service_account_name = $service_account_name;
   }
-  
+
   public function setP12FileRri($p12_file_uri)
   {
       $this->p12_file_uri = $p12_file_uri;
   }
-  
+
+  /**
+   * Method to check update gDoc auth token.
+   * @method refresh_auth_token
+   *
+   * @param  boolean $force
+   *    Enforce token change, via cache clear
+   *
+   * @return boolean
+   */
+  public function refresh_auth_token() {
+    //$auth->revokeToken; can't be use - Google return err 400
+
+    $auth  = $this->client->getAuth();
+
+    return (!$auth->isAccessTokenExpired());
+  }
 }
