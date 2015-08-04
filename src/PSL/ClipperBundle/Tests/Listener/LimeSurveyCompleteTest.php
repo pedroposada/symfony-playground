@@ -27,13 +27,12 @@ class LimeSurveyCompleteTest extends WebTestCase
       $this->assertNotEmpty($fqps);
       $fqp = $fqps->first();
       
+      $dispatcher = $container->get('event_dispatcher'); 
       $event = new FirstQProjectEvent($fqg, $fqp);
-      
-      $this->assertSame($params['state_codes']['limesurvey_complete'], $fqp->getState());
       
       $lsc = new LimeSurveyComplete($container, 'limesurvey_complete');
       
-      $lsc->onMain($event);
+      $lsc->onMain($event, 'limesurvey_complete', $dispatcher);
       
       $this->assertSame($params['state_codes']['limesurvey_complete'], $fqp->getState());
       
