@@ -15,6 +15,7 @@ class FqProcess
   protected $current_state;
   protected $state;
   static $timestamp;
+  public $result;
 
   public function __construct(ContainerInterface $container, $state)
   {
@@ -46,7 +47,7 @@ class FqProcess
       // let listeners hook into this event (before action is completed)
       $dispatcher->dispatch("before_{$this->state}", $event);
       
-      $this->main($event);
+      $this->result = $this->main($event);
       $fq->setState($this->next_state);
       
       // let listeners hook into this event (after action is completed)
