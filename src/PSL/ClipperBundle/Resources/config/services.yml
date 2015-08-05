@@ -20,3 +20,31 @@ services:
     # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
     # calls:
       # - [setParentTemplating, ["@templating"]]
+   
+  # --------------------------- #
+  #       Clipper events        #
+  # --------------------------- #
+  # highest priority goes at the top of the list
+  clipper.listener.order_complete:
+    class: PSL\ClipperBundle\Listener\LimeSurveyPending
+    arguments: ["@service_container", "limesurvey_pending"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 100 }
+      
+  clipper.listener.limesurvey_created:
+    class: PSL\ClipperBundle\Listener\LimeSurveyCreated
+    arguments: ["@service_container", "limesurvey_created"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 90 }
+      
+  clipper.listener.rpanel_complete:
+    class: PSL\ClipperBundle\Listener\RpanelComplete
+    arguments: ["@service_container", "rpanel_complete"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 80 }
+      
+  clipper.listener.limesurvey_complete:
+    class: PSL\ClipperBundle\Listener\LimeSurveyComplete
+    arguments: ["@service_container", "limesurvey_complete"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 70 }

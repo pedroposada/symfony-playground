@@ -31,12 +31,15 @@ use Stripe\Stripe;
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
+use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
+use \DateTime as DateTime;
+use \DateTimeZone as DateTimeZone;
 
 /**
  * Rest Controller for Clipper
@@ -122,9 +125,10 @@ class ClipperController extends FOSRestController
    * @requestparam(name="specialty", default="", description="Specialty array.", array=true)
    * @requestparam(name="timestamp", default="", description="Timestamp.")
    * @requestparam(name="survey_brand", default="", description="Brand array.", array=true)
-   * @requestparam(name="statement", default="", description="Statement array.", array=true)
+   * @requestparam(name="attribute", default="", description="Attribute array.", array=true)
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
+   * @requestparam(name="timezone_client", default="", description="Timezone of the client.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -142,7 +146,7 @@ class ClipperController extends FOSRestController
       $form_data->loi = 10; // hard coded for now
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
-      $form_data->name = $paramFetcher->get('name');
+      $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
       $form_data->name_full = $paramFetcher->get('name_full');
       $form_data->patient_type = $paramFetcher->get('patient_type');
       $form_data->num_participants = 35; // hard coded for now
@@ -150,9 +154,10 @@ class ClipperController extends FOSRestController
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
       $form_data->brands = $paramFetcher->get('survey_brand');
-      $form_data->statements = $paramFetcher->get('statement');
-      $form_data->launch_date = $paramFetcher->get('launch_date');
-      $firstq_uuid = $paramFetcher->get('firstq_uuid');
+      $form_data->attributes = $paramFetcher->get('attribute');
+      $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
+      $form_data->timezone_client = $paramFetcher->get('timezone_client');
+      $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
       
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
@@ -167,6 +172,7 @@ class ClipperController extends FOSRestController
           $form_data_object->ir = 10; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
+          
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
           // add results
@@ -178,19 +184,18 @@ class ClipperController extends FOSRestController
       }
       
       // Save or update into the database
-      $firstq_uuid = $this->createFirstQProject(serialize($form_data), serialize($gs_result_array), $firstq_uuid);
+      $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
       
-      // build response
-      // product
+      // build product response
       $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
-      // worldpay parameters for the front end form
-      // $parameters_clipper = $this->container->getParameter('clipper');
-      // $returnObject['worldpay']['inst_id'] = $parameters_clipper['worldpay']['inst_id'];
-      // $returnObject['worldpay']['form_action'] = $parameters_clipper['worldpay']['form_action'];
-      // $returnObject['worldpay']['test_mode'] = $parameters_clipper['worldpay']['test_mode'];
-      // $returnObject['worldpay']['cart_id'] = $parameters_clipper['worldpay']['cart_id'];
       
+      // calculate estimated time of completion
+      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
+      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
+      
+      $returnObject['product']['end_date'] = $completion_date;
+      $returnObject['product']['firstq_uuid'] = $firstq_uuid;
     }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
@@ -203,7 +208,7 @@ class ClipperController extends FOSRestController
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
-      $returnObject['error_message'] = $e->getMessage();
+      $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
@@ -232,12 +237,12 @@ class ClipperController extends FOSRestController
     $user_id = $request->query->get('user_id');
     
     $em = $this->getDoctrine()->getManager();
-    $firstq_projects = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->findByUserId($user_id);
+    $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
     
-    if (!$firstq_projects->isEmpty()) {
+    if (!empty($firstq_groups) && !$firstq_groups->isEmpty()) {
       $firstqs_formatted = array(); 
-      foreach ($firstq_projects as $key => $firstq_project) {
-        $firstqs_formatted[] = $firstq_project->getFormattedFirstQProject();
+      foreach ($firstq_groups as $key => $firstq_group) {
+        $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup();
       }
       return new Response($firstqs_formatted);
     }
@@ -265,10 +270,10 @@ class ClipperController extends FOSRestController
    */
   public function getOrderAction(Request $request, $uuid) {
     $em = $this->getDoctrine()->getManager();
-    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($uuid);
+    $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($uuid);
     
-    if ($firstq_project) {
-      $firstq_formatted = $firstq_project->getFormattedFirstQProject();
+    if ($firstq_group) {
+      $firstq_formatted = $firstq_group->getFormattedFirstQGroup();
       return new Response($firstq_formatted);
     }
     else {
@@ -304,21 +309,21 @@ class ClipperController extends FOSRestController
     $this->logger = $this->container->get('monolog.logger.clipper');
     
     // Get parameters from the POST
-    $firstq_uuid = $paramFetcher->get('firstq_uuid');
+    $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
     $stripe_token = $paramFetcher->get('stripeToken');
     $amount = (int)$paramFetcher->get('amount') * 100; // in cents
     $email = $paramFetcher->get('email'); // not necessary
     
     // return error if empty
-    if (empty($firstq_uuid) || empty($stripe_token)) {
+    if (empty($firstq_group_uuid) || empty($stripe_token)) {
       $message = 'Invalid request - missing parameters';
       return new Response($message, 400); // invalid request
     }
     
     // Validate if firstq exists and is not processed yet
     $em = $this->getDoctrine()->getManager();
-    $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uuid);
-    if (empty($firstq_project) || $firstq_project->getState() != 'ORDER_PENDING') {
+    $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
+    if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
       $message = 'Error - FirstQ uuid is invalid';
       return new Response($message, 400);
     }
@@ -343,11 +348,12 @@ class ClipperController extends FOSRestController
       if ($charge->paid == true) {
         
         // change status to order complete and return ok for redirect
-        $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
-        $em->persist($firstq_project);
+        $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+        $firstq_group->setOrderId($stripe_token);
+        $em->persist($firstq_group);
         $em->flush();
         
-        $firsq['fquuid'] = $firstq_uuid;
+        $firsq['fquuid'] = $firstq_group_uuid;
         return new Response($message, 200);
       } 
       else {
@@ -410,41 +416,53 @@ class ClipperController extends FOSRestController
    * Saves a new FirstQProject or update an existing one
    *
    * @param string $form_data_serialized - data from the form
-   * @param string $gs_result_serialized - data from google speadsheet
+   * @param string $gs_result_array - array of data from google speadsheet
    * @param string $firstq_uid - first q unique id, can be null
    */
-  private function createFirstQProject($form_data_serialized, $gs_result_serialized, $firstq_uuid)
+  private function createFirstQProject($form_data_serialized, $gs_result_array, $firstq_group_uuid)
   {
     // Get parameters
     $parameters_clipper = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
     
-    $firstq_project;
+    $firstq_group;
     
-    if (!empty($firstq_uuid)) {
-      // Check if object exists already
-      $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($firstq_uuid);
-      if (!$firstq_project) {
-        // Create FirstQProject entity
-        $firstq_project = new FirstQProject();
+    // Check if object exists already
+    if (!empty($firstq_group_uuid)) {
+      $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
+      
+      if (!$firstq_group) {
+        // Create FirstQGroup entity
+        $firstq_group = new FirstQGroup();
+      }
+      else {
+        // delete all projects associated to it
+        $query = $em->createQuery('delete from PSLClipperBundle:FirstQProject fg where fg.group_uuid = :group_uuid')
+          ->setParameter('group_uuid', $firstq_group->getId());
+        $query->execute();
       }
     }
     else {
-      // Create FirstQProject entity
-      $firstq_project = new FirstQProject();
+      // Create FirstQGroup entity
+      $firstq_group = new FirstQGroup();
     }
     
-    // from form
-    $firstq_project->setFormDataRaw($form_data_serialized);
-    // from GoogleSheet
-    $firstq_project->setSheetDataRaw($gs_result_serialized);
-    // set initial state
-    $firstq_project->setState($parameters_clipper['state_codes']['order_pending']);
+    $firstq_group->setFormDataRaw(serialize($form_data_serialized));
+    $firstq_group->setState($parameters_clipper['state_codes']['order_pending']);
+    $em->persist($firstq_group);
     
-    $em->persist($firstq_project);
+    // Loop for all combination and set individual FirstQ projects 
+    foreach ($gs_result_array as $key => $gs_result) {
+      $firstq_project = new FirstQProject();
+      $firstq_project->setSheetDataRaw(serialize($gs_result));
+      $firstq_project->setState($parameters_clipper['state_codes']['limesurvey_pending']);
+      $firstq_project->setGroupUuid($firstq_group);
+      $em->persist($firstq_project);
+    }
+    
     $em->flush();
     
-    return $firstq_project->getId();
+    return $firstq_group->getId();
   }
   
   /**
@@ -458,6 +476,111 @@ class ClipperController extends FOSRestController
     return $response;
   }
   
+  /**
+   * Calculation of Estimated completion time of a survey
+   * This value is just an estimate and not the real time of completion
+   * 
+   * @param timestamp $launch_date - timestamp of 'Y-m-d H:i:s'
+   * @param timezone $timezone_client - timezone of client
+   * @param array $timezone_adjusment - timezone of latest market 
+   * and adjustment longest time adjustment according to specialty/country  
+   * 
+   * @return formatted string date
+   */
+  private function calculateSurveyCompletionTime($launch_date, $timezone_client, $timezone_adjusment)
+  {
+    
+    /**
+     * launch_date = (Survey start Date/time)
+     * start_time = (Time from start date/time where the slowest selected geography hits 8:00 am on a weekday)
+     * estimation = (determine estimated completion time by region/specialty)
+     * 
+     * ex:
+     * 
+     * client in UK chooses now to start the survey US/Oncology
+     * 
+     * launch_date = now (thursday 23 july, 3pm UK time)
+     * tomorrow at 8 am of US
+     * 
+     * time of estimated survey ~ 2 hours for 35 people
+     * 
+     * 8 am + 2 hours = 10am + 6 hours timezone 
+     * completion time = 4pm, 24 july
+     * 
+     * 
+     * 
+     * client in UK chooses in 4 days start at 3pm US/Oncology
+     * 
+     * launch_date = sunday 27 july, 3pm UK time
+     * monday 28 at 8 am of US
+     *
+     * time of estimated survey ~ 2 hours for 35 people
+     *
+     * 8 am + 2 hours = 10am + 6 hours timezone    
+     * completion time = 4pm, 28 july  
+     * 
+     * // fake data
+     * // $launch_date = '2015-07-24 08:32:27';
+     * // $timezone_latest = new DateTimeZone('America/New_York');
+     * // $timezone_client = new DateTimeZone('Europe/Warsaw');
+     * // $adjusment = 2;
+     */
+    
+    // Date format
+    $date_format = 'Y-m-d H:i:s';
+    
+    // Find start day
+    // always the next day
+    $dtime = DateTime::createFromFormat($date_format, $launch_date);
+    $launch_timestamp = $dtime->getTimestamp();
+    $day_of_week = date('N', $launch_timestamp); // 1-Monday, 7-Sunday
+    $day_added = 1;
+    // if on Friday to Sunday, jump to Monday
+    if ($day_of_week >= 5) {
+      $day_added += 7 - $day_of_week;
+    }
+    
+    // Calculate the launch time
+    // always at 8 of the latest timezone (USA would be the latest)
+    $launch_date_array = explode(' ', $launch_date);
+    $time_to_answer = $timezone_adjusment['adjustment']; // will depend on factors
+    $time_to_start = 8 + $time_to_answer;
+    if ($time_to_start < 10) {
+      $time_to_start = '0' . (string)$time_to_start;
+    }
+    
+    // Assemble launch date/time
+    $latest_date = $launch_date_array[0] . ' ' . $time_to_start . ':00:00';
+    $latest_date_timestamp = strtotime(date($date_format, strtotime($latest_date)) . ' + '. $day_added .' day');
+    
+    // Set timezone difference from latest to client's
+    $date_end = new DateTime(date($date_format, $latest_date_timestamp), new DateTimeZone($timezone_adjusment['timezone']));
+    $date_end->setTimezone(new DateTimeZone($timezone_client));
+    $completion_time = $date_end->format($date_format);
+    
+    return $completion_time; 
+  }
+  
+  /**
+   * Verify the latest Timezone and Adjustment according to the order of market/country combination
+   * 
+   * @param array $markets - array of markets coming from the front facing form
+   * @param array $specialties - array of specialty coming from the front facing form
+   * 
+   * @return array of the timezone and the adjustment
+   */
+  public function latestTimezoneAndAdjustment($markets, $specialties)
+  {
+    // check according to data
+    
+    // @TODO: maping or data coming soon
+    $timezone_and_adjustment = array();
+    $timezone_and_adjustment['timezone'] = 'America/New_York';
+    $timezone_and_adjustment['adjustment'] = 2; 
+    
+    return $timezone_and_adjustment;
+  }
+
   /**
    * ----------------------------------------------------------------------------------------
    * REDIRECT OR OUPUT

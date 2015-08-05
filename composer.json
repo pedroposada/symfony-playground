@@ -40,7 +40,8 @@
         "ramsey/uuid": "~2.8",
         "symfony/var-dumper": "^2.7",
         "symfony/event-dispatcher": "^2.7",
-        "stripe/stripe-php": "2.*"
+        "stripe/stripe-php": "2.*",
+        "lexik/jwt-authentication-bundle": "^1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

@@ -22,7 +22,7 @@ class RPanelProject
   
   protected $proj_status;
   
-  protected $launch_date;
+  protected $launch_date; // Y-m-d H:i:s
   
   protected $proj_type;
   
