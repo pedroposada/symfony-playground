@@ -15,12 +15,7 @@ services:
     # arguments: [@templating]
     # calls:
       # - [setTemplating, ["@templating"]]
-      
-  # nps_plus_survey:
-    # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
-    # calls:
-      # - [setParentTemplating, ["@templating"]]
-   
+
   # --------------------------- #
   #       Clipper events        #
   # --------------------------- #

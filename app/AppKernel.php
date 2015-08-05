@@ -25,6 +25,7 @@ class AppKernel extends Kernel
             new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
             new Gremo\BuzzBundle\GremoBuzzBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
+            new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

@@ -8,4 +8,10 @@ app:
 
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
-    prefix:   /api/doc
+    prefix:   /clipper/api/doc
+
+api_login_check:
+   path: /clipper/api/login_check
+   
+api_login_admin_check:
+   path: /clipper/api/admin/login_check

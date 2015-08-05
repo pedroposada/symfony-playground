@@ -8,7 +8,7 @@ psl_clipper_limesurvey_redirect:
 clipper:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ClipperController
-  prefix:   /ws
+  prefix:   /api
 
 psl_clipper_debug:
   path:     /debug
