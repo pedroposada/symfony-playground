@@ -8,7 +8,7 @@ gremo_buzz:
     max_redirects: 5
     timeout: 5
     verify_peer: true
- 
+
 # Nelmio CORS
 nelmio_cors:
   paths:

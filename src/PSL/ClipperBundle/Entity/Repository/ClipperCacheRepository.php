@@ -51,7 +51,7 @@ class ClipperCacheRepository extends EntityRepository
       //could be the data is just a simple string
       $cache['data'] = $cache['data'];
       // or the serialize string has broken
-      // might need an external lib/regx try to fix the truncated serialized?
+      // might need an external lib/regex try to fix the truncated serialized?
       // eg <http://shauninman.com/archive/2008/01/08/recovering_truncated_php_serialized_arrays>
     }
 
@@ -173,6 +173,15 @@ class ClipperCacheRepository extends EntityRepository
     return TRUE;
   }
 
+  /**
+   * Helper method to identify if given cache-record has expired.
+   * @method validate_active
+   *
+   * @param  object $cache_record
+   *    \ClipperCache object.
+   *
+   * @return boolean
+   */
   public function validate_active($cache_record) {
     if ((empty($cache_record)) || (!is_object($cache_record))) {
       return FALSE;

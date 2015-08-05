@@ -36,6 +36,8 @@ class GoogleSheets {
 
   public $auth_token = FALSE;
 
+  public $last_messages = array();
+
   function __construct()
   {
       // Since the class requires parameters,
@@ -48,18 +50,13 @@ class GoogleSheets {
    */
   public static function withProperties($client_id, $service_account_name, $p12_file_uri, $cached_token = FALSE)
   {
-    $googleSheet = New GoogleSheets();
-
     // Set all properties
-    $googleSheet->client_id = $client_id;
+    $googleSheet = New GoogleSheets();
+    $googleSheet->client_id            = $client_id;
     $googleSheet->service_account_name = $service_account_name;
-    $googleSheet->p12_file_uri = $p12_file_uri;
-    if (!empty($cached_token)) {
-      $googleSheet->auth_token = $cached_token;
-    }
-
-    $googleSheet->service = $googleSheet->getGoogleService();
-
+    $googleSheet->p12_file_uri         = $p12_file_uri;
+    $googleSheet->auth_token           = $cached_token;
+    $googleSheet->service              = $googleSheet->getGoogleService();
     return $googleSheet;
   }
 
@@ -93,22 +90,34 @@ class GoogleSheets {
     try {
       if (empty($this->client)) {
         $this->client = new \Google_Client();
-        //overwrite cache method; disable
-        $gcache_null = new Google_Cache_Null($this->client);
-        $this->client->setCache($gcache_null);
+        if ($this->auth_token === FALSE) {
+          $cache_class = get_class($this->client->getCache());
+          $this->last_messages[] = "Default cache is enable; '{$cache_class}'.";
+        }
+        else {
+          //overwrite - disabled default cache method (file)
+          $gcache_null = new Google_Cache_Null($this->client);
+          $this->client->setCache($gcache_null);
+          $this->last_messages[] = 'Default cache is disabled. External cache overwrite.';
+
+          //checking cached token
+          if (!empty($this->auth_token)) {
+            //cached
+            $this->client->setAccessToken($this->auth_token);
+            $this->last_messages[] = 'Auth token received from external cache.';
+          }
+          else {
+            $this->last_messages[] = 'External cache did not provide an auth token.';
+          }
+        }
 
         //setup client
         $this->client->setApplicationName("PSL Sheets");
-
-        //checking cached token
-        if (!empty($this->auth_token)) {
-          //cached
-          $this->client->setAccessToken($this->auth_token);
-        }
       }
       //re-check token
       if ($this->client->getAuth()->isAccessTokenExpired()) {
         //no token / cache token were rejected
+        $this->last_messages[] = 'Auth token has expired.';
         //assertion
         $key = file_get_contents($this->p12_file_uri);
         $cred = new \Google_Auth_AssertionCredentials(
@@ -120,6 +129,9 @@ class GoogleSheets {
 
         $this->client->getAuth()->refreshTokenWithAssertion($cred);
         $this->auth_token = $this->client->getAccessToken();
+      }
+      else {
+        $this->last_messages[] = 'Auth token OK.';
       }
       $token = json_decode($this->auth_token);
       $accessToken = $token->access_token;
@@ -544,14 +556,14 @@ class GoogleSheets {
 
   /**
    * Method to check update gDoc auth token.
-   * @method refresh_auth_token
+   * @method validate_token_expiry
    *
    * @param  boolean $force
    *    Enforce token change, via cache clear
    *
    * @return boolean
    */
-  public function refresh_auth_token() {
+  public function validate_token_expiry() {
     //$auth->revokeToken; can't be use - Google return err 400
 
     $auth  = $this->client->getAuth();

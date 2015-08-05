@@ -100,11 +100,6 @@ parameters:
       brand_id:                       "[*rpanel_default_table_values_brand_id*]"
       email_template_id:              "[*rpanel_default_table_values_email_template_id*]"
 
-  # PSL Clipper Cache
-  clipper_cache:
-        enable:                       "[*clipper_cache_enable*]" # boolean, default 1
-        cache_life:                   "[*clipper_cache_cache_life*]" # integer, default 1 (hour)
-
   # PSL Clipper Configuration
   google_spreadsheets:
     client_id :                       "[*google_spreadsheets_client_id*]"

@@ -6,7 +6,7 @@
  * This is the class that interactions with local db cache service
  *
  * @version 1.0
- * @date 2015-07-27
+ * @date 2015-08-03
  */
 
 namespace PSL\ClipperBundle\Command;
@@ -26,8 +26,17 @@ class ClipperCacheCommand extends ContainerAwareCommand {
     $this->setName('clipper:cache')
          ->setDescription('Clipper Cache')
          ->addArgument('action', InputArgument::REQUIRED, 'What kind of action do you want? ' . implode(', ', $this->actions))
-         ->addArgument('var-name', InputArgument::OPTIONAL, 'Extra for "get": Cache name.')
-         ->addOption('flush-all', 'f', InputOption::VALUE_NONE, 'Extra for "flush": Flush all cache including active records.');
+         ->addArgument('extra', InputArgument::OPTIONAL, 'See Help', 'expired');
+    $help = array(
+      'Value of <extra> for following actions;',
+      '- get   : the cache name, best use double quote if name contains space / symbols.',
+      '          example: $ app/console clipper:cache get "gdoc-client-auth-service-token"',
+      '',
+      '- flush : record type "expired" or "all" records. Default "expired."',
+      '          example: $ app/console clipper:flush expired',
+      '',
+    );
+    $this->setHelp(implode("\n", $help));
   }
 
   protected function setup_service() {
@@ -48,6 +57,7 @@ class ClipperCacheCommand extends ContainerAwareCommand {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->setup_service();
     $action = $input->getArgument('action');
+    $extra  = $input->getArgument('extra');
     $status = $this->check_service_status($output);
     if (!$status) {
       return;
@@ -58,28 +68,17 @@ class ClipperCacheCommand extends ContainerAwareCommand {
         $active   = $this->service->get_cache_count(TRUE);
         $inactive = ($all - $active);
         $all = number_format($all, 0, ',', '');
-        $msg = array("Found {$all} records;");
-        if (!empty($active)) {
-          $active = number_format($active, 0, ',', '');
-          $msg[]  = "{$active} active";
-        }
-        if (!empty($inactive)) {
-          $msg[]  = "{$inactive} expired";
-
-        }
-        $msg = implode(', ', $msg);
-        $output->writeln("<info>Info: {$msg}</info>");
+        $output->writeln("<info>Info: Found {$all} records:</info>");
+        $active = number_format($active, 0, ',', '');
+        $output->writeln(" - Active  : {$active}");
+        $inactive = number_format($inactive, 0, ',', '');
+        $output->writeln(" - Expired : {$inactive}");
         break;
 
       case 'flush':
-        $flush_all = $input->getOption('flush-all');
-        if ($flush_all) {
-          $output->writeln("<info>Info: Flushing all cache records.</info>");
-        }
-        else {
-          $output->writeln("<info>Info: Flushing expired cache records, use -f option to flush all.</info>");
-        }
-        $done = $this->service->flush($flush_all);
+        $msg = ($extra == 'all' ? 'all' : 'expired');
+        $output->writeln("<info>Info: Flushing {$msg} cache records.</info>");
+        $done = $this->service->flush(($extra == 'all'));
         if ($done !== FALSE) {
           $output->writeln("<info>Info: Flush complete. {$done} records was removed.</info>");
           break;
@@ -88,26 +87,25 @@ class ClipperCacheCommand extends ContainerAwareCommand {
         break;
 
       case 'get':
-        //$this->service->set('ryanharne', array('ryanharne', 'me@ryanharne.net', date('Y-m-d H:i:s')), new \DateTime('-30 days'));
-
-        $name = $input->getArgument('var-name');
-        if (empty($name)) {
-          $output->writeln("<error>Error: Please define Cache name, see --var-name option.</error>");
+        if (empty($extra)) {
+          $output->writeln("<error>Error: Please define Cache name, see --extra argument.</error>");
           break;
         }
-        $value = $this->service->get($name, TRUE, FALSE);
+        $value = $this->service->get($extra, TRUE, FALSE);
         if ($value === FALSE) {
-          $output->writeln("<error>Error: Requested Cache name was not available.</error>");
+          $output->writeln("<error>Error: Requested Cache named '{$extra}' was not available.</error>");
           break;
         }
         $output->writeln("<info>Info: Cached name found:</info>");
         $value['has_expired'] = ($value['has_expired'] ? 'Yes' : 'No');
         $type = gettype($value['data']);
         $value['data'] = print_r($value['data'], TRUE);
-        if (($type == 'string') && (strpos($value['data'], '{') === 0)) {
-          $type = 'JSON';
-          $value['data'] = json_decode($value['data']);
-          $value['data'] = print_r($value['data'], TRUE);
+        if ($type == 'string') {
+          $data_test_json = json_decode($value['data']);
+          if ((!is_null($data_test_json)) && ($data_test_json !== FALSE)) {
+            $type = 'JSON';
+            $value['data'] = print_r($data_test_json, TRUE);
+          }
         }
         $set = array(
           'Name'           => $value['name'],

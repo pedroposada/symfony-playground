@@ -115,3 +115,12 @@ fos_rest:
 
 #Nelmio
 nelmio_api_doc: ~
+
+# PSL Clipper Buncle Extension
+psl_clipper:
+    # clipper_cache.config : min -1, max 24
+    # >= 1 / integer : service enable, and set expiry for X hour(s).
+    # == 0           : service enable, but expiry sets immediately.
+    # == -1          : service disable.
+    clipper_cache:
+        config: 5

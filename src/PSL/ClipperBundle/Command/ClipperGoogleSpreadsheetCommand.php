@@ -32,23 +32,28 @@ class ClipperGoogleSpreadsheetCommand extends ContainerAwareCommand {
 
     $force = $input->getOption('force');
     $gsc   = $this->getContainer()->get('google_spreadsheet');
+    $cc    = $this->getContainer()->get('clipper_cache');
 
-    if ($force) {
+    if (!$cc->is_enabled()) {
+      $output->writeln("<info>Info: ClipperCache is disabled.</info>");
+    }
+    elseif ($force) {
       $key = $gsc->get_auth_cache_key();
-      $cc  = $this->getContainer()->get('clipper_cache');
       if ($cc->is_enabled()) {
         $res = $cc->delete($key);
-        if ($res) {
-          $output->writeln("<info>Info: Cache token has been removed.</info>");
-        }
-        else {
-          $output->writeln("<info>Info: There were no cache token.</info>");
-        }
+        $output->writeln('<info>Info: ' . ($res ? 'Cache token has been' : 'There were no cache token' ) . ' removed.</info>');
       }
     }
+    elseif ($cc->is_enabled()) {
+      $output->writeln("<info>Info: ClipperCache is enabled.</info>");
+    }
 
-    $service      = $gsc->setupFeasibilitySheet();
-    $token_active = $service->refresh_auth_token();
+    $service = $gsc->setupFeasibilitySheet();
+    array_map(function($msg) use ($output) {
+      $output->writeln(" - Google: {$msg}");
+    }, $service->last_messages);
+
+    $token_active = $service->validate_token_expiry();
     if (!empty($token_active)) {
       $output->writeln("<info>Success: Access token is active.</info>");
     }
@@ -58,6 +63,6 @@ class ClipperGoogleSpreadsheetCommand extends ContainerAwareCommand {
 
     $timestamp = (microtime(TRUE) - $timestamp);
     $timestamp = number_format($timestamp, 4, '.', ',');
-    $output->writeln("<info>Exit: Console completed id {$timestamp}secs.</info>");
+    $output->writeln("<info>Exit: Console completed in {$timestamp} secs.</info>");
   }
 }

@@ -144,17 +144,25 @@ class GoogleSpreadsheetService
 
     //lookup for cached auth
     $dbcache     = $this->container->get('clipper_cache');
-    $cached_auth = $dbcache->get($this->auth_cache_key, FALSE, TRUE);
-    if (!empty($cached_auth)) {
-      $cached_auth = $cached_auth->getData();
+    $cached_auth = FALSE;
+    if ($dbcache->is_enabled()) {
+      $cached_auth = $dbcache->get($this->auth_cache_key, FALSE, TRUE);
+      if (is_object($cached_auth)) {
+        $cached_auth = $cached_auth->getData();
+      }
+      else {
+        $cached_auth = ''; //natural; active but no active data
+      }
     }
-
     // Google Sheets object
     $this->sheet = GoogleSheets::withProperties($this->client_id, $this->service_account_name, $p12_file_uri[0], $cached_auth);
 
     //update cache
-    if ($cached_auth != $this->sheet->auth_token) {
-      $dbcache->set($this->auth_cache_key, $this->sheet->auth_token);
+    if (($cached_auth !== FALSE) && (!empty($this->sheet->auth_token))) {
+      $res = $dbcache->set($this->auth_cache_key, $this->sheet->auth_token);
+      if ($res) {
+        $this->sheet->last_messages[] = 'Auth token cache updated.';
+      }
     }
 
     return $this->sheet;

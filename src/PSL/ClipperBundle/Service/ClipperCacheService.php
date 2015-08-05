@@ -20,7 +20,7 @@ class ClipperCacheService {
    * PARAMS
    */
   //service availability
-  private $enabled    = FALSE;
+  private $enabled    = TRUE;
   //cache live time; in hour
   private $cache_life = 1;
 
@@ -30,11 +30,12 @@ class ClipperCacheService {
   /**
    * Constructor function
    *
-   * @param array $params - the array of parameters for the Clipper Cache
+   * @param array $params - parameters defined with PSLclipper extension; clipper_cache.config
    */
   public function __construct($params) {
-    $this->enabled    = (!empty($params['enable']));
-    $this->cache_life = (isset($params['cache_life']) ? $params['cache_life'] : 1);
+    $params           = (int) $params;
+    $this->enabled    = ($params >= 0);
+    $this->cache_life = ($params >= 1 ? $params : 0);
     if ($this->enabled) {
       global $kernel;
       $this->container = $kernel->getContainer();
@@ -109,6 +110,9 @@ class ClipperCacheService {
    * @return array|object
    */
   public function get($name, $unpack = TRUE, $false_on_expired = FALSE) {
+    if (!$this->is_enabled()) {
+      return FALSE;
+    }
     $find = $this->clipper_cache_rep->findOneBy(array('name' => $name));
     if (is_null($find)) {
       return FALSE;
@@ -136,6 +140,9 @@ class ClipperCacheService {
    *    \DateTime format of expired time, or FALSE to applied as defined on service params.
    */
   public function set($name, $values = '', $expired = FALSE) {
+    if (!$this->is_enabled()) {
+      return FALSE;
+    }
     if (empty($expired)) {
       $expired = new DateTime("+{$this->cache_life} hours");
     }
@@ -151,6 +158,9 @@ class ClipperCacheService {
    * @return boolean
    */
   public function delete($name) {
+    if (!$this->is_enabled()) {
+      return FALSE;
+    }
     $found = $this->get($name, FALSE);
     if (!empty($found)) {
       $this->clipper_cache_rep->remove($found);

@@ -1,7 +1,7 @@
 services:
   clipper_cache:
     class: PSL\ClipperBundle\Service\ClipperCacheService
-    arguments: [%clipper_cache%]
+    arguments: [%clipper_cache.config%]
 
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
