@@ -24,5 +24,8 @@ class LimeSurveyResponses
     self::$timestamp = time();
   }
   
-  
+  public function getResponses()
+  {
+    
+  }
 }
