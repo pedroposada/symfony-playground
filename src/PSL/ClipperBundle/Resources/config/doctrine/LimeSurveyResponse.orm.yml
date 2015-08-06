@@ -1,0 +1,54 @@
+# LimeSurveyResponse.orm.yml
+PSL\ClipperBundle\Entity\LimeSurveyResponse:
+  type: entity
+  table: limesurvey_responses
+  repositoryClass: PSL\ClipperBundle\Entity\Repository\LimeSurveyResponseRepository
+  indexes:
+    id_index:
+      columns: [ id ]
+  id:
+    id:
+      type: guid
+      generator:
+        strategy: UUID
+  manyToOne:
+    firstqgroup:
+      targetEntity: FirstQGroup
+      referencedColumnName: id
+    firstqproject:
+      targetEntity: FirstQProject
+      referencedColumnName: id
+  fields:
+    member_id:
+      type: integer
+      column: member_id
+      options:
+        comment: MDM member id
+    ls_token:
+      type: string
+      length: 500
+      column: ls_token
+      options:
+        comment: LimeSurvey token
+    response_raw:
+      type: text
+      column: response_raw
+      options:
+        comment: Exported response from LimeSurvey, base64 encoded
+    created:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create
+      options:
+        comment: date and time at creation
+    updated:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: update
+      options:
+        comment: date and time at update
+  # lifecycleCallbacks: {  }
+  lifecycleCallbacks:
+    preUpdate: [ setUpdatedValue ]

@@ -78,7 +78,6 @@ class ClipperCommand extends ContainerAwareCommand
       $fqgs->add($f);
     }
     else {
-      // get multiple find all except with state 'email_sent'
       $fqgs = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByState($params['state_codes']['order_complete']);
     }
     
