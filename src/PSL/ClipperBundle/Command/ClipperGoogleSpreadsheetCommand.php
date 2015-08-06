@@ -29,40 +29,39 @@ class ClipperGoogleSpreadsheetCommand extends ContainerAwareCommand {
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $timestamp = microtime(TRUE);
+    $this->logger = $this->getContainer()->get('monolog.logger.clipper');
 
     $force = $input->getOption('force');
     $gsc   = $this->getContainer()->get('google_spreadsheet');
     $cc    = $this->getContainer()->get('clipper_cache');
 
     if (!$cc->is_enabled()) {
-      $output->writeln("<info>Info: ClipperCache is disabled.</info>");
+      $this->logger->warning("ClipperCache is disabled.");
     }
     elseif ($force) {
       $key = $gsc->get_auth_cache_key();
       if ($cc->is_enabled()) {
         $res = $cc->delete($key);
-        $output->writeln('<info>Info: ' . ($res ? 'Cache token has been' : 'There were no cache token' ) . ' removed.</info>');
+        $this->logger->info(($res ? 'Cache token has been' : 'There were no cache token' ) . ' removed.');
       }
     }
     elseif ($cc->is_enabled()) {
-      $output->writeln("<info>Info: ClipperCache is enabled.</info>");
+      $this->logger->info('ClipperCache is enabled.');
     }
 
     $service = $gsc->setupFeasibilitySheet();
-    array_map(function($msg) use ($output) {
-      $output->writeln(" - Google: {$msg}");
-    }, $service->last_messages);
+    $this->logger->info('gDoc Auth complete.', array('log' => $service->last_messages));
 
     $token_active = $service->validate_token_expiry();
     if (!empty($token_active)) {
-      $output->writeln("<info>Success: Access token is active.</info>");
+      $this->logger->info('Success: Access token is active.');
     }
     else {
-      $output->writeln("<error>Error: There seems to be an issue during the authentication.</error>");
+      $this->logger->error('Success: There seems to be an issue during the authentication.');
     }
 
     $timestamp = (microtime(TRUE) - $timestamp);
     $timestamp = number_format($timestamp, 4, '.', ',');
-    $output->writeln("<info>Exit: Console completed in {$timestamp} secs.</info>");
+    $this->logger->info('Console completed', array('timed-secs', $timestamp));
   }
 }
