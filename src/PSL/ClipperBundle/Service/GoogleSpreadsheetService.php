@@ -19,6 +19,8 @@ use PSL\ClipperBundle\Utils\GoogleSheets;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
+use \DateTime;
+use \DateInterval;
 
 class GoogleSpreadsheetService
 {
@@ -146,6 +148,7 @@ class GoogleSpreadsheetService
     $dbcache     = $this->container->get('clipper_cache');
     $cached_auth = FALSE;
     if ($dbcache->is_enabled()) {
+      //see 3rd argument, reject if expired
       $cached_auth = $dbcache->get($this->auth_cache_key, FALSE, TRUE);
       if (is_object($cached_auth)) {
         $cached_auth = $cached_auth->getData();
@@ -154,14 +157,30 @@ class GoogleSpreadsheetService
         $cached_auth = ''; //natural; active but no active data
       }
     }
+
     // Google Sheets object
     $this->sheet = GoogleSheets::withProperties($this->client_id, $this->service_account_name, $p12_file_uri[0], $cached_auth);
 
     //update cache
     if (($cached_auth !== FALSE) && (!empty($this->sheet->auth_token))) {
-      $res = $dbcache->set($this->auth_cache_key, $this->sheet->auth_token);
-      if ($res) {
-        $this->sheet->last_messages[] = 'Auth token cache updated.';
+      if ($cached_auth == $this->sheet->auth_token) {
+        //if no changes, skip storage
+        $this->sheet->last_messages[] = 'Auth token cache did not change.';
+      }
+      else {
+        $token_data = json_decode($this->sheet->auth_token);
+        $token_created = FALSE;
+        // get google mentioned time of expiration
+        if (!empty($token_data)) {
+          $token_created = new DateTime();
+          $token_created->setTimestamp($token_data->created);
+          $expiry = new DateInterval('PT' . $token_data->expires_in . 'S');
+          $token_created->add($expiry);
+        }
+        $res = $dbcache->set($this->auth_cache_key, $this->sheet->auth_token, $token_created);
+        if ($res) {
+          $this->sheet->last_messages[] = 'Auth token cache updated.';
+        }
       }
     }
 
