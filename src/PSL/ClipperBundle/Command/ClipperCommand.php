@@ -53,7 +53,7 @@ class ClipperCommand extends ContainerAwareCommand
     // create the lock
     $lock = new LockHandler('clipper:cron');
     if (!$lock->lock()) {
-      $output->writeln('The command is already running in another process.');
+      $this->logger->debug('The command is already running in another process.');
       return 0;
     }
     
@@ -71,7 +71,7 @@ class ClipperCommand extends ContainerAwareCommand
       $f = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')->find($fqid);
       
       if (!$f) {
-        $output->writeln("Invalid fqid [{$fqid}].");
+        $this->logger->debug("Invalid fqid [{$fqid}].");
         return 0;
       }
       
