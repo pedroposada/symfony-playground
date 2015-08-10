@@ -443,6 +443,83 @@ $(document).ready(function(){
       $this->addSubquestion($subquestion_row);
     }
 
+
+// ---------------------------------------------------------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 3
+    // Market (hidden)
+    // hidden
+    // ------------------------------------------------------------------------------
+
+    $qid_0_3 = 300300;
+    $question_0_3 = 'Market (hidden)
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+ $("#answer{SID}X{GID}X{QID}").val(' . $this->market . ');
+});
+</script>';
+    
+    $question_0_3_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $qid_0_3,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $gid_0,
+        'type' => 'S',
+        'title' => 'G001Q004',
+        'question' => $question_0_3,
+        'help' => '',
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'N',
+        'question_order' => 6,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 0,
+      )
+    );
+    
+    $this->addQuestion($question_0_3_row);
+
+// ---------------------------------------------------------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 4
+    // Specialty (hidden)
+    // hidden
+    // ------------------------------------------------------------------------------
+
+    $qid_0_4 = 300400;
+    $question_0_4 = 'Specialty (hidden)
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+ $("#answer{SID}X{GID}X{QID}").val(' . $this->specialty . ');
+});
+</script>';
+    
+    $question_0_4_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $qid_0_4,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $gid_0,
+        'type' => 'S',
+        'title' => 'G001Q005',
+        'question' => $question_0_4,
+        'help' => '',
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'N',
+        'question_order' => 7,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 0,
+      )
+    );
+    
+    $this->addQuestion($question_0_4_row);
+
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 1
 
