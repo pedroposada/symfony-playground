@@ -76,6 +76,7 @@ class NPSPlusSurvey extends LimeSurvey
         'adminemail' => 'simon.rainville@pslgroup.com',
         'faxto' => '5149999999',
         'bounce_email' => 'simon.rainville@pslgroup.com',
+        'surveytemplate' => 'LS_responsive_template',
       )
     );
     $this->addSurvey($survey_row);
