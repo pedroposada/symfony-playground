@@ -1,693 +1,6132 @@
 <?xml version="1.0"?>
-
 <resultset>
-
-	<row>
-		<field name="name">Acne</field>
-	</row>
-
-	<row>
-		<field name="name">Addictions</field>
-	</row>
-
-	<row>
-		<field name="name">ADHD</field>
-	</row>
-
-	<row>
-		<field name="name">AIDS and HIV</field>
-	</row>
-
-	<row>
-		<field name="name">Allergies</field>
-	</row>
-
-	<row>
-		<field name="name">Anaemia</field>
-	</row>
-
-	<row>
-		<field name="name">Anaesthesiology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Angina Pectoris/MI</field>
-	</row>
-
-	<row>
-		<field name="name">Anxiety</field>
-	</row>
-
-	<row>
-		<field name="name">ARDS</field>
-	</row>
-
-	<row>
-		<field name="name">Arrhythmias</field>
-	</row>
-
-	<row>
-		<field name="name">Arthritis</field>
-	</row>
-
-	<row>
-		<field name="name">Asthma</field>
-	</row>
-
-	<row>
-		<field name="name">Bacterial Infections</field>
-	</row>
-
-	<row>
-		<field name="name">Bladder Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Bone Marrow and PBSC Transplantation</field>
-	</row>
-
-	<row>
-		<field name="name">Brain Tumours</field>
-	</row>
-
-	<row>
-		<field name="name">Breast Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Burns</field>
-	</row>
-
-	<row>
-		<field name="name">Cardiology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Cardiomyopathies</field>
-	</row>
-
-	<row>
-		<field name="name">Cataract</field>
-	</row>
-
-	<row>
-		<field name="name">Cholecystitis</field>
-	</row>
-
-	<row>
-		<field name="name">Cholesterol/Lipid disorders</field>
-	</row>
-
-	<row>
-		<field name="name">Cirrhosis</field>
-	</row>
-
-	<row>
-		<field name="name">Clinical Pharmacology</field>
-	</row>
-
-	<row>
-		<field name="name">Colorectal Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Congestive Heart Failure</field>
-	</row>
-
-	<row>
-		<field name="name">Contraception</field>
-	</row>
-
-	<row>
-		<field name="name">COPD</field>
-	</row>
-
-	<row>
-		<field name="name">Corneal disease</field>
-	</row>
-
-	<row>
-		<field name="name">Cystic Fibrosis</field>
-	</row>
-
-	<row>
-		<field name="name">Dementia</field>
-	</row>
-
-	<row>
-		<field name="name">Dental and Oral Disorders</field>
-	</row>
-
-	<row>
-		<field name="name">Depression</field>
-	</row>
-
-	<row>
-		<field name="name">Dermatitis</field>
-	</row>
-
-	<row>
-		<field name="name">Dermatofibrosarcoma Protuberans (DFSP)</field>
-	</row>
-
-	<row>
-		<field name="name">Dermatology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Diabetes</field>
-	</row>
-
-	<row>
-		<field name="name">Diagnostic Radiology</field>
-	</row>
-
-	<row>
-		<field name="name">Dialysis</field>
-	</row>
-
-	<row>
-		<field name="name">Dyslipidemia</field>
-	</row>
-
-	<row>
-		<field name="name">Eating Disorders</field>
-	</row>
-
-	<row>
-		<field name="name">Ebola</field>
-	</row>
-
-	<row>
-		<field name="name">Emergency Medicine</field>
-	</row>
-
-	<row>
-		<field name="name">End-stage renal disease</field>
-	</row>
-
-	<row>
-		<field name="name">Endocrinology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Epilepsy</field>
-	</row>
-
-	<row>
-		<field name="name">Erectile Dysfunction</field>
-	</row>
-
-	<row>
-		<field name="name">Esophagitis-GERD</field>
-	</row>
-
-	<row>
-		<field name="name">Fibromyalgia</field>
-	</row>
-
-	<row>
-		<field name="name">Fungal Infections</field>
-	</row>
-
-	<row>
-		<field name="name">Gastric Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Gastro Other</field>
-	</row>
-
-	<row>
-		<field name="name">Gastroenterology</field>
-	</row>
-
-	<row>
-		<field name="name">General Orthopaedics</field>
-	</row>
-
-	<row>
-		<field name="name">Genetics</field>
-	</row>
-
-	<row>
-		<field name="name">Genitourinary Other</field>
-	</row>
-
-	<row>
-		<field name="name">Geriatrics</field>
-	</row>
-
-	<row>
-		<field name="name">GIST</field>
-	</row>
-
-	<row>
-		<field name="name">Glaucoma</field>
-	</row>
-
-	<row>
-		<field name="name">Glomerulonephritis</field>
-	</row>
-
-	<row>
-		<field name="name">H. Pylori/Ulcer</field>
-	</row>
-
-	<row>
-		<field name="name">Haematology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Haemophilia</field>
-	</row>
-
-	<row>
-		<field name="name">Hair Loss</field>
-	</row>
-
-	<row>
-		<field name="name">Head and Neck Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Hepa/Biliary Other</field>
-	</row>
-
-	<row>
-		<field name="name">Hepatitis</field>
-	</row>
-
-	<row>
-		<field name="name">Herpes</field>
-	</row>
-
-	<row>
-		<field name="name">HPV/Cervical Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">HRT</field>
-	</row>
-
-	<row>
-		<field name="name">Hypereosinophilic Syndrome (HES)</field>
-	</row>
-
-	<row>
-		<field name="name">Hyperphosphataemia</field>
-	</row>
-
-	<row>
-		<field name="name">Hypertension</field>
-	</row>
-
-	<row>
-		<field name="name">IBD</field>
-	</row>
-
-	<row>
-		<field name="name">Immunisation</field>
-	</row>
-
-	<row>
-		<field name="name">Immunology</field>
-	</row>
-
-	<row>
-		<field name="name">Infectious Other</field>
-	</row>
-
-	<row>
-		<field name="name">Infertility</field>
-	</row>
-
-	<row>
-		<field name="name">Influenza</field>
-	</row>
-
-	<row>
-		<field name="name">Influenza A (H1N1)</field>
-	</row>
-
-	<row>
-		<field name="name">Intensive Care</field>
-	</row>
-
-	<row>
-		<field name="name">Interstitial Lung Disease</field>
-	</row>
-
-	<row>
-		<field name="name">Interventional Cardiology</field>
-	</row>
-
-	<row>
-		<field name="name">Interventional Radiology</field>
-	</row>
-
-	<row>
-		<field name="name">Irritable Bowel Syndrome</field>
-	</row>
-
-	<row>
-		<field name="name">Kidney Stones</field>
-	</row>
-
-	<row>
-		<field name="name">l</field>
-	</row>
-
-	<row>
-		<field name="name">Leukaemias</field>
-	</row>
-
-	<row>
-		<field name="name">Liver Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Lung Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Lupus</field>
-	</row>
-
-	<row>
-		<field name="name">Lymphomas</field>
-	</row>
-
-	<row>
-		<field name="name">Melanoma</field>
-	</row>
-
-	<row>
-		<field name="name">Meningitis</field>
-	</row>
-
-	<row>
-		<field name="name">Menopause</field>
-	</row>
-
-	<row>
-		<field name="name">Migraine</field>
-	</row>
-
-	<row>
-		<field name="name">Multiple Sclerosis</field>
-	</row>
-
-	<row>
-		<field name="name">Myelodysplastic Syndrome</field>
-	</row>
-
-	<row>
-		<field name="name">Myeloma</field>
-	</row>
-
-	<row>
-		<field name="name">Nephrology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Neurologic Other</field>
-	</row>
-
-	<row>
-		<field name="name">Nutritional/Metabolic Other</field>
-	</row>
-
-	<row>
-		<field name="name">Ob/Gyn Other</field>
-	</row>
-
-	<row>
-		<field name="name">Obesity</field>
-	</row>
-
-	<row>
-		<field name="name">Oncology</field>
-	</row>
-
-	<row>
-		<field name="name">Oncology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Ophth. Other</field>
-	</row>
-
-	<row>
-		<field name="name">Ophthalmic Surgery</field>
-	</row>
-
-	<row>
-		<field name="name">Organ Transplantation</field>
-	</row>
-
-	<row>
-		<field name="name">ORL Plastic/Recon. Surg.</field>
-	</row>
-
-	<row>
-		<field name="name">Orthopaedics</field>
-	</row>
-
-	<row>
-		<field name="name">Orthopaedics Other</field>
-	</row>
-
-	<row>
-		<field name="name">Osteoarthritis</field>
-	</row>
-
-	<row>
-		<field name="name">Osteomyelitis</field>
-	</row>
-
-	<row>
-		<field name="name">Osteonecrosis</field>
-	</row>
-
-	<row>
-		<field name="name">Osteoporosis</field>
-	</row>
-
-	<row>
-		<field name="name">Otitis Media</field>
-	</row>
-
-	<row>
-		<field name="name">Otorhino. Other</field>
-	</row>
-
-	<row>
-		<field name="name">Ovarian Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Paediatrics</field>
-	</row>
-
-	<row>
-		<field name="name">Pain</field>
-	</row>
-
-	<row>
-		<field name="name">Pain Management</field>
-	</row>
-
-	<row>
-		<field name="name">Pancreatic Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Pancreatitis</field>
-	</row>
-
-	<row>
-		<field name="name">Parkinson's</field>
-	</row>
-
-	<row>
-		<field name="name">Pathology</field>
-	</row>
-
-	<row>
-		<field name="name">Pituitary</field>
-	</row>
-
-	<row>
-		<field name="name">Pneumonia</field>
-	</row>
-
-	<row>
-		<field name="name">Pregnancy</field>
-	</row>
-
-	<row>
-		<field name="name">Prostate Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Psoriasis</field>
-	</row>
-
-	<row>
-		<field name="name">Psychiatry Other</field>
-	</row>
-
-	<row>
-		<field name="name">Pulmonary Hypertension</field>
-	</row>
-
-	<row>
-		<field name="name">Pulmonary Other</field>
-	</row>
-
-	<row>
-		<field name="name">Radiation Oncology</field>
-	</row>
-
-	<row>
-		<field name="name">Radiology</field>
-	</row>
-
-	<row>
-		<field name="name">Renal Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Renal Failure</field>
-	</row>
-
-	<row>
-		<field name="name">Respiratory Infections</field>
-	</row>
-
-	<row>
-		<field name="name">Restless Legs Syndrome (RLS)</field>
-	</row>
-
-	<row>
-		<field name="name">Rheumatoid Arthritis</field>
-	</row>
-
-	<row>
-		<field name="name">Rheumatology Other</field>
-	</row>
-
-	<row>
-		<field name="name">Rhinitis</field>
-	</row>
-
-	<row>
-		<field name="name">SARS</field>
-	</row>
-
-	<row>
-		<field name="name">Schizophrenia and Bipolar Disorder</field>
-	</row>
-
-	<row>
-		<field name="name">Sepsis</field>
-	</row>
-
-	<row>
-		<field name="name">Sleep Apnoea</field>
-	</row>
-
-	<row>
-		<field name="name">Sleep Disorders / Apnoea</field>
-	</row>
-
-	<row>
-		<field name="name">Smoking Related Disorders</field>
-	</row>
-
-	<row>
-		<field name="name">Sports Medicine</field>
-	</row>
-
-	<row>
-		<field name="name">STDs</field>
-	</row>
-
-	<row>
-		<field name="name">Stroke</field>
-	</row>
-
-	<row>
-		<field name="name">Surgery</field>
-	</row>
-
-	<row>
-		<field name="name">Thalassemia</field>
-	</row>
-
-	<row>
-		<field name="name">Thrombosis</field>
-	</row>
-
-	<row>
-		<field name="name">Thyroid Disorders</field>
-	</row>
-
-	<row>
-		<field name="name">Transfusion</field>
-	</row>
-
-	<row>
-		<field name="name">Transplant Surgery Other</field>
-	</row>
-
-	<row>
-		<field name="name">Trauma</field>
-	</row>
-
-	<row>
-		<field name="name">undefined</field>
-	</row>
-
-	<row>
-		<field name="name">Urinary Incontinence</field>
-	</row>
-
-	<row>
-		<field name="name">Urinary Tract Infections</field>
-	</row>
-
-	<row>
-		<field name="name">Urology</field>
-	</row>
-
-	<row>
-		<field name="name">Uterine Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Vaginal Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Valvular Heart Disease</field>
-	</row>
-
-	<row>
-		<field name="name">Vascular Disorders</field>
-	</row>
-
-	<row>
-		<field name="name">Viral Infections</field>
-	</row>
-
-	<row>
-		<field name="name">Vulvar Cancer</field>
-	</row>
-
-	<row>
-		<field name="name">Workplace Injuries</field>
-	</row>
-
+  <row>
+    <field name="name">Abdominal abscess</field>
+  </row>
+  <row>
+    <field name="name">Abdominal and pelvic pain</field>
+  </row>
+  <row>
+    <field name="name">Abdominal aortic aneurysm</field>
+  </row>
+  <row>
+    <field name="name">Abdominal aortic ectasia</field>
+  </row>
+  <row>
+    <field name="name">Abdominal bloating</field>
+  </row>
+  <row>
+    <field name="name">Abdominal pain</field>
+  </row>
+  <row>
+    <field name="name">Abnormal involuntary movements</field>
+  </row>
+  <row>
+    <field name="name">Abnormalities of breathing</field>
+  </row>
+  <row>
+    <field name="name">Abnormalities of forces of labor</field>
+  </row>
+  <row>
+    <field name="name">Abnormalities of gait and mobility</field>
+  </row>
+  <row>
+    <field name="name">Abnormalities of heart beat</field>
+  </row>
+  <row>
+    <field name="name">Abnormality in fetal heart rate and rhythm complicating labor and delivery</field>
+  </row>
+  <row>
+    <field name="name">Abrasion</field>
+  </row>
+  <row>
+    <field name="name">Abscess</field>
+  </row>
+  <row>
+    <field name="name">Abscess of anal and rectal regions</field>
+  </row>
+  <row>
+    <field name="name">Abscess of lung and mediastinum</field>
+  </row>
+  <row>
+    <field name="name">Abuse of non-psychoactive substances</field>
+  </row>
+  <row>
+    <field name="name">Academic underachievement disorder</field>
+  </row>
+  <row>
+    <field name="name">Acanthosis nigricans</field>
+  </row>
+  <row>
+    <field name="name">Accessory tragus</field>
+  </row>
+  <row>
+    <field name="name">Acne</field>
+  </row>
+  <row>
+    <field name="name">Acne vulgaris</field>
+  </row>
+  <row>
+    <field name="name">Acoustic neuroma</field>
+  </row>
+  <row>
+    <field name="name">Acquired deformities of fingers and toes</field>
+  </row>
+  <row>
+    <field name="name">Acquired hemolytic anemia</field>
+  </row>
+  <row>
+    <field name="name">Acquired pure red cell aplasia </field>
+  </row>
+  <row>
+    <field name="name">Acquired Schatzkis ring</field>
+  </row>
+  <row>
+    <field name="name">Actinic keratosis</field>
+  </row>
+  <row>
+    <field name="name">Actinomycosis</field>
+  </row>
+  <row>
+    <field name="name">Acute and subacute endocarditis</field>
+  </row>
+  <row>
+    <field name="name">Acute appendicitis</field>
+  </row>
+  <row>
+    <field name="name">Acute appendicitis with generalized peritonitis</field>
+  </row>
+  <row>
+    <field name="name">Acute bronchitis</field>
+  </row>
+  <row>
+    <field name="name">Acute cholecystitis</field>
+  </row>
+  <row>
+    <field name="name">Acute congestive heart failure</field>
+  </row>
+  <row>
+    <field name="name">Acute coronary syndrome</field>
+  </row>
+  <row>
+    <field name="name">Acute cystitis in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Acute deep venous thrombosis</field>
+  </row>
+  <row>
+    <field name="name">Acute diastolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Acute gastroenteritis</field>
+  </row>
+  <row>
+    <field name="name">Acute hepatitis A</field>
+  </row>
+  <row>
+    <field name="name">Acute hepatitis B</field>
+  </row>
+  <row>
+    <field name="name">Acute hypercapnic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Acute hypoxemic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Acute kidney failure</field>
+  </row>
+  <row>
+    <field name="name">Acute laryngitis and tracheitis</field>
+  </row>
+  <row>
+    <field name="name">Acute lymphadenitis</field>
+  </row>
+  <row>
+    <field name="name">Acute myeloid leukemia</field>
+  </row>
+  <row>
+    <field name="name">Acute myocardial infarction</field>
+  </row>
+  <row>
+    <field name="name">Acute myocarditis</field>
+  </row>
+  <row>
+    <field name="name">Acute nasopharyngitis </field>
+  </row>
+  <row>
+    <field name="name">Acute nephritic syndrome</field>
+  </row>
+  <row>
+    <field name="name">Acute non-ST segment elevation myocardial infarction</field>
+  </row>
+  <row>
+    <field name="name">Acute nontraumatic kidney injury</field>
+  </row>
+  <row>
+    <field name="name">Acute obstructive laryngitis </field>
+  </row>
+  <row>
+    <field name="name">Acute on chronic congestive heart failure</field>
+  </row>
+  <row>
+    <field name="name">Acute on chronic diastolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Acute on chronic hypoxemic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Acute on chronic systolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Acute otitis media</field>
+  </row>
+  <row>
+    <field name="name">Acute pancreatitis</field>
+  </row>
+  <row>
+    <field name="name">Acute pericarditis</field>
+  </row>
+  <row>
+    <field name="name">Acute pharyngitis</field>
+  </row>
+  <row>
+    <field name="name">Acute poliomyelitis</field>
+  </row>
+  <row>
+    <field name="name">Acute posthemorrhagic anemia</field>
+  </row>
+  <row>
+    <field name="name">Acute pulmonary edema</field>
+  </row>
+  <row>
+    <field name="name">Acute pyelonephritis</field>
+  </row>
+  <row>
+    <field name="name">Acute respiratory distress</field>
+  </row>
+  <row>
+    <field name="name">Acute respiratory distress syndrome</field>
+  </row>
+  <row>
+    <field name="name">Acute respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Acute sinusitis</field>
+  </row>
+  <row>
+    <field name="name">Acute ST segment elevation myocardial infarction</field>
+  </row>
+  <row>
+    <field name="name">Acute stress disorder</field>
+  </row>
+  <row>
+    <field name="name">Acute tonsillitis</field>
+  </row>
+  <row>
+    <field name="name">Acute tubulo-interstitial nephritis</field>
+  </row>
+  <row>
+    <field name="name">Acute upper respiratory infection</field>
+  </row>
+  <row>
+    <field name="name">Acute urinary tract infection</field>
+  </row>
+  <row>
+    <field name="name">Acute-on-chronic renal failure</field>
+  </row>
+  <row>
+    <field name="name">Acute-on-chronic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Adenocarcinoma of endometrium</field>
+  </row>
+  <row>
+    <field name="name">Adenocarcinoma of prostate</field>
+  </row>
+  <row>
+    <field name="name">Adenomatous polyp of colon</field>
+  </row>
+  <row>
+    <field name="name">Adherent prepuce</field>
+  </row>
+  <row>
+    <field name="name">Adhesive capsulitis of shoulders</field>
+  </row>
+  <row>
+    <field name="name">Adjustment disorder</field>
+  </row>
+  <row>
+    <field name="name">Adrenal cortical hypofunction</field>
+  </row>
+  <row>
+    <field name="name">Adrenal incidentaloma</field>
+  </row>
+  <row>
+    <field name="name">Adrenogenital disorders</field>
+  </row>
+  <row>
+    <field name="name">Adult failure to thrive syndrome</field>
+  </row>
+  <row>
+    <field name="name">Adult osteomalacia</field>
+  </row>
+  <row>
+    <field name="name">Adult victim of emotional abuse</field>
+  </row>
+  <row>
+    <field name="name">Adult victim of physical abuse</field>
+  </row>
+  <row>
+    <field name="name">Adult victim of sexual abuse</field>
+  </row>
+  <row>
+    <field name="name">Adverse reaction to drug</field>
+  </row>
+  <row>
+    <field name="name">Adverse reaction to food</field>
+  </row>
+  <row>
+    <field name="name">African trypanosomiasis</field>
+  </row>
+  <row>
+    <field name="name">Age-related cataract</field>
+  </row>
+  <row>
+    <field name="name">Age-related physical debility</field>
+  </row>
+  <row>
+    <field name="name">AIDS</field>
+  </row>
+  <row>
+    <field name="name">Airway disease </field>
+  </row>
+  <row>
+    <field name="name">Alcohol abuse</field>
+  </row>
+  <row>
+    <field name="name">Alcohol dependence</field>
+  </row>
+  <row>
+    <field name="name">Alcohol intoxication</field>
+  </row>
+  <row>
+    <field name="name">Alcohol related disorders</field>
+  </row>
+  <row>
+    <field name="name">Alcohol withdrawal syndrome</field>
+  </row>
+  <row>
+    <field name="name">Alcoholic cirrhosis</field>
+  </row>
+  <row>
+    <field name="name">Alcoholic hepatitis</field>
+  </row>
+  <row>
+    <field name="name">Alcoholic liver disease</field>
+  </row>
+  <row>
+    <field name="name">Alkaline phosphatase raised</field>
+  </row>
+  <row>
+    <field name="name">Allergic asthma</field>
+  </row>
+  <row>
+    <field name="name">Allergic contact dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Allergic rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Alopecia</field>
+  </row>
+  <row>
+    <field name="name">Alopecia areata</field>
+  </row>
+  <row>
+    <field name="name">Alpha trait thalassemia</field>
+  </row>
+  <row>
+    <field name="name">ALT (SGPT) level raised</field>
+  </row>
+  <row>
+    <field name="name">Altered bowel function</field>
+  </row>
+  <row>
+    <field name="name">Altered mental status</field>
+  </row>
+  <row>
+    <field name="name">Alzheimer's disease</field>
+  </row>
+  <row>
+    <field name="name">Amebiasis</field>
+  </row>
+  <row>
+    <field name="name">Amenorrhea</field>
+  </row>
+  <row>
+    <field name="name">Amnesia</field>
+  </row>
+  <row>
+    <field name="name">Amphetamine abuse</field>
+  </row>
+  <row>
+    <field name="name">Amphetamine dependence</field>
+  </row>
+  <row>
+    <field name="name">Amygdalolith</field>
+  </row>
+  <row>
+    <field name="name">Amyloidosis</field>
+  </row>
+  <row>
+    <field name="name">Anal fissure</field>
+  </row>
+  <row>
+    <field name="name">Anal skin tag</field>
+  </row>
+  <row>
+    <field name="name">Anal warts</field>
+  </row>
+  <row>
+    <field name="name">Anaphylaxis</field>
+  </row>
+  <row>
+    <field name="name">Anasarca</field>
+  </row>
+  <row>
+    <field name="name">Androgenic alopecia</field>
+  </row>
+  <row>
+    <field name="name">Anemia </field>
+  </row>
+  <row>
+    <field name="name">Anemia due to blood loss</field>
+  </row>
+  <row>
+    <field name="name">Anemia due to chemotherapy</field>
+  </row>
+  <row>
+    <field name="name">Anemia due to end stage renal disease</field>
+  </row>
+  <row>
+    <field name="name">Anemia during pregnancy - baby not yet delivered</field>
+  </row>
+  <row>
+    <field name="name">Anemia in CKD stage 3</field>
+  </row>
+  <row>
+    <field name="name">Anemia of chronic disease</field>
+  </row>
+  <row>
+    <field name="name">Anemia of chronic renal failure</field>
+  </row>
+  <row>
+    <field name="name">Anemia of prematurity</field>
+  </row>
+  <row>
+    <field name="name">Anencephaly and similar malformations</field>
+  </row>
+  <row>
+    <field name="name">Aneurysm of ascending aorta</field>
+  </row>
+  <row>
+    <field name="name">Angina</field>
+  </row>
+  <row>
+    <field name="name">Angina pectoris</field>
+  </row>
+  <row>
+    <field name="name">Angioedema</field>
+  </row>
+  <row>
+    <field name="name">Anisocoria</field>
+  </row>
+  <row>
+    <field name="name">Anisometropia</field>
+  </row>
+  <row>
+    <field name="name">Ankle sprain</field>
+  </row>
+  <row>
+    <field name="name">Ankylosing spondylitis</field>
+  </row>
+  <row>
+    <field name="name">Anogenital herpesviral </field>
+  </row>
+  <row>
+    <field name="name">Anophthalmos</field>
+  </row>
+  <row>
+    <field name="name">Anorectal fistula</field>
+  </row>
+  <row>
+    <field name="name">Anorectal pain</field>
+  </row>
+  <row>
+    <field name="name">Anorexia nervosa</field>
+  </row>
+  <row>
+    <field name="name">Antepartum diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Antepartum hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Anterior shin splints</field>
+  </row>
+  <row>
+    <field name="name">Anthrax</field>
+  </row>
+  <row>
+    <field name="name">Antiphospholipid syndrome</field>
+  </row>
+  <row>
+    <field name="name">Anuria and oliguria</field>
+  </row>
+  <row>
+    <field name="name">Anxiety</field>
+  </row>
+  <row>
+    <field name="name">Anxiety disorder</field>
+  </row>
+  <row>
+    <field name="name">Aortic aneurysm</field>
+  </row>
+  <row>
+    <field name="name">Aortic root dilatation</field>
+  </row>
+  <row>
+    <field name="name">Aortic valve disorder</field>
+  </row>
+  <row>
+    <field name="name">Aortic valve regurgitation</field>
+  </row>
+  <row>
+    <field name="name">Aortic valve sclerosis</field>
+  </row>
+  <row>
+    <field name="name">Aortic valve stenosis</field>
+  </row>
+  <row>
+    <field name="name">Aphagia and dysphagia</field>
+  </row>
+  <row>
+    <field name="name">Aphasia</field>
+  </row>
+  <row>
+    <field name="name">Aphthous ulcer of mouth</field>
+  </row>
+  <row>
+    <field name="name">Apnea in the newborn</field>
+  </row>
+  <row>
+    <field name="name">Apocrine sweat disorders</field>
+  </row>
+  <row>
+    <field name="name">Appendicitis</field>
+  </row>
+  <row>
+    <field name="name">Aptyalism</field>
+  </row>
+  <row>
+    <field name="name">Arachnoid cyst</field>
+  </row>
+  <row>
+    <field name="name">Arenaviral hemorrhagic fever</field>
+  </row>
+  <row>
+    <field name="name">Arterial aneurysm </field>
+  </row>
+  <row>
+    <field name="name">Arterial embolism and thrombosis</field>
+  </row>
+  <row>
+    <field name="name">Arthritis</field>
+  </row>
+  <row>
+    <field name="name">Ascariasis</field>
+  </row>
+  <row>
+    <field name="name">Ascites</field>
+  </row>
+  <row>
+    <field name="name">Ascorbic acid deficiency</field>
+  </row>
+  <row>
+    <field name="name">Asperger's disorder</field>
+  </row>
+  <row>
+    <field name="name">Aspergillosis</field>
+  </row>
+  <row>
+    <field name="name">Asphyxiation</field>
+  </row>
+  <row>
+    <field name="name">Aspiration pneumonia</field>
+  </row>
+  <row>
+    <field name="name">Asteatosis cutis</field>
+  </row>
+  <row>
+    <field name="name">Asthma</field>
+  </row>
+  <row>
+    <field name="name">Asthmatic bronchitis</field>
+  </row>
+  <row>
+    <field name="name">Asymptomatic human immunodeficiency virus infection</field>
+  </row>
+  <row>
+    <field name="name">Ataxia</field>
+  </row>
+  <row>
+    <field name="name">Atelectasis</field>
+  </row>
+  <row>
+    <field name="name">Atheroembolism</field>
+  </row>
+  <row>
+    <field name="name">Atherosclerosis</field>
+  </row>
+  <row>
+    <field name="name">Atonic postpartum hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Atopic dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Atrial fibrillation</field>
+  </row>
+  <row>
+    <field name="name">Atrial fibrillation and flutter</field>
+  </row>
+  <row>
+    <field name="name">Atrial flutter</field>
+  </row>
+  <row>
+    <field name="name">Atrial paroxysmal tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Atrial septal defect</field>
+  </row>
+  <row>
+    <field name="name">Atrioventricular and left bundle-branch block</field>
+  </row>
+  <row>
+    <field name="name">Atrophic disorders of skin</field>
+  </row>
+  <row>
+    <field name="name">Atrophic vaginitis</field>
+  </row>
+  <row>
+    <field name="name">Attention-deficit hyperactivity disorders</field>
+  </row>
+  <row>
+    <field name="name">Atypical chest pain</field>
+  </row>
+  <row>
+    <field name="name">Atypical virus infections of central nervous system</field>
+  </row>
+  <row>
+    <field name="name">Autistism</field>
+  </row>
+  <row>
+    <field name="name">Autoimmune thyroiditis</field>
+  </row>
+  <row>
+    <field name="name">Automatic implantable cardiac defibrillator in situ</field>
+  </row>
+  <row>
+    <field name="name">AV block, Mobitz type 1</field>
+  </row>
+  <row>
+    <field name="name">AV block, Mobitz type 2</field>
+  </row>
+  <row>
+    <field name="name">Avulsion and traumatic amputation of part of head</field>
+  </row>
+  <row>
+    <field name="name">Back pain without radiculopathy</field>
+  </row>
+  <row>
+    <field name="name">Bacteremia</field>
+  </row>
+  <row>
+    <field name="name">Bacteremia due to gram negative bacteria</field>
+  </row>
+  <row>
+    <field name="name">Bacteremia due to gram positive bacteria</field>
+  </row>
+  <row>
+    <field name="name">Bacterial pneumonia</field>
+  </row>
+  <row>
+    <field name="name">Bacterial sepsis of newborn</field>
+  </row>
+  <row>
+    <field name="name">Bacterial vaginosis</field>
+  </row>
+  <row>
+    <field name="name">Balanitis</field>
+  </row>
+  <row>
+    <field name="name">Barrett's esophagus</field>
+  </row>
+  <row>
+    <field name="name">Bartonellosis</field>
+  </row>
+  <row>
+    <field name="name">Basal cell carcinoma of face</field>
+  </row>
+  <row>
+    <field name="name">Basal cell carcinoma of skin</field>
+  </row>
+  <row>
+    <field name="name">Bell's palsy</field>
+  </row>
+  <row>
+    <field name="name">Benign essential hypertension</field>
+  </row>
+  <row>
+    <field name="name">Benign hypertension</field>
+  </row>
+  <row>
+    <field name="name">Benign lipomatous neoplasm</field>
+  </row>
+  <row>
+    <field name="name">Benign mammary dysplasia</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of bone and articular cartilage</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of breast</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of colon</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of eye and adnexa</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of major salivary glands</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of male genital organs</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of meninges</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of mesothelial tissue</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of middle ear and respiratory system</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of mouth and pharynx</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of ovary</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of soft tissue of retroperitoneum and peritoneum</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of thyroid gland</field>
+  </row>
+  <row>
+    <field name="name">Benign neoplasm of urinary organs</field>
+  </row>
+  <row>
+    <field name="name">Benign neuroendocrine tumors</field>
+  </row>
+  <row>
+    <field name="name">Benign paroxysmal positional vertigo</field>
+  </row>
+  <row>
+    <field name="name">Benign prostatic hyperplasia</field>
+  </row>
+  <row>
+    <field name="name">Beta thalassemia trait</field>
+  </row>
+  <row>
+    <field name="name">Biceps tendinitis</field>
+  </row>
+  <row>
+    <field name="name">Bicuspid aortic valve</field>
+  </row>
+  <row>
+    <field name="name">Biliary calculus</field>
+  </row>
+  <row>
+    <field name="name">Biliary colic</field>
+  </row>
+  <row>
+    <field name="name">Bipolar disorder</field>
+  </row>
+  <row>
+    <field name="name">Bipolar I disorder</field>
+  </row>
+  <row>
+    <field name="name">Bipolar II disorder</field>
+  </row>
+  <row>
+    <field name="name">Birth injury to peripheral nervous system</field>
+  </row>
+  <row>
+    <field name="name">Birth injury to scalp</field>
+  </row>
+  <row>
+    <field name="name">Birth injury to skeleton</field>
+  </row>
+  <row>
+    <field name="name">Bladder cancer</field>
+  </row>
+  <row>
+    <field name="name">Bladder muscle dysfunction - overactive</field>
+  </row>
+  <row>
+    <field name="name">Blastomycosis</field>
+  </row>
+  <row>
+    <field name="name">Blepharitis </field>
+  </row>
+  <row>
+    <field name="name">Blindness and low vision</field>
+  </row>
+  <row>
+    <field name="name">Blood coagulation disorder</field>
+  </row>
+  <row>
+    <field name="name">Blood in urine</field>
+  </row>
+  <row>
+    <field name="name">Bone cancer</field>
+  </row>
+  <row>
+    <field name="name">Borderline personality disorder</field>
+  </row>
+  <row>
+    <field name="name">Bradycardia</field>
+  </row>
+  <row>
+    <field name="name">Brain cancer</field>
+  </row>
+  <row>
+    <field name="name">Breast cancer</field>
+  </row>
+  <row>
+    <field name="name">Breech presentation</field>
+  </row>
+  <row>
+    <field name="name">Brief psychotic disorder</field>
+  </row>
+  <row>
+    <field name="name">Bronchiectasis</field>
+  </row>
+  <row>
+    <field name="name">Bronchiolitis</field>
+  </row>
+  <row>
+    <field name="name">Bronchitis</field>
+  </row>
+  <row>
+    <field name="name">Bronchospasm</field>
+  </row>
+  <row>
+    <field name="name">Brucellosis</field>
+  </row>
+  <row>
+    <field name="name">Bruise of head</field>
+  </row>
+  <row>
+    <field name="name">Bruxism</field>
+  </row>
+  <row>
+    <field name="name">Bulimia nervosa</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion confined to eye and adnexa</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of ankle and foot</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of head</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of lower limb</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of respiratory tract</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of shoulder and upper limb</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of trunk</field>
+  </row>
+  <row>
+    <field name="name">Burn and corrosion of wrist and hand</field>
+  </row>
+  <row>
+    <field name="name">Burns</field>
+  </row>
+  <row>
+    <field name="name">Bursitis</field>
+  </row>
+  <row>
+    <field name="name">Cachexia</field>
+  </row>
+  <row>
+    <field name="name">Calcaneal spur of feet</field>
+  </row>
+  <row>
+    <field name="name">Calcific tendinitis of shoulders</field>
+  </row>
+  <row>
+    <field name="name">Calcification and ossification of muscle</field>
+  </row>
+  <row>
+    <field name="name">Calculus of kidney and ureter</field>
+  </row>
+  <row>
+    <field name="name">Calculus of lower urinary tract</field>
+  </row>
+  <row>
+    <field name="name">Callosity</field>
+  </row>
+  <row>
+    <field name="name">Callus of heel</field>
+  </row>
+  <row>
+    <field name="name">Cancer of retroperitoneum and peritoneum</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the gall bladder</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the heart</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the larynx</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the meninges</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the penis</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the placenta</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the renal pelvis</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the small intestine</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the thymus</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the trachea</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the uterus</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the vagina</field>
+  </row>
+  <row>
+    <field name="name">Cancer of the vulva</field>
+  </row>
+  <row>
+    <field name="name">Candidal intertrigo</field>
+  </row>
+  <row>
+    <field name="name">Candidal vulvovaginitis</field>
+  </row>
+  <row>
+    <field name="name">Candidiasis</field>
+  </row>
+  <row>
+    <field name="name">Candidiasis of mouth</field>
+  </row>
+  <row>
+    <field name="name">Candidiasis of vagina</field>
+  </row>
+  <row>
+    <field name="name">Cannabis abuse</field>
+  </row>
+  <row>
+    <field name="name">Cannabis dependence</field>
+  </row>
+  <row>
+    <field name="name">Cannabis related disorders</field>
+  </row>
+  <row>
+    <field name="name">Carcinoma of prostate</field>
+  </row>
+  <row>
+    <field name="name">Carcinomatosis of peritoneal cavity</field>
+  </row>
+  <row>
+    <field name="name">Cardiac arrest</field>
+  </row>
+  <row>
+    <field name="name">Cardiac arrhythmia</field>
+  </row>
+  <row>
+    <field name="name">Cardiogenic shock</field>
+  </row>
+  <row>
+    <field name="name">Cardiomegaly</field>
+  </row>
+  <row>
+    <field name="name">Cardiomyopathy</field>
+  </row>
+  <row>
+    <field name="name">Cardiovascular disorders originating in the perinatal period</field>
+  </row>
+  <row>
+    <field name="name">Carotid bruit</field>
+  </row>
+  <row>
+    <field name="name">Carpal tunnel syndrome</field>
+  </row>
+  <row>
+    <field name="name">Carrier of cystic fibrosis gene mutation</field>
+  </row>
+  <row>
+    <field name="name">Celiac disease</field>
+  </row>
+  <row>
+    <field name="name">Cellulitis</field>
+  </row>
+  <row>
+    <field name="name">Cellulitis and acute lymphangitis</field>
+  </row>
+  <row>
+    <field name="name">Cephalhematoma due to birth trauma</field>
+  </row>
+  <row>
+    <field name="name">Cerebral atherosclerosis</field>
+  </row>
+  <row>
+    <field name="name">Cerebral infarction</field>
+  </row>
+  <row>
+    <field name="name">Cerebral palsy</field>
+  </row>
+  <row>
+    <field name="name">Cerebral trauma</field>
+  </row>
+  <row>
+    <field name="name">Cerebrovascular accident</field>
+  </row>
+  <row>
+    <field name="name">Cerebrovascular disease</field>
+  </row>
+  <row>
+    <field name="name">Certain current complications following ST elevation (STEMI) and non-ST elevation (NSTEMI) myocardia</field>
+  </row>
+  <row>
+    <field name="name">Cervical cancer</field>
+  </row>
+  <row>
+    <field name="name">Cervical disc disorders</field>
+  </row>
+  <row>
+    <field name="name">Cervical disc prolapse with radiculopathy</field>
+  </row>
+  <row>
+    <field name="name">Cervical intraepithelial neoplasia </field>
+  </row>
+  <row>
+    <field name="name">Cervical lymphadenopathy</field>
+  </row>
+  <row>
+    <field name="name">Cervical radiculitis</field>
+  </row>
+  <row>
+    <field name="name">Cervical radiculopathy</field>
+  </row>
+  <row>
+    <field name="name">Cervical spondylosis</field>
+  </row>
+  <row>
+    <field name="name">Cervico-occipital neuralgia</field>
+  </row>
+  <row>
+    <field name="name">Cervicogenic headache</field>
+  </row>
+  <row>
+    <field name="name">Chancroid</field>
+  </row>
+  <row>
+    <field name="name">Chest discomfort</field>
+  </row>
+  <row>
+    <field name="name">Chest pain</field>
+  </row>
+  <row>
+    <field name="name">Chiari malformation type I</field>
+  </row>
+  <row>
+    <field name="name">Childhood failure to gain weight</field>
+  </row>
+  <row>
+    <field name="name">Childhood obesity</field>
+  </row>
+  <row>
+    <field name="name">Chlamydia in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Chlamydia psittaci infections</field>
+  </row>
+  <row>
+    <field name="name">Chlamydial infection</field>
+  </row>
+  <row>
+    <field name="name">Chlamydial lymphogranuloma (venereum)</field>
+  </row>
+  <row>
+    <field name="name">Chloasma</field>
+  </row>
+  <row>
+    <field name="name">Cholecystitis</field>
+  </row>
+  <row>
+    <field name="name">Cholelithiasis</field>
+  </row>
+  <row>
+    <field name="name">Cholera</field>
+  </row>
+  <row>
+    <field name="name">Cholestasis of pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Cholesteatoma of middle ear</field>
+  </row>
+  <row>
+    <field name="name">Chondromalacia </field>
+  </row>
+  <row>
+    <field name="name">Chorioamnionitis</field>
+  </row>
+  <row>
+    <field name="name">Chorioretinal inflammation</field>
+  </row>
+  <row>
+    <field name="name">Chromomycosis and pheomycotic abscess</field>
+  </row>
+  <row>
+    <field name="name">Chronic abdominal pain</field>
+  </row>
+  <row>
+    <field name="name">Chronic alcoholism in remission</field>
+  </row>
+  <row>
+    <field name="name">Chronic anemia</field>
+  </row>
+  <row>
+    <field name="name">Chronic atrial fibrillation</field>
+  </row>
+  <row>
+    <field name="name">Chronic back pain for greater than 3 months</field>
+  </row>
+  <row>
+    <field name="name">Chronic bronchitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic cholecystitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic congestive heart failure</field>
+  </row>
+  <row>
+    <field name="name">Chronic constipation</field>
+  </row>
+  <row>
+    <field name="name">Chronic cough</field>
+  </row>
+  <row>
+    <field name="name">Chronic deep venous thrombosis</field>
+  </row>
+  <row>
+    <field name="name">Chronic diarrhea</field>
+  </row>
+  <row>
+    <field name="name">Chronic diastolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Chronic diseases of tonsils and adenoids</field>
+  </row>
+  <row>
+    <field name="name">Chronic fatigue syndrome</field>
+  </row>
+  <row>
+    <field name="name">Chronic gastritis</field>
+  </row>
+  <row>
+    <field name="name">Chronic gout</field>
+  </row>
+  <row>
+    <field name="name">Chronic hepatitis C</field>
+  </row>
+  <row>
+    <field name="name">Chronic hoarseness</field>
+  </row>
+  <row>
+    <field name="name">Chronic hypercapnic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Chronic hypoxemic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Chronic ischemic heart disease</field>
+  </row>
+  <row>
+    <field name="name">Chronic kidney disease</field>
+  </row>
+  <row>
+    <field name="name">Chronic laryngitis and laryngotracheitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic low back pain</field>
+  </row>
+  <row>
+    <field name="name">Chronic lymphoid leukemia</field>
+  </row>
+  <row>
+    <field name="name">Chronic mixed headache syndrome</field>
+  </row>
+  <row>
+    <field name="name">Chronic neck pain</field>
+  </row>
+  <row>
+    <field name="name">Chronic nephritic syndrome</field>
+  </row>
+  <row>
+    <field name="name">Chronic nonmalignant pain</field>
+  </row>
+  <row>
+    <field name="name">Chronic obstructive airway disease with asthma</field>
+  </row>
+  <row>
+    <field name="name">Chronic obstructive lung disease</field>
+  </row>
+  <row>
+    <field name="name">Chronic obstructive pulmoary disease</field>
+  </row>
+  <row>
+    <field name="name">Chronic pain</field>
+  </row>
+  <row>
+    <field name="name">Chronic pain in thorax</field>
+  </row>
+  <row>
+    <field name="name">Chronic pain syndrome</field>
+  </row>
+  <row>
+    <field name="name">Chronic pancreatitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic pelvic pain of female</field>
+  </row>
+  <row>
+    <field name="name">Chronic post-traumatic stress disorder</field>
+  </row>
+  <row>
+    <field name="name">Chronic prostatitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic pulmonary embolism</field>
+  </row>
+  <row>
+    <field name="name">Chronic renal impairment</field>
+  </row>
+  <row>
+    <field name="name">Chronic respiratory disease originating in the perinatal period</field>
+  </row>
+  <row>
+    <field name="name">Chronic respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Chronic rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic sinusitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic systolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Chronic tension-type headache</field>
+  </row>
+  <row>
+    <field name="name">Chronic tonsillitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic tubulo-interstitial nephritis</field>
+  </row>
+  <row>
+    <field name="name">Chronic type B viral hepatitis</field>
+  </row>
+  <row>
+    <field name="name">Chronic urticaria</field>
+  </row>
+  <row>
+    <field name="name">Chronic viral hepatitis</field>
+  </row>
+  <row>
+    <field name="name">Cicatricial alopecia </field>
+  </row>
+  <row>
+    <field name="name">Cirrhosis - non-alcoholic</field>
+  </row>
+  <row>
+    <field name="name">Cirrhosis of liver</field>
+  </row>
+  <row>
+    <field name="name">Cirrhosis of liver due to hepatits C</field>
+  </row>
+  <row>
+    <field name="name">Claustrophobia</field>
+  </row>
+  <row>
+    <field name="name">Clear cell carcinoma of kidney</field>
+  </row>
+  <row>
+    <field name="name">Cleft lip</field>
+  </row>
+  <row>
+    <field name="name">Cleft palate</field>
+  </row>
+  <row>
+    <field name="name">Clostridium difficile colitis</field>
+  </row>
+  <row>
+    <field name="name">Clostridium difficile diarrhea</field>
+  </row>
+  <row>
+    <field name="name">Clostridium difficile infection</field>
+  </row>
+  <row>
+    <field name="name">Clouded consciousness</field>
+  </row>
+  <row>
+    <field name="name">Cluster headache</field>
+  </row>
+  <row>
+    <field name="name">Cobalamin deficiency</field>
+  </row>
+  <row>
+    <field name="name">Cocaine abuse</field>
+  </row>
+  <row>
+    <field name="name">Cocaine related disorders</field>
+  </row>
+  <row>
+    <field name="name">Coccidioidomycosis</field>
+  </row>
+  <row>
+    <field name="name">Cognitive disorder</field>
+  </row>
+  <row>
+    <field name="name">Colitis</field>
+  </row>
+  <row>
+    <field name="name">Colon cancer</field>
+  </row>
+  <row>
+    <field name="name">Combined immunodeficiencies</field>
+  </row>
+  <row>
+    <field name="name">Comedonal acne</field>
+  </row>
+  <row>
+    <field name="name">Common bile duct calculus</field>
+  </row>
+  <row>
+    <field name="name">Common cold</field>
+  </row>
+  <row>
+    <field name="name">Common variable immunodeficiency</field>
+  </row>
+  <row>
+    <field name="name">Community acquired pneumonia</field>
+  </row>
+  <row>
+    <field name="name">Complete atrioventricular block</field>
+  </row>
+  <row>
+    <field name="name">Complete trisomy 21 syndrome</field>
+  </row>
+  <row>
+    <field name="name">Complex endometrial hyperplasia without atypia</field>
+  </row>
+  <row>
+    <field name="name">Complex ovarian cyst</field>
+  </row>
+  <row>
+    <field name="name">Complex partial seizure with impairment of consciousness</field>
+  </row>
+  <row>
+    <field name="name">Complicated grieving</field>
+  </row>
+  <row>
+    <field name="name">Complicated migraine</field>
+  </row>
+  <row>
+    <field name="name">Complication due to type 2 diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Complications following (induced) termination of pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Complications following ectopic and molar pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Complications following infusion</field>
+  </row>
+  <row>
+    <field name="name">Complications of anesthesia during labor and delivery</field>
+  </row>
+  <row>
+    <field name="name">Complications of anesthesia during pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Complications of anesthesia during the puerperium</field>
+  </row>
+  <row>
+    <field name="name">Complications of artificial openings of the digestive system</field>
+  </row>
+  <row>
+    <field name="name">Complications of bariatric procedures</field>
+  </row>
+  <row>
+    <field name="name">Complications of cardiac and vascular prosthetic devices</field>
+  </row>
+  <row>
+    <field name="name">Complications of genitourinary prosthetic devices</field>
+  </row>
+  <row>
+    <field name="name">Complications of internal orthopedic prosthetic devices</field>
+  </row>
+  <row>
+    <field name="name">Complications of placenta (new born)</field>
+  </row>
+  <row>
+    <field name="name">Complications of transplanted organs and tissue</field>
+  </row>
+  <row>
+    <field name="name">Complications peculiar to reattachment and amputation</field>
+  </row>
+  <row>
+    <field name="name">Complications specific to multiple gestation</field>
+  </row>
+  <row>
+    <field name="name">Conduct disorders</field>
+  </row>
+  <row>
+    <field name="name">Conduction disorder of the heart</field>
+  </row>
+  <row>
+    <field name="name">Conductive hearing loss</field>
+  </row>
+  <row>
+    <field name="name">Congenital absence</field>
+  </row>
+  <row>
+    <field name="name">Congenital cystic kidney disease</field>
+  </row>
+  <row>
+    <field name="name">Congenital deformities of feet</field>
+  </row>
+  <row>
+    <field name="name">Congenital deformities of hip</field>
+  </row>
+  <row>
+    <field name="name">Congenital fusion of labia</field>
+  </row>
+  <row>
+    <field name="name">Congenital hammer toes</field>
+  </row>
+  <row>
+    <field name="name">Congenital hemangioma</field>
+  </row>
+  <row>
+    <field name="name">Congenital hydrocephalus</field>
+  </row>
+  <row>
+    <field name="name">Congenital ichthyosis</field>
+  </row>
+  <row>
+    <field name="name">Congenital iodine-deficiency syndrome</field>
+  </row>
+  <row>
+    <field name="name">Congenital keratosis pilaris</field>
+  </row>
+  <row>
+    <field name="name">Congenital lens malformations</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of anterior segment of eye</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of aortic and mitral valves</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of breast</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of cardiac chambers and connections</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of cardiac septa</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of ear causing impairment of hearing</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of esophagus</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of eyelid</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of gallbladder</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of great arteries</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of great veins</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of larynx</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of lung</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of nose</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of ovaries</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of posterior segment of eye</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of pulmonary and tricuspid valves</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of spine and bony thorax</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of trachea and bronchus</field>
+  </row>
+  <row>
+    <field name="name">Congenital malformations of uterus and cervix</field>
+  </row>
+  <row>
+    <field name="name">Congenital musculoskeletal deformities of head</field>
+  </row>
+  <row>
+    <field name="name">Congenital obstructive defects of renal pelvis and congenital malformations of ureter</field>
+  </row>
+  <row>
+    <field name="name">Congenital pes planus</field>
+  </row>
+  <row>
+    <field name="name">Congenital pigmented melanocytic nevus</field>
+  </row>
+  <row>
+    <field name="name">Congenital pneumonia</field>
+  </row>
+  <row>
+    <field name="name">Congenital renal cyst</field>
+  </row>
+  <row>
+    <field name="name">Congenital syphilis</field>
+  </row>
+  <row>
+    <field name="name">Congenital viral diseases</field>
+  </row>
+  <row>
+    <field name="name">Congestion of nasal sinus</field>
+  </row>
+  <row>
+    <field name="name">Congestive cardiomyopathy</field>
+  </row>
+  <row>
+    <field name="name">Congestive heart failure</field>
+  </row>
+  <row>
+    <field name="name">Conjunctivitis</field>
+  </row>
+  <row>
+    <field name="name">Constipation</field>
+  </row>
+  <row>
+    <field name="name">Constitutional short stature</field>
+  </row>
+  <row>
+    <field name="name">Contact dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Contusions</field>
+  </row>
+  <row>
+    <field name="name">Convulsions of newborn</field>
+  </row>
+  <row>
+    <field name="name">Cor pulmonale</field>
+  </row>
+  <row>
+    <field name="name">Corn of toe</field>
+  </row>
+  <row>
+    <field name="name">Corneal scaring</field>
+  </row>
+  <row>
+    <field name="name">Corneal scars and opacities</field>
+  </row>
+  <row>
+    <field name="name">Corns and callosities</field>
+  </row>
+  <row>
+    <field name="name">Coronary arteriosclerosis</field>
+  </row>
+  <row>
+    <field name="name">Costal chondritis</field>
+  </row>
+  <row>
+    <field name="name">Cough variant asthma</field>
+  </row>
+  <row>
+    <field name="name">Coughs</field>
+  </row>
+  <row>
+    <field name="name">Cramps</field>
+  </row>
+  <row>
+    <field name="name">Crohn's disease</field>
+  </row>
+  <row>
+    <field name="name">Croup</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury and traumatic amputation of abdomen</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of ankle and foot</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of elbow and forearm</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of head</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of hip and thigh</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of lower leg</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of neck</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of shoulder and upper arm</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of thorax</field>
+  </row>
+  <row>
+    <field name="name">Crushing injury of wrist</field>
+  </row>
+  <row>
+    <field name="name">Cryptococcosis</field>
+  </row>
+  <row>
+    <field name="name">Current meniscus tear </field>
+  </row>
+  <row>
+    <field name="name">Cutaneous abscess</field>
+  </row>
+  <row>
+    <field name="name">Cutis laxa of  upper eyelid</field>
+  </row>
+  <row>
+    <field name="name">Cystic acne</field>
+  </row>
+  <row>
+    <field name="name">Cystic fibrosis</field>
+  </row>
+  <row>
+    <field name="name">Cystic kidney disease</field>
+  </row>
+  <row>
+    <field name="name">Cysticercosis</field>
+  </row>
+  <row>
+    <field name="name">Cystitis</field>
+  </row>
+  <row>
+    <field name="name">Cystocele</field>
+  </row>
+  <row>
+    <field name="name">Cysts</field>
+  </row>
+  <row>
+    <field name="name">Cytomegaloviral disease</field>
+  </row>
+  <row>
+    <field name="name">Daily headache</field>
+  </row>
+  <row>
+    <field name="name">Daytime somnolence</field>
+  </row>
+  <row>
+    <field name="name">Dead fetus in utero</field>
+  </row>
+  <row>
+    <field name="name">Deconditioning</field>
+  </row>
+  <row>
+    <field name="name">Decreased testosterone level</field>
+  </row>
+  <row>
+    <field name="name">Decubitus ulcer</field>
+  </row>
+  <row>
+    <field name="name">Deficiency of macronutrients</field>
+  </row>
+  <row>
+    <field name="name">Deformity and disproportion of reconstructed breast</field>
+  </row>
+  <row>
+    <field name="name">Degeneration of cervical intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Degeneration of intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Degeneration of lumbar intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Degeneration of lumbosacral intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Degeneration of thoracic intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Degenerative spondylolisthesis</field>
+  </row>
+  <row>
+    <field name="name">Dehydration</field>
+  </row>
+  <row>
+    <field name="name">Delayed developmental milestones</field>
+  </row>
+  <row>
+    <field name="name">Delirium </field>
+  </row>
+  <row>
+    <field name="name">Delusional disorders</field>
+  </row>
+  <row>
+    <field name="name">Demand ischemia</field>
+  </row>
+  <row>
+    <field name="name">Dementia</field>
+  </row>
+  <row>
+    <field name="name">Dementia due to Alzheimer's disease</field>
+  </row>
+  <row>
+    <field name="name">Dementia with behavioral disturbance</field>
+  </row>
+  <row>
+    <field name="name">Dengue fever </field>
+  </row>
+  <row>
+    <field name="name">Dental caries</field>
+  </row>
+  <row>
+    <field name="name">Dentofacial anomalies </field>
+  </row>
+  <row>
+    <field name="name">Dependence on continuous positive airway pressure ventilation</field>
+  </row>
+  <row>
+    <field name="name">Dependence on hemodialysis</field>
+  </row>
+  <row>
+    <field name="name">Dependence on peritoneal dialysis due to end stage renal disease</field>
+  </row>
+  <row>
+    <field name="name">Dependence on renal dialysis</field>
+  </row>
+  <row>
+    <field name="name">Dependence on supplemental oxygen</field>
+  </row>
+  <row>
+    <field name="name">Depressed mood</field>
+  </row>
+  <row>
+    <field name="name">Depression in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Depressive disorder</field>
+  </row>
+  <row>
+    <field name="name">Derangement of  meniscus</field>
+  </row>
+  <row>
+    <field name="name">Dermal cellular nevus</field>
+  </row>
+  <row>
+    <field name="name">Dermatitis </field>
+  </row>
+  <row>
+    <field name="name">Dermatochalasis</field>
+  </row>
+  <row>
+    <field name="name">Dermatofibroma</field>
+  </row>
+  <row>
+    <field name="name">Dermatographic urticaria</field>
+  </row>
+  <row>
+    <field name="name">Dermatophytosis</field>
+  </row>
+  <row>
+    <field name="name">Dermatopolymyositis</field>
+  </row>
+  <row>
+    <field name="name">Dermoid cyst of ovaries</field>
+  </row>
+  <row>
+    <field name="name">Developmental academic disorder</field>
+  </row>
+  <row>
+    <field name="name">Developmental delay</field>
+  </row>
+  <row>
+    <field name="name">Developmental language disorder</field>
+  </row>
+  <row>
+    <field name="name">Developmental speech disorder</field>
+  </row>
+  <row>
+    <field name="name">Deviated nasal septum</field>
+  </row>
+  <row>
+    <field name="name">Diabetes mellitus </field>
+  </row>
+  <row>
+    <field name="name">Diabetes mellitus in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Diabetes mellitus type 1</field>
+  </row>
+  <row>
+    <field name="name">Diabetes mellitus type 2</field>
+  </row>
+  <row>
+    <field name="name">Diabetic cataracts </field>
+  </row>
+  <row>
+    <field name="name">Diabetic gastroparesis</field>
+  </row>
+  <row>
+    <field name="name">Diabetic oculopathy </field>
+  </row>
+  <row>
+    <field name="name">Diabetic polyneuropathy</field>
+  </row>
+  <row>
+    <field name="name">Diabetic retinopathy</field>
+  </row>
+  <row>
+    <field name="name">Diabetic ulcers</field>
+  </row>
+  <row>
+    <field name="name">Diaper dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Diaper rash</field>
+  </row>
+  <row>
+    <field name="name">Diaphragmatic hernia</field>
+  </row>
+  <row>
+    <field name="name">Diarrhea</field>
+  </row>
+  <row>
+    <field name="name">Diastasis recti</field>
+  </row>
+  <row>
+    <field name="name">Diastolic dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Diastolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Dietary calcium deficiency</field>
+  </row>
+  <row>
+    <field name="name">Dietary selenium deficiency</field>
+  </row>
+  <row>
+    <field name="name">Dietary zinc deficiency</field>
+  </row>
+  <row>
+    <field name="name">Diffuse non-Hodgkin's lymphoma, large cell</field>
+  </row>
+  <row>
+    <field name="name">Diffuse spasm of esophagus</field>
+  </row>
+  <row>
+    <field name="name">Diminished ovarian reserve</field>
+  </row>
+  <row>
+    <field name="name">Diphtheria</field>
+  </row>
+  <row>
+    <field name="name">Diphyllobothriasis and sparganosis</field>
+  </row>
+  <row>
+    <field name="name">Diplopia</field>
+  </row>
+  <row>
+    <field name="name">Discharge from nipples</field>
+  </row>
+  <row>
+    <field name="name">Diseases of capillaries</field>
+  </row>
+  <row>
+    <field name="name">Diseases of pulp and periapical tissues</field>
+  </row>
+  <row>
+    <field name="name">Diseases of salivary glands</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joint and ligaments of hip</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments at ankle</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments at neck level</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments at wrist and hand level</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments of elbow</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments of head</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments of knee</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments of lumbar spine and pelvis</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments of shoulder girdle</field>
+  </row>
+  <row>
+    <field name="name">Dislocation and sprain of joints and ligaments of thorax</field>
+  </row>
+  <row>
+    <field name="name">Disorder of continuity of bone</field>
+  </row>
+  <row>
+    <field name="name">Disorder of the patella</field>
+  </row>
+  <row>
+    <field name="name">Disorders of aromatic amino-acid metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of autonomic nervous system</field>
+  </row>
+  <row>
+    <field name="name">Disorders of branched-chain amino-acid metabolism and fatty-acid metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of globe</field>
+  </row>
+  <row>
+    <field name="name">Disorders of mineral metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of muscle tone of newborn</field>
+  </row>
+  <row>
+    <field name="name">Disorders of newborn related to long gestation and high birth weight</field>
+  </row>
+  <row>
+    <field name="name">Disorders of newborn related to slow fetal growth and fetal malnutrition</field>
+  </row>
+  <row>
+    <field name="name">Disorders of orbit</field>
+  </row>
+  <row>
+    <field name="name">Disorders of porphyrin and bilirubin metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of prepuce</field>
+  </row>
+  <row>
+    <field name="name">Disorders of purine and pyrimidine metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of refraction and accommodation</field>
+  </row>
+  <row>
+    <field name="name">Disorders of retroperitoneum</field>
+  </row>
+  <row>
+    <field name="name">Disorders of sclera</field>
+  </row>
+  <row>
+    <field name="name">Disorders of social functioning </field>
+  </row>
+  <row>
+    <field name="name">Disorders of the glycoprotein metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of the glycosaminoglycan metabolism</field>
+  </row>
+  <row>
+    <field name="name">Disorders of the lacrimal system</field>
+  </row>
+  <row>
+    <field name="name">Disorders of tooth development and eruption</field>
+  </row>
+  <row>
+    <field name="name">Disorders of trigeminal nerve</field>
+  </row>
+  <row>
+    <field name="name">Disorders of vestibular function</field>
+  </row>
+  <row>
+    <field name="name">Disorders of vitreous body</field>
+  </row>
+  <row>
+    <field name="name">Disorders resulting from impaired renal tubular function</field>
+  </row>
+  <row>
+    <field name="name">Disruptive behavior disorder</field>
+  </row>
+  <row>
+    <field name="name">Disseminated intravascular coagulation </field>
+  </row>
+  <row>
+    <field name="name">Disseminated intravascular coagulation of newborn</field>
+  </row>
+  <row>
+    <field name="name">Dissociative and conversion disorders</field>
+  </row>
+  <row>
+    <field name="name">Disturbance in speech</field>
+  </row>
+  <row>
+    <field name="name">Disturbances of skin sensation</field>
+  </row>
+  <row>
+    <field name="name">Disturbances of smell and taste</field>
+  </row>
+  <row>
+    <field name="name">Diverticular disease</field>
+  </row>
+  <row>
+    <field name="name">Diverticulitis</field>
+  </row>
+  <row>
+    <field name="name">Dizziness</field>
+  </row>
+  <row>
+    <field name="name">Dizziness and giddiness</field>
+  </row>
+  <row>
+    <field name="name">Dorsalgia</field>
+  </row>
+  <row>
+    <field name="name">Down syndrome</field>
+  </row>
+  <row>
+    <field name="name">Dracunculiasis</field>
+  </row>
+  <row>
+    <field name="name">Drug abuse</field>
+  </row>
+  <row>
+    <field name="name">Drug dependence</field>
+  </row>
+  <row>
+    <field name="name">Drug dependence in remission</field>
+  </row>
+  <row>
+    <field name="name">Drug or chemical induced diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Drug overdose</field>
+  </row>
+  <row>
+    <field name="name">Drug resistance to insulin</field>
+  </row>
+  <row>
+    <field name="name">Drug seeking behavior</field>
+  </row>
+  <row>
+    <field name="name">Drug- and heavy-metal-induced tubulo-interstitial and tubular conditions</field>
+  </row>
+  <row>
+    <field name="name">Dry skin</field>
+  </row>
+  <row>
+    <field name="name">Duodenal ulcer</field>
+  </row>
+  <row>
+    <field name="name">Duodenitis</field>
+  </row>
+  <row>
+    <field name="name">Dupuytren's contracture</field>
+  </row>
+  <row>
+    <field name="name">Dysarthria</field>
+  </row>
+  <row>
+    <field name="name">Dysequilibrium syndrome</field>
+  </row>
+  <row>
+    <field name="name">Dysfunctional uterine bleeding</field>
+  </row>
+  <row>
+    <field name="name">Dysfunctional voiding of urine</field>
+  </row>
+  <row>
+    <field name="name">Dyslipidemia</field>
+  </row>
+  <row>
+    <field name="name">Dysmenorrhea</field>
+  </row>
+  <row>
+    <field name="name">Dysphagia</field>
+  </row>
+  <row>
+    <field name="name">Dysplasia of anus</field>
+  </row>
+  <row>
+    <field name="name">Dysplasia of cervix</field>
+  </row>
+  <row>
+    <field name="name">Dysplasia of cervix uteri</field>
+  </row>
+  <row>
+    <field name="name">Dysplastic nevus of skin</field>
+  </row>
+  <row>
+    <field name="name">Dyspnea on exertion</field>
+  </row>
+  <row>
+    <field name="name">Dyssomnia</field>
+  </row>
+  <row>
+    <field name="name">Dysthymia</field>
+  </row>
+  <row>
+    <field name="name">Dystonia</field>
+  </row>
+  <row>
+    <field name="name">Dystrophia unguium</field>
+  </row>
+  <row>
+    <field name="name">Dysuria</field>
+  </row>
+  <row>
+    <field name="name">Early syphilis</field>
+  </row>
+  <row>
+    <field name="name">Eating disorders</field>
+  </row>
+  <row>
+    <field name="name">Eccrine sweat disorders</field>
+  </row>
+  <row>
+    <field name="name">Echinococcosis</field>
+  </row>
+  <row>
+    <field name="name">Echocardiogram abnormal</field>
+  </row>
+  <row>
+    <field name="name">Eclampsia</field>
+  </row>
+  <row>
+    <field name="name">Ectopic pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Edema</field>
+  </row>
+  <row>
+    <field name="name">Edema of foot</field>
+  </row>
+  <row>
+    <field name="name">Edema of lower extremity</field>
+  </row>
+  <row>
+    <field name="name">Effects of air pressure and water pressure</field>
+  </row>
+  <row>
+    <field name="name">Effects of heat and light</field>
+  </row>
+  <row>
+    <field name="name">Electrocardiogram abnormal</field>
+  </row>
+  <row>
+    <field name="name">Electrolyte imbalance</field>
+  </row>
+  <row>
+    <field name="name">Elevated blood glucose level</field>
+  </row>
+  <row>
+    <field name="name">Elevated erythrocyte sedimentation rate and abnormality of plasma viscosity</field>
+  </row>
+  <row>
+    <field name="name">Elevated sedimentation rate</field>
+  </row>
+  <row>
+    <field name="name">Elevated total bilirubin</field>
+  </row>
+  <row>
+    <field name="name">Elevted creatinine</field>
+  </row>
+  <row>
+    <field name="name">Embedded and impacted teeth</field>
+  </row>
+  <row>
+    <field name="name">Emotional disorders </field>
+  </row>
+  <row>
+    <field name="name">Emotional stress</field>
+  </row>
+  <row>
+    <field name="name">Emphysema</field>
+  </row>
+  <row>
+    <field name="name">Emphysematous bronchitis</field>
+  </row>
+  <row>
+    <field name="name">Encephalitis</field>
+  </row>
+  <row>
+    <field name="name">Encephalocele</field>
+  </row>
+  <row>
+    <field name="name">Encopresis</field>
+  </row>
+  <row>
+    <field name="name">Encounter for cesarean delivery </field>
+  </row>
+  <row>
+    <field name="name">Encounter for full-term uncomplicated delivery</field>
+  </row>
+  <row>
+    <field name="name">End stage renal disease</field>
+  </row>
+  <row>
+    <field name="name">Endometriosis</field>
+  </row>
+  <row>
+    <field name="name">Endometritis</field>
+  </row>
+  <row>
+    <field name="name">Endometrium thickened</field>
+  </row>
+  <row>
+    <field name="name">Enlarged lymph nodes</field>
+  </row>
+  <row>
+    <field name="name">Enlarged prostate</field>
+  </row>
+  <row>
+    <field name="name">Enterobiasis</field>
+  </row>
+  <row>
+    <field name="name">Enteropathic arthropathies</field>
+  </row>
+  <row>
+    <field name="name">Enthesopathies</field>
+  </row>
+  <row>
+    <field name="name">Enuresis</field>
+  </row>
+  <row>
+    <field name="name">Eosinophil count raised</field>
+  </row>
+  <row>
+    <field name="name">Eosinophilic esophagitis</field>
+  </row>
+  <row>
+    <field name="name">Epidermoid cyst of skin</field>
+  </row>
+  <row>
+    <field name="name">Epidermolysis bullosa</field>
+  </row>
+  <row>
+    <field name="name">Epididymitis</field>
+  </row>
+  <row>
+    <field name="name">Epigastric pain</field>
+  </row>
+  <row>
+    <field name="name">Epilepsy</field>
+  </row>
+  <row>
+    <field name="name">Epilepsy and recurrent seizures</field>
+  </row>
+  <row>
+    <field name="name">Epistaxis</field>
+  </row>
+  <row>
+    <field name="name">Erectile dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Erosion and ectropion of cervix uteri</field>
+  </row>
+  <row>
+    <field name="name">Erysipelas</field>
+  </row>
+  <row>
+    <field name="name">Erysipeloid</field>
+  </row>
+  <row>
+    <field name="name">Erythema multiforme</field>
+  </row>
+  <row>
+    <field name="name">Erythema nodosum</field>
+  </row>
+  <row>
+    <field name="name">Erythrocytosis</field>
+  </row>
+  <row>
+    <field name="name">Erythroderma neonatorum</field>
+  </row>
+  <row>
+    <field name="name">Escherichia coli urinary tract infection</field>
+  </row>
+  <row>
+    <field name="name">Esophageal varices</field>
+  </row>
+  <row>
+    <field name="name">Esophagial cancer</field>
+  </row>
+  <row>
+    <field name="name">Esophagitis</field>
+  </row>
+  <row>
+    <field name="name">Essential (primary) hypertension</field>
+  </row>
+  <row>
+    <field name="name">Essential hypertension</field>
+  </row>
+  <row>
+    <field name="name">Essential thrombocythemia</field>
+  </row>
+  <row>
+    <field name="name">Essential tremor</field>
+  </row>
+  <row>
+    <field name="name">Eustachian salpingitis and obstruction</field>
+  </row>
+  <row>
+    <field name="name">Excess skin of both eyelids</field>
+  </row>
+  <row>
+    <field name="name">Excessive sweating</field>
+  </row>
+  <row>
+    <field name="name">Excessive vomiting in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Exercise-induced asthma</field>
+  </row>
+  <row>
+    <field name="name">Exfoliation </field>
+  </row>
+  <row>
+    <field name="name">Exfoliative dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Exostosis</field>
+  </row>
+  <row>
+    <field name="name">Exposure to Hepatitis B virus</field>
+  </row>
+  <row>
+    <field name="name">Exposure to Tuberculosis</field>
+  </row>
+  <row>
+    <field name="name">Expressive dysphasia</field>
+  </row>
+  <row>
+    <field name="name">Expressive language disorder</field>
+  </row>
+  <row>
+    <field name="name">External hemorrhoids</field>
+  </row>
+  <row>
+    <field name="name">Extreme obesity with alveolar hypoventilation</field>
+  </row>
+  <row>
+    <field name="name">Eye cancer</field>
+  </row>
+  <row>
+    <field name="name">Facial laceration</field>
+  </row>
+  <row>
+    <field name="name">Facial nerve disorders</field>
+  </row>
+  <row>
+    <field name="name">Failed attempted termination of pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Failed induction of labor</field>
+  </row>
+  <row>
+    <field name="name">Failure of cervical dilation due to primary uterine inertia</field>
+  </row>
+  <row>
+    <field name="name">Failure to gain weight</field>
+  </row>
+  <row>
+    <field name="name">False labor</field>
+  </row>
+  <row>
+    <field name="name">Family disruption</field>
+  </row>
+  <row>
+    <field name="name">Fatigue</field>
+  </row>
+  <row>
+    <field name="name">Febrile convulsion</field>
+  </row>
+  <row>
+    <field name="name">Febrile neutropenia</field>
+  </row>
+  <row>
+    <field name="name">Fecal incontinence</field>
+  </row>
+  <row>
+    <field name="name">Feeding problems of newborn</field>
+  </row>
+  <row>
+    <field name="name">Feeling agitated</field>
+  </row>
+  <row>
+    <field name="name">Feeling angry</field>
+  </row>
+  <row>
+    <field name="name">Female genital prolapse</field>
+  </row>
+  <row>
+    <field name="name">Female infertility</field>
+  </row>
+  <row>
+    <field name="name">Female stress incontinence</field>
+  </row>
+  <row>
+    <field name="name">Femoral hernia</field>
+  </row>
+  <row>
+    <field name="name">Fetal distress affecting management of mother</field>
+  </row>
+  <row>
+    <field name="name">Fetal growth restriction</field>
+  </row>
+  <row>
+    <field name="name">Fetal ultrasound choroid plexus cyst</field>
+  </row>
+  <row>
+    <field name="name">Fetal ultrasound echogenic cardiac focus</field>
+  </row>
+  <row>
+    <field name="name">Fetal ultrasound pyelectasis</field>
+  </row>
+  <row>
+    <field name="name">Fetus or newborn affected by maternal condition</field>
+  </row>
+  <row>
+    <field name="name">Fever</field>
+  </row>
+  <row>
+    <field name="name">Fibroadenoma of breasts</field>
+  </row>
+  <row>
+    <field name="name">Fibroblastic disorders</field>
+  </row>
+  <row>
+    <field name="name">Fibrocystic change of breast</field>
+  </row>
+  <row>
+    <field name="name">Fibromyositis</field>
+  </row>
+  <row>
+    <field name="name">Fibrosis and cirrhosis of liver</field>
+  </row>
+  <row>
+    <field name="name">Fibrosis of lung</field>
+  </row>
+  <row>
+    <field name="name">Fibrositis of neck</field>
+  </row>
+  <row>
+    <field name="name">Filariasis</field>
+  </row>
+  <row>
+    <field name="name">First degree atrioventricular block</field>
+  </row>
+  <row>
+    <field name="name">First degree perineal laceration</field>
+  </row>
+  <row>
+    <field name="name">Fissure and fistula of anal and rectal regions</field>
+  </row>
+  <row>
+    <field name="name">Fistulae involving female genital tract</field>
+  </row>
+  <row>
+    <field name="name">Flank pain</field>
+  </row>
+  <row>
+    <field name="name">Flatulence and related conditions</field>
+  </row>
+  <row>
+    <field name="name">Flying phobia</field>
+  </row>
+  <row>
+    <field name="name">Folate deficiency anemia</field>
+  </row>
+  <row>
+    <field name="name">Folic acid deficiency</field>
+  </row>
+  <row>
+    <field name="name">Follicular cysts of skin and subcutaneous tissue</field>
+  </row>
+  <row>
+    <field name="name">Follicular lymphoma</field>
+  </row>
+  <row>
+    <field name="name">Folliculitis</field>
+  </row>
+  <row>
+    <field name="name">Food intolerance</field>
+  </row>
+  <row>
+    <field name="name">Foot callus</field>
+  </row>
+  <row>
+    <field name="name">Forceps delivery - delivered</field>
+  </row>
+  <row>
+    <field name="name">Foreign body in alimentary tract</field>
+  </row>
+  <row>
+    <field name="name">Foreign body in ear</field>
+  </row>
+  <row>
+    <field name="name">Foreign body in genitourinary tract</field>
+  </row>
+  <row>
+    <field name="name">Foreign body on external eye</field>
+  </row>
+  <row>
+    <field name="name">Fracture at wrist and hand level</field>
+  </row>
+  <row>
+    <field name="name">Fracture of femur</field>
+  </row>
+  <row>
+    <field name="name">Fracture of foot and toe</field>
+  </row>
+  <row>
+    <field name="name">Fracture of forearm</field>
+  </row>
+  <row>
+    <field name="name">Fracture of lower leg</field>
+  </row>
+  <row>
+    <field name="name">Fracture of lumbar spine</field>
+  </row>
+  <row>
+    <field name="name">Fracture of lumbar spine and pelvis</field>
+  </row>
+  <row>
+    <field name="name">Fracture of rib(s)</field>
+  </row>
+  <row>
+    <field name="name">Fracture of shoulder and upper arm</field>
+  </row>
+  <row>
+    <field name="name">Fracture of skull and facial bones</field>
+  </row>
+  <row>
+    <field name="name">Frailty</field>
+  </row>
+  <row>
+    <field name="name">Frank hematuria</field>
+  </row>
+  <row>
+    <field name="name">Frostbite </field>
+  </row>
+  <row>
+    <field name="name">Fuchs' corneal dystrophy</field>
+  </row>
+  <row>
+    <field name="name">Full blood count abnormal</field>
+  </row>
+  <row>
+    <field name="name">Functional disorders of polymorphonuclear neutrophils</field>
+  </row>
+  <row>
+    <field name="name">Functional dyspepsia</field>
+  </row>
+  <row>
+    <field name="name">Gallstone pancreatitis</field>
+  </row>
+  <row>
+    <field name="name">Ganglion cyst</field>
+  </row>
+  <row>
+    <field name="name">Gastric polyp</field>
+  </row>
+  <row>
+    <field name="name">Gastric ulcer</field>
+  </row>
+  <row>
+    <field name="name">Gastritis</field>
+  </row>
+  <row>
+    <field name="name">Gastritis and duodenitis</field>
+  </row>
+  <row>
+    <field name="name">Gastro-esophageal reflux disease</field>
+  </row>
+  <row>
+    <field name="name">Gastroenteritis</field>
+  </row>
+  <row>
+    <field name="name">Gastroesophageal reflux disease</field>
+  </row>
+  <row>
+    <field name="name">Gastrointestinal hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Gastrojejunal ulcer</field>
+  </row>
+  <row>
+    <field name="name">Gastroparesis syndrome</field>
+  </row>
+  <row>
+    <field name="name">Gastrostomy present</field>
+  </row>
+  <row>
+    <field name="name">Gender identity disorders</field>
+  </row>
+  <row>
+    <field name="name">Generalized abdominal pain</field>
+  </row>
+  <row>
+    <field name="name">Generalized anxiety disorder</field>
+  </row>
+  <row>
+    <field name="name">Generalized hyperhidrosis</field>
+  </row>
+  <row>
+    <field name="name">Generalized ischemic myocardial dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Generalized seizure</field>
+  </row>
+  <row>
+    <field name="name">Genital herpes simplex</field>
+  </row>
+  <row>
+    <field name="name">Genital warts</field>
+  </row>
+  <row>
+    <field name="name">Genitourinary chlamydia infection</field>
+  </row>
+  <row>
+    <field name="name">Giant cell arteritis</field>
+  </row>
+  <row>
+    <field name="name">Gilbert's syndrome</field>
+  </row>
+  <row>
+    <field name="name">Gilles de la Tourette's syndrome</field>
+  </row>
+  <row>
+    <field name="name">Gingivitis and periodontal diseases</field>
+  </row>
+  <row>
+    <field name="name">Glanders and melioidosis</field>
+  </row>
+  <row>
+    <field name="name">Glaucoma</field>
+  </row>
+  <row>
+    <field name="name">Globus sensation</field>
+  </row>
+  <row>
+    <field name="name">Glycosuria</field>
+  </row>
+  <row>
+    <field name="name">Goiter</field>
+  </row>
+  <row>
+    <field name="name">Gonococcal infection</field>
+  </row>
+  <row>
+    <field name="name">Gonorrhea</field>
+  </row>
+  <row>
+    <field name="name">Gout</field>
+  </row>
+  <row>
+    <field name="name">Gouty arthropathy</field>
+  </row>
+  <row>
+    <field name="name">Granuloma annulare</field>
+  </row>
+  <row>
+    <field name="name">Granuloma inguinale</field>
+  </row>
+  <row>
+    <field name="name">Granulomatous disorders of skin and subcutaneous tissue</field>
+  </row>
+  <row>
+    <field name="name">Graves' disease</field>
+  </row>
+  <row>
+    <field name="name">Gross motor development delay</field>
+  </row>
+  <row>
+    <field name="name">Group B strep carrier in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Group B Streptococcus carrier</field>
+  </row>
+  <row>
+    <field name="name">Gynecomastia</field>
+  </row>
+  <row>
+    <field name="name">Habitual aborter-not pregnant</field>
+  </row>
+  <row>
+    <field name="name">Hair color and hair shaft abnormalities</field>
+  </row>
+  <row>
+    <field name="name">Hallucinations</field>
+  </row>
+  <row>
+    <field name="name">Hand eczema</field>
+  </row>
+  <row>
+    <field name="name">Hand joint pain</field>
+  </row>
+  <row>
+    <field name="name">Has tingling sensation</field>
+  </row>
+  <row>
+    <field name="name">Hashimoto thyroiditis</field>
+  </row>
+  <row>
+    <field name="name">Hay fever with asthma</field>
+  </row>
+  <row>
+    <field name="name">Hazy vision</field>
+  </row>
+  <row>
+    <field name="name">Head and neck cancer</field>
+  </row>
+  <row>
+    <field name="name">Headache</field>
+  </row>
+  <row>
+    <field name="name">Healthcare associated pneumonia</field>
+  </row>
+  <row>
+    <field name="name">Hearing problem</field>
+  </row>
+  <row>
+    <field name="name">Heart failure</field>
+  </row>
+  <row>
+    <field name="name">Heart murmur</field>
+  </row>
+  <row>
+    <field name="name">Heartburn</field>
+  </row>
+  <row>
+    <field name="name">Helicobacter-associated gastritis</field>
+  </row>
+  <row>
+    <field name="name">Hemangioma</field>
+  </row>
+  <row>
+    <field name="name">Hemangioma and lymphangioma</field>
+  </row>
+  <row>
+    <field name="name">Hemangioma of liver</field>
+  </row>
+  <row>
+    <field name="name">Hemangioma of skin</field>
+  </row>
+  <row>
+    <field name="name">Hematemesis</field>
+  </row>
+  <row>
+    <field name="name">Hematoma</field>
+  </row>
+  <row>
+    <field name="name">Hematuria</field>
+  </row>
+  <row>
+    <field name="name">Hemiparesis</field>
+  </row>
+  <row>
+    <field name="name">Hemiplegia</field>
+  </row>
+  <row>
+    <field name="name">Hemiplegia and hemiparesis</field>
+  </row>
+  <row>
+    <field name="name">Hemochromatosis</field>
+  </row>
+  <row>
+    <field name="name">Hemoglobin C trait</field>
+  </row>
+  <row>
+    <field name="name">Hemoglobin E trait</field>
+  </row>
+  <row>
+    <field name="name">Hemolytic disease of newborn</field>
+  </row>
+  <row>
+    <field name="name">Hemolytic disease of newborn due to ABO immunization</field>
+  </row>
+  <row>
+    <field name="name">Hemoptysis</field>
+  </row>
+  <row>
+    <field name="name">Hemorrhage from respiratory passages</field>
+  </row>
+  <row>
+    <field name="name">Hemorrhage in early pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Hemorrhagic disease of newborn</field>
+  </row>
+  <row>
+    <field name="name">Hemorrhoids</field>
+  </row>
+  <row>
+    <field name="name">Hemorrhoids and perianal venous thrombosis</field>
+  </row>
+  <row>
+    <field name="name">Hepatic encephalopathy</field>
+  </row>
+  <row>
+    <field name="name">Hepatitis</field>
+  </row>
+  <row>
+    <field name="name">Hepatitis B carrier</field>
+  </row>
+  <row>
+    <field name="name">Hepatitis C</field>
+  </row>
+  <row>
+    <field name="name">Hepatitis C antibody test positive</field>
+  </row>
+  <row>
+    <field name="name">Hereditary and idiopathic neuropathy</field>
+  </row>
+  <row>
+    <field name="name">Hereditary ataxia</field>
+  </row>
+  <row>
+    <field name="name">Hereditary factor IX deficiency</field>
+  </row>
+  <row>
+    <field name="name">Hereditary factor VIII deficiency</field>
+  </row>
+  <row>
+    <field name="name">Hernia of abdominal cavity</field>
+  </row>
+  <row>
+    <field name="name">Hernia of anterior abdominal wall</field>
+  </row>
+  <row>
+    <field name="name">Herniation of rectum into vagina</field>
+  </row>
+  <row>
+    <field name="name">Heroin dependence</field>
+  </row>
+  <row>
+    <field name="name">Herpes labialis</field>
+  </row>
+  <row>
+    <field name="name">Herpes simplex</field>
+  </row>
+  <row>
+    <field name="name">Herpes zoster</field>
+  </row>
+  <row>
+    <field name="name">Herpesviral </field>
+  </row>
+  <row>
+    <field name="name">Herpetic ulceration of vulva</field>
+  </row>
+  <row>
+    <field name="name">Heterozygous Factor V Leiden mutation</field>
+  </row>
+  <row>
+    <field name="name">Heterozygous thalassemia</field>
+  </row>
+  <row>
+    <field name="name">Hiatal hernia</field>
+  </row>
+  <row>
+    <field name="name">Hidradenitis</field>
+  </row>
+  <row>
+    <field name="name">Hidradenitis suppurativa</field>
+  </row>
+  <row>
+    <field name="name">High antibody titer</field>
+  </row>
+  <row>
+    <field name="name">High density lipoprotein deficiency</field>
+  </row>
+  <row>
+    <field name="name">High hemoglobin A1c level</field>
+  </row>
+  <row>
+    <field name="name">High risk bisexual behavior</field>
+  </row>
+  <row>
+    <field name="name">High risk heterosexual behavior</field>
+  </row>
+  <row>
+    <field name="name">High risk homosexual behavior</field>
+  </row>
+  <row>
+    <field name="name">High risk human papillomavirus test positive on cervical smear</field>
+  </row>
+  <row>
+    <field name="name">High risk pregnancy due to recurrent pregnancy loss</field>
+  </row>
+  <row>
+    <field name="name">High troponin I level</field>
+  </row>
+  <row>
+    <field name="name">Hirsutism</field>
+  </row>
+  <row>
+    <field name="name">Histoplasmosis</field>
+  </row>
+  <row>
+    <field name="name">HIV positive</field>
+  </row>
+  <row>
+    <field name="name">Hoarse</field>
+  </row>
+  <row>
+    <field name="name">Hodgkin lymphoma</field>
+  </row>
+  <row>
+    <field name="name">Hookworm diseases</field>
+  </row>
+  <row>
+    <field name="name">Hordeolum and chalazion</field>
+  </row>
+  <row>
+    <field name="name">Human immunodeficiency virus </field>
+  </row>
+  <row>
+    <field name="name">Human papilloma virus infection</field>
+  </row>
+  <row>
+    <field name="name">Hydatidiform mole</field>
+  </row>
+  <row>
+    <field name="name">Hydrocele</field>
+  </row>
+  <row>
+    <field name="name">Hydrocele and spermatocele</field>
+  </row>
+  <row>
+    <field name="name">Hydrocele of testis</field>
+  </row>
+  <row>
+    <field name="name">Hydrocephalus</field>
+  </row>
+  <row>
+    <field name="name">Hydronephrosis</field>
+  </row>
+  <row>
+    <field name="name">Hydrops fetalis </field>
+  </row>
+  <row>
+    <field name="name">Hyperaldosteronism</field>
+  </row>
+  <row>
+    <field name="name">Hypercalcemia</field>
+  </row>
+  <row>
+    <field name="name">Hypercholesterolemia</field>
+  </row>
+  <row>
+    <field name="name">Hyperemesis gravidarum</field>
+  </row>
+  <row>
+    <field name="name">Hyperfunction of pituitary gland</field>
+  </row>
+  <row>
+    <field name="name">Hyperglycemia</field>
+  </row>
+  <row>
+    <field name="name">Hyperkalemia</field>
+  </row>
+  <row>
+    <field name="name">Hyperlipidemia</field>
+  </row>
+  <row>
+    <field name="name">Hypermobility syndrome</field>
+  </row>
+  <row>
+    <field name="name">Hypernatremia</field>
+  </row>
+  <row>
+    <field name="name">Hyperparathyroidism</field>
+  </row>
+  <row>
+    <field name="name">Hyperphosphatemia</field>
+  </row>
+  <row>
+    <field name="name">Hyperpigmentation of skin</field>
+  </row>
+  <row>
+    <field name="name">Hyperplastic polyp of intestine</field>
+  </row>
+  <row>
+    <field name="name">Hyperprolactinemia</field>
+  </row>
+  <row>
+    <field name="name">Hypersensitivity pneumonitis </field>
+  </row>
+  <row>
+    <field name="name">Hypersomnia</field>
+  </row>
+  <row>
+    <field name="name">Hypertensive chronic kidney disease</field>
+  </row>
+  <row>
+    <field name="name">Hypertensive emergency</field>
+  </row>
+  <row>
+    <field name="name">Hypertensive heart disease</field>
+  </row>
+  <row>
+    <field name="name">Hypertensive heart failure</field>
+  </row>
+  <row>
+    <field name="name">Hypertensive urgency</field>
+  </row>
+  <row>
+    <field name="name">Hyperthyroidism</field>
+  </row>
+  <row>
+    <field name="name">Hypertrichosis</field>
+  </row>
+  <row>
+    <field name="name">Hypertriglyceridemia</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophic disorders of skin</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophic obstructive cardiomyopathy</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophic scar</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophy of adenoids</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophy of breast</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophy of nasal turbinates</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophy of tonsils</field>
+  </row>
+  <row>
+    <field name="name">Hypertrophy of tonsils AND adenoids</field>
+  </row>
+  <row>
+    <field name="name">Hyperuricemia</field>
+  </row>
+  <row>
+    <field name="name">Hypervolemia</field>
+  </row>
+  <row>
+    <field name="name">Hypnotic or anxiolytic dependence</field>
+  </row>
+  <row>
+    <field name="name">Hypoalbuminemia</field>
+  </row>
+  <row>
+    <field name="name">Hypocalcemia</field>
+  </row>
+  <row>
+    <field name="name">Hypokalemia</field>
+  </row>
+  <row>
+    <field name="name">Hypomagnesemia</field>
+  </row>
+  <row>
+    <field name="name">Hyponatremia</field>
+  </row>
+  <row>
+    <field name="name">Hypoparathyroidism</field>
+  </row>
+  <row>
+    <field name="name">Hypophosphatemia</field>
+  </row>
+  <row>
+    <field name="name">Hypospadias</field>
+  </row>
+  <row>
+    <field name="name">Hypotension</field>
+  </row>
+  <row>
+    <field name="name">Hypothermia</field>
+  </row>
+  <row>
+    <field name="name">Hypothyroidism</field>
+  </row>
+  <row>
+    <field name="name">Hypoxemia</field>
+  </row>
+  <row>
+    <field name="name">Hypoxia</field>
+  </row>
+  <row>
+    <field name="name">Idiopathic peripheral neuropathy</field>
+  </row>
+  <row>
+    <field name="name">Idiopathic scoliosis</field>
+  </row>
+  <row>
+    <field name="name">Idiopathic thrombocytopenic purpura</field>
+  </row>
+  <row>
+    <field name="name">Idiopathic urticaria</field>
+  </row>
+  <row>
+    <field name="name">Ileostomy present</field>
+  </row>
+  <row>
+    <field name="name">Iliotibial band friction syndrome of knees</field>
+  </row>
+  <row>
+    <field name="name">Imaging of gastrointestinal tract abnormal</field>
+  </row>
+  <row>
+    <field name="name">Immunodeficiency </field>
+  </row>
+  <row>
+    <field name="name">Immunosuppression</field>
+  </row>
+  <row>
+    <field name="name">Impaired glucose tolerance</field>
+  </row>
+  <row>
+    <field name="name">Impaired mobility</field>
+  </row>
+  <row>
+    <field name="name">Impetigo</field>
+  </row>
+  <row>
+    <field name="name">Impingement syndrome of shoulders</field>
+  </row>
+  <row>
+    <field name="name">Impotence</field>
+  </row>
+  <row>
+    <field name="name">Impulse disorders</field>
+  </row>
+  <row>
+    <field name="name">Inactive tuberculosis of lung</field>
+  </row>
+  <row>
+    <field name="name">Inappropriate diet and eating habits</field>
+  </row>
+  <row>
+    <field name="name">Incisional hernia</field>
+  </row>
+  <row>
+    <field name="name">Incomplete abortion</field>
+  </row>
+  <row>
+    <field name="name">Incomplete emptying of bladder</field>
+  </row>
+  <row>
+    <field name="name">Incomplete uterovaginal prolapse</field>
+  </row>
+  <row>
+    <field name="name">Incontinence of feces</field>
+  </row>
+  <row>
+    <field name="name">Increased creatine kinase level</field>
+  </row>
+  <row>
+    <field name="name">Increased frequency of urination</field>
+  </row>
+  <row>
+    <field name="name">Increased transaminase level</field>
+  </row>
+  <row>
+    <field name="name">Indeterminate sex and pseudohermaphroditism</field>
+  </row>
+  <row>
+    <field name="name">Indigestion</field>
+  </row>
+  <row>
+    <field name="name">Induratio penis plastica</field>
+  </row>
+  <row>
+    <field name="name">Infant feeding problem</field>
+  </row>
+  <row>
+    <field name="name">Infant of diabetic mother</field>
+  </row>
+  <row>
+    <field name="name">Infantile colic</field>
+  </row>
+  <row>
+    <field name="name">Infection due to multiple drug resistant microorganisms</field>
+  </row>
+  <row>
+    <field name="name">Infection of bladder catheter</field>
+  </row>
+  <row>
+    <field name="name">Infection with microorganisms resistant to cephalosporins and other beta lactams</field>
+  </row>
+  <row>
+    <field name="name">Infections of breast associated </field>
+  </row>
+  <row>
+    <field name="name">Infections of genitourinary tract in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Infectious mononucleosis</field>
+  </row>
+  <row>
+    <field name="name">Infectious mononucleosis</field>
+  </row>
+  <row>
+    <field name="name">Inferior vena cava filter present</field>
+  </row>
+  <row>
+    <field name="name">Infestation by Sarcoptes scabiei var hominis</field>
+  </row>
+  <row>
+    <field name="name">Infiltrating ductal carcinoma of female breasts</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory disease of cervix uteri</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory disease of liver</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory disease of uterus</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory diseases of prostate</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory disorders of breast</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory polyarthropathy</field>
+  </row>
+  <row>
+    <field name="name">Inflammatory polyneuropathy</field>
+  </row>
+  <row>
+    <field name="name">Influenza </field>
+  </row>
+  <row>
+    <field name="name">Influenza-like illness</field>
+  </row>
+  <row>
+    <field name="name">Ingrowing nail</field>
+  </row>
+  <row>
+    <field name="name">Inguinal pain</field>
+  </row>
+  <row>
+    <field name="name">Inhalant related disorders</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at abdomen</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at ankle and foot level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at forearm level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at hip and thigh level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at lower leg level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at neck level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at shoulder and upper arm level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels at wrist and hand level</field>
+  </row>
+  <row>
+    <field name="name">Injury of blood vessels of thorax</field>
+  </row>
+  <row>
+    <field name="name">Injury of cranial nerve</field>
+  </row>
+  <row>
+    <field name="name">Injury of eye and orbit</field>
+  </row>
+  <row>
+    <field name="name">Injury of heart</field>
+  </row>
+  <row>
+    <field name="name">Injury of intra-abdominal organs</field>
+  </row>
+  <row>
+    <field name="name">Injury of lumbar and sacral spinal cord and nerves at abdomen</field>
+  </row>
+  <row>
+    <field name="name">Injury of muscle</field>
+  </row>
+  <row>
+    <field name="name">Injury of muscle and tendon at ankle and foot level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves and spinal cord at neck level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves and spinal cord at thorax level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves at ankle and foot level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves at forearm level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves at hip and thigh level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves at lower leg level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves at shoulder and upper arm level</field>
+  </row>
+  <row>
+    <field name="name">Injury of nerves at wrist and hand level</field>
+  </row>
+  <row>
+    <field name="name">Injury of urinary and pelvic organs</field>
+  </row>
+  <row>
+    <field name="name">Innocent murmur</field>
+  </row>
+  <row>
+    <field name="name">Insomnia</field>
+  </row>
+  <row>
+    <field name="name">Intellectual functioning disability</field>
+  </row>
+  <row>
+    <field name="name">Intermenstrual bleeding - irregular</field>
+  </row>
+  <row>
+    <field name="name">Intermittent asthma</field>
+  </row>
+  <row>
+    <field name="name">Intermittent explosive disorder</field>
+  </row>
+  <row>
+    <field name="name">Internal derangement of knee</field>
+  </row>
+  <row>
+    <field name="name">Internal hemorrhoids</field>
+  </row>
+  <row>
+    <field name="name">Interstitial cystitis</field>
+  </row>
+  <row>
+    <field name="name">Interstitial emphysema and related conditions originating in the perinatal period</field>
+  </row>
+  <row>
+    <field name="name">Interstitial lung disease</field>
+  </row>
+  <row>
+    <field name="name">Intertrigo</field>
+  </row>
+  <row>
+    <field name="name">Intervertebral disc prolapse</field>
+  </row>
+  <row>
+    <field name="name">Intestinal malabsorption</field>
+  </row>
+  <row>
+    <field name="name">Intracranial and intraspinal abscess and granuloma</field>
+  </row>
+  <row>
+    <field name="name">Intracranial and intraspinal phlebitis and thrombophlebitis</field>
+  </row>
+  <row>
+    <field name="name">Intracranial hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Intracranial injury</field>
+  </row>
+  <row>
+    <field name="name">Intracranial laceration and hemorrhage </field>
+  </row>
+  <row>
+    <field name="name">Intracranial meningioma</field>
+  </row>
+  <row>
+    <field name="name">Intracranial nontraumatic hemorrhage of newborn</field>
+  </row>
+  <row>
+    <field name="name">Intraoperative and postprocedural complications of skin and subcutaneous tissue</field>
+  </row>
+  <row>
+    <field name="name">Intraoperative and postprocedural complications of the spleen</field>
+  </row>
+  <row>
+    <field name="name">Intraoperative complications of endocrine system</field>
+  </row>
+  <row>
+    <field name="name">Intrauterine (fetal) blood loss</field>
+  </row>
+  <row>
+    <field name="name">Iodine-deficiency related thyroid disorders and allied conditions</field>
+  </row>
+  <row>
+    <field name="name">Iridocyclitis</field>
+  </row>
+  <row>
+    <field name="name">Iron deficiency anemia</field>
+  </row>
+  <row>
+    <field name="name">Iron deficiency anemia of pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Iron deficiency without anemia</field>
+  </row>
+  <row>
+    <field name="name">Irregular periods</field>
+  </row>
+  <row>
+    <field name="name">Irritable bowel syndrome</field>
+  </row>
+  <row>
+    <field name="name">Irritant contact dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Ischemic colitis</field>
+  </row>
+  <row>
+    <field name="name">Ischemic stroke</field>
+  </row>
+  <row>
+    <field name="name">Isolated proteinuria </field>
+  </row>
+  <row>
+    <field name="name">Itching of skin</field>
+  </row>
+  <row>
+    <field name="name">Jaundice</field>
+  </row>
+  <row>
+    <field name="name">Joint pain</field>
+  </row>
+  <row>
+    <field name="name">Joint stiffness</field>
+  </row>
+  <row>
+    <field name="name">Juvenile arthritis</field>
+  </row>
+  <row>
+    <field name="name">Juvenile osteochondrosis of hip and pelvis</field>
+  </row>
+  <row>
+    <field name="name">Keratitis</field>
+  </row>
+  <row>
+    <field name="name">Kernicterus</field>
+  </row>
+  <row>
+    <field name="name">Kidney cancer</field>
+  </row>
+  <row>
+    <field name="name">Kidney stone</field>
+  </row>
+  <row>
+    <field name="name">Kwashiorkor</field>
+  </row>
+  <row>
+    <field name="name">Kyphosis and lordosis</field>
+  </row>
+  <row>
+    <field name="name">Kyphosis deformity of spine</field>
+  </row>
+  <row>
+    <field name="name">Labile hypertension</field>
+  </row>
+  <row>
+    <field name="name">Labor and delivery complicated by abnormality of fetal acid-base balance</field>
+  </row>
+  <row>
+    <field name="name">Labor and delivery complicated by umbilical cord complications</field>
+  </row>
+  <row>
+    <field name="name">Lack of expected normal physiological development in childhood and adults</field>
+  </row>
+  <row>
+    <field name="name">Lactic acidosis</field>
+  </row>
+  <row>
+    <field name="name">Lactose intolerance</field>
+  </row>
+  <row>
+    <field name="name">Large liver</field>
+  </row>
+  <row>
+    <field name="name">Large physiologic cupping of optic disc</field>
+  </row>
+  <row>
+    <field name="name">Laryngitis due to gastroesophageal reflux</field>
+  </row>
+  <row>
+    <field name="name">Laryngomalacia</field>
+  </row>
+  <row>
+    <field name="name">Late pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Late syphilis</field>
+  </row>
+  <row>
+    <field name="name">Learning difficulties</field>
+  </row>
+  <row>
+    <field name="name">Left ventricular hypertrophy</field>
+  </row>
+  <row>
+    <field name="name">Leiomyoma</field>
+  </row>
+  <row>
+    <field name="name">Leiomyoma of uterus</field>
+  </row>
+  <row>
+    <field name="name">Leishmaniasis</field>
+  </row>
+  <row>
+    <field name="name">Lentigo</field>
+  </row>
+  <row>
+    <field name="name">Leprosy </field>
+  </row>
+  <row>
+    <field name="name">Leptospirosis</field>
+  </row>
+  <row>
+    <field name="name">Lesion of the bladder</field>
+  </row>
+  <row>
+    <field name="name">Lesion of the skin of face</field>
+  </row>
+  <row>
+    <field name="name">Lesion of the vulva</field>
+  </row>
+  <row>
+    <field name="name">Lesion ofthe liver</field>
+  </row>
+  <row>
+    <field name="name">Leukocytosis</field>
+  </row>
+  <row>
+    <field name="name">Leukopenia</field>
+  </row>
+  <row>
+    <field name="name">Lichen planus</field>
+  </row>
+  <row>
+    <field name="name">Lichen sclerosus et atrophicus</field>
+  </row>
+  <row>
+    <field name="name">Lichen simplex chronicus</field>
+  </row>
+  <row>
+    <field name="name">Lichen simplex chronicus and prurigo</field>
+  </row>
+  <row>
+    <field name="name">Lightheadedness</field>
+  </row>
+  <row>
+    <field name="name">Lipoma</field>
+  </row>
+  <row>
+    <field name="name">Listeriosis</field>
+  </row>
+  <row>
+    <field name="name">Liver cancer</field>
+  </row>
+  <row>
+    <field name="name">Liver cell carcinoma </field>
+  </row>
+  <row>
+    <field name="name">Liver cyst</field>
+  </row>
+  <row>
+    <field name="name">Localized adiposity</field>
+  </row>
+  <row>
+    <field name="name">Localized swelling</field>
+  </row>
+  <row>
+    <field name="name">Long labor</field>
+  </row>
+  <row>
+    <field name="name">Long QT syndrome</field>
+  </row>
+  <row>
+    <field name="name">Loss of appetite</field>
+  </row>
+  <row>
+    <field name="name">Loss of sense of smell</field>
+  </row>
+  <row>
+    <field name="name">Low back pain</field>
+  </row>
+  <row>
+    <field name="name">Low back pain in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Low back strain</field>
+  </row>
+  <row>
+    <field name="name">Low blood pressure</field>
+  </row>
+  <row>
+    <field name="name">low body weight</field>
+  </row>
+  <row>
+    <field name="name">Lower abdominal pain</field>
+  </row>
+  <row>
+    <field name="name">Lower gastrointestinal hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Lower urinary tract symptoms</field>
+  </row>
+  <row>
+    <field name="name">Lumbar disc prolapse with radiculopathy</field>
+  </row>
+  <row>
+    <field name="name">Lumbar facet joint pain</field>
+  </row>
+  <row>
+    <field name="name">Lumbar post-laminectomy syndrome</field>
+  </row>
+  <row>
+    <field name="name">Lumbar radiculopathy</field>
+  </row>
+  <row>
+    <field name="name">Lumbar spondylosis</field>
+  </row>
+  <row>
+    <field name="name">Lumbar sprain</field>
+  </row>
+  <row>
+    <field name="name">Lumbosacral radiculitis</field>
+  </row>
+  <row>
+    <field name="name">Lumbosacral radiculopathy</field>
+  </row>
+  <row>
+    <field name="name">Lumbosacral spondylosis</field>
+  </row>
+  <row>
+    <field name="name">Lung cancer</field>
+  </row>
+  <row>
+    <field name="name">Lupus erythematosus</field>
+  </row>
+  <row>
+    <field name="name">Lymphadenopathy</field>
+  </row>
+  <row>
+    <field name="name">Lymphedema</field>
+  </row>
+  <row>
+    <field name="name">Lymphoid leukemia</field>
+  </row>
+  <row>
+    <field name="name">Lymphoma</field>
+  </row>
+  <row>
+    <field name="name">Macrocephaly</field>
+  </row>
+  <row>
+    <field name="name">Macrocytic anemia</field>
+  </row>
+  <row>
+    <field name="name">Macrocytosis</field>
+  </row>
+  <row>
+    <field name="name">Major depression in remission</field>
+  </row>
+  <row>
+    <field name="name">Major depressive disorder</field>
+  </row>
+  <row>
+    <field name="name">Malaise and fatigue</field>
+  </row>
+  <row>
+    <field name="name">Male dyspareunia</field>
+  </row>
+  <row>
+    <field name="name">Male erectile dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Male hypogonadism</field>
+  </row>
+  <row>
+    <field name="name">Male infertility</field>
+  </row>
+  <row>
+    <field name="name">Male pattern alopecia</field>
+  </row>
+  <row>
+    <field name="name">Male urinary stress incontinence</field>
+  </row>
+  <row>
+    <field name="name">Malignant melanoma</field>
+  </row>
+  <row>
+    <field name="name">Malignant myeloma</field>
+  </row>
+  <row>
+    <field name="name">Malignant neoplasm </field>
+  </row>
+  <row>
+    <field name="name">Malignant neoplasm of kidney</field>
+  </row>
+  <row>
+    <field name="name">Malignant neoplasm of lip</field>
+  </row>
+  <row>
+    <field name="name">Malignant neoplasm of peripheral nerves and autonomic nervous system</field>
+  </row>
+  <row>
+    <field name="name">Malignant neuroendocrine tumors</field>
+  </row>
+  <row>
+    <field name="name">Malnutrition in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Manic episodes</field>
+  </row>
+  <row>
+    <field name="name">Marasmic kwashiorkor</field>
+  </row>
+  <row>
+    <field name="name">Mastoiditis and related conditions</field>
+  </row>
+  <row>
+    <field name="name">Maternal care for abnormality of pelvic organs</field>
+  </row>
+  <row>
+    <field name="name">Maternal care for disproportion</field>
+  </row>
+  <row>
+    <field name="name">Maternal care for known or suspected fetal abnormality and damage</field>
+  </row>
+  <row>
+    <field name="name">Maternal care for malpresentation of fetus</field>
+  </row>
+  <row>
+    <field name="name">Maternal complications of pregnancy (in the new born)</field>
+  </row>
+  <row>
+    <field name="name">Maternal infectious and parasitic diseases classifiable elsewhere but complicating pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Maternal malignant neoplasms</field>
+  </row>
+  <row>
+    <field name="name">Maternal obesity in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Maternal obesity syndrome</field>
+  </row>
+  <row>
+    <field name="name">Mature T/NK-cell lymphomas</field>
+  </row>
+  <row>
+    <field name="name">Measles</field>
+  </row>
+  <row>
+    <field name="name">Mediastinal lymphadenopathy</field>
+  </row>
+  <row>
+    <field name="name">Melanocytic nevi</field>
+  </row>
+  <row>
+    <field name="name">Melanocytic nevus</field>
+  </row>
+  <row>
+    <field name="name">Melanoma of skin</field>
+  </row>
+  <row>
+    <field name="name">Melanosis coli</field>
+  </row>
+  <row>
+    <field name="name">Melena</field>
+  </row>
+  <row>
+    <field name="name">Meningitis</field>
+  </row>
+  <row>
+    <field name="name">Meningococcal infection</field>
+  </row>
+  <row>
+    <field name="name">Menometrorrhagia</field>
+  </row>
+  <row>
+    <field name="name">Menopausal flushing</field>
+  </row>
+  <row>
+    <field name="name">Menopausal symptoms</field>
+  </row>
+  <row>
+    <field name="name">Menopause present</field>
+  </row>
+  <row>
+    <field name="name">Menorrhagia</field>
+  </row>
+  <row>
+    <field name="name">Menstrual migraine</field>
+  </row>
+  <row>
+    <field name="name">Merkel cell carcinoma</field>
+  </row>
+  <row>
+    <field name="name">Mesothelioma</field>
+  </row>
+  <row>
+    <field name="name">Metabolic acidemia in newborn</field>
+  </row>
+  <row>
+    <field name="name">Metabolic acidosis</field>
+  </row>
+  <row>
+    <field name="name">Metabolic encephalopathy</field>
+  </row>
+  <row>
+    <field name="name">Metabolic syndrome X</field>
+  </row>
+  <row>
+    <field name="name">Methamphetamine dependence</field>
+  </row>
+  <row>
+    <field name="name">Methemoglobinemia</field>
+  </row>
+  <row>
+    <field name="name">Microalbuminuria</field>
+  </row>
+  <row>
+    <field name="name">Microcephaly</field>
+  </row>
+  <row>
+    <field name="name">Microcytic anemia</field>
+  </row>
+  <row>
+    <field name="name">Microcytic hypochromic anemia</field>
+  </row>
+  <row>
+    <field name="name">Microcytosis</field>
+  </row>
+  <row>
+    <field name="name">Microscopic colitis</field>
+  </row>
+  <row>
+    <field name="name">Microscopic hematuria</field>
+  </row>
+  <row>
+    <field name="name">Migraine</field>
+  </row>
+  <row>
+    <field name="name">Mild intellectual disabilities</field>
+  </row>
+  <row>
+    <field name="name">Miliary tuberculosis</field>
+  </row>
+  <row>
+    <field name="name">Mitral valve disorder</field>
+  </row>
+  <row>
+    <field name="name">Mitral valve prolapse</field>
+  </row>
+  <row>
+    <field name="name">Mitral valve regurgitation</field>
+  </row>
+  <row>
+    <field name="name">Mitral valve stenosis</field>
+  </row>
+  <row>
+    <field name="name">Mixed anxiety and depressive disorder</field>
+  </row>
+  <row>
+    <field name="name">Mixed dementia</field>
+  </row>
+  <row>
+    <field name="name">Mixed hyperlipidemia</field>
+  </row>
+  <row>
+    <field name="name">Moderate intellectual disabilities</field>
+  </row>
+  <row>
+    <field name="name">Molluscum contagiosum infection</field>
+  </row>
+  <row>
+    <field name="name">Mongolian spot</field>
+  </row>
+  <row>
+    <field name="name">Monkeypox</field>
+  </row>
+  <row>
+    <field name="name">Monoclonal gammopathy</field>
+  </row>
+  <row>
+    <field name="name">Monocytic leukemia</field>
+  </row>
+  <row>
+    <field name="name">Mononeuropathies</field>
+  </row>
+  <row>
+    <field name="name">Mood disorder</field>
+  </row>
+  <row>
+    <field name="name">Mortons neuroma</field>
+  </row>
+  <row>
+    <field name="name">Mosquito-borne viral encephalitis</field>
+  </row>
+  <row>
+    <field name="name">Motion sickness</field>
+  </row>
+  <row>
+    <field name="name">Mouth and throat cancer</field>
+  </row>
+  <row>
+    <field name="name">MRSA (carrier)</field>
+  </row>
+  <row>
+    <field name="name">MRSA infection</field>
+  </row>
+  <row>
+    <field name="name">Multiple gestation</field>
+  </row>
+  <row>
+    <field name="name">Multiple myeloma</field>
+  </row>
+  <row>
+    <field name="name">Multiple sclerosis</field>
+  </row>
+  <row>
+    <field name="name">Multiple valve diseases</field>
+  </row>
+  <row>
+    <field name="name">Mumps</field>
+  </row>
+  <row>
+    <field name="name">Muscle pain</field>
+  </row>
+  <row>
+    <field name="name">Muscle spasms of neck</field>
+  </row>
+  <row>
+    <field name="name">Muscle weakness</field>
+  </row>
+  <row>
+    <field name="name">Musculoskeletal pain</field>
+  </row>
+  <row>
+    <field name="name">Myasthenia gravis</field>
+  </row>
+  <row>
+    <field name="name">Mycetoma</field>
+  </row>
+  <row>
+    <field name="name">Myelodysplastic syndrome </field>
+  </row>
+  <row>
+    <field name="name">Myeloid leukemia</field>
+  </row>
+  <row>
+    <field name="name">Myiasis</field>
+  </row>
+  <row>
+    <field name="name">Myofascial pain syndrome</field>
+  </row>
+  <row>
+    <field name="name">Myositis</field>
+  </row>
+  <row>
+    <field name="name">Nail disorders</field>
+  </row>
+  <row>
+    <field name="name">Nasal and ear cancer</field>
+  </row>
+  <row>
+    <field name="name">Nasal congestion</field>
+  </row>
+  <row>
+    <field name="name">Nasal obstruction</field>
+  </row>
+  <row>
+    <field name="name">Nasal polyp</field>
+  </row>
+  <row>
+    <field name="name">Nausea</field>
+  </row>
+  <row>
+    <field name="name">Nausea and vomiting</field>
+  </row>
+  <row>
+    <field name="name">Nausea, vomiting and diarrhea</field>
+  </row>
+  <row>
+    <field name="name">Neck pain</field>
+  </row>
+  <row>
+    <field name="name">Neck sprain</field>
+  </row>
+  <row>
+    <field name="name">Necrotizing enterocolitis of newborn</field>
+  </row>
+  <row>
+    <field name="name">Neonatal acne</field>
+  </row>
+  <row>
+    <field name="name">Neonatal aspiration</field>
+  </row>
+  <row>
+    <field name="name">Neonatal hyperbilirubinemia</field>
+  </row>
+  <row>
+    <field name="name">Neonatal hypoglycemia</field>
+  </row>
+  <row>
+    <field name="name">Neonatal jaundice</field>
+  </row>
+  <row>
+    <field name="name">Neonatal jaundice associated with preterm delivery</field>
+  </row>
+  <row>
+    <field name="name">Neoplastic pleural effusion</field>
+  </row>
+  <row>
+    <field name="name">Nephrotic syndrome</field>
+  </row>
+  <row>
+    <field name="name">Nerve root and plexus disorders</field>
+  </row>
+  <row>
+    <field name="name">Nerve root disorder</field>
+  </row>
+  <row>
+    <field name="name">Neurogenic bladder</field>
+  </row>
+  <row>
+    <field name="name">Neurogenic claudication due to spinal stenosis of lumbar region</field>
+  </row>
+  <row>
+    <field name="name">Neurologic disorder associated with type II diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Neuropathic pain</field>
+  </row>
+  <row>
+    <field name="name">Neuropathy</field>
+  </row>
+  <row>
+    <field name="name">Neutropenia</field>
+  </row>
+  <row>
+    <field name="name">Neutropenic disorder</field>
+  </row>
+  <row>
+    <field name="name">Niacin deficiency </field>
+  </row>
+  <row>
+    <field name="name">Nicotine dependence</field>
+  </row>
+  <row>
+    <field name="name">Night sweats</field>
+  </row>
+  <row>
+    <field name="name">Nocardiosis</field>
+  </row>
+  <row>
+    <field name="name">Nocturia</field>
+  </row>
+  <row>
+    <field name="name">Nocturnal enuresis</field>
+  </row>
+  <row>
+    <field name="name">Nocturnal muscle cramp</field>
+  </row>
+  <row>
+    <field name="name">Non-alcoholic fatty liver</field>
+  </row>
+  <row>
+    <field name="name">Non-allergic rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Non-cardiac chest pain</field>
+  </row>
+  <row>
+    <field name="name">Non-follicular lymphoma</field>
+  </row>
+  <row>
+    <field name="name">Non-Hodgkin's lymphoma </field>
+  </row>
+  <row>
+    <field name="name">Non-small cell lung cancer</field>
+  </row>
+  <row>
+    <field name="name">Nondiabetic hypoglycemic coma</field>
+  </row>
+  <row>
+    <field name="name">Noninflammatory disorders of ovary</field>
+  </row>
+  <row>
+    <field name="name">Noninflammatory disorders of testis</field>
+  </row>
+  <row>
+    <field name="name">Nonreassuring fetal status</field>
+  </row>
+  <row>
+    <field name="name">Nonrheumatic aortic valve disorders</field>
+  </row>
+  <row>
+    <field name="name">Nonrheumatic pulmonary valve disorders</field>
+  </row>
+  <row>
+    <field name="name">Nonrheumatic tricuspid valve disorders</field>
+  </row>
+  <row>
+    <field name="name">Nonruptured cerebral aneurysm</field>
+  </row>
+  <row>
+    <field name="name">Nonspecific lymphadenitis</field>
+  </row>
+  <row>
+    <field name="name">Nonsuppurative otitis media</field>
+  </row>
+  <row>
+    <field name="name">Nontraumatic intracerebral hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Nontraumatic subarachnoid hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Nonvenereal syphilis</field>
+  </row>
+  <row>
+    <field name="name">Normocytic normochromic anemia</field>
+  </row>
+  <row>
+    <field name="name">Numbness and tingling sensation of skin</field>
+  </row>
+  <row>
+    <field name="name">Numbness of skin</field>
+  </row>
+  <row>
+    <field name="name">Nummular eczema</field>
+  </row>
+  <row>
+    <field name="name">Nursing difficulty</field>
+  </row>
+  <row>
+    <field name="name">Nutritional disorder</field>
+  </row>
+  <row>
+    <field name="name">Nutritional marasmus</field>
+  </row>
+  <row>
+    <field name="name">Nystagmus</field>
+  </row>
+  <row>
+    <field name="name">Obesity</field>
+  </row>
+  <row>
+    <field name="name">Obsessive-compulsive disorder</field>
+  </row>
+  <row>
+    <field name="name">Obstetric embolism</field>
+  </row>
+  <row>
+    <field name="name">Obstetrical tetanus</field>
+  </row>
+  <row>
+    <field name="name">Obstructed labor </field>
+  </row>
+  <row>
+    <field name="name">Obstructive and reflux uropathy</field>
+  </row>
+  <row>
+    <field name="name">Obstructive hyperbilirubinemia</field>
+  </row>
+  <row>
+    <field name="name">Obstructive sleep apnea</field>
+  </row>
+  <row>
+    <field name="name">Obstructive sleep apnea syndrome</field>
+  </row>
+  <row>
+    <field name="name">Occlusion and stenosis of cerebral arteries</field>
+  </row>
+  <row>
+    <field name="name">Occlusion and stenosis of precerebral arteries</field>
+  </row>
+  <row>
+    <field name="name">Occult blood in stools</field>
+  </row>
+  <row>
+    <field name="name">Ocular hypertension</field>
+  </row>
+  <row>
+    <field name="name">Oligohydramnios</field>
+  </row>
+  <row>
+    <field name="name">Oligomenorrhea</field>
+  </row>
+  <row>
+    <field name="name">Omphalitis of newborn</field>
+  </row>
+  <row>
+    <field name="name">Onchocerciasis</field>
+  </row>
+  <row>
+    <field name="name">Onychomycosis</field>
+  </row>
+  <row>
+    <field name="name">Open wound of abdomen</field>
+  </row>
+  <row>
+    <field name="name">Open wound of ankle</field>
+  </row>
+  <row>
+    <field name="name">Open wound of elbow and forearm</field>
+  </row>
+  <row>
+    <field name="name">Open wound of head</field>
+  </row>
+  <row>
+    <field name="name">Open wound of hip and thigh</field>
+  </row>
+  <row>
+    <field name="name">Open wound of knee and lower leg</field>
+  </row>
+  <row>
+    <field name="name">Open wound of neck</field>
+  </row>
+  <row>
+    <field name="name">Open wound of shoulder and upper arm</field>
+  </row>
+  <row>
+    <field name="name">Open wound of thorax</field>
+  </row>
+  <row>
+    <field name="name">Open wound of wrist</field>
+  </row>
+  <row>
+    <field name="name">Open woundS</field>
+  </row>
+  <row>
+    <field name="name">Opioid dependence</field>
+  </row>
+  <row>
+    <field name="name">Opioid related disorders</field>
+  </row>
+  <row>
+    <field name="name">Optic neuritis</field>
+  </row>
+  <row>
+    <field name="name">Oral lesions</field>
+  </row>
+  <row>
+    <field name="name">Orchitis and epididymitis</field>
+  </row>
+  <row>
+    <field name="name">Orthostatic hypotension</field>
+  </row>
+  <row>
+    <field name="name">Osgood Schlatter disease</field>
+  </row>
+  <row>
+    <field name="name">Osteitis deformans </field>
+  </row>
+  <row>
+    <field name="name">Osteoarthritis</field>
+  </row>
+  <row>
+    <field name="name">Osteochondrodysplasia </field>
+  </row>
+  <row>
+    <field name="name">Osteomyelitis</field>
+  </row>
+  <row>
+    <field name="name">Osteonecrosis</field>
+  </row>
+  <row>
+    <field name="name">Osteopenia</field>
+  </row>
+  <row>
+    <field name="name">Osteoporosis </field>
+  </row>
+  <row>
+    <field name="name">Otalgia and effusion of ear</field>
+  </row>
+  <row>
+    <field name="name">Otitis externa</field>
+  </row>
+  <row>
+    <field name="name">Otosclerosis</field>
+  </row>
+  <row>
+    <field name="name">Ovarian cancer</field>
+  </row>
+  <row>
+    <field name="name">Ovarian dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Pain disorder associated with medical and psychological disorder</field>
+  </row>
+  <row>
+    <field name="name">Pain due to neoplasm</field>
+  </row>
+  <row>
+    <field name="name">Pain due to varicose veins</field>
+  </row>
+  <row>
+    <field name="name">Pain in ankle</field>
+  </row>
+  <row>
+    <field name="name">Pain in elbow</field>
+  </row>
+  <row>
+    <field name="name">Pain in female genitalia on intercourse</field>
+  </row>
+  <row>
+    <field name="name">Pain in foot</field>
+  </row>
+  <row>
+    <field name="name">Pain in hand</field>
+  </row>
+  <row>
+    <field name="name">Pain in hip</field>
+  </row>
+  <row>
+    <field name="name">Pain in knee</field>
+  </row>
+  <row>
+    <field name="name">Pain in legs</field>
+  </row>
+  <row>
+    <field name="name">Pain in pelvis</field>
+  </row>
+  <row>
+    <field name="name">Pain in shoulder</field>
+  </row>
+  <row>
+    <field name="name">Pain in the coccyx</field>
+  </row>
+  <row>
+    <field name="name">Pain in the testicles</field>
+  </row>
+  <row>
+    <field name="name">Pain in thoracic spine</field>
+  </row>
+  <row>
+    <field name="name">Pain in throat</field>
+  </row>
+  <row>
+    <field name="name">Pain in throat and chest</field>
+  </row>
+  <row>
+    <field name="name">Pain in wrist</field>
+  </row>
+  <row>
+    <field name="name">Painful swollowing </field>
+  </row>
+  <row>
+    <field name="name">Palpitations</field>
+  </row>
+  <row>
+    <field name="name">Pancreatic cancer</field>
+  </row>
+  <row>
+    <field name="name">Pancreatitis</field>
+  </row>
+  <row>
+    <field name="name">Pancytopenia</field>
+  </row>
+  <row>
+    <field name="name">Panic attacks</field>
+  </row>
+  <row>
+    <field name="name">Panic disorder with agoraphobia</field>
+  </row>
+  <row>
+    <field name="name">Panniculus of abdomen</field>
+  </row>
+  <row>
+    <field name="name">Papillary thyroid carcinoma</field>
+  </row>
+  <row>
+    <field name="name">Paracoccidioidomycosis</field>
+  </row>
+  <row>
+    <field name="name">Paralytic ileus and intestinal obstruction </field>
+  </row>
+  <row>
+    <field name="name">Paralytic strabismus</field>
+  </row>
+  <row>
+    <field name="name">Paranoid schizophrenia</field>
+  </row>
+  <row>
+    <field name="name">Paraphilias</field>
+  </row>
+  <row>
+    <field name="name">Paraplegia</field>
+  </row>
+  <row>
+    <field name="name">Parapsoriasis</field>
+  </row>
+  <row>
+    <field name="name">Paresthesia</field>
+  </row>
+  <row>
+    <field name="name">Parkinson's disease</field>
+  </row>
+  <row>
+    <field name="name">Paroxysmal atrial fibrillation</field>
+  </row>
+  <row>
+    <field name="name">Paroxysmal atrial flutter</field>
+  </row>
+  <row>
+    <field name="name">Paroxysmal supraventricular tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Paroxysmal tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Paroxysmal ventricular tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Partial obstruction of small bowel</field>
+  </row>
+  <row>
+    <field name="name">Partial placenta previa with hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Patent ductus arteriosus</field>
+  </row>
+  <row>
+    <field name="name">Patent foramen ovale</field>
+  </row>
+  <row>
+    <field name="name">Pathological fracture of vertebra</field>
+  </row>
+  <row>
+    <field name="name">Pectus carinatum</field>
+  </row>
+  <row>
+    <field name="name">Pectus excavatum</field>
+  </row>
+  <row>
+    <field name="name">Pediatric failure to thrive</field>
+  </row>
+  <row>
+    <field name="name">Pediculosis and phthiriasis</field>
+  </row>
+  <row>
+    <field name="name">Pelvic somatic dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Pemphigoid</field>
+  </row>
+  <row>
+    <field name="name">Pemphigus</field>
+  </row>
+  <row>
+    <field name="name">Peptic ulcers</field>
+  </row>
+  <row>
+    <field name="name">Perennial allergic rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Perforation of bilateral tympanic membranes</field>
+  </row>
+  <row>
+    <field name="name">Perforation of left tympanic membrane</field>
+  </row>
+  <row>
+    <field name="name">Perforation of nasal septum</field>
+  </row>
+  <row>
+    <field name="name">Perforation of right tympanic membrane</field>
+  </row>
+  <row>
+    <field name="name">Perforation of tympanic membrane</field>
+  </row>
+  <row>
+    <field name="name">Pericardial effusion</field>
+  </row>
+  <row>
+    <field name="name">Pericarditis</field>
+  </row>
+  <row>
+    <field name="name">Perimenopausal state</field>
+  </row>
+  <row>
+    <field name="name">Perineal laceration during delivery</field>
+  </row>
+  <row>
+    <field name="name">Periodic limb movement disorder</field>
+  </row>
+  <row>
+    <field name="name">Perioral dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Peripheral circulatory disorder associated with type II diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Peripheral edema</field>
+  </row>
+  <row>
+    <field name="name">Peripheral nerve disease</field>
+  </row>
+  <row>
+    <field name="name">Peripheral vascular disease</field>
+  </row>
+  <row>
+    <field name="name">Peripheral venous insufficiency</field>
+  </row>
+  <row>
+    <field name="name">Perirectal abscess</field>
+  </row>
+  <row>
+    <field name="name">Peritonitis</field>
+  </row>
+  <row>
+    <field name="name">Peritonsillar abscess</field>
+  </row>
+  <row>
+    <field name="name">Pernicious anemia</field>
+  </row>
+  <row>
+    <field name="name">Persistent insomnia</field>
+  </row>
+  <row>
+    <field name="name">Persistent mood </field>
+  </row>
+  <row>
+    <field name="name">Personality and behavioral disorders </field>
+  </row>
+  <row>
+    <field name="name">Personality disorder</field>
+  </row>
+  <row>
+    <field name="name">Pervasive developmental disorders</field>
+  </row>
+  <row>
+    <field name="name">Pharyngitis</field>
+  </row>
+  <row>
+    <field name="name">Phimosis</field>
+  </row>
+  <row>
+    <field name="name">Phlebitis and thrombophlebitis</field>
+  </row>
+  <row>
+    <field name="name">Phobic anxiety disorders</field>
+  </row>
+  <row>
+    <field name="name">Physiological jaundice (new born)</field>
+  </row>
+  <row>
+    <field name="name">Pilonidal cyst and sinus</field>
+  </row>
+  <row>
+    <field name="name">Pilonidal cyst with abscess</field>
+  </row>
+  <row>
+    <field name="name">Pinta </field>
+  </row>
+  <row>
+    <field name="name">Pituitary adenoma</field>
+  </row>
+  <row>
+    <field name="name">Pituitary microadenoma</field>
+  </row>
+  <row>
+    <field name="name">Pityriasis alba</field>
+  </row>
+  <row>
+    <field name="name">Pityriasis rosea</field>
+  </row>
+  <row>
+    <field name="name">Pityriasis versicolor</field>
+  </row>
+  <row>
+    <field name="name">Placenta previa</field>
+  </row>
+  <row>
+    <field name="name">Placental abnormality</field>
+  </row>
+  <row>
+    <field name="name">Placental disorders</field>
+  </row>
+  <row>
+    <field name="name">Plagiocephaly</field>
+  </row>
+  <row>
+    <field name="name">Plague</field>
+  </row>
+  <row>
+    <field name="name">Plasmodium falciparum malaria</field>
+  </row>
+  <row>
+    <field name="name">Plasmodium malariae malaria</field>
+  </row>
+  <row>
+    <field name="name">Plasmodium vivax malaria</field>
+  </row>
+  <row>
+    <field name="name">Pleural effusion</field>
+  </row>
+  <row>
+    <field name="name">Pleural plaque</field>
+  </row>
+  <row>
+    <field name="name">Pleuritic pain</field>
+  </row>
+  <row>
+    <field name="name">Pneumoconiosis </field>
+  </row>
+  <row>
+    <field name="name">Pneumocystosis</field>
+  </row>
+  <row>
+    <field name="name">Pneumonia </field>
+  </row>
+  <row>
+    <field name="name">Pneumonitis </field>
+  </row>
+  <row>
+    <field name="name">Pneumothorax</field>
+  </row>
+  <row>
+    <field name="name">Pollen-food allergy</field>
+  </row>
+  <row>
+    <field name="name">Polyarteritis nodosa and related conditions</field>
+  </row>
+  <row>
+    <field name="name">Polycythemia vera</field>
+  </row>
+  <row>
+    <field name="name">Polydactyly</field>
+  </row>
+  <row>
+    <field name="name">Polyglandular dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Polyhydramnios</field>
+  </row>
+  <row>
+    <field name="name">Polymyalgia rheumatica</field>
+  </row>
+  <row>
+    <field name="name">Polyneuropathy</field>
+  </row>
+  <row>
+    <field name="name">Polyosteoarthritis</field>
+  </row>
+  <row>
+    <field name="name">Polyp of cervix</field>
+  </row>
+  <row>
+    <field name="name">Polyp of colon</field>
+  </row>
+  <row>
+    <field name="name">Polyp of corpus uteri</field>
+  </row>
+  <row>
+    <field name="name">Polyp of female genital tract</field>
+  </row>
+  <row>
+    <field name="name">Polyp of gallbladder</field>
+  </row>
+  <row>
+    <field name="name">Polysubstance abuse</field>
+  </row>
+  <row>
+    <field name="name">Polyuria</field>
+  </row>
+  <row>
+    <field name="name">Portal hypertension</field>
+  </row>
+  <row>
+    <field name="name">Portal vein thrombosis</field>
+  </row>
+  <row>
+    <field name="name">Positional plagiocephaly</field>
+  </row>
+  <row>
+    <field name="name">Post percutaneous transluminal coronary angioplasty</field>
+  </row>
+  <row>
+    <field name="name">Post-inflammatory hyperpigmentation</field>
+  </row>
+  <row>
+    <field name="name">Postablative hypothyroidism</field>
+  </row>
+  <row>
+    <field name="name">Postconcussion syndrome</field>
+  </row>
+  <row>
+    <field name="name">Posterior capsule opacification</field>
+  </row>
+  <row>
+    <field name="name">Posterior rhinorrhea</field>
+  </row>
+  <row>
+    <field name="name">Postherpetic neuralgia</field>
+  </row>
+  <row>
+    <field name="name">Postinfective and reactive arthropathies</field>
+  </row>
+  <row>
+    <field name="name">Postmenopausal bleeding</field>
+  </row>
+  <row>
+    <field name="name">Postmenopausal state</field>
+  </row>
+  <row>
+    <field name="name">Postoperative hypothyroidism</field>
+  </row>
+  <row>
+    <field name="name">Postpartum depression</field>
+  </row>
+  <row>
+    <field name="name">Postpartum gestational diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Postpartum hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Postpolio syndrome</field>
+  </row>
+  <row>
+    <field name="name">Postprocedural wound infection</field>
+  </row>
+  <row>
+    <field name="name">Postterm pregnancy of 40 to 42 weeks</field>
+  </row>
+  <row>
+    <field name="name">Posttraumatic stress disorder</field>
+  </row>
+  <row>
+    <field name="name">Pre-eclampsia</field>
+  </row>
+  <row>
+    <field name="name">Pre-existing hypertension </field>
+  </row>
+  <row>
+    <field name="name">Precipitate labor</field>
+  </row>
+  <row>
+    <field name="name">Prediabetes</field>
+  </row>
+  <row>
+    <field name="name">Preexisting hypertension in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Preinfarction syndrome</field>
+  </row>
+  <row>
+    <field name="name">Premature adrenarche</field>
+  </row>
+  <row>
+    <field name="name">Premature atrial contraction</field>
+  </row>
+  <row>
+    <field name="name">Premature delivery</field>
+  </row>
+  <row>
+    <field name="name">Premature delivery before 37 weeks</field>
+  </row>
+  <row>
+    <field name="name">Premature development of the breasts</field>
+  </row>
+  <row>
+    <field name="name">Premature ejaculation</field>
+  </row>
+  <row>
+    <field name="name">Premature menopause</field>
+  </row>
+  <row>
+    <field name="name">Premature rupture of membranes</field>
+  </row>
+  <row>
+    <field name="name">Premature separation of placenta </field>
+  </row>
+  <row>
+    <field name="name">Premature uterine contraction</field>
+  </row>
+  <row>
+    <field name="name">Premenstrual dysphoric disorder</field>
+  </row>
+  <row>
+    <field name="name">Premenstrual tension syndrome</field>
+  </row>
+  <row>
+    <field name="name">Presbyopia</field>
+  </row>
+  <row>
+    <field name="name">Presence of arteriovenous shunt for hemodialysis</field>
+  </row>
+  <row>
+    <field name="name">Presence of bilateral breast implant</field>
+  </row>
+  <row>
+    <field name="name">Presence of breast implant</field>
+  </row>
+  <row>
+    <field name="name">Presence of coronary artery stent in patient with coronary artery disease</field>
+  </row>
+  <row>
+    <field name="name">Presence of Foley catheter</field>
+  </row>
+  <row>
+    <field name="name">Presence of laparoscopic band</field>
+  </row>
+  <row>
+    <field name="name">Presence of nasogastric feeding tube</field>
+  </row>
+  <row>
+    <field name="name">Presence of retained hardware</field>
+  </row>
+  <row>
+    <field name="name">Presence of right breast implant</field>
+  </row>
+  <row>
+    <field name="name">Presence of tympanostomy tubes</field>
+  </row>
+  <row>
+    <field name="name">Pressure sore on sacrum</field>
+  </row>
+  <row>
+    <field name="name">Pressure sores</field>
+  </row>
+  <row>
+    <field name="name">Pressure ulcers</field>
+  </row>
+  <row>
+    <field name="name">Preterm labors</field>
+  </row>
+  <row>
+    <field name="name">Primary adenocarcinoma of colon</field>
+  </row>
+  <row>
+    <field name="name">Primary adenocarcinoma of lung</field>
+  </row>
+  <row>
+    <field name="name">Primary apnea in the newborn</field>
+  </row>
+  <row>
+    <field name="name">Primary cardiomyopathy</field>
+  </row>
+  <row>
+    <field name="name">Primary disorders of muscles</field>
+  </row>
+  <row>
+    <field name="name">Primary female infertility</field>
+  </row>
+  <row>
+    <field name="name">Primary hyperparathyroidism</field>
+  </row>
+  <row>
+    <field name="name">Primary insomnia</field>
+  </row>
+  <row>
+    <field name="name">Problem behavior</field>
+  </row>
+  <row>
+    <field name="name">Profound intellectual disabilities</field>
+  </row>
+  <row>
+    <field name="name">Prolapse of female genital organs</field>
+  </row>
+  <row>
+    <field name="name">Prolapse of vaginal vault after hysterectomy</field>
+  </row>
+  <row>
+    <field name="name">Prolapsed cervical intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Prolapsed lumbar intervertebral disc</field>
+  </row>
+  <row>
+    <field name="name">Prostate cancer</field>
+  </row>
+  <row>
+    <field name="name">Prostate nodule</field>
+  </row>
+  <row>
+    <field name="name">Prostatitis</field>
+  </row>
+  <row>
+    <field name="name">Protein-calorie malnutrition of moderate and mild degree</field>
+  </row>
+  <row>
+    <field name="name">Proteinuria</field>
+  </row>
+  <row>
+    <field name="name">Pruritus</field>
+  </row>
+  <row>
+    <field name="name">Pruritus ani</field>
+  </row>
+  <row>
+    <field name="name">Pseudophakia</field>
+  </row>
+  <row>
+    <field name="name">Psoriasis</field>
+  </row>
+  <row>
+    <field name="name">Psoriasis with arthropathy</field>
+  </row>
+  <row>
+    <field name="name">Psychophysiologic insomnia</field>
+  </row>
+  <row>
+    <field name="name">Psychosocial problems related to unwanted pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Psychotic disorder</field>
+  </row>
+  <row>
+    <field name="name">Puerperal psychosis</field>
+  </row>
+  <row>
+    <field name="name">Puerperal sepsis</field>
+  </row>
+  <row>
+    <field name="name">Pulmonary edema</field>
+  </row>
+  <row>
+    <field name="name">Pulmonary embolism</field>
+  </row>
+  <row>
+    <field name="name">Pulmonary hemorrhage originating in the perinatal period</field>
+  </row>
+  <row>
+    <field name="name">Pulmonary hypertension</field>
+  </row>
+  <row>
+    <field name="name">Pulmonary infiltrates</field>
+  </row>
+  <row>
+    <field name="name">Pure hypercholesterolemia</field>
+  </row>
+  <row>
+    <field name="name">Pyelonephritis</field>
+  </row>
+  <row>
+    <field name="name">Pyoderma gangrenosum</field>
+  </row>
+  <row>
+    <field name="name">Pyogenic arthritis</field>
+  </row>
+  <row>
+    <field name="name">Pyothorax</field>
+  </row>
+  <row>
+    <field name="name">Pyrexia of unknown origin</field>
+  </row>
+  <row>
+    <field name="name">Pyuria</field>
+  </row>
+  <row>
+    <field name="name">Q fever</field>
+  </row>
+  <row>
+    <field name="name">Rabies</field>
+  </row>
+  <row>
+    <field name="name">Radial styloid tenosynovitis</field>
+  </row>
+  <row>
+    <field name="name">Radiation proctitis</field>
+  </row>
+  <row>
+    <field name="name">Radicular pain</field>
+  </row>
+  <row>
+    <field name="name">Radiodermatitis</field>
+  </row>
+  <row>
+    <field name="name">Raised antinuclear antibody</field>
+  </row>
+  <row>
+    <field name="name">Raised Helicobacter pylori antibody</field>
+  </row>
+  <row>
+    <field name="name">Raised prostate specific antigen</field>
+  </row>
+  <row>
+    <field name="name">Raised TSH level</field>
+  </row>
+  <row>
+    <field name="name">Rapidly progressive nephritic syndrome</field>
+  </row>
+  <row>
+    <field name="name">Rat-bite fevers</field>
+  </row>
+  <row>
+    <field name="name">Raynaud's disease</field>
+  </row>
+  <row>
+    <field name="name">Reaction to severe stress</field>
+  </row>
+  <row>
+    <field name="name">Reactions and intoxications </field>
+  </row>
+  <row>
+    <field name="name">Reactive airway disease</field>
+  </row>
+  <row>
+    <field name="name">Rectal cancer</field>
+  </row>
+  <row>
+    <field name="name">Rectal hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Rectal prolapse</field>
+  </row>
+  <row>
+    <field name="name">Recurrent abdominal pain</field>
+  </row>
+  <row>
+    <field name="name">Recurrent acute tonsillitis</field>
+  </row>
+  <row>
+    <field name="name">Recurrent and persistent hematuria</field>
+  </row>
+  <row>
+    <field name="name">Recurrent genital herpes simplex</field>
+  </row>
+  <row>
+    <field name="name">Recurrent herpes simplex</field>
+  </row>
+  <row>
+    <field name="name">Recurrent herpes simplex labialis</field>
+  </row>
+  <row>
+    <field name="name">Recurrent major depression</field>
+  </row>
+  <row>
+    <field name="name">Recurrent oral gingivostomatitis due to herpes simplex</field>
+  </row>
+  <row>
+    <field name="name">Recurrent pregnancy loss</field>
+  </row>
+  <row>
+    <field name="name">Recurrent transient tic disorder</field>
+  </row>
+  <row>
+    <field name="name">Recurrent urinary tract infection</field>
+  </row>
+  <row>
+    <field name="name">Reduced libido</field>
+  </row>
+  <row>
+    <field name="name">Reduced visual acuity</field>
+  </row>
+  <row>
+    <field name="name">Reduction defects of upper limb</field>
+  </row>
+  <row>
+    <field name="name">Relapsing fevers</field>
+  </row>
+  <row>
+    <field name="name">Relapsing remitting multiple sclerosis</field>
+  </row>
+  <row>
+    <field name="name">Repetitive strain injury</field>
+  </row>
+  <row>
+    <field name="name">Residual cognitive deficit as late effect of cerebrovascular accident</field>
+  </row>
+  <row>
+    <field name="name">Respiratory conditions </field>
+  </row>
+  <row>
+    <field name="name">Respiratory distress</field>
+  </row>
+  <row>
+    <field name="name">Respiratory distress of newborn</field>
+  </row>
+  <row>
+    <field name="name">Respiratory distress syndrome in the newborn</field>
+  </row>
+  <row>
+    <field name="name">Respiratory failure</field>
+  </row>
+  <row>
+    <field name="name">Respiratory syncytial virus bronchiolitis</field>
+  </row>
+  <row>
+    <field name="name">Respiratory syncytial virus infection</field>
+  </row>
+  <row>
+    <field name="name">Respiratory tuberculosis</field>
+  </row>
+  <row>
+    <field name="name">Restless legs</field>
+  </row>
+  <row>
+    <field name="name">Restrictive lung disease</field>
+  </row>
+  <row>
+    <field name="name">Retained placenta and membranes</field>
+  </row>
+  <row>
+    <field name="name">Retarded development following protein-calorie malnutrition</field>
+  </row>
+  <row>
+    <field name="name">Retention of urine</field>
+  </row>
+  <row>
+    <field name="name">Retinal detachments and breaks</field>
+  </row>
+  <row>
+    <field name="name">Retinal migraine</field>
+  </row>
+  <row>
+    <field name="name">Retinal vascular occlusions</field>
+  </row>
+  <row>
+    <field name="name">Retractile testis</field>
+  </row>
+  <row>
+    <field name="name">Rhabdomyolysis</field>
+  </row>
+  <row>
+    <field name="name">RhD negative</field>
+  </row>
+  <row>
+    <field name="name">Rheumatic aortic valve diseases</field>
+  </row>
+  <row>
+    <field name="name">Rheumatic chorea</field>
+  </row>
+  <row>
+    <field name="name">Rheumatic fever </field>
+  </row>
+  <row>
+    <field name="name">Rheumatic tricuspid valve diseases</field>
+  </row>
+  <row>
+    <field name="name">Rheumatoid arthritis </field>
+  </row>
+  <row>
+    <field name="name">Rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Rib pain</field>
+  </row>
+  <row>
+    <field name="name">Risk of falling</field>
+  </row>
+  <row>
+    <field name="name">Rosacea</field>
+  </row>
+  <row>
+    <field name="name">Rubella </field>
+  </row>
+  <row>
+    <field name="name">Rupture of appendix</field>
+  </row>
+  <row>
+    <field name="name">Sacral dimple</field>
+  </row>
+  <row>
+    <field name="name">Salpingitis and oophoritis</field>
+  </row>
+  <row>
+    <field name="name">Sarcoidosis</field>
+  </row>
+  <row>
+    <field name="name">Scabies</field>
+  </row>
+  <row>
+    <field name="name">Scar of skin</field>
+  </row>
+  <row>
+    <field name="name">Scarlet fever</field>
+  </row>
+  <row>
+    <field name="name">Schistosomiasis </field>
+  </row>
+  <row>
+    <field name="name">Schizoaffective disorders</field>
+  </row>
+  <row>
+    <field name="name">Schizophrenia</field>
+  </row>
+  <row>
+    <field name="name">Schizotypal disorder</field>
+  </row>
+  <row>
+    <field name="name">Scoliosis</field>
+  </row>
+  <row>
+    <field name="name">Scrotal varices</field>
+  </row>
+  <row>
+    <field name="name">Seasonal allergic rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Seasonal asthma</field>
+  </row>
+  <row>
+    <field name="name">Seborrhea</field>
+  </row>
+  <row>
+    <field name="name">Seborrheic dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Seborrheic keratosis</field>
+  </row>
+  <row>
+    <field name="name">Seizures</field>
+  </row>
+  <row>
+    <field name="name">Senile dementia</field>
+  </row>
+  <row>
+    <field name="name">Senile hyperkeratosis</field>
+  </row>
+  <row>
+    <field name="name">Senile osteopenia</field>
+  </row>
+  <row>
+    <field name="name">Senile purpura</field>
+  </row>
+  <row>
+    <field name="name">Sensorineural hearing loss, bilateral</field>
+  </row>
+  <row>
+    <field name="name">Sensory integration disorder</field>
+  </row>
+  <row>
+    <field name="name">Sepsis without acute organ dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Septic arterial embolism</field>
+  </row>
+  <row>
+    <field name="name">Septic shock</field>
+  </row>
+  <row>
+    <field name="name">Serum creatinine raised</field>
+  </row>
+  <row>
+    <field name="name">Serum ferritin high</field>
+  </row>
+  <row>
+    <field name="name">Severe intellectual disabilities</field>
+  </row>
+  <row>
+    <field name="name">Sexual dysfunction not </field>
+  </row>
+  <row>
+    <field name="name">Shared psychotic disorder</field>
+  </row>
+  <row>
+    <field name="name">Shigellosis</field>
+  </row>
+  <row>
+    <field name="name">Short cervix in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Short frenulum of tongue</field>
+  </row>
+  <row>
+    <field name="name">Short stature disorder</field>
+  </row>
+  <row>
+    <field name="name">Shoulder lesions</field>
+  </row>
+  <row>
+    <field name="name">Sibling relationship problem</field>
+  </row>
+  <row>
+    <field name="name">Sick sinus syndrome</field>
+  </row>
+  <row>
+    <field name="name">Sickle cell trait</field>
+  </row>
+  <row>
+    <field name="name">Sickle-cell disorders</field>
+  </row>
+  <row>
+    <field name="name">Simple and mucopurulent chronic bronchitis</field>
+  </row>
+  <row>
+    <field name="name">Simple renal cyst</field>
+  </row>
+  <row>
+    <field name="name">Single kidney</field>
+  </row>
+  <row>
+    <field name="name">Single umbilical artery</field>
+  </row>
+  <row>
+    <field name="name">Sinus bradycardia</field>
+  </row>
+  <row>
+    <field name="name">Sinus node dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Sinus tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Sinusitis</field>
+  </row>
+  <row>
+    <field name="name">Skin cancer</field>
+  </row>
+  <row>
+    <field name="name">Skin changes </field>
+  </row>
+  <row>
+    <field name="name">Skin hypopigmented</field>
+  </row>
+  <row>
+    <field name="name">Skin lesions</field>
+  </row>
+  <row>
+    <field name="name">Skin nodules</field>
+  </row>
+  <row>
+    <field name="name">Skin tag</field>
+  </row>
+  <row>
+    <field name="name">Sleep apnea</field>
+  </row>
+  <row>
+    <field name="name">Sleep disorders</field>
+  </row>
+  <row>
+    <field name="name">Sleep related hypoventilation or hypoxemia</field>
+  </row>
+  <row>
+    <field name="name">Slurred speech</field>
+  </row>
+  <row>
+    <field name="name">Small bowel obstruction</field>
+  </row>
+  <row>
+    <field name="name">Small for gestational age fetus</field>
+  </row>
+  <row>
+    <field name="name">Small kidney of unknown cause</field>
+  </row>
+  <row>
+    <field name="name">Smallpox</field>
+  </row>
+  <row>
+    <field name="name">Snoring</field>
+  </row>
+  <row>
+    <field name="name">Social phobia</field>
+  </row>
+  <row>
+    <field name="name">Soft tissue disorders related to use</field>
+  </row>
+  <row>
+    <field name="name">Solar degeneration</field>
+  </row>
+  <row>
+    <field name="name">Somatoform disorders</field>
+  </row>
+  <row>
+    <field name="name">Somnolence</field>
+  </row>
+  <row>
+    <field name="name">Spasm</field>
+  </row>
+  <row>
+    <field name="name">Spasm of back muscles</field>
+  </row>
+  <row>
+    <field name="name">Spasticity</field>
+  </row>
+  <row>
+    <field name="name">Specific developmental disorder of motor function</field>
+  </row>
+  <row>
+    <field name="name">Specific developmental disorders of scholastic skills</field>
+  </row>
+  <row>
+    <field name="name">Specific developmental disorders of speech and language</field>
+  </row>
+  <row>
+    <field name="name">Specific personality disorders</field>
+  </row>
+  <row>
+    <field name="name">Specific phobia</field>
+  </row>
+  <row>
+    <field name="name">Spermatocele</field>
+  </row>
+  <row>
+    <field name="name">Spider vein </field>
+  </row>
+  <row>
+    <field name="name">Spina bifida</field>
+  </row>
+  <row>
+    <field name="name">Spinal muscular atrophy and related syndromes</field>
+  </row>
+  <row>
+    <field name="name">Spinal osteochondrosis</field>
+  </row>
+  <row>
+    <field name="name">Spinal stenosis</field>
+  </row>
+  <row>
+    <field name="name">Splenomegaly</field>
+  </row>
+  <row>
+    <field name="name">Spondylolisthesis</field>
+  </row>
+  <row>
+    <field name="name">Spondylosis</field>
+  </row>
+  <row>
+    <field name="name">Spontaneous abortion</field>
+  </row>
+  <row>
+    <field name="name">Spontaneous pneumothorax</field>
+  </row>
+  <row>
+    <field name="name">Spontaneous rupture of synovium and tendon</field>
+  </row>
+  <row>
+    <field name="name">Sporotrichosis</field>
+  </row>
+  <row>
+    <field name="name">Spotted fever </field>
+  </row>
+  <row>
+    <field name="name">Sprain of sacroiliac ligament</field>
+  </row>
+  <row>
+    <field name="name">Sprain or strain of cervical spine</field>
+  </row>
+  <row>
+    <field name="name">Squamous cell carcinoma of skin</field>
+  </row>
+  <row>
+    <field name="name">ST elevation (STEMI) and non-ST elevation (NSTEMI) myocardial infarction</field>
+  </row>
+  <row>
+    <field name="name">Stable angina</field>
+  </row>
+  <row>
+    <field name="name">Staphylococcal scalded skin syndrome</field>
+  </row>
+  <row>
+    <field name="name">Stasis dermatitis</field>
+  </row>
+  <row>
+    <field name="name">Steatohepatitis</field>
+  </row>
+  <row>
+    <field name="name">Steatosis of liver</field>
+  </row>
+  <row>
+    <field name="name">Stenosis of cervix</field>
+  </row>
+  <row>
+    <field name="name">Stenosis of intervertebral foramina</field>
+  </row>
+  <row>
+    <field name="name">Stented coronary artery</field>
+  </row>
+  <row>
+    <field name="name">Stiff neck</field>
+  </row>
+  <row>
+    <field name="name">Stiffness of knee joints</field>
+  </row>
+  <row>
+    <field name="name">Stomach cancer</field>
+  </row>
+  <row>
+    <field name="name">Stomatitis and related lesions</field>
+  </row>
+  <row>
+    <field name="name">Strabismus</field>
+  </row>
+  <row>
+    <field name="name">Strain of muscle of chest wall</field>
+  </row>
+  <row>
+    <field name="name">Strain of neck muscle</field>
+  </row>
+  <row>
+    <field name="name">Strain of rib</field>
+  </row>
+  <row>
+    <field name="name">Strain of thoracic region</field>
+  </row>
+  <row>
+    <field name="name">Strawberry nevus of skin</field>
+  </row>
+  <row>
+    <field name="name">Streptococcal sepsis</field>
+  </row>
+  <row>
+    <field name="name">Streptococcal sore throat</field>
+  </row>
+  <row>
+    <field name="name">Stress</field>
+  </row>
+  <row>
+    <field name="name">Stricture of esophagus</field>
+  </row>
+  <row>
+    <field name="name">Strongyloidiasis</field>
+  </row>
+  <row>
+    <field name="name">Subarachnoid hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Subclinical hypothyroidism</field>
+  </row>
+  <row>
+    <field name="name">Subclinical iodine-deficiency hypothyroidism</field>
+  </row>
+  <row>
+    <field name="name">Subdural hematoma</field>
+  </row>
+  <row>
+    <field name="name">Submucous leiomyoma of uterus</field>
+  </row>
+  <row>
+    <field name="name">Subsequent ST elevation (STEMI) and non-ST elevation (NSTEMI) myocardial infarction</field>
+  </row>
+  <row>
+    <field name="name">Suicidal thoughts</field>
+  </row>
+  <row>
+    <field name="name">Sunburn</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of abdomen</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of ankle</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of elbow and forearm</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of head</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of hip and thigh</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of knee and lower leg</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of neck</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of shoulder and upper arm</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of thorax</field>
+  </row>
+  <row>
+    <field name="name">Superficial injury of wrist</field>
+  </row>
+  <row>
+    <field name="name">Supervision of high risk pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Supraventricular tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Suspected fetal abnormality affecting management of mother</field>
+  </row>
+  <row>
+    <field name="name">Swelling of arms</field>
+  </row>
+  <row>
+    <field name="name">Swelling of legs</field>
+  </row>
+  <row>
+    <field name="name">Symptomatic human immunodeficiency virus infection</field>
+  </row>
+  <row>
+    <field name="name">Syncope</field>
+  </row>
+  <row>
+    <field name="name">Syncope and collapse</field>
+  </row>
+  <row>
+    <field name="name">Syndactyly</field>
+  </row>
+  <row>
+    <field name="name">Syndrome of inappropriate vasopressin secretion</field>
+  </row>
+  <row>
+    <field name="name">Synovial cyst of popliteal spaces</field>
+  </row>
+  <row>
+    <field name="name">Synovitis and tenosynovitis</field>
+  </row>
+  <row>
+    <field name="name">Syphilis</field>
+  </row>
+  <row>
+    <field name="name">Systemic inflammatory response syndrome</field>
+  </row>
+  <row>
+    <field name="name">Systemic lupus erythematosus</field>
+  </row>
+  <row>
+    <field name="name">Systemic sclerosis </field>
+  </row>
+  <row>
+    <field name="name">Systolic heart failure</field>
+  </row>
+  <row>
+    <field name="name">Tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Taeniasis</field>
+  </row>
+  <row>
+    <field name="name">Tendinitis</field>
+  </row>
+  <row>
+    <field name="name">Tension headache</field>
+  </row>
+  <row>
+    <field name="name">Testicular cancer</field>
+  </row>
+  <row>
+    <field name="name">Testicular dysfunction</field>
+  </row>
+  <row>
+    <field name="name">Tetanus neonatorum</field>
+  </row>
+  <row>
+    <field name="name">Thalassemia</field>
+  </row>
+  <row>
+    <field name="name">Thiamine deficiency</field>
+  </row>
+  <row>
+    <field name="name">Thoracic spine sprain</field>
+  </row>
+  <row>
+    <field name="name">Thoracic spondylosis</field>
+  </row>
+  <row>
+    <field name="name">Threatened abortion</field>
+  </row>
+  <row>
+    <field name="name">Thrombocytopenia</field>
+  </row>
+  <row>
+    <field name="name">Thrombocytosis</field>
+  </row>
+  <row>
+    <field name="name">Thyroid cancer</field>
+  </row>
+  <row>
+    <field name="name">Thyroid nodules</field>
+  </row>
+  <row>
+    <field name="name">Thyroiditis</field>
+  </row>
+  <row>
+    <field name="name">Thyrotoxicosis </field>
+  </row>
+  <row>
+    <field name="name">Tic disorder</field>
+  </row>
+  <row>
+    <field name="name">Tick-borne viral encephalitis</field>
+  </row>
+  <row>
+    <field name="name">Tight chest</field>
+  </row>
+  <row>
+    <field name="name">Tinea capitis</field>
+  </row>
+  <row>
+    <field name="name">Tinea corporis</field>
+  </row>
+  <row>
+    <field name="name">Tinea cruris</field>
+  </row>
+  <row>
+    <field name="name">Tinea pedis</field>
+  </row>
+  <row>
+    <field name="name">Tobacco dependence syndrome</field>
+  </row>
+  <row>
+    <field name="name">Toe-walking gait</field>
+  </row>
+  <row>
+    <field name="name">Tooth disorders</field>
+  </row>
+  <row>
+    <field name="name">Torticollis</field>
+  </row>
+  <row>
+    <field name="name">Total placenta previa with hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of alcohol</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of carbon monoxide</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of contact </field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of corrosive substances</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of halogen derivatives of aliphatic and aromatic hydrocarbons</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of metals</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of noxious substances eaten as seafood</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of organic solvents</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of pesticides</field>
+  </row>
+  <row>
+    <field name="name">Toxic effect of soaps and detergents</field>
+  </row>
+  <row>
+    <field name="name">Toxic encephalopathy</field>
+  </row>
+  <row>
+    <field name="name">Toxic liver disease</field>
+  </row>
+  <row>
+    <field name="name">Toxic multinodular goiter</field>
+  </row>
+  <row>
+    <field name="name">Toxoplasmosis</field>
+  </row>
+  <row>
+    <field name="name">Trachoma</field>
+  </row>
+  <row>
+    <field name="name">Transepidermal elimination disorders</field>
+  </row>
+  <row>
+    <field name="name">Transient cerebral ischemic attacks and related syndromes</field>
+  </row>
+  <row>
+    <field name="name">Transitory disorders of carbohydrate metabolism specific to newborn</field>
+  </row>
+  <row>
+    <field name="name">Transitory neonatal disorders of calcium and magnesium metabolism</field>
+  </row>
+  <row>
+    <field name="name">Traumatic amputation</field>
+  </row>
+  <row>
+    <field name="name">Traumatic brain injury</field>
+  </row>
+  <row>
+    <field name="name">Traumatic subdural hematoma</field>
+  </row>
+  <row>
+    <field name="name">Tremor</field>
+  </row>
+  <row>
+    <field name="name">Trichinellosis</field>
+  </row>
+  <row>
+    <field name="name">Trichomoniasis</field>
+  </row>
+  <row>
+    <field name="name">Trichotillomania</field>
+  </row>
+  <row>
+    <field name="name">Trichuriasis</field>
+  </row>
+  <row>
+    <field name="name">Tricuspid valve regurgitation</field>
+  </row>
+  <row>
+    <field name="name">Trigger thumb</field>
+  </row>
+  <row>
+    <field name="name">Trisomy 18 and Trisomy 13</field>
+  </row>
+  <row>
+    <field name="name">Tuberculosis of nervous system</field>
+  </row>
+  <row>
+    <field name="name">Tubulo-interstitial nephritis</field>
+  </row>
+  <row>
+    <field name="name">Tularemia</field>
+  </row>
+  <row>
+    <field name="name">Twin pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Type 1 diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Type 2 diabetes mellitus</field>
+  </row>
+  <row>
+    <field name="name">Typhoid and paratyphoid fevers</field>
+  </row>
+  <row>
+    <field name="name">Typhus fever</field>
+  </row>
+  <row>
+    <field name="name">Ulcerative colitis</field>
+  </row>
+  <row>
+    <field name="name">Ulnar nerve entrapment</field>
+  </row>
+  <row>
+    <field name="name">Umbilical granuloma</field>
+  </row>
+  <row>
+    <field name="name">Umbilical hemorrhage of newborn</field>
+  </row>
+  <row>
+    <field name="name">Umbilical hernia</field>
+  </row>
+  <row>
+    <field name="name">Uncontrolled hypertension</field>
+  </row>
+  <row>
+    <field name="name">Undescended and ectopic testicle</field>
+  </row>
+  <row>
+    <field name="name">Undifferentiated connective tissue disease</field>
+  </row>
+  <row>
+    <field name="name">Undifferentiated inflammatory polyarthritis</field>
+  </row>
+  <row>
+    <field name="name">Unsteady gait</field>
+  </row>
+  <row>
+    <field name="name">Upper airway resistance syndrome</field>
+  </row>
+  <row>
+    <field name="name">Upper back pain</field>
+  </row>
+  <row>
+    <field name="name">Upper gastrointestinal hemorrhage</field>
+  </row>
+  <row>
+    <field name="name">Upper respiratory infection</field>
+  </row>
+  <row>
+    <field name="name">Ureteric stones</field>
+  </row>
+  <row>
+    <field name="name">Urethral discharge</field>
+  </row>
+  <row>
+    <field name="name">Urethral stricture</field>
+  </row>
+  <row>
+    <field name="name">Urethral stricture</field>
+  </row>
+  <row>
+    <field name="name">Urethritis and urethral syndrome</field>
+  </row>
+  <row>
+    <field name="name">Urgent desire to urinate</field>
+  </row>
+  <row>
+    <field name="name">Urinary bladder stone</field>
+  </row>
+  <row>
+    <field name="name">Urinary incontinence</field>
+  </row>
+  <row>
+    <field name="name">Urinary retention </field>
+  </row>
+  <row>
+    <field name="name">Urinary tract infection in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Urinary tract infectious disease</field>
+  </row>
+  <row>
+    <field name="name">Urolith</field>
+  </row>
+  <row>
+    <field name="name">Urosepsis</field>
+  </row>
+  <row>
+    <field name="name">Urticaria</field>
+  </row>
+  <row>
+    <field name="name">Uterine fibroids affecting pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Uterine leiomyoma</field>
+  </row>
+  <row>
+    <field name="name">Uterine prolapse</field>
+  </row>
+  <row>
+    <field name="name">Uterine size for dates discrepancy</field>
+  </row>
+  <row>
+    <field name="name">Uterovaginal prolapse</field>
+  </row>
+  <row>
+    <field name="name">Vacuum assisted vaginal delivery</field>
+  </row>
+  <row>
+    <field name="name">Vaginal discharge</field>
+  </row>
+  <row>
+    <field name="name">Vaginal trichomoniasis</field>
+  </row>
+  <row>
+    <field name="name">Vaginitis</field>
+  </row>
+  <row>
+    <field name="name">Varicella </field>
+  </row>
+  <row>
+    <field name="name">Varicose veins </field>
+  </row>
+  <row>
+    <field name="name">Vascular dementia</field>
+  </row>
+  <row>
+    <field name="name">Vascular disorders of intestine</field>
+  </row>
+  <row>
+    <field name="name">Vascular syndromes of brain in cerebrovascular diseases</field>
+  </row>
+  <row>
+    <field name="name">Vasomotor rhinitis</field>
+  </row>
+  <row>
+    <field name="name">Vasovagal syncope</field>
+  </row>
+  <row>
+    <field name="name">Venous complications and hemorrhoids in pregnancy</field>
+  </row>
+  <row>
+    <field name="name">Venous complications and hemorrhoids in the puerperium</field>
+  </row>
+  <row>
+    <field name="name">Venous stasis</field>
+  </row>
+  <row>
+    <field name="name">Venous stasis ulcer</field>
+  </row>
+  <row>
+    <field name="name">Venous varices</field>
+  </row>
+  <row>
+    <field name="name">Ventral hernia</field>
+  </row>
+  <row>
+    <field name="name">Ventricular premature beats</field>
+  </row>
+  <row>
+    <field name="name">Ventricular septal defect</field>
+  </row>
+  <row>
+    <field name="name">Ventricular tachycardia</field>
+  </row>
+  <row>
+    <field name="name">Verruca vulgaris</field>
+  </row>
+  <row>
+    <field name="name">Vertigo</field>
+  </row>
+  <row>
+    <field name="name">Vesicular eczema of hands and/or feet</field>
+  </row>
+  <row>
+    <field name="name">Villous adenoma of colon</field>
+  </row>
+  <row>
+    <field name="name">Viral conjunctivitis</field>
+  </row>
+  <row>
+    <field name="name">Viral gastroenteritis</field>
+  </row>
+  <row>
+    <field name="name">Viral hepatitis C</field>
+  </row>
+  <row>
+    <field name="name">Viral meningitis</field>
+  </row>
+  <row>
+    <field name="name">Viral syndrome</field>
+  </row>
+  <row>
+    <field name="name">Viral warts</field>
+  </row>
+  <row>
+    <field name="name">Visual disturbances</field>
+  </row>
+  <row>
+    <field name="name">Visual field defect</field>
+  </row>
+  <row>
+    <field name="name">Visual impairment</field>
+  </row>
+  <row>
+    <field name="name">Vitamin A deficiency</field>
+  </row>
+  <row>
+    <field name="name">Vitamin B12 deficiency anemia</field>
+  </row>
+  <row>
+    <field name="name">Vitamin D deficiency</field>
+  </row>
+  <row>
+    <field name="name">Vitiligo</field>
+  </row>
+  <row>
+    <field name="name">Voice and resonance disorders</field>
+  </row>
+  <row>
+    <field name="name">Volume depletion</field>
+  </row>
+  <row>
+    <field name="name">Vomiting</field>
+  </row>
+  <row>
+    <field name="name">Vomiting of pregnancy</field>
+  </row>
+  <row>
+    <field name="name">von Willebrand disorder</field>
+  </row>
+  <row>
+    <field name="name">Weak fetal movements</field>
+  </row>
+  <row>
+    <field name="name">Wheezing</field>
+  </row>
+  <row>
+    <field name="name">Whiplash injury to neck</field>
+  </row>
+  <row>
+    <field name="name">Whooping cough</field>
+  </row>
+  <row>
+    <field name="name">Wolff-Parkinson-White pattern</field>
+  </row>
+  <row>
+    <field name="name">Yaws</field>
+  </row>
+  <row>
+    <field name="name">Yellow fever</field>
+  </row>
+  <row>
+    <field name="name">Zoster </field>
+  </row>
+  <row>
+    <field name="name">Zygomycosis</field>
+  </row>
 </resultset>
