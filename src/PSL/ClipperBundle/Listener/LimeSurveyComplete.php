@@ -20,7 +20,7 @@ class LimeSurveyComplete extends FqProcess
   {
     $result = null;
 
-    // Get FirstQProject object
+    // get FirstQProject object
     $fqp = $event->getFirstQProject();
 
     // @TODO: Support multi market/specialty combo
