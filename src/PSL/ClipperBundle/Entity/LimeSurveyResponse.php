@@ -9,11 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LimeSurveyResponse
 {
-    protected $id;
+    protected $ls_token;
 
     protected $member_id = 1;
-
-    protected $ls_token;
     
     protected $response_raw;
     
@@ -21,24 +19,32 @@ class LimeSurveyResponse
     
     protected $updated;
     /**
-     * @var \PSL\ClipperBundle\Entity\FirstQGroup
-     */
-    private $firstqgroup;
-
-    /**
      * @var \PSL\ClipperBundle\Entity\FirstQProject
      */
     private $firstqproject;
 
 
     /**
-     * Get id
+     * Set ls_token
      *
-     * @return guid 
+     * @param string $lsToken
+     * @return LimeSurveyResponse
      */
-    public function getId()
+    public function setLsToken($lsToken)
     {
-        return $this->id;
+        $this->ls_token = $lsToken;
+
+        return $this;
+    }
+
+    /**
+     * Get ls_token
+     *
+     * @return string 
+     */
+    public function getLsToken()
+    {
+        return $this->ls_token;
     }
 
     /**
@@ -62,29 +68,6 @@ class LimeSurveyResponse
     public function getMemberId()
     {
         return $this->member_id;
-    }
-
-    /**
-     * Set ls_token
-     *
-     * @param string $lsToken
-     * @return LimeSurveyResponse
-     */
-    public function setLsToken($lsToken)
-    {
-        $this->ls_token = $lsToken;
-
-        return $this;
-    }
-
-    /**
-     * Get ls_token
-     *
-     * @return string 
-     */
-    public function getLsToken()
-    {
-        return $this->ls_token;
     }
 
     /**
@@ -154,29 +137,6 @@ class LimeSurveyResponse
     public function getUpdated()
     {
         return $this->updated;
-    }
-
-    /**
-     * Set firstqgroup
-     *
-     * @param \PSL\ClipperBundle\Entity\FirstQGroup $firstqgroup
-     * @return LimeSurveyResponse
-     */
-    public function setFirstqgroup(\PSL\ClipperBundle\Entity\FirstQGroup $firstqgroup = null)
-    {
-        $this->firstqgroup = $firstqgroup;
-
-        return $this;
-    }
-
-    /**
-     * Get firstqgroup
-     *
-     * @return \PSL\ClipperBundle\Entity\FirstQGroup 
-     */
-    public function getFirstqgroup()
-    {
-        return $this->firstqgroup;
     }
 
     /**

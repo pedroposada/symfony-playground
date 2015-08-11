@@ -12,14 +12,6 @@ services:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
     # @TODO: only get templating
     arguments: [@service_container]
-    # arguments: [@templating]
-    # calls:
-      # - [setTemplating, ["@templating"]]
-      
-  # nps_plus_survey:
-    # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
-    # calls:
-      # - [setParentTemplating, ["@templating"]]
       
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
@@ -27,6 +19,7 @@ services:
   # --------------------------- #
   #       Clipper events        #
   # --------------------------- #
+  
   # highest priority goes at the top of the list
   clipper.listener.order_complete:
     class: PSL\ClipperBundle\Listener\LimeSurveyPending
@@ -51,3 +44,10 @@ services:
     arguments: ["@service_container", "limesurvey_complete"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 70 }
+  
+  # refresh responses
+  clipper.listener.limesurvey_responses:
+    class: PSL\ClipperBundle\Listener\LimeSurveyResponses
+    arguments: ["@service_container"]
+    tags:
+      - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }

@@ -5,31 +5,25 @@ PSL\ClipperBundle\Entity\LimeSurveyResponse:
   repositoryClass: PSL\ClipperBundle\Entity\Repository\LimeSurveyResponseRepository
   indexes:
     id_index:
-      columns: [ id ]
+      columns: [ ls_token ]
   id:
-    id:
-      type: guid
-      generator:
-        strategy: UUID
+    ls_token:
+      type: string
+      length: 255
+      column: ls_token
+      options:
+        comment: LimeSurvey token
   manyToOne:
-    firstqgroup:
-      targetEntity: FirstQGroup
-      referencedColumnName: id
     firstqproject:
       targetEntity: FirstQProject
-      referencedColumnName: id
+      cascade: ["remove"]
+      fetch: "EXTRA_LAZY"
   fields:
     member_id:
       type: integer
       column: member_id
       options:
         comment: MDM member id
-    ls_token:
-      type: string
-      length: 500
-      column: ls_token
-      options:
-        comment: LimeSurvey token
     response_raw:
       type: text
       column: response_raw
@@ -49,6 +43,5 @@ PSL\ClipperBundle\Entity\LimeSurveyResponse:
           on: update
       options:
         comment: date and time at update
-  # lifecycleCallbacks: {  }
   lifecycleCallbacks:
     preUpdate: [ setUpdatedValue ]
