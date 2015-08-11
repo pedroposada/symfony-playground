@@ -11,28 +11,12 @@ PSL\ClipperBundle\Entity\FirstQProject:
       type: guid
       generator:
         strategy: UUID
+  manyToOne:
+    firstqgroup:
+      targetEntity: FirstQGroup
+      cascade: [ "remove" ]
+      fetch: "EXTRA_LAZY"
   fields:
-    # definition of fields
-    # user_id:
-      # type: string
-      # nullable: true
-      # length: 200
-      # options:
-        # comment: id of the user
-    # order_id:
-      # type: string
-      # nullable: true
-      # length: 200
-      # options:
-        # comment: id of the order
-    # form_data_raw:
-      # type: text
-      # options:
-        # comment: result of the form submission, as json or as associative array serialized
-    group_uuid:
-      type: guid
-      options:
-        comment: id of the group this FirstQ Project is associated with
     sheet_data_raw:
       type: text
       options:

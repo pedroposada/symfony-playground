@@ -9,10 +9,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Common\Util\Debug as Debug;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
+use PSL\ClipperBundle\ClipperEvents;
 
 class LimeSurveyPending extends FqProcess
 {
@@ -114,7 +120,7 @@ class LimeSurveyPending extends FqProcess
     $ls_raw_data->urls = $this
       ->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
     
-    $fqp->setLimesurveyDataRaw(serialize($ls_raw_data));
+    $fqp->setLimesurveyDataRaw($this->getSerializer()->encode($ls_raw_data, 'json'));
     
   }
 
@@ -124,9 +130,10 @@ class LimeSurveyPending extends FqProcess
    * @param $baseURL string, base URL for limesurvey surveys, settings
    * @param $sid int, limesurvey survey id, stored in FQ entity
    * @param $participants int, stored in FormDataRaw in FQ entity
+   * @param $event FirstQProjectEvent
    * @return array, list of URLs for r-panel participants
    */
-  public function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants)
+  private function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants)
   {
     $urls = array();
 
@@ -136,6 +143,7 @@ class LimeSurveyPending extends FqProcess
         '[LANG]' => 'en',
         '[SLUG]' => $participant['token'],
       ));
+      
     }
 
     return $urls;

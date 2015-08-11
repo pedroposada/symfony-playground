@@ -50,6 +50,5 @@ PSL\ClipperBundle\Entity\FirstQGroup:
           on: update
       options:
         comment: date and time at update
-  # lifecycleCallbacks: {  }
   lifecycleCallbacks:
     preUpdate: [ setUpdatedValue ]
