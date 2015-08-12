@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Criteria;
 
 // custom
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
+use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
 
 /**
  * FirstQProjectRepository
@@ -35,12 +36,14 @@ class FirstQProjectRepository extends EntityRepository
     return $this->matching($criteria);
   }
   
-  public function findByFirstQGroupUUID($id)
+  public function findByFirstqgroupAndNotState(FirstQGroup $fqg, $state)
   {
     $expr = Criteria::expr();
     $criteria = Criteria::create();
-    $criteria->where($expr->eq('group_uuid', $id));
+    $criteria->where($expr->eq('firstqgroup_id', $fqg->getId()));
+    $criteria->where($expr->neq('state', $state));
     
     return $this->matching($criteria);
   }
+  
 }

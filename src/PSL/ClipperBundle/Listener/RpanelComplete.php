@@ -21,9 +21,8 @@ class RpanelComplete extends FqProcess
     $fqg = $event->getFirstQProjectGroup();
     $fqp = $event->getFirstQProject();
     
-    // set survey ID
-    $ls_data = $fqp->getLimesurveyDataUnserialized();
-    $iSurveyID = $ls_data->sid;
+    // get survey ID
+    $iSurveyID = current($fqp->getLimesurveyDataByField('sid'));
     
     // config connection to LS
     $params_ls = $this->container->getParameter('limesurvey');
@@ -45,9 +44,9 @@ class RpanelComplete extends FqProcess
     if ($quota > $response) {
       throw new Exception("Quota has not been reached yet for fq->id: [{$fqp->getId()}]");
     }
-    
-    // quota reached, expire survey
     $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
+    
+    // quota reached, EXPIRE survey
     $response = $ls->set_survey_properties(array(
       'iSurveyID' => $iSurveyID, 
       'aSurveySettings' => array(
