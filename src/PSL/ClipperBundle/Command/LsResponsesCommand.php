@@ -30,14 +30,14 @@ use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
 use PSL\ClipperBundle\ClipperEvents;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 
-class ClipperCommand extends ContainerAwareCommand
+class LsResponsesCommand extends ContainerAwareCommand
 {
   private $logger;
 
   protected function configure()
   {
-    $this->setName('clipper:cron')
-      ->setDescription('Get FirstQ Projects and process them.')
+    $this->setName('clipper:lsresponses')
+      ->setDescription('Get FirstQ Projects and refresh responses from LimeSurvey.')
       ;
   }
 
@@ -45,7 +45,7 @@ class ClipperCommand extends ContainerAwareCommand
   {
     
     // create the lock
-    $lock = new LockHandler('clipper:cron');
+    $lock = new LockHandler('clipper:lsresponses');
     if (!$lock->lock()) {
       $this->logger->debug('The command is already running in another process.');
       return 0;
@@ -64,11 +64,12 @@ class ClipperCommand extends ContainerAwareCommand
       // load all FirstQProjects
       $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
       foreach ($fqps as $fqp) {
+        
         try {
           $dispatcher = $this->getContainer()->get('event_dispatcher'); 
           $event = new FirstQProjectEvent($fqg, $fqp);
-          // main event, triggers subscribed listeners 
-          $dispatcher->dispatch(ClipperEvents::FQ_PROCESS, $event);
+          // main event, triggers all subscribed listeners 
+          $dispatcher->dispatch(ClipperEvents::LS_REFRESH_RESPONSES, $event);
           // feedback if all is good
           $this->logger->info("OK processing FirstQProject with id: [{$fqp->getId()}]");
         }
@@ -80,7 +81,6 @@ class ClipperCommand extends ContainerAwareCommand
       }
     }
     
-    // persist data to db
     $em->flush();
     $em->clear();
   }

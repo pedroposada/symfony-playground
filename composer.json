@@ -41,7 +41,8 @@
         "symfony/var-dumper": "^2.7",
         "symfony/event-dispatcher": "^2.7",
         "stripe/stripe-php": "2.*",
-        "lexik/jwt-authentication-bundle": "^1.1"
+        "lexik/jwt-authentication-bundle": "^1.1",
+        "symfony/serializer": "^2.7"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

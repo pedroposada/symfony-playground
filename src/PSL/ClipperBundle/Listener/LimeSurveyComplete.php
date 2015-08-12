@@ -11,7 +11,6 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-// use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 
 class LimeSurveyComplete extends FqProcess
 {

@@ -2,6 +2,11 @@
 
 namespace PSL\ClipperBundle\Entity;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -318,9 +323,9 @@ class FirstQGroup
       $response = array();
       
       $raw = $this->getFormDataRaw();
-      $unserialized = unserialize($raw);
-      if (isset($unserialized->{$field_name})) {
-        $response = (array)$unserialized->{$field_name};
+      $unserialized = $this->getSerializer()->dencode($raw, 'json');
+      if (isset($unserialized[$field_name])) {
+        $response = (array)$unserialized[$field_name];
       }
       
       return $response;
@@ -333,7 +338,7 @@ class FirstQGroup
      */
     public function getFormDataUnserialized() 
     {
-      $unserialized = unserialize($this->getFormDataRaw());
+      $unserialized = $this->getSerializer()->dencode($this->getFormDataRaw(), 'json');
       if (isset($unserialized)) {
         $response = $unserialized;
       }
