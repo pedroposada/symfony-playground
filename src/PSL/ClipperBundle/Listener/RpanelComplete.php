@@ -30,8 +30,6 @@ class RpanelComplete extends FqProcess
     $ls->configure($params_ls['api']);
     
     // check if quota has been reached
-    // $quota = $fq->getFormDataByField('num_participants'); // get total quota
-    $quota = 1;
     $response = $ls->get_summary(array(
       'iSurveyID' => $iSurveyID, 
       'sStatName' => 'completed_responses', 
@@ -40,6 +38,9 @@ class RpanelComplete extends FqProcess
       throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fqp->getId()}] on [get_summary]");
     }
     
+    // TODO: quota needs to be dynamic per type of survey
+    // $quota = current($fq->getFormDataByField('num_participants'));
+    $quota = $this->container->getParameter('clipper.quota.universal');
     // if completed is less than quota, then exit
     if ($quota > $response) {
       throw new Exception("Quota has not been reached yet for fq->id: [{$fqp->getId()}]");

@@ -43,6 +43,7 @@ parameters:
   clipper.brands:                     "Resources/terms/brands.xml"
   clipper.conditions:                 "Resources/terms/conditions.xml"
   clipper.frontend.url:               "[*clipper.frontend.url*]"
+  clipper.quota.universal             1
       
   # LimeSurvey settings
   limesurvey:
