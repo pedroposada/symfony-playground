@@ -28,6 +28,11 @@ use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
 use Stripe\Stripe;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
@@ -46,6 +51,14 @@ use \DateTimeZone as DateTimeZone;
  */
 class ClipperController extends FOSRestController
 {
+  
+  protected function getSerializer()
+  {
+    $encoders = array(new XmlEncoder(), new JsonEncoder());
+    $normalizers = array(new ObjectNormalizer());
+    
+    return new Serializer($normalizers, $encoders);
+  }
   
   /**
    * ----------------------------------------------------------------------------------------
@@ -425,8 +438,6 @@ class ClipperController extends FOSRestController
     $parameters_clipper = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
     
-    $firstq_group;
-    
     // Check if object exists already
     if (!empty($firstq_group_uuid)) {
       $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
@@ -447,16 +458,16 @@ class ClipperController extends FOSRestController
       $firstq_group = new FirstQGroup();
     }
     
-    $firstq_group->setFormDataRaw(serialize($form_data_serialized));
+    $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_data_serialized, 'json'));
     $firstq_group->setState($parameters_clipper['state_codes']['order_pending']);
     $em->persist($firstq_group);
     
     // Loop for all combination and set individual FirstQ projects 
     foreach ($gs_result_array as $key => $gs_result) {
       $firstq_project = new FirstQProject();
-      $firstq_project->setSheetDataRaw(serialize($gs_result));
+      $firstq_project->setSheetDataRaw($this->getSerializer()->encode($gs_result, 'json'));
       $firstq_project->setState($parameters_clipper['state_codes']['limesurvey_pending']);
-      $firstq_project->setGroupUuid($firstq_group);
+      $firstq_project->setFirstqgroup($firstq_group);
       $em->persist($firstq_project);
     }
     

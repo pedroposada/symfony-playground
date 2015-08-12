@@ -5,13 +5,16 @@ namespace PSL\ClipperBundle;
 final class ClipperEvents
 {
     /**
-     * The event listeners receive an
-     * PSL\ClipperBundle\Entity\FirstQProject instance.
+     * The event listeners receive an instance of
+     * PSL\ClipperBundle\Event\FirstQProjectEvent
      *
      * @var string
      */
+    // refresh responses from LimeSurvey
+    const LS_REFRESH_RESPONSES          = 'ls_refresh_responses';
+    
     // main event
-    const FQ_PROCESS                   = 'fq_process';
+    const FQ_PROCESS                    = 'fq_process';
     
     // sub events
     const BEFORE_ORDER_COMPLETE         = 'before_limesurvey_pending';
@@ -25,7 +28,4 @@ final class ClipperEvents
 
     const BEFORE_LIMESURVEY_COMPLETE    = 'before_limesurvey_complete';
     const AFTER_LIMESURVEY_COMPLETE     = 'after_limesurvey_complete';
-
-    const BEFORE_EMAIL_SENT             = 'before_email_sent';
-    const AFTER_EMAIL_SENT              = 'after_email_sent';
 }
