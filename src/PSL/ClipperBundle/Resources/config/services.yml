@@ -23,6 +23,17 @@ services:
       
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
+
+  fw_sso_user_provider:
+    class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
+    arguments: ["@service_container"]
+
+  fw_sso_webservices:
+    class: PSL\ClipperBundle\Service\FWSSOWebservice
+
+  drupal_password_encoder:
+    class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
+    arguments: ["@service_container"]
    
   # --------------------------- #
   #       Clipper events        #

@@ -34,6 +34,7 @@ parameters:
     state_codes:
       order_pending:                  "ORDER_PENDING"
       order_complete:                 "ORDER_COMPLETE"
+      limesurvey_pending:             "LIMESURVEY_PENDING"
       limesurvey_created:             "LIMESURVEY_CREATED"
       rpanel_complete:                "RPANEL_COMPLETE"
       limesurvey_complete:            "LIMESURVEY_COMPLETE"
