@@ -48,13 +48,13 @@ class FqProcess
     if ($fq->getState() == $this->state) {
       
       // let listeners hook into this event (before action is completed)
-      $dispatcher->dispatch("before_{$this->state}", $event);
+      $dispatcher->dispatch(strtolower("BEFORE_{$this->state}"), $event);
       
       $this->result = $this->main($event);
       $fq->setState($this->next_state);
       
       // let listeners hook into this event (after action is completed)
-      $dispatcher->dispatch("after_{$this->state}", $event);
+      $dispatcher->dispatch(strtolower("AFTER_{$this->state}"), $event);
     }
   }
   

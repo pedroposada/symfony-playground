@@ -62,7 +62,7 @@ class LsResponsesCommand extends ContainerAwareCommand
     $this->logger->info("Found [{$fqgs->count()}] FirstQGroup(s) for processing.", array('execute'));
     foreach ($fqgs as $fqg) {
       // load all FirstQProjects
-      $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
+      $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroupAndNotState($fqg, $params['state_codes']['limesurvey_exported']);
       foreach ($fqps as $fqp) {
         
         try {
