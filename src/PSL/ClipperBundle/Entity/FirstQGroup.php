@@ -47,7 +47,8 @@ class FirstQGroup
     protected $updated;
 
     /**
-     * @ORM\OneToMany(targetEntity="FirstQProject", mappedBy="group_uuid")
+     * Projects 
+     * mapped one to many targetEntity="FirstQProject", mappedBy="group_uuid"
      */
     protected $projects;
     
@@ -346,7 +347,7 @@ class FirstQGroup
      *
      * @return mixed firstq formated object 
      */
-    public function getFormattedFirstQGroup() {
+    public function getFormattedFirstQGroup($user_info = NULL, $processed_info = NULL) {
       
         $form_data = $this->getFormDataUnserialized();
         
@@ -356,10 +357,11 @@ class FirstQGroup
         $firstq_formatted['name'] = $form_data->name; // folio type
         $firstq_formatted['patient_type'] = $form_data->patient_type; // user generated
         $firstq_formatted['num_participants'] = $form_data->num_participants;
+        $firstq_formatted['updated'] = $this->updated;
         $firstq_formatted['markets'] = $form_data->markets;
         $firstq_formatted['specialties'] = $form_data->specialties;
         $firstq_formatted['brands'] = $form_data->brands;
-        $firstq['statements'] = $form_data->statements;
+        $firstq['attributes'] = $form_data->attributes;
         switch ($this->state) {
             case 'ORDER_PENDING':
                 $firstq_formatted['state'] = 'pending';
@@ -375,6 +377,14 @@ class FirstQGroup
         // $firstq_formatted['price'] = number_format(4995, 2, ',', ','); // Hardcoded for now
         $firstq_formatted['price'] = 4995; // Hardcoded for now
         $firstq_formatted['report_url'] = ''; // TBD
+        
+        if($user_info !== NULL) {
+          $firstq_formatted['user_info'] = $user_info;
+        }
+        
+        if($processed_info !== NULL) {
+          $firstq_formatted['processed_info'] = $processed_info;
+        }
         
         return $firstq_formatted;
     }

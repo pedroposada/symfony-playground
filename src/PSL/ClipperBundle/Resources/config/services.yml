@@ -16,6 +16,11 @@ services:
     # calls:
       # - [setTemplating, ["@templating"]]
 
+  yaml_admin_user_provider:
+    class: PSL\ClipperBundle\Security\User\YamlAdminUserProvider
+    arguments: ["%kernel.root_dir%/Resources/users.yml"]
+
+
   # --------------------------- #
   #       Clipper events        #
   # --------------------------- #

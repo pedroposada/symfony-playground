@@ -12,8 +12,9 @@ class FirstQProject
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="FirstQGroup", inversedBy="projects")
-     * @ORM\JoinColumn(name="firstqproject_id", referencedColumnName="id")
+     * Group Uuid 
+     * Many To One (targetEntity="FirstQGroup", inversedBy="projects")
+     * Join Column (name="firstqproject_id", referencedColumnName="id")
      */
     protected $group_uuid;
 

@@ -50,6 +50,11 @@ PSL\ClipperBundle\Entity\FirstQGroup:
           on: update
       options:
         comment: date and time at update
+  oneToMany:
+    projects:
+      targetEntity: FirstQProject
+      mappedBy: group_uuid
+      
   # lifecycleCallbacks: {  }
   lifecycleCallbacks:
     preUpdate: [ setUpdatedValue ]
