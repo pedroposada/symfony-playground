@@ -5,8 +5,9 @@ security:
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
         PSL\ClipperBundle\Security\User\YamlAdminUser: plaintext
-        # PSL\ClipperBundle\Security\User\FWSSOUser: 
-          # id: drupal_password_encoder
+        # PSL\ClipperBundle\Security\User\FWSSOUser: plaintext
+        PSL\ClipperBundle\Security\User\FWSSOUser:
+          id: drupal_password_encoder
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
@@ -100,6 +101,33 @@ security:
                 # query_parameter:
                     # enabled: true
                     # name:    bearer
+
+        # FW SSO Login
+        login:
+            pattern:  ^/clipper/ws/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured API"
+                provider: fw_sso
+            form_login:
+                check_path: /clipper/ws/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern:   ^/clipper/ws
+            stateless: true
+            lexik_jwt:
+                authorization_header:
+                    enabled: true
+                    prefix:  Bearer
+                query_parameter:
+                    enabled: true
+                    name:    bearer
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
