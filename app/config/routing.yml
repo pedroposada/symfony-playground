@@ -2,16 +2,12 @@ psl_clipper:
     resource: "@PSLClipperBundle/Resources/config/routing.yml"
     prefix:   /clipper
 
-app:
-    resource: "@AppBundle/Controller/"
-    type:     annotation
-
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
     prefix:   /clipper/api/doc
 
 api_login_check:
-   path: /clipper/api/login_check
-   
+    path: /clipper/api/login_check
+
 api_login_admin_check:
-   path: /clipper/api/admin/login_check
+    path: /clipper/api/admin/login_check

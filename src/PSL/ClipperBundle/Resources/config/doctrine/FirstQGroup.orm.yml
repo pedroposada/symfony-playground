@@ -54,7 +54,5 @@ PSL\ClipperBundle\Entity\FirstQGroup:
     projects:
       targetEntity: FirstQProject
       mappedBy: group_uuid
-      
-  # lifecycleCallbacks: {  }
   lifecycleCallbacks:
     preUpdate: [ setUpdatedValue ]

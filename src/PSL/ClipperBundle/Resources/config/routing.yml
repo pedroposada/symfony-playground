@@ -10,6 +10,14 @@ clipper:
   resource: PSL\ClipperBundle\Controller\ClipperController
   prefix:   /api
 
+clipper_user:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\ClipperUserController
+  prefix:   /ws
+
+api_login_check:
+   path: /ws/login_check
+
 psl_clipper_debug:
   path:     /debug
   defaults: { _controller: PSLClipperBundle:Clipper:debug }

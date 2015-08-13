@@ -11,12 +11,12 @@ PSL\ClipperBundle\Entity\FirstQProject:
       type: guid
       generator:
         strategy: UUID
+  manyToOne:
+    firstqgroup:
+      targetEntity: FirstQGroup
+      cascade: [ "remove" ]
+      fetch: "EXTRA_LAZY"
   fields:
-    # definition of fields
-    # group_uuid:
-      # type: guid
-      # options:
-        # comment: id of the group this FirstQ Project is associated with
     sheet_data_raw:
       type: text
       options:

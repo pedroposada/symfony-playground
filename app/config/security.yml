@@ -5,6 +5,8 @@ security:
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
         PSL\ClipperBundle\Security\User\YamlAdminUser: plaintext
+        PSL\ClipperBundle\Security\User\FWSSOUser:
+          id: drupal_password_encoder
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
@@ -19,21 +21,22 @@ security:
         # chain_provider:
             # chain:
                 # providers: [in_memory, fw_sso]
-        
+
         # Admin UI users
         yaml_admin:
             id: yaml_admin_user_provider
+        
+        # FW SSO Users
+        fw_sso:
+            id: fw_sso_user_provider
 
+        # Default Users
         in_memory:
             memory:
                 users:
                     # Add users here for access to the Admin UI front end
                     user:  { password: userpass, roles: [ 'ROLE_USER' ] }
                     admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
-        
-        # @TODO: FW SSO provider
-        # fw_sso:
-
 
     # the main part of the security, where you can set up firewalls
     # for specific sections of your app
@@ -83,9 +86,9 @@ security:
             pattern:  ^/clipper/api/login
             stateless: true
             anonymous: true
-            # http_basic:
-                # realm: "Secured API"
-                # provider: fw_sso
+            http_basic:
+                realm: "Secured API"
+                provider: fw_sso
             form_login:
                 check_path: /clipper/api/login_check
                 require_previous_session: false
@@ -104,7 +107,7 @@ security:
                 query_parameter:
                     enabled: true
                     name:    bearer
-            
+
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
     # http://symfony.com/doc/current/cookbook/security/access_control.html

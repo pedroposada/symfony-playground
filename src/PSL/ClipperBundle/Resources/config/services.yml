@@ -16,15 +16,30 @@ services:
     # calls:
       # - [setTemplating, ["@templating"]]
 
+  limesurvey:
+    class: PSL\ClipperBundle\Utils\LimeSurvey
+
   yaml_admin_user_provider:
     class: PSL\ClipperBundle\Security\User\YamlAdminUserProvider
     arguments: ["%kernel.root_dir%/Resources/users.yml"]
 
+  fw_sso_user_provider:
+    class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
+    arguments: ["@service_container"]
+
+  fw_sso_webservices:
+    class: PSL\ClipperBundle\Service\FWSSOWebservice
+
+  drupal_password_encoder:
+    class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
+    arguments: ["@service_container"]
 
   # --------------------------- #
-  #       Clipper events        #
+  #   Clipper event listeners   #
   # --------------------------- #
-  # highest priority goes at the top of the list
+  
+  # Listeners are called in descending order by priority. Highest priority is called first.
+
   clipper.listener.order_complete:
     class: PSL\ClipperBundle\Listener\LimeSurveyPending
     arguments: ["@service_container", "limesurvey_pending"]
@@ -48,3 +63,11 @@ services:
     arguments: ["@service_container", "limesurvey_complete"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 70 }
+  
+  # refresh responses
+  clipper.listener.limesurvey_responses:
+    class: PSL\ClipperBundle\Listener\LimeSurveyResponses
+    arguments: ["@service_container"]
+    tags:
+      - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }
+      - { name: kernel.event_listener, event: after_limesurvey_complete, method: refreshResponses, priority: 0 }

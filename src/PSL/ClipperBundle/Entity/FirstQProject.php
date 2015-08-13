@@ -4,6 +4,11 @@ namespace PSL\ClipperBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 /**
  * @ORM\Entity
  */
@@ -28,6 +33,88 @@ class FirstQProject
     
     protected $updated;
     
+    
+    public function __toString()
+    {
+      return $this->getId();
+    }
+    
+    protected function getSerializer()
+    {
+      $encoders = array(new XmlEncoder(), new JsonEncoder());
+      $normalizers = array(new ObjectNormalizer());
+      
+      return new Serializer($normalizers, $encoders);
+    }
+    
+    /**
+     * Get the Sheet Data unserialized
+     * 
+     * @return mixed string|int|array
+     */
+    public function getSheetDataUnserialized() 
+    {
+      $raw = $this->getSheetDataRaw();
+      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      if (isset($unserialized)) {
+        $response = $unserialized;
+      }
+      
+      return $response;
+    }
+
+    /**
+     * Get specific value from SheetDataRaw array
+     * 
+     * @return mixed string|int|array
+     */
+    public function getSheetDataByField($field_name) 
+    {
+      $response = array();
+      
+      $raw = $this->getSheetDataRaw();
+      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      if (isset($unserialized[$field_name])) {
+        $response = (array)$unserialized[$field_name];
+      }
+      
+      return $response;
+    }
+
+    /**
+     * Get specific value from SheetDataRaw array
+     * 
+     * @return mixed string|int|array
+     */
+    public function getLimesurveyDataByField($field_name) 
+    {
+      $response = array();
+      
+      $raw = $this->getLimesurveyDataRaw($field_name);
+      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      if (isset($unserialized[$field_name])) {
+        $response = (array)$unserialized[$field_name];
+      }
+      
+      return $response;
+    }
+
+    /**
+     * Get the Limesurvey Data unserialized
+     * 
+     * @return mixed string|int|array
+     */
+    public function getLimesurveyDataUnserialized() 
+    {
+      $raw = $this->getLimesurveyDataRaw();
+      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      if (isset($unserialized)) {
+        $response = $unserialized;
+      }
+      
+      return $response;
+    }
+    
     /**
      * Get id
      *
@@ -36,29 +123,6 @@ class FirstQProject
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set group_uuid
-     *
-     * @param string $group_uuid
-     * @return FirstQProject
-     */
-    public function setGroupUuid($group_uuid)
-    {
-        $this->group_uuid = $group_uuid;
-
-        return $this;
-    }
-
-    /**
-     * Get group_uuid
-     *
-     * @return string 
-     */
-    public function getGroupUuid()
-    {
-        return $this->group_uuid;
     }
 
     /**
@@ -184,69 +248,31 @@ class FirstQProject
     }
 
     /**
-     * Get the Sheet Data unserialized
-     * 
-     * @return mixed string|int|array
+     * @var \PSL\ClipperBundle\Entity\FirstQGroup
      */
-    public function getSheetDataUnserialized() 
+    private $firstqgroup;
+
+
+    /**
+     * Set firstqgroup
+     *
+     * @param \PSL\ClipperBundle\Entity\FirstQGroup $firstqgroup
+     * @return FirstQProject
+     */
+    public function setFirstqgroup(\PSL\ClipperBundle\Entity\FirstQGroup $firstqgroup = null)
     {
-      $unserialized = unserialize($this->getSheetDataRaw());
-      if (isset($unserialized)) {
-        $response = $unserialized;
-      }
-      
-      return $response;
+        $this->firstqgroup = $firstqgroup;
+
+        return $this;
     }
 
     /**
-     * Get specific value from SheetDataRaw array
-     * 
-     * @return mixed string|int|array
+     * Get firstqgroup
+     *
+     * @return \PSL\ClipperBundle\Entity\FirstQGroup 
      */
-    public function getSheetDataByField($field_name) 
+    public function getFirstqgroup()
     {
-      $response = array();
-      
-      $raw = $this->getSheetDataRaw();
-      $unserialized = unserialize($raw);
-      if (isset($unserialized->{$field_name})) {
-        $response = (array)$unserialized->{$field_name};
-      }
-      
-      return $response;
+        return $this->firstqgroup;
     }
-
-    /**
-     * Get specific value from SheetDataRaw array
-     * 
-     * @return mixed string|int|array
-     */
-    public function getLimesurveyDataByField($field_name) 
-    {
-      $response = array();
-      
-      $raw = $this->getLimesurveyDataRaw($field_name);
-      $unserialized = unserialize($raw);
-      if (isset($unserialized->{$field_name})) {
-        $response = (array)$unserialized->{$field_name};
-      }
-      
-      return $response;
-    }
-
-    /**
-     * Get the Limesurvey Data unserialized
-     * 
-     * @return mixed string|int|array
-     */
-    public function getLimesurveyDataUnserialized() 
-    {
-      $unserialized = unserialize($this->getLimesurveyDataRaw());
-      if (isset($unserialized)) {
-        $response = $unserialized;
-      }
-      
-      return $response;
-    }
-
 }
