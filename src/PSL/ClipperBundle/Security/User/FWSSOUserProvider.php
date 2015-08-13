@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
-use PSL\ClipperBundle\Service\FWSSOWebservice as FWSSOWebservice;
+// use PSL\ClipperBundle\Service\FWSSOWebservice as FWSSOWebservice;
 
 class FWSSOUserProvider implements UserProviderInterface
 {
@@ -26,7 +26,7 @@ class FWSSOUserProvider implements UserProviderInterface
     $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_baseurl');
     
     // @TODO: modification on the FWSSO server side is required
-    $fwsso_ws = new FWSSOWebservice();
+    $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
     // $response = $fwsso_ws->loginUser(array('username'=>'pointless'));
     $response = TRUE;
@@ -36,7 +36,6 @@ class FWSSOUserProvider implements UserProviderInterface
       // Username and password will be retrieved from the FW SSO
       $username = 'dude';
       $password = hash('sha256', 'hey');
-      
       $roles = array('ROLE_USER');
       
       return new FWSSOUser($username, $password, $roles);

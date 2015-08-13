@@ -27,7 +27,7 @@ services:
     class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
     arguments: ["@service_container"]
 
-  fw_sso_webservices:
+  fw_sso_webservice:
     class: PSL\ClipperBundle\Service\FWSSOWebservice
 
   drupal_password_encoder:

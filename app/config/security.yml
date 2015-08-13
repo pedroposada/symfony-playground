@@ -5,8 +5,8 @@ security:
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
         PSL\ClipperBundle\Security\User\YamlAdminUser: plaintext
-        PSL\ClipperBundle\Security\User\FWSSOUser:
-          id: drupal_password_encoder
+        # PSL\ClipperBundle\Security\User\FWSSOUser: 
+          # id: drupal_password_encoder
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
@@ -17,19 +17,12 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        # Not needed for now but providers can be chained
-        # chain_provider:
-            # chain:
-                # providers: [in_memory, fw_sso]
-
         # Admin UI users
         yaml_admin:
             id: yaml_admin_user_provider
-        
         # FW SSO Users
         fw_sso:
             id: fw_sso_user_provider
-
         # Default Users
         in_memory:
             memory:
@@ -82,31 +75,31 @@ security:
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             
         # FW SSO Login
-        login:
-            pattern:  ^/clipper/api/login
-            stateless: true
-            anonymous: true
-            http_basic:
-                realm: "Secured API"
-                provider: fw_sso
-            form_login:
-                check_path: /clipper/api/login_check
-                require_previous_session: false
-                username_parameter: username
-                password_parameter: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # login:
+            # pattern:  ^/clipper/api/login
+            # stateless: true
+            # anonymous: true
+            # http_basic:
+                # realm: "Secured API"
+                # provider: fw_sso
+            # form_login:
+                # check_path: /clipper/api/login_check
+                # require_previous_session: false
+                # username_parameter: username
+                # password_parameter: password
+                # success_handler: lexik_jwt_authentication.handler.authentication_success
+                # failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        api:
-            pattern:   ^/clipper/api
-            stateless: true
-            lexik_jwt:
-                authorization_header:
-                    enabled: true
-                    prefix:  Bearer
-                query_parameter:
-                    enabled: true
-                    name:    bearer
+        # api:
+            # pattern:   ^/clipper/api
+            # stateless: true
+            # lexik_jwt:
+                # authorization_header:
+                    # enabled: true
+                    # prefix:  Bearer
+                # query_parameter:
+                    # enabled: true
+                    # name:    bearer
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
@@ -114,5 +107,9 @@ security:
     access_control:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
         - { path: ^/clipper/api/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/clipper/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/clipper/api, roles: IS_AUTHENTICATED_FULLY }
+        # - { path: ^/clipper/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/clipper/api/orders, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/clipper/api/autocomplete, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        
+        # authenticated
+        # - { path: ^/clipper/api, roles: IS_AUTHENTICATED_FULLY }

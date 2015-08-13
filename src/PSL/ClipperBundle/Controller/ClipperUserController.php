@@ -48,7 +48,7 @@ class ClipperUserController extends FOSRestController
   {
     // @TODO: get from settings
     $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_baseurl');
-    $fwsso_ws = new FWSSOWebservice();
+    $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
     
     return $fwsso_ws;

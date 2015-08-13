@@ -13,10 +13,13 @@ clipper:
 clipper_user:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ClipperUserController
-  prefix:   /ws
+  prefix:   /api
 
 api_login_check:
-   path: /ws/login_check
+   path:    /api/login_check
+
+api_login_admin_check:
+    path:   /api/admin/login_check
 
 psl_clipper_debug:
   path:     /debug
