@@ -66,7 +66,7 @@ security:
             anonymous: true
             http_basic:
                 realm: "Secured Admin Area"
-                provider: in_memory
+                provider: yaml_admin
             form_login:
                 check_path: /clipper/api/admin/login_check
                 require_previous_session: false
@@ -79,9 +79,9 @@ security:
             # pattern:  ^/clipper/api/login
             # stateless: true
             # anonymous: true
-            # # http_basic:
-                # # realm: "Secured API"
-                # # provider: fw_sso
+            # http_basic:
+                # realm: "Secured API"
+                # provider: fw_sso
             # form_login:
                 # check_path: /clipper/api/login_check
                 # require_previous_session: false
@@ -108,4 +108,8 @@ security:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
         - { path: ^/clipper/api/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/clipper/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/clipper/api/orders, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/clipper/api/autocomplete, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        
+        # authenticated
         # - { path: ^/clipper/api, roles: IS_AUTHENTICATED_FULLY }

@@ -34,7 +34,6 @@ services:
     class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
     arguments: ["@service_container"]
 
-
   # --------------------------- #
   #   Clipper event listeners   #
   # --------------------------- #

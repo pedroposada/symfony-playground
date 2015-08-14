@@ -5,8 +5,6 @@ namespace PSL\ClipperBundle\Service;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-use PSL\ClipperBundle\Service\FWSSOWebservice as FWSSOWebservice;
-
 class DrupalPasswordEncoder implements PasswordEncoderInterface
 {
   
@@ -22,7 +20,7 @@ class DrupalPasswordEncoder implements PasswordEncoderInterface
     
     $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_baseurl');
     
-    $fwsso_ws = new FWSSOWebservice();
+    $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
     $param_arr['raw'] = $raw;
     $hash = $fwsso_ws->getHash($param_arr);

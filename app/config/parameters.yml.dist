@@ -14,7 +14,9 @@ parameters:
   
   # secret key
   secret:                             "[*secret*]"
-  
+
+  fwsso_baseurl:                      "[*fwsso_baseurl*]"
+
   # Clipper settings
   clipper:
     email_ls_results:
@@ -23,15 +25,15 @@ parameters:
       subject:                        "FirstQ Survey Results - %limesurvey.url_destination_base_sid%"
       body:                           "FirstQ Survey results for Survey ID: [SID]. URL: %limesurvey.url_destination_base_sid%"
     state_codes:
-      #firstq_group
-      order_pending:                  ORDER_PENDING
-      order_complete:                 ORDER_COMPLETE
-      #firstq_project
-      limesurvey_pending:             LIMESURVEY_PENDING
-      limesurvey_created:             LIMESURVEY_CREATED
-      rpanel_complete:                RPANEL_COMPLETE
-      limesurvey_complete:            LIMESURVEY_COMPLETE
-      limesurvey_exported:            LIMESURVEY_EXPORTED
+      order_pending: ORDER_PENDING
+      order_invoice: ORDER_INVOICE
+      order_declined: ORDER_DECLINED
+      order_complete: ORDER_COMPLETE
+      email_sent: EMAIL_SENT
+      limesurvey_pending: LIMESURVEY_PENDING
+      limesurvey_created: LIMESURVEY_CREATED
+      rpanel_complete: RPANEL_COMPLETE
+      limesurvey_complete: LIMESURVEY_COMPLETE
 
     worldpay:
       inst_id:                        "[*clipper_worldpay_inst_id*]"
