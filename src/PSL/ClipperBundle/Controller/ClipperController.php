@@ -290,9 +290,12 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrdersAdminAction(Request $request) {
+  public function getOrdersAdminAction(Request $request)
+  {
     
-    $this->validateRole('ROLE_ADMINUI_USER');
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    
+    // $this->validateRole('ROLE_ADMINUI_USER');
     
     $params = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
@@ -521,7 +524,7 @@ class ClipperController extends FOSRestController
   public function postOrderAdminprocessAction(ParamFetcher $paramFetcher)
   {
     
-    $this->validateRole('ROLE_ADMINUI_USER');
+    // $this->validateRole('ROLE_ADMINUI_USER');
     
     $this->logger = $this->container->get('monolog.logger.clipper');
     
