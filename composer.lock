@@ -1174,12 +1174,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "f7ee67a0a923d78547a66155becbf0881d05ac3c"
+                "reference": "74a83c694c5d3c88601c1a1c4f9748f9b6f7c556"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/f7ee67a0a923d78547a66155becbf0881d05ac3c",
-                "reference": "f7ee67a0a923d78547a66155becbf0881d05ac3c",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/74a83c694c5d3c88601c1a1c4f9748f9b6f7c556",
+                "reference": "74a83c694c5d3c88601c1a1c4f9748f9b6f7c556",
                 "shasum": ""
             },
             "require": {
@@ -1245,7 +1245,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2015-08-12 11:57:49"
+            "time": "2015-08-13 16:07:41"
         },
         {
             "name": "google/apiclient",
