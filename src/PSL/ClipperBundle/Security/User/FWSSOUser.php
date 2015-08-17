@@ -8,12 +8,14 @@ class FWSSOUser implements UserInterface
 {
     protected $username;
     protected $password;
+    protected $salt;
     protected $roles;
 
-    public function __construct($username, $password, array $roles)
+    public function __construct($username, $password, $salt, array $roles)
     {
         $this->username = $username;
         $this->password = $password;
+        $this->salt = $salt;
         $this->roles = $roles;
     }
 
@@ -29,7 +31,7 @@ class FWSSOUser implements UserInterface
 
     public function getSalt()
     {
-
+        return $this->salt;
     }
 
     public function getUsername()

@@ -13,6 +13,7 @@ class FWSSOWebservice
 {
   
   private $fwsso_baseurl;
+  private $fwsso_app_token;
 
   /**
    * Configure the API client with the required credentials.
@@ -29,9 +30,14 @@ class FWSSOWebservice
     // Validate URL
     if (!isset($settings['fwsso_baseurl'])) {
         throw new Exception("'fwsso_baseurl' must be provided");
-    }
-    
-    $fwsso_baseurl = $settings['fwsso_baseurl'];
+    } 
+    $this->fwsso_baseurl = $settings['fwsso_baseurl'];
+
+    // Validate URL
+    if (!isset($settings['fwsso_app_token'])) {
+        throw new Exception("'fwsso_app_token' must be provided");
+    } 
+    $this->fwsso_app_token = $settings['fwsso_app_token'];
   }
   
   /**
@@ -40,10 +46,13 @@ class FWSSOWebservice
   private function getCall($action, $param_arr) 
   {
     
-    $endpoint = $fwsso_baseurl . $action;
+    $endpoint = $this->fwsso_baseurl . $action;
+
+    $headers = array('Content-Type'=> 'application/x-www-form-urlencoded');
+    $headers = array('X-FWSSO-Client' => $this->fwsso_app_token);
     
     $browser = new Browser();
-    $response = $browser->get($endpoint);
+    $response = $browser->get($endpoint, $headers);
     
     return $response;
   }
@@ -54,11 +63,15 @@ class FWSSOWebservice
   private function postCall($action, $param_arr) 
   {
     
-    $endpoint = $fwsso_baseurl . $action;
+    $endpoint = $this->fwsso_baseurl . $action;
     
-    $headers = array('Content-Type'=> 'application/json');
+    $headers = array('Content-Type'=> 'application/x-www-form-urlencoded');
+    //$headers = array('Content-Type'=> 'application/json');
+    $headers = array('X-FWSSO-Client' => $this->fwsso_app_token);
+
+    $content = http_build_query($param_arr);
     
-    $content = json_encode($param_arr);
+    //$content = json_encode($param_arr);
     
     $browser = new Browser();
     $response = $browser->post($endpoint, $headers, $content);
@@ -87,7 +100,8 @@ class FWSSOWebservice
    */
   public function editUser($param_arr = array())
   {
-    $action = '/users/edit/' . $args['uid'];
+    $action = '/users/edit/' . $param_arr['uid'];
+    $param_arr['signature'] = time();
     
     return $this->postCall($action, $param_arr);
   }
@@ -97,9 +111,12 @@ class FWSSOWebservice
    */
   public function loginUser($param_arr = array())
   {
-    $action = '/users/login';
-    
-    return $this->postCall($action, $param_arr);
+    // We use getUser endpoint to retrieve the user.
+    $getUser = $this->getUser(array(
+      'uid' => $param_arr['username']
+    ));
+
+    return $getUser;
   }
   
   /**
@@ -117,7 +134,7 @@ class FWSSOWebservice
    */
   public function getUser($param_arr = array())
   {
-    $action = '/users/' + $param_arr['uid'];
+    $action = '/users/' . $param_arr['uid'] . '/' . time();
     
     return $this->getCall($action, $param_arr);
   }
@@ -127,14 +144,12 @@ class FWSSOWebservice
    */
   public function getHash($param_arr = array())
   {
+    $action = '/users/hash/';
     
-    // @TODO: make this work for realz
-    return hash('sha256', $param_arr['raw']);
-    
-    
-    $action = '/users/hash/' + $param_arr['raw'];
-    
-    return $this->getCall($action, $param_arr);
+    return $this->postCall($action, array(
+      'string' => $param_arr['raw'],
+      'salt' => $param_arr['salt']
+    ));
   }
   
   /**

@@ -46,11 +46,11 @@ class ClipperUserController extends FOSRestController
   
   private function fwsso_ws()
   {
-    // @TODO: get from settings
-    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_baseurl');
+    $fwsso_config = $this->container->getParameter('fwsso_api');
+    $settings['fwsso_baseurl'] = $fwsso_config['url'];
+    $settings['fwsso_app_token'] = $fwsso_config['app_token'];
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
-    
     return $fwsso_ws;
   }
   
@@ -83,26 +83,45 @@ class ClipperUserController extends FOSRestController
     // Object to return to remote form
     $returnObject = array();
     $responseStatus = 200;
+
+    // POST params
+    $params = $this->getUserFields();
+    $this->prepareParamFetcher($paramFetcher, $params);
     
     try {
-      
+
       // get $_POST values
       $user = array();
-      $user['username'] = $paramFetcher->get('username');
-      
+      $data = $paramFetcher->all();
+      // Map POST data to FWSSO API names
+      foreach ($data as $param => $value) {
+        if (isset($params[$param]['fwsso_name'])) {
+          $user[$params[$param]['fwsso_name']] = $value;
+        }
+      }
       // FW SSO API - create user
       $fwsso_ws = $this->fwsso_ws();
-      
-      // do something with data
-      
-      $returnObject = $fwsso_ws->createUser($user);
+      $response = $fwsso_ws->createUser($user);
+
+      if ($response->isOk()) {
+        $content = @json_decode($response->getContent(), TRUE);
+        if (json_last_error() != JSON_ERROR_NONE) {
+          // Return operation specific error
+          $returnObject['product'] = FALSE;
+          $returnObject['error_message'] = 'JSON decode error: ' . json_last_error();
+          $responseStatus = 500;
+        }
+        $returnObject['user'] = $content;
+      } else {
+        throw new Exception('Error creating user. ' . $response->getReasonPhrase());
+      }
     }
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      //$this->logger->debug("General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -134,22 +153,46 @@ class ClipperUserController extends FOSRestController
     // Object to return to remote form
     $returnObject = array();
     $responseStatus = 200;
+
+    // POST params
+    $params = $this->getUserFields();
+    $this->prepareParamFetcher($paramFetcher, $params);
     
     try {
       
       // get $_POST values
       $user = array();
-      $user['username'] = $paramFetcher->get('username');
-      
-      // FW SSO API - edit user info
-      
+      $user['uid'] = $uid;
+      $data = $paramFetcher->all();
+      // Map POST data to FWSSO API names
+      foreach ($data as $param => $value) {
+        if (isset($params[$param]['fwsso_name'])) {
+          $user[$params[$param]['fwsso_name']] = $value;
+        }
+      }
+      // FW SSO API - create user
+      $fwsso_ws = $this->fwsso_ws();
+      $response = $fwsso_ws->editUser($user);
+
+      if ($response->isOk()) {
+        $content = @json_decode($response->getContent(), TRUE);
+        if (json_last_error() != JSON_ERROR_NONE) {
+          // Return operation specific error
+          $returnObject['product'] = FALSE;
+          $returnObject['error_message'] = 'JSON decode error: ' . json_last_error();
+          $responseStatus = 500;
+        }
+        $returnObject['user'] = $content;
+      } else {
+        throw new Exception('Error creating user. ' . $response->getReasonPhrase());
+      }
     }
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      // $this->logger->debug("General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -181,11 +224,25 @@ class ClipperUserController extends FOSRestController
     $responseStatus = 200;
     
     try {
-       
-      $user = array();
-      $user['id'] = $request->query->get('user_id');
       
       // FW SSO API - retrive info
+      $fwsso_ws = $this->fwsso_ws();
+      $response = $fwsso_ws->getUser(array(
+        'uid' => $uid
+      ));
+
+      if ($response->isOk()) {
+        $content = @json_decode($response->getContent(), TRUE);
+        if (json_last_error() != JSON_ERROR_NONE) {
+          // Return operation specific error
+          $returnObject['product'] = FALSE;
+          $returnObject['error_message'] = 'JSON decode error: ' . json_last_error();
+          $responseStatus = 500;
+        }
+        $returnObject['user'] = $content;
+      } else {
+        throw new Exception('Error retrieving the user. ' . $response->getReasonPhrase());
+      }
       
     }
     catch (\Exception $e) {
@@ -193,7 +250,7 @@ class ClipperUserController extends FOSRestController
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      // $this->logger->debug("General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -227,10 +284,15 @@ class ClipperUserController extends FOSRestController
     try {
       
       $user = array();
-      $user['email'] = $request->query->get('email');
+      $user['user'] = $request->query->get('email');
       
-      
-      // FW SSO API - forgot password
+      $fwsso_ws = $this->fwsso_ws();
+      $response = $fwsso_ws->forgotPassword($user);
+      if ($response->isOk()) {
+        $returnObject['message'] = $response;
+      } else {
+        throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
+      }
       
     }
     catch (\Exception $e) {
@@ -238,7 +300,7 @@ class ClipperUserController extends FOSRestController
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      // $this->logger->debug("General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -251,7 +313,56 @@ class ClipperUserController extends FOSRestController
    * ----------------------------------------------------------------------------------------
    */
   
-  
+  private function prepareParamFetcher(&$paramFetcher, $params = array()) {
+    foreach ($params as $param_name => $param_def) {
+      $tmpParam = new RequestParam();
+      $tmpParam->name = $param_name;
+      if (isset($param_def['nullable']) && $param_def['nullable'] == TRUE) {
+        $tmpParam->nullable = TRUE;
+      }
+      $paramFetcher->addParam($tmpParam);
+    }
+  }
+
+  private function getUserFields() {
+    return array(
+      'username' => array(
+        'fwsso_name' => 'name'
+      ),
+      'mail' => array(
+        'fwsso_name' => 'mail'
+      ),
+      'pass' => array(
+        'fwsso_name' => 'pass'
+      ),
+      'firstname' => array(
+        'fwsso_name' => 'field_firstname'
+      ),
+      'lastname' => array(
+        'fwsso_name' => 'field_lastname'
+      ),
+      'country' => array(
+        'fwsso_name' => 'field_country'
+      ),
+      'company' => array(
+        'fwsso_name' => 'field_company'
+      ),
+      'title' => array(
+        'fwsso_name' => 'field_title'
+      ),
+      'jobfunction' => array(
+        'fwsso_name' => 'field_job_function'
+      ),
+      'salutation' => array(
+        'fwsso_name' => 'field_salutation',
+        'nullable' => TRUE
+      ),
+      'telephone' => array(
+        'fwsso_name' => 'field_telephone',
+        'nullable' => TRUE
+      ),
+    );
+  }
   
   
 }
