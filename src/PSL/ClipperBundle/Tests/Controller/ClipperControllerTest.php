@@ -6,6 +6,9 @@ namespace PSL\ClipperBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * ClipperControllerTest test.
+ */
 class ClipperControllerTest extends WebTestCase
 {
     /**
@@ -134,5 +137,45 @@ class ClipperControllerTest extends WebTestCase
                 'timezone_client' => 'Europe/London',
             ))),
         );
+    }
+
+    public function testGetOrdersAction()
+    {
+
+    }
+
+    public function testGetOrderAction()
+    {
+
+    }
+
+    public function testPostOrderProcessAction()
+    {
+
+    }
+
+    public function testDebugAction()
+    {
+
+    }
+
+    public function testExitAction()
+    {
+
+    }
+
+    public function testThankyouAction()
+    {
+
+    }
+
+    public function testRedirectLimeSurveyAction()
+    {
+
+    }
+
+    public function testAutocompleteAction()
+    {
+
     }
 }
