@@ -22,28 +22,26 @@ class FWSSOUserProvider implements UserProviderInterface
 
   public function loadUserByUsername($username)
   {
+    $fwsso_config = $this->container->getParameter('fwsso_api');
+    $settings['fwsso_baseurl'] = $fwsso_config['url'];
+    $settings['fwsso_app_token'] = $fwsso_config['app_token'];
     
-    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_baseurl');
-    
-    // @TODO: modification on the FWSSO server side is required
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
-    $response = $fwsso_ws->loginUser(array('username'=>$username));
-    $response = TRUE;
+    $response = $fwsso_ws->loginUser(array('username' => $username));
     
-    if ($response) {
-      
-      // Username and password will be retrieved from the FW SSO
-      $username = 'dude';
-      $salt = 'hey';
-      $password = "password";//hash('sha256', $salt . 'hey');
-      // $password = $response['pass'];
-      // $salt = $response['pass'];
+    if ($response->isOk()) {
+      // Username and password retrieval from the FW SSO
+      $content = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        throw new Exception('JSON decode error: ' . json_last_error());
+      }
+      $username = $content['name'];
+      $password = $content['pass'];
+      $salt = substr($content['pass'], 0, 12);
       $roles = array('ROLE_USER');
       
-      $fwsso_user = new FWSSOUser($username, $password, $roles, $salt);
-      
-      return $fwsso_user;
+      return new FWSSOUser($username, $password, $salt, $roles);
     }
     
     // Return error if no user with this username 
