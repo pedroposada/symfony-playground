@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 
-class FqProcess
+abstract class FqProcess
 {
   protected $container;
   protected $logger;
@@ -58,7 +58,5 @@ class FqProcess
     }
   }
   
-  protected function main(FirstQProjectEvent $event)
-  {
-  }
+  abstract protected function main(FirstQProjectEvent $event);
 }

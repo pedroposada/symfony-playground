@@ -68,6 +68,22 @@ class FirstQGroup
      */
     protected $project_sk;
     
+    
+    /**
+     * custom helper function
+     * @param $raw string json encoded
+     * @return array
+     */
+    protected function decodeRaw($raw)
+    {
+      $encoders = array(new XmlEncoder(), new JsonEncoder());
+      $normalizers = array(new ObjectNormalizer());
+      $serializer = new Serializer($normalizers, $encoders);
+      
+      return $serializer->decode($raw, 'json');
+    }
+    
+    
     /**
      * Constructor
      */
@@ -323,7 +339,7 @@ class FirstQGroup
       $response = array();
       
       $raw = $this->getFormDataRaw();
-      $unserialized = $this->getSerializer()->dencode($raw, 'json');
+      $unserialized = $this->decodeRaw($raw);
       if (isset($unserialized[$field_name])) {
         $response = (array)$unserialized[$field_name];
       }
@@ -338,12 +354,9 @@ class FirstQGroup
      */
     public function getFormDataUnserialized() 
     {
-      $unserialized = $this->getSerializer()->dencode($this->getFormDataRaw(), 'json');
-      if (isset($unserialized)) {
-        $response = $unserialized;
-      }
+      $raw = $this->getFormDataRaw();
       
-      return $response;
+      return $this->decodeRaw($raw);
     }
     
     /**

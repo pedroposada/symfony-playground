@@ -15,6 +15,21 @@ services:
       
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
+  
+  explode_tree:
+    class: PSL\ClipperBundle\Utils\ExplodeTree
+  
+  survey_chart_map:
+    class: PSL\ClipperBundle\Charts\SurveyChartMap
+  
+  chart_assembler:
+    class: PSL\ClipperBundle\Charts\Assembler
+    arguments: [@service_container]
+  
+  clipper_serializer:
+    class: PSL\ClipperBundle\Utils\ClipperSerializer
+    
+    
    
   # --------------------------- #
   #   Clipper event listeners   #
@@ -53,3 +68,10 @@ services:
     tags:
       - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }
       - { name: kernel.event_listener, event: after_limesurvey_complete, method: refreshResponses, priority: 0 }
+  
+  # types of charts
+  clipper.chart.net_promoters:
+    class: PSL\ClipperBundle\Charts\Types\NetPromoters
+    arguments: ["@service_container", "net_promoters"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }

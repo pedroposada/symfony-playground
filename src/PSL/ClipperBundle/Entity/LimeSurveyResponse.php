@@ -4,6 +4,11 @@ namespace PSL\ClipperBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 /**
  * @ORM\Entity
  */
@@ -18,6 +23,36 @@ class LimeSurveyResponse
     protected $created;
     
     protected $updated;
+    
+    /**
+     * custom helper function
+     * @param $raw string json encoded
+     * @return array
+     */
+    protected function decodeRaw($raw)
+    {
+      $encoders = array(new XmlEncoder(), new JsonEncoder());
+      $normalizers = array(new ObjectNormalizer());
+      $serializer = new Serializer($normalizers, $encoders);
+      
+      return $serializer->decode($raw, 'json');
+    }
+    
+    /**
+     * @return decoded response
+     */
+    public function getResponseDecoded()
+    {
+      $raw = $this->getResponseRaw();
+      
+      return $this->decodeRaw($raw);
+    }
+    
+    /**
+     * @var \PSL\ClipperBundle\Entity\FirstQGroup
+     */
+    private $firstqgroup;
+
     /**
      * @var \PSL\ClipperBundle\Entity\FirstQProject
      */
@@ -137,6 +172,29 @@ class LimeSurveyResponse
     public function getUpdated()
     {
         return $this->updated;
+    }
+
+    /**
+     * Set firstqgroup
+     *
+     * @param \PSL\ClipperBundle\Entity\FirstQGroup $firstqgroup
+     * @return LimeSurveyResponse
+     */
+    public function setFirstqgroup(\PSL\ClipperBundle\Entity\FirstQGroup $firstqgroup = null)
+    {
+        $this->firstqgroup = $firstqgroup;
+
+        return $this;
+    }
+
+    /**
+     * Get firstqgroup
+     *
+     * @return \PSL\ClipperBundle\Entity\FirstQGroup 
+     */
+    public function getFirstqgroup()
+    {
+        return $this->firstqgroup;
     }
 
     /**

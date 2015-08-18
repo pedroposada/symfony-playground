@@ -65,10 +65,16 @@ class ClipperCommand extends ContainerAwareCommand
       $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
       foreach ($fqps as $fqp) {
         try {
+          
+          // get dispatcher class
           $dispatcher = $this->getContainer()->get('event_dispatcher'); 
+          
+          // instantiate event object
           $event = new FirstQProjectEvent($fqg, $fqp);
+          
           // main event, triggers subscribed listeners 
           $dispatcher->dispatch(ClipperEvents::FQ_PROCESS, $event);
+          
           // feedback if all is good
           $this->logger->info("OK processing FirstQProject with id: [{$fqp->getId()}]");
         }

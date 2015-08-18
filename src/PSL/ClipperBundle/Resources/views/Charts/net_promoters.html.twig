@@ -1,0 +1,26 @@
+{# src/PSL/ClipperBundle/Resources/views/Charts/net_promoters.html.twig #}
+{% autoescape false %}
+
+
+    <!-- START CHART -->
+    <script type="text/javascript">
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+
+        var options = {
+          isStacked: 'percent',
+          legend : {
+            position : 'top',
+            maxLines : 3
+          },
+        };
+
+        var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
+        chart.draw(data, options);
+      }
+    </script>
+    <!--Div that will hold the chart-->
+    <div id="{{ chartDivId }}" style="width:400; height:300"></div>
+    <!-- END CHART -->
+{% endautoescape %}

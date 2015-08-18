@@ -4,12 +4,6 @@ psl_clipper_limesurvey_redirect:
   requirements:
     sid: \d+
     
-# Automatic routes
-clipper:
-  type:     rest
-  resource: PSL\ClipperBundle\Controller\ClipperController
-  prefix:   /ws
-
 psl_clipper_debug:
   path:     /debug
   defaults: { _controller: PSLClipperBundle:Clipper:debug }
@@ -18,6 +12,16 @@ psl_clipper_exit:
   path:     /limesurvey/exit
   defaults: { _controller: PSLClipperBundle:Clipper:exit }
 
+psl_clipper_chart:
+  path:     /api/charts
+  defaults: { _controller: PSLClipperBundle:Charts:charts }
+
 psl_clipper_thankyou:
   path:     /thankyou/{fquuid}
   defaults: { _controller: PSLClipperBundle:Clipper:thankyou }
+
+# Automatic routes
+clipper:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\ClipperController
+  prefix:   /ws

@@ -14,10 +14,20 @@ PSL\ClipperBundle\Entity\LimeSurveyResponse:
       options:
         comment: LimeSurvey token
   manyToOne:
+    firstqgroup:
+      targetEntity: FirstQGroup
+      cascade: ["remove"]
+      fetch: "EXTRA_LAZY"
+      joinColumn:
+        name: firstqgroup_id
+        referencedColumnName: id
     firstqproject:
       targetEntity: FirstQProject
       cascade: ["remove"]
       fetch: "EXTRA_LAZY"
+      joinColumn:
+        name: firstqproject_id
+        referencedColumnName: id
   fields:
     member_id:
       type: integer
