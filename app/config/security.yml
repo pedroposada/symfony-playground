@@ -75,38 +75,38 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
         # FW SSO Login
-        # login:
-            # pattern:  ^/clipper/api/login
-            # stateless: true
-            # anonymous: true
-            # http_basic:
-                # realm: "Secured API"
-                # provider: fw_sso
-            # form_login:
-                # check_path: /clipper/api/login_check
-                # require_previous_session: false
-                # username_parameter: username
-                # password_parameter: password
-                # success_handler: lexik_jwt_authentication.handler.authentication_success
-                # failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        login:
+            pattern:  ^/clipper/api/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured API"
+                provider: fw_sso
+            form_login:
+                check_path: /clipper/api/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
         # Rest of API
-        # api:
-            # pattern:   ^/clipper/api
-            # stateless: true
-            # lexik_jwt:
-                # authorization_header:
-                    # enabled: true
-                    # prefix:  Bearer
-                # query_parameter:
-                    # enabled: true
-                    # name:    bearer
+        api:
+            pattern:   ^/clipper/api
+            stateless: true
+            lexik_jwt:
+                authorization_header:
+                    enabled: true
+                    prefix:  Bearer
+                query_parameter:
+                    enabled: true
+                    name:    bearer
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
     # http://symfony.com/doc/current/cookbook/security/access_control.html
     access_control:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
-        - { path: ^/clipper/api/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/clipper/api/admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/clipper/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/clipper/api/orders, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/clipper/api/autocomplete, roles: IS_AUTHENTICATED_ANONYMOUSLY }
