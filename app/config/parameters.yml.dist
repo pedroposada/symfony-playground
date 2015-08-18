@@ -15,7 +15,10 @@ parameters:
   # secret key
   secret:                             "[*secret*]"
 
-  fwsso_baseurl:                      "[*fwsso_baseurl*]"
+  # FWSSO API
+  fwsso_api:
+        url: "[*fwsso_baseurl*]"
+        app_token: "[*fwsso_app_token*]"
 
   # Clipper settings
   clipper:
