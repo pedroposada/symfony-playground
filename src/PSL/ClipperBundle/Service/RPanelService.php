@@ -163,7 +163,7 @@ class RPanelService
   {
     $conn = $this->conn;
     $conn->insert('feasibility_link_type', array('proj_id' => $rp->getProjId(),             // feasibility_project.projid
-                                                 'quote_id' => $rp->getQuotaId(),           // feasibility_project_quota.quota_id
+                                                 'quote_id' => $rp->getQuoteId(),           // feasibility_project_quota.quota_id
                                                  'link_type' => $rp->getLinkType(),         // 'full'
                                                  'created_by' => $rp->getCreatedBy(),       // [UserID created by Guohui]
                                                  'created_date' => $rp->getCreatedDate())); // Now()
