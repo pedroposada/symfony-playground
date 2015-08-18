@@ -118,7 +118,7 @@ class ClipperUserController extends FOSRestController
     catch (\Exception $e) {
       $this->logger = $this->container->get('monolog.logger.clipper');
       // Return operation specific error
-      $returnObject['product'] = FALSE;
+      $returnObject['user'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");

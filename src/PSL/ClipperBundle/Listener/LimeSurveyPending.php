@@ -44,19 +44,19 @@ class LimeSurveyPending extends FqProcess
     $sheet_data = $fqp->getSheetDataUnserialized();
     
     // Mapping
-    $specialty_id = MDMMapping::map('specialties', (string)$sheet_data->specialty);
-    // $country_id = MDMMapping::map('countries', (string)$sheet_data->market);
-    $country_id = 10; // @TODO: this is a hard coded value up until we get the proper mapping
+    $specialty_id = MDMMapping::map('specialties', $sheet_data['specialty']);
+    $country_id = MDMMapping::map('countries', $sheet_data['market']);
     
     // Survey data settings
     $survey_data = new stdClass();
     $survey_data->market = $specialty_id;
     $survey_data->specialty = $country_id;
-    $survey_data->patients = $form_data->patient_type; // current($fqg->getFormDataByField('patient_type'));
-    $survey_data->brands = $form_data->brands; // $fqg->getFormDataByField('brands'); //$this->clipperBrands($fq->getFormDataByField('brands'));
-    $survey_data->attributes = $form_data->attributes; // $fqg->getFormDataByField('statements');
+    $survey_data->patients = $form_data['patient_type'];
+    $survey_data->brands = $form_data['brands'];
+    $survey_data->attributes = $form_data['attributes'];
     $survey_data->url_exit = $this->container->getParameter('limesurvey.url_exit');
-    $type = 'nps'; //$form_data->name;
+    // @TODO: use real value when implemented
+    $type = 'nps'; //$form_data['survey_type'];
     
     $sc = $this->container->get('survey_builder');
     $lss = $sc->createSurvey($type, $survey_data);
@@ -149,4 +149,14 @@ class LimeSurveyPending extends FqProcess
     return $urls;
   }
 
+  /**
+   * Helper function to deserialize JSON
+   */
+  protected function getSerializer()
+  {
+    $encoders = array(new XmlEncoder(), new JsonEncoder());
+    $normalizers = array(new ObjectNormalizer());
+    
+    return new Serializer($normalizers, $encoders);
+  }
 }

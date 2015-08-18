@@ -18,6 +18,8 @@ class RPanelProject
   
   protected $project_sk; // id value is based upon translateapi database row creation
   
+  protected $quota_id; // feasibility_project_quota.quota_id
+  
   protected $proj_name;
   
   protected $proj_status;
@@ -114,6 +116,24 @@ class RPanelProject
   public function getProjectSK()
   {
       return $this->project_sk;
+  }
+
+  /**
+   * Set quota_id
+   */
+  public function setQuotaId($quota_id)
+  {
+      $this->quota_id = $quota_id;
+  }
+
+  /**
+   * Get quota_id
+   *
+   * @return int
+   */
+  public function getQuotaId()
+  {
+      return $this->quota_id;
   }
 
   /**
