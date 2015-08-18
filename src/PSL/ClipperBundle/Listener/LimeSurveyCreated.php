@@ -86,8 +86,8 @@ class LimeSurveyCreated extends FqProcess
       $rpanel_project->setProjId($fqg->getProjId());
       
       // Create Feasibility Project Quota (many to one)
-      $quota_id = $rps->createFeasibilityProjectQuota($rpanel_project, $gs_object);
-      $rpanel_project->setQuotaId($quota_id);
+      $quote_id = $rps->createFeasibilityProjectQuota($rpanel_project, $gs_object);
+      $rpanel_project->setQuotaId($quote_id);
       
       // Update Feasibility Project - Launch project
       $rps->updateFeasibilityProject($rpanel_project);

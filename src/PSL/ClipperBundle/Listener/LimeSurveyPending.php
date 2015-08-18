@@ -55,8 +55,7 @@ class LimeSurveyPending extends FqProcess
     $survey_data->brands = $form_data['brands'];
     $survey_data->attributes = $form_data['attributes'];
     $survey_data->url_exit = $this->container->getParameter('limesurvey.url_exit');
-    // @TODO: use real value when implemented
-    $type = 'nps_plus'; //$form_data['survey_type'];
+    $type = $form_data['survey_type'];
     
     $sc = $this->container->get('survey_builder');
     $lss = $sc->createSurvey($type, $survey_data);
@@ -91,7 +90,8 @@ class LimeSurveyPending extends FqProcess
     }
     
     // add participants
-    // $participants_sample = $sheet_data->participants_sample; // number of tokens (links) for participants
+    // @TODO: change for real value  
+    // $participants_sample = $sheet_data['participants_sample']; // number of tokens (links) for participants
     $participants_sample = 2;
     if (empty($participants_sample)) {
       throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fq->getId()}] on [bigcommerce_complete]");
