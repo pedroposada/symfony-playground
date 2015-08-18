@@ -62,7 +62,6 @@ class FWSSOWebservice
    */
   private function postCall($action, $param_arr) 
   {
-    
     $endpoint = $this->fwsso_baseurl . $action;
     
     $headers = array('Content-Type'=> 'application/x-www-form-urlencoded');
@@ -73,8 +72,8 @@ class FWSSOWebservice
     //$content = json_encode($param_arr);
     
     $browser = new Browser();
+
     $response = $browser->post($endpoint, $headers, $content);
-    
     return $response;
   }
   
@@ -117,6 +116,18 @@ class FWSSOWebservice
 
     return $getUser;
   }
+
+  /**
+   * QuickLogin user
+   */
+  public function quickLoginUser($param_arr = array())
+  {
+    $action = '/users/ql/';
+
+    return $this->postCall($action, array(
+      'qlhash' => $param_arr['qlhash']
+    ));
+  }
   
   /**
    * Forgot password
@@ -150,7 +161,7 @@ class FWSSOWebservice
       'salt' => $param_arr['salt']
     ));
   }
-  
+
   /**
    * ----------------------------------------------------------------------------------------
    * Helper functions
