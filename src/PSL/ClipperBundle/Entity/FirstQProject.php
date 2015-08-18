@@ -16,6 +16,13 @@ class FirstQProject
 {
     protected $id;
 
+    /**
+     * Group Uuid 
+     * Many To One (targetEntity="FirstQGroup", inversedBy="projects")
+     * Join Column (name="firstqproject_id", referencedColumnName="id")
+     */
+    protected $group_uuid;
+
     protected $sheet_data_raw;
     
     protected $limesurvey_data_raw;

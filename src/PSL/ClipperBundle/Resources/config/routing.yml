@@ -4,6 +4,29 @@ psl_clipper_limesurvey_redirect:
   requirements:
     sid: \d+
     
+# Automatic routes
+clipper:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\ClipperController
+  prefix:   /api
+
+clipper_user:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\ClipperUserController
+  prefix:   /api
+
+# FW SSO users
+api_login_check:
+   path:    /api/login_check
+
+# FW SSO Quick Login users
+api_quick_login_check:
+    path:   /api/ql/login_check
+
+# Admin UI users
+api_login_admin_check:
+    path:   /api/admin/login_check
+
 psl_clipper_debug:
   path:     /debug
   defaults: { _controller: PSLClipperBundle:Clipper:debug }

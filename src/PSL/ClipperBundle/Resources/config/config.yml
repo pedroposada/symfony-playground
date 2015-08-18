@@ -12,7 +12,7 @@ gremo_buzz:
 # Nelmio CORS
 nelmio_cors:
   paths:
-    '^/clipper/ws':
+    '^/clipper/api':
       allow_credentials: true
       allow_origin: ['*']
       allow_headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']

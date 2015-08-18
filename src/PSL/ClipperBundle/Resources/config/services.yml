@@ -12,7 +12,6 @@ services:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
     # @TODO: only get templating
     arguments: [@service_container]
-      
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
   
@@ -29,8 +28,25 @@ services:
   clipper_serializer:
     class: PSL\ClipperBundle\Utils\ClipperSerializer
     
-    
-   
+  yaml_admin_user_provider:
+    class: PSL\ClipperBundle\Security\User\YamlAdminUserProvider
+    arguments: ["%kernel.root_dir%/Resources/users.yml"]
+
+  fw_sso_user_provider:
+    class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
+    arguments: ["@service_container"]
+
+  fw_sso_quick_login_user_provider:
+    class: PSL\ClipperBundle\Security\User\FWSSOQuickLoginUserProvider
+    arguments: ["@service_container"]
+
+  fw_sso_webservice:
+    class: PSL\ClipperBundle\Service\FWSSOWebservice
+
+  drupal_password_encoder:
+    class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
+    arguments: ["@service_container"]
+
   # --------------------------- #
   #   Clipper event listeners   #
   # --------------------------- #
