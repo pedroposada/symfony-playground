@@ -60,7 +60,7 @@ class SurveyBuilderService
     $survey_output = '';
     
     switch ($type) {
-      case 'nps':
+      case 'nps_plus':
         $nps_survey = new NPSPlusSurvey($this->container->get('templating'), $survey_data);
         $survey_output = $nps_survey->createSurveyComponants()->assembleSurvey();
         // 

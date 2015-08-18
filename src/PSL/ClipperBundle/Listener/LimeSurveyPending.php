@@ -56,7 +56,7 @@ class LimeSurveyPending extends FqProcess
     $survey_data->attributes = $form_data['attributes'];
     $survey_data->url_exit = $this->container->getParameter('limesurvey.url_exit');
     // @TODO: use real value when implemented
-    $type = 'nps'; //$form_data['survey_type'];
+    $type = 'nps_plus'; //$form_data['survey_type'];
     
     $sc = $this->container->get('survey_builder');
     $lss = $sc->createSurvey($type, $survey_data);

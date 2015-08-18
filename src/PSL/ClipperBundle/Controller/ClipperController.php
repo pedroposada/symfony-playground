@@ -131,8 +131,8 @@ class ClipperController extends FOSRestController
    * @requestparam(name="loi", default="", description="LOI number.")
    * @requestparam(name="ir", default="", description="IR number.")
    * @requestparam(name="title", default="", description="Title, user generated.")
-   * @requestparam(name="name", default="", description="Name of the folio.")
-   * @requestparam(name="name_full", default="", description="Full name of the folio, user generated (same as Title).")
+   * @requestparam(name="name", default="", description="Readable name of the folio.")
+   * @requestparam(name="survey_type", default="", description="Machine name of the folio.")
    * @requestparam(name="patient_type", default="", description="Patient type, user generated..")
    * @requestparam(name="num_participants", default="", description="Number of participants.")
    * @requestparam(name="market", default="", description="Market array.", array=true)
@@ -161,7 +161,7 @@ class ClipperController extends FOSRestController
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
-      $form_data->name_full = $paramFetcher->get('name_full');
+      $form_data->survey_type = $paramFetcher->get('survey_type');
       $form_data->patient_type = $paramFetcher->get('patient_type');
       $form_data->num_participants = 35; // hard coded for now
       $form_data->timestamp = $paramFetcher->get('timestamp');
