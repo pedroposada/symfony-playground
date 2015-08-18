@@ -4,19 +4,17 @@ namespace PSL\ClipperBundle\Security\User;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class FWSSOUser implements UserInterface
+class FWSSOQuickLoginUser implements UserInterface
 {
     protected $username;
     protected $password;
-    protected $salt;
     protected $roles;
 
-    public function __construct($username, $password, array $roles, $salt)
+    public function __construct($username, $password, array $roles)
     {
         $this->username = $username;
         $this->password = $password;
         $this->roles = $roles;
-        $this->salt = $salt;
     }
 
     public function getRoles()
@@ -31,7 +29,6 @@ class FWSSOUser implements UserInterface
 
     public function getSalt()
     {
-      return $this->salt;
     }
 
     public function getUsername()
@@ -45,7 +42,7 @@ class FWSSOUser implements UserInterface
 
     public function equals(UserInterface $user)
     {
-        if (!$user instanceof FWSSOUser) {
+        if (!$user instanceof FWSSOQuickLoginUser) {
             return false;
         }
 

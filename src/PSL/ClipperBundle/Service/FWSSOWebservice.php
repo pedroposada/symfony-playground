@@ -58,7 +58,8 @@ class FWSSOWebservice
     
     $headers = array('Content-Type'=> 'application/json');
     
-    $content = json_encode($param_arr);
+    // @TODO: use serializer class
+    $content = json_encode($param_arr); 
     
     $browser = new Browser();
     $response = $browser->post($endpoint, $headers, $content);
@@ -127,14 +128,11 @@ class FWSSOWebservice
    */
   public function getHash($param_arr = array())
   {
-    
     // @TODO: make this work for realz
-    return hash('sha256', $param_arr['raw']);
+    // return hash('sha256', $param_arr['salt'] . $param_arr['raw']);
+    $action = '/users/hash';
     
-    
-    $action = '/users/hash/' + $param_arr['raw'];
-    
-    return $this->getCall($action, $param_arr);
+    return $this->postCall($action, $param_arr);
   }
   
   /**

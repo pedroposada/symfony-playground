@@ -146,7 +146,7 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function postOrderAction(ParamFetcher $paramFetcher)
+  public function postNeworderAction(ParamFetcher $paramFetcher)
   {
     $this->logger = $this->container->get('monolog.logger.clipper');
 
@@ -245,7 +245,8 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrdersAction(Request $request) {
+  public function getOrdersAction(Request $request)
+  {
     
     $params = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
@@ -295,7 +296,9 @@ class ClipperController extends FOSRestController
     
     $this->logger = $this->container->get('monolog.logger.clipper');
     
-    // $this->validateRole('ROLE_ADMINUI_USER');
+    if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMINUI_USER')) {
+      throw $this->createAccessDeniedException();
+    }
     
     $params = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
@@ -322,11 +325,28 @@ class ClipperController extends FOSRestController
           
           $processed_info = NULL;
           if ($params['state_codes'][$status] == $params['state_codes']['order_declined']) {
+            
+            
+            
+            // Doesn't seem to work no-moh
+            
             $firstq_process = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProcessAction')
                                    ->findOneBy(array('groupUuid' => $firstq_group->getId()));
+                                   
             $processed_info = array();
-            $processed_info['username'] = $firstq_process->getUsername();
-            $processed_info['updated'] = $firstq_process->getUpdated();
+            if ($firstq_process) {
+              $processed_info['username'] = $firstq_process->getUsername();
+              $processed_info['updated'] = $firstq_process->getUpdated();
+              
+            }
+            else {
+              $processed_info['username'] = $firstq_group->getId();//'bob';
+              $processed_info['updated'] = 'now';
+            }
+            
+            
+            
+            
           }
           
           $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup($user_info, $processed_info);
@@ -362,7 +382,8 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrderAction(Request $request, $uuid) {
+  public function getOrderAction(Request $request, $uuid)
+  {
     $em = $this->getDoctrine()->getManager();
     $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($uuid);
     
@@ -523,10 +544,11 @@ class ClipperController extends FOSRestController
    */
   public function postOrderAdminprocessAction(ParamFetcher $paramFetcher)
   {
-    
-    // $this->validateRole('ROLE_ADMINUI_USER');
-    
     $this->logger = $this->container->get('monolog.logger.clipper');
+    
+    if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMINUI_USER')) {
+        throw $this->createAccessDeniedException();
+    }
     
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');

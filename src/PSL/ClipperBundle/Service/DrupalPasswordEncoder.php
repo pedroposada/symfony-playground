@@ -17,12 +17,12 @@ class DrupalPasswordEncoder implements PasswordEncoderInterface
   
   public function encodePassword($raw, $salt)
   {
-    
     $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_baseurl');
     
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
     $param_arr['raw'] = $raw;
+    $param_arr['salt'] = $salt;
     $hash = $fwsso_ws->getHash($param_arr);
     
     return $hash;

@@ -8,9 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
-// use PSL\ClipperBundle\Service\FWSSOWebservice as FWSSOWebservice;
-
-class FWSSOUserProvider implements UserProviderInterface
+class FWSSOQuickLoginUserProvider implements UserProviderInterface
 {
   
   protected $container;
@@ -28,20 +26,17 @@ class FWSSOUserProvider implements UserProviderInterface
     // @TODO: modification on the FWSSO server side is required
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
-    $response = $fwsso_ws->loginUser(array('username'=>$username));
+    $response = $fwsso_ws->quickLoginUser(array('username'=>$username)); // $username = docpass_hash
     $response = TRUE;
     
     if ($response) {
       
       // Username and password will be retrieved from the FW SSO
-      $username = 'dude';
-      $salt = 'hey';
-      $password = "password";//hash('sha256', $salt . 'hey');
-      // $password = $response['pass'];
-      // $salt = $response['pass'];
+      $username = $response['username'];
+      $password = 'password';
       $roles = array('ROLE_USER');
       
-      $fwsso_user = new FWSSOUser($username, $password, $roles, $salt);
+      $fwsso_user = new FWSSOQuickLoginUser($username, $password, $roles);
       
       return $fwsso_user;
     }
@@ -54,7 +49,7 @@ class FWSSOUserProvider implements UserProviderInterface
 
   public function refreshUser(UserInterface $user)
   {
-    if (!$user instanceof FWSSOUser) {
+    if (!$user instanceof FWSSOQuickLoginUser) {
       throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
     }
 
@@ -63,6 +58,6 @@ class FWSSOUserProvider implements UserProviderInterface
 
   public function supportsClass($class)
   {
-    return $class === 'PSL\ClipperBundle\Security\User\FWSSOUser';
+    return $class === 'PSL\ClipperBundle\Security\User\FWSSOQuickLoginUser';
   }
 }
