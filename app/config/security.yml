@@ -18,6 +18,9 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
+        chain_provider:
+            chain:
+                providers: [yaml_admin, fw_sso, fw_sso_ql]
         # Admin UI users
         yaml_admin:
             id: yaml_admin_user_provider
