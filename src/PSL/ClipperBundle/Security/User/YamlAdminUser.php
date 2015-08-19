@@ -4,18 +4,16 @@ namespace PSL\ClipperBundle\Security\User;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class FWSSOUser implements UserInterface
+class YamlAdminUser implements UserInterface
 {
     protected $username;
     protected $password;
-    protected $salt;
     protected $roles;
 
-    public function __construct($username, $password, $salt, array $roles)
+    public function __construct($username, $password, array $roles)
     {
         $this->username = $username;
         $this->password = $password;
-        $this->salt = $salt;
         $this->roles = $roles;
     }
 
@@ -31,13 +29,12 @@ class FWSSOUser implements UserInterface
 
     public function getSalt()
     {
-        return $this->salt;
     }
 
     public function getUsername()
     {
         return $this->username;
-    }
+    }    
 
     public function eraseCredentials()
     {
@@ -45,7 +42,7 @@ class FWSSOUser implements UserInterface
 
     public function equals(UserInterface $user)
     {
-        if (!$user instanceof FWSSOUser) {
+        if (!$user instanceof YamlUser) {
             return false;
         }
 

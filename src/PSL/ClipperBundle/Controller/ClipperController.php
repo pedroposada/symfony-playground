@@ -38,6 +38,7 @@ use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
+use PSL\ClipperBundle\Entity\FirstQProcessAction as FirstQProcessAction;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
 
@@ -130,8 +131,8 @@ class ClipperController extends FOSRestController
    * @requestparam(name="loi", default="", description="LOI number.")
    * @requestparam(name="ir", default="", description="IR number.")
    * @requestparam(name="title", default="", description="Title, user generated.")
-   * @requestparam(name="name", default="", description="Name of the folio.")
-   * @requestparam(name="name_full", default="", description="Full name of the folio, user generated (same as Title).")
+   * @requestparam(name="name", default="", description="Readable name of the folio.")
+   * @requestparam(name="survey_type", default="", description="Machine name of the folio.")
    * @requestparam(name="patient_type", default="", description="Patient type, user generated..")
    * @requestparam(name="num_participants", default="", description="Number of participants.")
    * @requestparam(name="market", default="", description="Market array.", array=true)
@@ -145,7 +146,7 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function postOrderAction(ParamFetcher $paramFetcher)
+  public function postNeworderAction(ParamFetcher $paramFetcher)
   {
     $this->logger = $this->container->get('monolog.logger.clipper');
 
@@ -160,7 +161,7 @@ class ClipperController extends FOSRestController
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
-      $form_data->name_full = $paramFetcher->get('name_full');
+      $form_data->survey_type = $paramFetcher->get('survey_type');
       $form_data->patient_type = $paramFetcher->get('patient_type');
       $form_data->num_participants = 35; // hard coded for now
       $form_data->timestamp = $paramFetcher->get('timestamp');
@@ -221,7 +222,7 @@ class ClipperController extends FOSRestController
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
-      $returnObject['error_message'] =  $e->getMessage();
+      $returnObject['error_message'] = $e->getMessage();
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
@@ -244,15 +245,25 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrdersAction(Request $request) {
+  public function getOrdersAction(Request $request)
+  {
+    
+    $params = $this->container->getParameter('clipper');
+    $em = $this->getDoctrine()->getManager();
+    
+    $firstq_groups;
+    
+    // @TODO: get orders according to the user's session
+    // either by retrieving a user's ID in the JWT token
+    // or with the FW SSO through loadUserByUsername
     
     // get user_id from request
     $user_id = $request->query->get('user_id');
+    if (!empty($user_id)) {
+      $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
+    }
     
-    $em = $this->getDoctrine()->getManager();
-    $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
-    
-    if (!empty($firstq_groups) && !$firstq_groups->isEmpty()) {
+    if (!empty($firstq_groups)) {
       $firstqs_formatted = array(); 
       foreach ($firstq_groups as $key => $firstq_group) {
         $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup();
@@ -260,8 +271,98 @@ class ClipperController extends FOSRestController
       return new Response($firstqs_formatted);
     }
     else {
-      $message = 'No orders for this user.';
+      $message = 'No orders.';
       return new Response($message, 204); // No Content
+    }
+  }
+  
+  /**
+   * Retrieve FirstQ orders.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param Request $request the request object
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getOrdersAdminAction(Request $request)
+  {
+    
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    
+    if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMINUI_USER')) {
+      throw $this->createAccessDeniedException();
+    }
+    
+    $params = $this->container->getParameter('clipper');
+    $em = $this->getDoctrine()->getManager();
+    
+    try {
+      
+      $firstq_groups;
+      
+      $status = $request->query->get('status');
+      if (!empty($status)) {
+        $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByState($params['state_codes'][$status]);
+      }
+      
+      if (!empty($firstq_groups)) {
+        $firstqs_formatted = array(); 
+        foreach ($firstq_groups as $key => $firstq_group) {
+          
+          // @TODO: load real user info
+          $user_info = array();
+          $user_info['username'] = 'Username Person';
+          $user_info['company_name'] = 'Company Name X';
+          $user_info['phone'] = '514-123-1234';
+          $user_info['address'] = '1234 fake street</br>Montreal, QC<br/>H1H 1H1';
+          
+          $processed_info = NULL;
+          if ($params['state_codes'][$status] == $params['state_codes']['order_declined']) {
+            
+            
+            
+            // Doesn't seem to work no-moh
+            
+            $firstq_process = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProcessAction')
+                                   ->findOneBy(array('groupUuid' => $firstq_group->getId()));
+                                   
+            $processed_info = array();
+            if ($firstq_process) {
+              $processed_info['username'] = $firstq_process->getUsername();
+              $processed_info['updated'] = $firstq_process->getUpdated();
+              
+            }
+            else {
+              $processed_info['username'] = $firstq_group->getId();//'bob';
+              $processed_info['updated'] = 'now';
+            }
+            
+            
+            
+            
+          }
+          
+          $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup($user_info, $processed_info);
+        }
+        return new Response($firstqs_formatted);
+      }
+      else {
+        $message = 'No orders.';
+        return new Response($message, 204); // No Content
+      }
+    } 
+    catch (\Exception $e) {
+      // Something messed up
+      $this->logger->debug("exception: {$e}");
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // Error
     }
   }
   
@@ -281,7 +382,8 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrderAction(Request $request, $uuid) {
+  public function getOrderAction(Request $request, $uuid)
+  {
     $em = $this->getDoctrine()->getManager();
     $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($uuid);
     
@@ -419,6 +521,98 @@ class ClipperController extends FOSRestController
     
   }
   
+  /**
+   * Process a FristQ Order on the Admin side
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     400 = "Bad request or invalid data from the form",
+   *     401 = "Unauthorized request",
+   *   }
+   * )
+   *
+   * The data is coming from an AJAX call performed on the front end
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
+   * @requestparam(name="task", default="", description="Task for invoice.")
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function postOrderAdminprocessAction(ParamFetcher $paramFetcher)
+  {
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    
+    if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMINUI_USER')) {
+        throw $this->createAccessDeniedException();
+    }
+    
+    // Get parameters from the POST
+    $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
+    $task = $paramFetcher->get('task');
+    
+    // return error if empty
+    if (empty($firstq_group_uuid) || empty($task)) {
+      $message = 'Invalid request - missing parameters';
+      return new Response($message, 400); // invalid request
+    }
+    
+    // Validate if firstq exists and is not processed yet
+    $em = $this->getDoctrine()->getManager();
+    $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
+    
+    if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_INVOICE') {
+      $message = 'Error - FirstQ uuid is invalid';
+      return new Response($message, 400);
+    }
+    
+    // Change status and record the action
+    try {
+      
+      $parameters_clipper = $this->container->getParameter('clipper');
+      
+      $order_status;
+      
+      if ($task == 'accept') {
+        $order_status = $parameters_clipper['state_codes']['order_complete'];
+        // change status to order complete and return ok for redirect
+        $firstq_group->setState($order_status);
+        $em->persist($firstq_group);
+      }
+      else {
+        $order_status = $parameters_clipper['state_codes']['order_declined'];
+        // change status to order complete and return ok for redirect
+        $firstq_group->setState($order_status);
+        $em->persist($firstq_group);
+      }
+      
+      $usr = $this->get('security.context')->getToken()->getUser();
+      $username = $usr->getUsername();
+      
+      // Create a new Process action
+      $firstq_process = new FirstQProcessAction();
+      $firstq_process->setGroupUuid($firstq_group_uuid);
+      $firstq_process->setUsername($username);
+      $firstq_process->setState($order_status);
+      $em->persist($firstq_process);
+      
+      $em->flush();
+      
+      $firsq['fquuid'] = $firstq_group_uuid;
+      return new Response($firsq, 200);
+    } 
+    catch (\Exception $e) {
+      // Something messed up
+      $this->logger->debug("exception: {$e}");
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // Error
+    }
+    
+  }
+
   /**
    * ----------------------------------------------------------------------------------------
    * HELPERS
@@ -590,6 +784,18 @@ class ClipperController extends FOSRestController
     $timezone_and_adjustment['adjustment'] = 2; 
     
     return $timezone_and_adjustment;
+  }
+
+  /**
+   * Validation of the user role
+   * 
+   * @param string $role - user role
+   */
+  private function validateRole($role) {
+    if (!$this->get('security.context')->isGranted($role)) {
+      $message = 'Permission denied';
+      return new Response($message, 401); // Unauthorised request
+    }
   }
 
   /**

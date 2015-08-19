@@ -45,5 +45,18 @@ PSL\ClipperBundle\Entity\FirstQProject:
           on: update
       options:
         comment: date and time at update
+  manyToOne:
+    group_uuid:
+      targetEntity: FirstQGroup
+      inversedBy: projects
+      # fetch: LAZY
+      # orphanRemoval: true
+      # cascade: ["all", "merge", "persist", "refresh", "remove"]
+      joinColumns:
+        firstqgroup_id:
+          referencedColumnName: id
+          # unique: true
+          # onDelete: CASCADE
+          # onUpdate: RESTRICT
   lifecycleCallbacks:
     preUpdate: [ setUpdatedValue ]

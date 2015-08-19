@@ -18,6 +18,8 @@ class RPanelProject
   
   protected $project_sk; // id value is based upon translateapi database row creation
   
+  protected $quote_id; // feasibility_project_quota.quota_id // quota_id in a db and quote_id in the other... I know...
+  
   protected $proj_name;
   
   protected $proj_status;
@@ -114,6 +116,24 @@ class RPanelProject
   public function getProjectSK()
   {
       return $this->project_sk;
+  }
+
+  /**
+   * Set quote_id
+   */
+  public function setQuoteId($quote_id)
+  {
+      $this->quote_id = $quote_id;
+  }
+
+  /**
+   * Get quote_id
+   *
+   * @return int
+   */
+  public function getQuoteId()
+  {
+      return $this->quote_id;
   }
 
   /**

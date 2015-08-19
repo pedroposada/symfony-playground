@@ -28,4 +28,14 @@ final class ClipperEvents
 
     const BEFORE_LIMESURVEY_COMPLETE    = 'before_limesurvey_complete';
     const AFTER_LIMESURVEY_COMPLETE     = 'after_limesurvey_complete';
+    
+    
+    /**
+     * The event listeners receive an instance of
+     * PSL\ClipperBundle\Event\ChartEvent
+     *
+     * @var string
+     */
+    const CHART_PROCESS                 = 'chart_process'; 
+     
 }

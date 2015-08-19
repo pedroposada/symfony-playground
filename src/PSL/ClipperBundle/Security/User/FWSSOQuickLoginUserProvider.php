@@ -8,9 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
-// use PSL\ClipperBundle\Service\FWSSOWebservice as FWSSOWebservice;
-
-class FWSSOUserProvider implements UserProviderInterface
+class FWSSOQuickLoginUserProvider implements UserProviderInterface
 {
   
   protected $container;
@@ -26,22 +24,24 @@ class FWSSOUserProvider implements UserProviderInterface
     $settings['fwsso_baseurl'] = $fwsso_config['url'];
     $settings['fwsso_app_token'] = $fwsso_config['app_token'];
     
+    // @TODO: modification on the FWSSO server side is required
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
-    $response = $fwsso_ws->loginUser(array('username' => $username));
-    
+    $response = $fwsso_ws->quickLoginUser(array('qlhash'=>$username)); // $username = docpass_hash
+
     if ($response->isOk()) {
       // Username and password retrieval from the FW SSO
       $content = @json_decode($response->getContent(), TRUE);
       if (json_last_error() != JSON_ERROR_NONE) {
         throw new Exception('JSON decode error: ' . json_last_error());
       }
-      $username = $content['name'];
-      $password = $content['pass'];
-      $salt = substr($content['pass'], 0, 12);
+      $username = $content['account']['name'];
+      $password = 'password';
       $roles = array('ROLE_USER');
       
-      return new FWSSOUser($username, $password, $salt, $roles);
+      $fwsso_user = new FWSSOQuickLoginUser($username, $password, $roles);
+
+      return $fwsso_user;
     }
     
     // Return error if no user with this username 
@@ -52,7 +52,7 @@ class FWSSOUserProvider implements UserProviderInterface
 
   public function refreshUser(UserInterface $user)
   {
-    if (!$user instanceof FWSSOUser) {
+    if (!$user instanceof FWSSOQuickLoginUser) {
       throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
     }
 
@@ -61,6 +61,6 @@ class FWSSOUserProvider implements UserProviderInterface
 
   public function supportsClass($class)
   {
-    return $class === 'PSL\ClipperBundle\Security\User\FWSSOUser';
+    return $class === 'PSL\ClipperBundle\Security\User\FWSSOQuickLoginUser';
   }
 }

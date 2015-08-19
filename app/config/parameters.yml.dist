@@ -14,7 +14,12 @@ parameters:
   
   # secret key
   secret:                             "[*secret*]"
-  
+
+  # FWSSO API
+  fwsso_api:
+        url: "[*fwsso_baseurl*]"
+        app_token: "[*fwsso_app_token*]"
+
   # Clipper settings
   clipper:
     email_ls_results:
@@ -23,15 +28,18 @@ parameters:
       subject:                        "FirstQ Survey Results - %limesurvey.url_destination_base_sid%"
       body:                           "FirstQ Survey results for Survey ID: [SID]. URL: %limesurvey.url_destination_base_sid%"
     state_codes:
-      #firstq_group
-      order_pending:                  ORDER_PENDING
-      order_complete:                 ORDER_COMPLETE
-      #firstq_project
-      limesurvey_pending:             LIMESURVEY_PENDING
-      limesurvey_created:             LIMESURVEY_CREATED
-      rpanel_complete:                RPANEL_COMPLETE
-      limesurvey_complete:            LIMESURVEY_COMPLETE
-      limesurvey_exported:            LIMESURVEY_EXPORTED
+      # firstq_group
+      order_pending: ORDER_PENDING
+      order_invoice: ORDER_INVOICE
+      order_declined: ORDER_DECLINED
+      order_complete: ORDER_COMPLETE
+      order_closed: ORDER_CLOSED
+      # fristq_project
+      limesurvey_pending: LIMESURVEY_PENDING
+      limesurvey_created: LIMESURVEY_CREATED
+      rpanel_complete: RPANEL_COMPLETE
+      limesurvey_complete: LIMESURVEY_COMPLETE
+      limesurvey_exported: LIMESURVEY_EXPORTED
 
     worldpay:
       inst_id:                        "[*clipper_worldpay_inst_id*]"
@@ -44,7 +52,7 @@ parameters:
   clipper.brands:                     "Resources/terms/brands.xml"
   clipper.conditions:                 "Resources/terms/conditions.xml"
   clipper.frontend.url:               "[*clipper.frontend.url*]"
-  clipper.quota.universal:            1
+  clipper.quota.universal             1 # Number of respondents required
       
   # LimeSurvey settings
   limesurvey:

@@ -16,6 +16,13 @@ class FirstQProject
 {
     protected $id;
 
+    /**
+     * Group Uuid 
+     * Many To One (targetEntity="FirstQGroup", inversedBy="projects")
+     * Join Column (name="firstqproject_id", referencedColumnName="id")
+     */
+    protected $group_uuid;
+
     protected $sheet_data_raw;
     
     protected $limesurvey_data_raw;
@@ -32,12 +39,18 @@ class FirstQProject
       return $this->getId();
     }
     
-    protected function getSerializer()
+    /**
+     * custom helper function
+     * @param $raw string json encoded
+     * @return array
+     */
+    protected function decodeRaw($raw)
     {
       $encoders = array(new XmlEncoder(), new JsonEncoder());
       $normalizers = array(new ObjectNormalizer());
+      $serializer = new Serializer($normalizers, $encoders);
       
-      return new Serializer($normalizers, $encoders);
+      return $serializer->decode($raw, 'json');
     }
     
     /**
@@ -48,12 +61,8 @@ class FirstQProject
     public function getSheetDataUnserialized() 
     {
       $raw = $this->getSheetDataRaw();
-      $unserialized = $this->getSerializer()->decode($raw, 'json');
-      if (isset($unserialized)) {
-        $response = $unserialized;
-      }
-      
-      return $response;
+
+      return $this->decodeRaw($raw);
     }
 
     /**
@@ -66,7 +75,7 @@ class FirstQProject
       $response = array();
       
       $raw = $this->getSheetDataRaw();
-      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      $unserialized = $this->decodeRaw($raw);
       if (isset($unserialized[$field_name])) {
         $response = (array)$unserialized[$field_name];
       }
@@ -84,7 +93,7 @@ class FirstQProject
       $response = array();
       
       $raw = $this->getLimesurveyDataRaw($field_name);
-      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      $unserialized = $this->decodeRaw($raw);
       if (isset($unserialized[$field_name])) {
         $response = (array)$unserialized[$field_name];
       }
@@ -100,7 +109,7 @@ class FirstQProject
     public function getLimesurveyDataUnserialized() 
     {
       $raw = $this->getLimesurveyDataRaw();
-      $unserialized = $this->getSerializer()->decode($raw, 'json');
+      $unserialized = $this->decodeRaw($raw);
       if (isset($unserialized)) {
         $response = $unserialized;
       }

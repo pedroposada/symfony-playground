@@ -4,9 +4,10 @@ security:
     # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
-        # PSL\ClipperBundle\Security\User\FWSSOUser: plaintext
+        PSL\ClipperBundle\Security\User\YamlAdminUser: plaintext
         PSL\ClipperBundle\Security\User\FWSSOUser:
-          id: drupal_password_encoder
+            id: drupal_password_encoder
+        PSL\ClipperBundle\Security\User\FWSSOQuickLoginUser: plaintext
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
@@ -17,13 +18,20 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-
+        # Admin UI users
+        yaml_admin:
+            id: yaml_admin_user_provider
+        # FW SSO Users
         fw_sso:
             id: fw_sso_user_provider
-
+        # FW SSO Quick Login Users
+        fw_sso_ql:
+            id: fw_sso_quick_login_user_provider
+        # Default Users
         in_memory:
             memory:
                 users:
+                    # Add users here for access to the Admin UI front end
                     user:  { password: userpass, roles: [ 'ROLE_USER' ] }
                     admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
 
@@ -54,24 +62,64 @@ security:
             #http_basic:
             #    realm: "Secured Demo Area"
 
+        # Admin UI Login
+        login_admin:
+            pattern:  ^/clipper/api/admin/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured Admin Area"
+                provider: yaml_admin
+            form_login:
+                check_path: /clipper/api/admin/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
         # FW SSO Login
         login:
-            pattern:  ^/clipper/ws/login
+            pattern:  ^/clipper/api/login
             stateless: true
             anonymous: true
             http_basic:
                 realm: "Secured API"
                 provider: fw_sso
             form_login:
-                check_path: /clipper/ws/login_check
+                check_path: /clipper/api/login_check
                 require_previous_session: false
                 username_parameter: username
                 password_parameter: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
+        # FW SSO Quick Login
+        login_ql:
+            pattern:  ^/clipper/api/ql/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured API"
+                provider: fw_sso_ql
+            form_login:
+                check_path: /clipper/api/ql/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # Post orders only
+        api_orders:
+            pattern:  ^/clipper/api/neworders
+            stateless: true
+            anonymous: true
+        # Clipper Autocomplete only
+        api_autocomplete:
+            pattern:  ^/clipper/api/clipper/autocomplete
+            stateless: true
+            anonymous: true
+        # Rest of API
         api:
-            pattern:   ^/clipper/ws
+            pattern:   ^/clipper/api
             stateless: true
             lexik_jwt:
                 authorization_header:
@@ -86,5 +134,3 @@ security:
     # http://symfony.com/doc/current/cookbook/security/access_control.html
     access_control:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
-        - { path: ^/clipper/ws/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/clipper/ws, roles: IS_AUTHENTICATED_FULLY }

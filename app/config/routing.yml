@@ -4,7 +4,4 @@ psl_clipper:
 
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
-    prefix:   /api/doc
-
-api_login_check:
-   path: /clipper/ws/login_check
+    prefix:   /clipper/api/doc
