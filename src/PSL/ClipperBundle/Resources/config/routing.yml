@@ -36,7 +36,7 @@ psl_clipper_exit:
   defaults: { _controller: PSLClipperBundle:Clipper:exit }
 
 psl_clipper_chart:
-  path:     /api/charts
+  path:     /charts
   defaults: { _controller: PSLClipperBundle:Charts:charts }
 
 psl_clipper_thankyou:

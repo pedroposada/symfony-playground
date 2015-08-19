@@ -41,7 +41,7 @@ class ChartsController extends FOSRestController
 {
   /**
    * Get google chart DataTable
-   * /clipper/api/charts
+   * /clipper/charts
    *
    * @param ParamFetcher $paramFetcher
    *
