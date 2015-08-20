@@ -316,19 +316,32 @@ class ClipperController extends FOSRestController
         $firstqs_formatted = array(); 
         foreach ($firstq_groups as $key => $firstq_group) {
           
-          // @TODO: load real user info
-          $user_info = array();
-          $user_info['username'] = 'Username Person';
-          $user_info['company_name'] = 'Company Name X';
-          $user_info['phone'] = '514-123-1234';
-          $user_info['address'] = '1234 fake street</br>Montreal, QC<br/>H1H 1H1';
+          // User info retrieval from the FW SSO
+          $fwsso_config = $this->container->getParameter('fwsso_api');
+          $settings['fwsso_baseurl'] = $fwsso_config['url'];
+          $settings['fwsso_app_token'] = $fwsso_config['app_token'];
+          
+          $fwsso_ws = $this->container->get('fw_sso_webservice');
+          $fwsso_ws->configure($settings);
+          $response = $fwsso_ws->getUser(array('uid' => $firstq_group->getUserId()));
+          
+          if ($response->isOk()) {
+            
+            $content = @json_decode($response->getContent(), TRUE);
+            if (json_last_error() != JSON_ERROR_NONE) {
+              throw new Exception('JSON decode error: ' . json_last_error());
+            }
+            
+            // User info
+            $user_info = array();
+            $user_info['username'] = $content['field_firstname']['und'][0]['value'] . " " . $content['field_lastname']['und'][0]['value'];
+            $user_info['address'] = $content['name']; // email
+            $user_info['phone'] = $content['field_company']['und'][0]['value'] . '<br/>' . $content['field_phone']['und'][0]['value'];
+            $user_info['company_name'] = $content['field_company']['und'][0]['value'];
+          }
           
           $processed_info = NULL;
           if ($params['state_codes'][$status] == $params['state_codes']['order_declined']) {
-            
-            
-            
-            // Doesn't seem to work no-moh
             
             $firstq_process = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProcessAction')
                                    ->findOneBy(array('groupUuid' => $firstq_group->getId()));
@@ -340,13 +353,9 @@ class ClipperController extends FOSRestController
               
             }
             else {
-              $processed_info['username'] = $firstq_group->getId();//'bob';
+              $processed_info['username'] = $firstq_group->getId();
               $processed_info['updated'] = 'now';
             }
-            
-            
-            
-            
           }
           
           $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup($user_info, $processed_info);
@@ -518,7 +527,6 @@ class ClipperController extends FOSRestController
       $message = 'Error - Please try again.';
       return new Response($message, 400); // no content
     }
-    
   }
   
   /**
@@ -668,17 +676,6 @@ class ClipperController extends FOSRestController
     $em->flush();
     
     return $firstq_group->getId();
-  }
-  
-  /**
-   * Simple debug output
-   * /clipper/autocomplete
-   */
-  public function autocompleteAction()
-  {
-    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
-
-    return $response;
   }
   
   /**
