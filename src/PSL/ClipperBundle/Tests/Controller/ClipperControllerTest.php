@@ -14,55 +14,67 @@ class ClipperControllerTest extends WebTestCase
     /**
      * @dataProvider autocompleteParametersProvider
      */
-    public function testGetClipperAutocompleteAction($parameters)
+    public function testGetClipperAutocompleteAction($parameters, $result)
     {
         $client = static::createClient();
         $uri = $client->getContainer()->get('router')->generate('get_clipper_autocomplete');
         $client->request('GET', $uri, $parameters);
 
-        // Assert that the response status code is 2xx
+        // Assert that the response status code is 2xx.
         $this->assertTrue($client->getResponse()->isSuccessful());
 
-        // Assert a specific 200 status code
+        // Assert a specific 200 status code.
         $this->assertEquals(
             200,
             $client->getResponse()->getStatusCode()
         );
 
-        // Assert that the "Content-Type" header is "application/json"
+        // Assert that the "Content-Type" header is "application/json".
         $this->assertEquals(
             'application/json',
             $client->getResponse()->headers->get('content-type')
         );
 
-        // Assert that the response content contains a string
-        $this->assertContains(
-            '"content":[',
-            $client->getResponse()->getContent()
-        );
+        // Decode response content data.
+        $content = json_decode($client->getResponse()->getContent(), true);
 
-        // Assert that the response content is not empty
-        $content = json_decode($client->getResponse()->getContent());
-        $this->assertNotEmpty($content->content);
+        // Assert that the response content contains content
+        $this->assertArrayHasKey('content', $content);
+
+        // Assert that the response content is not empty.
+        $this->assertNotEmpty($content);
+
+        // TODO: mock the result in clipper.brands and clipper.conditions.
+        // Find a way to set parameters for test environment.
+        // $this->assertEquals($result, $content);
     }
 
     public function autocompleteParametersProvider()
     {
         return array(
             // ?keyword=a
-            'Has keyword only' => array(array(
-                'keyword' => 'a',
-            )),
+            'Has keyword only' => array(
+                array(
+                    'keyword' => 'a',
+                ),
+                array(),
+            ),
             // ?group=brands&keyword=a
-            'Has brand and keyword' => array(array(
-                'group' => 'brands',
-                'keyword' => 'a',
-            )),
+            'Has brand and keyword' => array(
+                array(
+                    'group' => 'brands',
+                    'keyword' => 'a',
+                ),
+                array(),
+            ),
             // ?group=conditions&keyword=a
-            'Has condition and keyword' => array(array(
-                'group' => 'conditions',
-                'keyword' => 'a',
-            )),
+            'Has condition and keyword' => array(
+                array(
+                    'group' => 'conditions',
+                    'keyword' => 'a',
+                ),
+                array(),
+            ),
         );
     }
 
@@ -72,25 +84,25 @@ class ClipperControllerTest extends WebTestCase
     public function testPostOrderAction($postData)
     {
         $client = static::createClient();
-        $uri = $client->getContainer()->get('router')->generate('post_order');
+        $uri = $client->getContainer()->get('router')->generate('post_neworder');
         $client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
 
-        // Assert that the response status code is 2xx
+        // Assert that the response status code is 2xx.
         $this->assertTrue($client->getResponse()->isSuccessful());
 
-        // Assert a specific 200 status code
+        // Assert a specific 200 status code.
         $this->assertEquals(
             200,
             $client->getResponse()->getStatusCode()
         );
 
-        // Assert that the "Content-Type" header is "application/json"
+        // Assert that the "Content-Type" header is "application/json".
         $this->assertEquals(
             'application/json',
             $client->getResponse()->headers->get('content-type')
         );
 
-        // Assert that the response content contains a string
+        // Assert that the response content contains a string.
         $this->assertContains(
             'firstq_uuid',
             $client->getResponse()->getContent()
