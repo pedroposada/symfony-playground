@@ -1,0 +1,58 @@
+{# src/PSL/ClipperBundle/Resources/views/Charts/devoted_doctor_to_brands.html.twig #}
+{% autoescape false %}
+    <!-- START CHART -->
+    <script type="text/javascript">
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        //set data
+        var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+
+        //adjustments config
+        //- Bar Color for Mean (first)
+        var col_mean      = '#F90';
+        //- Bar Color for Brands
+        var col_brand     = '#36C';
+        //- Annotation color
+        var col_ann_color = '#000';
+        //- Chart Width; default the chart will maximize bar to its length
+        //  This will multiply with the maximum value available
+        var chart_ratio   = 1.5;
+
+        //implement adjustment
+        //-Mean color
+        data.setCell(0, 3, 'fill-color: ' + col_mean + ';');
+        //Get MaxValue
+        var numRows = data.getNumberOfRows();
+        var max_value = 0.0;
+        for (var i = 0; i < numRows; i++) {
+          //value on col 1
+          max_value = Math.max(max_value, data.getValue(i, 1));
+        }
+        max_value = Math.ceil((max_value * chart_ratio));
+
+        //set options
+        var options = {
+          'legend': 'none',
+          'annotations' : {
+            'alwaysOutside': true,
+            'textStyle' : {
+              'bold' : true,
+              'color' : col_ann_color
+            }
+          },
+          'hAxis': {
+            'minValue': max_value,
+            'maxValue': max_value
+          },
+          'colors': [col_brand]
+        };
+
+        //draw
+        var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
+        chart.draw(data, options);
+      }
+    </script>
+    <!--Div that will hold the chart-->
+    <div id="{{ chartDivId }}" style="width:400; height:300"></div>
+    <!-- END CHART -->
+{% endautoescape %}
