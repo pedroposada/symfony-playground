@@ -425,6 +425,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="amount", default="", description="Amount of the project.")
    * @requestparam(name="email", default="", description="Email of the client.")
+   * @requestparam(name="method", default="", description="Payment method.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -437,6 +438,7 @@ class ClipperController extends FOSRestController
     $stripe_token = $paramFetcher->get('stripeToken');
     $amount = (int)$paramFetcher->get('amount') * 100; // in cents
     $email = $paramFetcher->get('email'); // not necessary
+    $method = $paramFetcher->get('method'); // not necessary
     
     // return error if empty
     if (empty($firstq_group_uuid) || empty($stripe_token)) {
@@ -450,6 +452,26 @@ class ClipperController extends FOSRestController
     if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
       $message = 'Error - FirstQ uuid is invalid';
       return new Response($message, 400);
+    }
+
+    $parameters_clipper = $this->container->getParameter('clipper');
+
+    if ($method == 'INVOICE') {
+      if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
+        $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+        $em->persist($firstq_group);
+        $em->flush();
+
+        $message = 'Order complete. Your payment will be via invoice.';
+        return new Response($message, 200);
+      } else {
+        $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
+        $em->persist($firstq_group);
+        $em->flush();
+
+        $message = 'Order pending. The order will be activated after payment.';
+        return new Response($message, 200);
+      }
     }
     
     // create the charge on Stripe's servers
