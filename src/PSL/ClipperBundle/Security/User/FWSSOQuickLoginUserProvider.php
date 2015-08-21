@@ -8,6 +8,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 class FWSSOQuickLoginUserProvider implements UserProviderInterface
 {
   
@@ -37,7 +40,8 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
       }
       $username = $content['account']['name'];
       $password = 'password';
-      $roles = array('ROLE_USER');
+
+      $roles = $this->getRoles($username);
       
       $fwsso_user = new FWSSOQuickLoginUser($username, $password, $roles);
 
@@ -48,6 +52,20 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
     throw new UsernameNotFoundException(
       sprintf('Username "%s" does not exist.', $username)
     );
+  }
+
+  public function getRoles($username)
+  {
+    $yaml = new Parser();
+    try {
+      $invoice_wl = $yaml->parse(file_get_contents($this->invoice_whitelist));
+    } catch (ParseException $e) {
+      return array('ROLE_USER');
+    }
+    if (isset($invoice_wl[$username])) {
+      return $invoice_wl[$username]['roles'];
+    }
+    return array('ROLE_USER');
   }
 
   public function refreshUser(UserInterface $user)
