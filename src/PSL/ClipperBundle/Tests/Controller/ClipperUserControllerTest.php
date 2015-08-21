@@ -4,7 +4,7 @@
 
 namespace PSL\ClipperBundle\Tests\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use PSL\ClipperBundle\Tests\WebTestCase;
 
 /**
  * ClipperUserControllerTest test.
@@ -23,32 +23,16 @@ class ClipperUserControllerTest extends WebTestCase
 
     public function testGetUserAction()
     {
-        $client = static::createClient();
-        $parameters = array('uid' => 1);
-        $uri = $client->getContainer()->get('router')->generate('get_user', $parameters);
-        $client->request('GET', $uri);
+        $uri = $this->getUrl('get_user', array('uid' => 1));
+        $this->assertBehindFirewall('GET', $uri);
 
-        // Assert authentication is needed.
-        $this->assertAuthentication($client);
+        $this->authenticatedClient->request('GET', $uri);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
     }
 
     public function testGetUserPasswordAction()
     {
 
-    }
-
-    public function assertAuthentication($client)
-    {
-        // Decode response content data.
-        $content = json_decode($client->getResponse()->getContent(), true);
-
-        // Assert that authentication is needed.
-        $this->assertEquals(
-            array(
-                'code' => 401,
-                'message' => 'Invalid credentials',
-            ),
-            $content
-        );
     }
 }

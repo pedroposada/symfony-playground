@@ -4,7 +4,7 @@
 
 namespace PSL\ClipperBundle\Tests\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use PSL\ClipperBundle\Tests\WebTestCase;
 
 /**
  * ClipperControllerTest test.
@@ -16,27 +16,26 @@ class ClipperControllerTest extends WebTestCase
      */
     public function testGetClipperAutocompleteAction($parameters, $result)
     {
-        $client = static::createClient();
-        $uri = $client->getContainer()->get('router')->generate('get_clipper_autocomplete');
-        $client->request('GET', $uri, $parameters);
+        $uri = $this->getUrl('get_clipper_autocomplete');
+        $this->client->request('GET', $uri, $parameters);
 
         // Assert that the response status code is 2xx.
-        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
 
         // Assert a specific 200 status code.
         $this->assertEquals(
             200,
-            $client->getResponse()->getStatusCode()
+            $this->client->getResponse()->getStatusCode()
         );
 
         // Assert that the "Content-Type" header is "application/json".
         $this->assertEquals(
             'application/json',
-            $client->getResponse()->headers->get('content-type')
+            $this->client->getResponse()->headers->get('content-type')
         );
 
         // Decode response content data.
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($this->client->getResponse()->getContent(), true);
 
         // Assert that the response content contains content
         $this->assertArrayHasKey('content', $content);
@@ -83,29 +82,28 @@ class ClipperControllerTest extends WebTestCase
      */
     public function testPostOrderAction($postData)
     {
-        $client = static::createClient();
-        $uri = $client->getContainer()->get('router')->generate('post_neworder');
-        $client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
+        $uri = $this->getUrl('post_neworder');
+        $this->client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
 
         // Assert that the response status code is 2xx.
-        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
 
         // Assert a specific 200 status code.
         $this->assertEquals(
             200,
-            $client->getResponse()->getStatusCode()
+            $this->client->getResponse()->getStatusCode()
         );
 
         // Assert that the "Content-Type" header is "application/json".
         $this->assertEquals(
             'application/json',
-            $client->getResponse()->headers->get('content-type')
+            $this->client->getResponse()->headers->get('content-type')
         );
 
         // Assert that the response content contains a string.
         $this->assertContains(
             'firstq_uuid',
-            $client->getResponse()->getContent()
+            $this->client->getResponse()->getContent()
         );
     }
 
@@ -153,7 +151,21 @@ class ClipperControllerTest extends WebTestCase
 
     public function testGetOrdersAction()
     {
+        $uri = $this->getUrl('get_orders', array('user_id' => 123));
+        $this->assertBehindFirewall('GET', $uri);
 
+        $this->authenticatedClient->request('GET', $uri);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
+
+        $this->assertEquals(
+            array(
+                'content' => 'No orders.',
+                'status' => 204,
+                'headers' => array(),
+            ),
+            $content
+        );
     }
 
     public function testGetOrderAction()
