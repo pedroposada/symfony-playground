@@ -44,13 +44,13 @@ class Assembler
     $event->setChartType($chart_type);
     $fqg = $this->em->getReference('PSLClipperBundle:FirstQGroup', $order_id);
     $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg);
-    $event->setData(new ArrayCollection($responses));
+    $responses = new ArrayCollection($responses);
+    $event->setBrands($responses->first()->getFirstqgroup()->getFormDataByField('brands'));
+    $event->setData($responses);
     $event->setSurveyType($survey_type);
     $this->dispatcher->dispatch(ClipperEvents::CHART_PROCESS, $event);
     
     return $event->getDataTable();
   }
-  
-  
   
 }

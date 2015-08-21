@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ChartEvent extends Event
 {
   protected $order_id;
+  protected $brands;
   protected $params;
   protected $survey_type;
   protected $chart_type;
@@ -67,6 +68,16 @@ class ChartEvent extends Event
   public function setData(ArrayCollection $data)
   {
     $this->data = $data;
+  }
+
+  public function getBrands()
+  {
+    return $this->brands;
+  }
+
+  public function setBrands($brands)
+  {
+    $this->brands = $brands;
   }
   
   /**

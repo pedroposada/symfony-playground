@@ -90,7 +90,7 @@ class NetPromoters extends ChartType
     $answers = $response->getResponseDecoded();
     
     // get brands array
-    $brands = $response->getFirstqgroup()->getFormDataByField('brands');
+    $brands = $event->getBrands();
     
     // question code
     $map = $this->survey_chart_map->map($event->getSurveyType());
