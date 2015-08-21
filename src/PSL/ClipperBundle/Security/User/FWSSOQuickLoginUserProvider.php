@@ -15,10 +15,12 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
 {
   
   protected $container;
+  protected $invoice_whitelist;
   
-  public function __construct(ContainerInterface $container)
+  public function __construct(ContainerInterface $container, $invoice_whitelist)
   {
     $this->container = $container;
+    $this->invoice_whitelist = $invoice_whitelist;
   }
 
   public function loadUserByUsername($username)
