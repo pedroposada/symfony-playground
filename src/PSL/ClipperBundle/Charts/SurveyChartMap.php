@@ -20,9 +20,11 @@ final class SurveyChartMap
       'nps_plus' => array(
         'net_promoters'            => 'G003Q001',
         'devoted_doctor_to_brands' => 'G003Q001',
+        'doctor_promoting_brands'  => 'G003Q001',
         'chart_types' => array(
           'net_promoters',
           'devoted_doctor_to_brands',
+          'doctor_promoting_brands',
         ),
       ),
     );

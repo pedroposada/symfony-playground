@@ -1,0 +1,10 @@
+{# src/PSL/ClipperBundle/Resources/views/Charts/doctor_promoting_brands.html.twig #}
+{% autoescape false %}
+    <!-- START CHART -->
+    <pre>
+      {{ dataTable|json_encode() }}
+    </pre>
+    <!--Div that will hold the chart-->
+    <div id="{{ chartDivId }}" style="width:400; height:300"></div>
+    <!-- END CHART -->
+{% endautoescape %}

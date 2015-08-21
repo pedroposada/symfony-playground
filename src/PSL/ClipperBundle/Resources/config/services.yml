@@ -97,3 +97,9 @@ services:
     arguments: ["@service_container", "devoted_doctor_to_brands"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.doctor_promoting_brands:
+    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingBrands
+    arguments: ["@service_container", "doctor_promoting_brands"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
