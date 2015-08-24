@@ -36,15 +36,11 @@ class DevotedDoctorToBrands extends ChartType {
     $this->map   = $this->survey_chart_map->map($event->getSurveyType());
     $this->qcode = $this->map[$event->getChartType()];
 
+    $this->brands = $event->getBrands();
+    $this->brands = array_flip($this->brands);
+
     //extract respondent
     foreach ($event->getData() as $response) {
-      //initialize brands collection; once
-      if (empty($this->brands)) {
-        $brands = $response->getFirstqgroup()->getFormDataByField('brands');
-        foreach ($brands as $brand) {
-          $this->brands[$brand] = array();
-        }
-      }
       //update @var $this->brands
       $this->extractRespondent($response);
     }
@@ -163,6 +159,9 @@ class DevotedDoctorToBrands extends ChartType {
     //values assignments
     $index = 0;
     foreach ($this->brands as $brand => $resp) {
+      if (!is_array($resp)) {
+        $this->brands[$brand] = array();
+      }
       //brands overall
       if (!isset($this->brands[$brand][$lstoken])) {
         $this->brands[$brand][$lstoken] = 0;
