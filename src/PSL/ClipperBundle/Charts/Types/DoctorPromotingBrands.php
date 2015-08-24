@@ -67,16 +67,10 @@ class DoctorPromotingBrands extends ChartType {
     //prep other attributes
     $this->map   = $this->survey_chart_map->map($event->getSurveyType());
     $this->qcode = $this->map[$event->getChartType()];
+    $this->brands = $event->getBrands();
 
     //extract respondent
     foreach ($event->getData() as $response) {
-      //initialize brands collection; once
-      if (empty($this->brands)) {
-        $brands = $response->getFirstqgroup()->getFormDataByField('brands');
-        foreach ($brands as $brand) {
-          $this->brands[$brand] = 0;
-        }
-      }
       //update @var $this->brands
       $this->extractRespondent($response);
     }
@@ -126,14 +120,12 @@ class DoctorPromotingBrands extends ChartType {
     $answers = array_values($answers);
 
     //values assignments
-    $index = 0;
-    foreach ($this->brands as $brand => $resp) {
+    foreach ($this->brands as $index => $brand) {
       //respondent overall
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
       $this->respondent[$lstoken][$brand] = (int) $answers[$index];
-      $index++;
     }
 
     //convert brand's answers into score by each respondent
