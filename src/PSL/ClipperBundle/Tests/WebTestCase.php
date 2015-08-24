@@ -3,6 +3,7 @@
 namespace PSL\ClipperBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
+use Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * WebTestCase partly taken from Acme Bundle and Liip.
@@ -25,12 +26,43 @@ abstract class WebTestCase extends BaseWebTestCase
     protected $authorizationHeaderPrefix = 'Bearer';
 
     /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $em;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp()
     {
         $this->client = static::createClient();
         $this->authenticatedClient = static::createAuthenticatedClient('uuser', 'userpass');
+
+        self::bootKernel();
+        $this->em = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $this->regenerateSchema();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function tearDown()
+    {
+        parent::tearDown();
+        $this->em->close();
+    }
+
+    /**
+     * Drops current schema and creates a brand new one.
+     */
+    protected function regenerateSchema()
+    {
+        $metadatas = $this->em->getMetadataFactory()->getAllMetadata();
+        if (!empty($metadatas)) {
+            $schemaTool = new SchemaTool($this->em);
+            $schemaTool->dropSchema($metadatas);
+            $schemaTool->createSchema($metadatas);
+        }
     }
 
     /**
