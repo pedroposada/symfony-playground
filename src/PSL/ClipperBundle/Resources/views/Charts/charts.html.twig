@@ -1,6 +1,11 @@
 {% autoescape false %}
 <html>
   <head>
+    <style type="text/css" media="screen">
+      .slides-number {
+        color: #E4560B;
+      }
+    </style>
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -13,7 +18,9 @@
 
   <body>
     {% for chart in charts %}
+      <h3 class="slides-number">Slide #{{ loop.index }}</h3>
       {{ chart }}
+      <hr/>
     {% endfor %}
   </body>
 </html>
