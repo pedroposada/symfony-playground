@@ -1,0 +1,32 @@
+{# src/PSL/ClipperBundle/Resources/views/Charts/doctor_promoting_mine_also_others_table.html.twig #}
+{% autoescape false %}
+    <!-- START CHART -->
+    <style type="text/css">
+      /*table-header*/
+      .doctor-promoting-mine-also-others-table-header th {
+        white-space: normal;
+        word-break: break-word;
+        max-width: 120px;
+        overflow-wrap: break-word;
+      }
+    </style>
+    <script type="text/javascript">
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+        console.log(data);
+        var cssClassNames = {
+          'headerRow': 'google-visualization-table-tr-head doctor-promoting-mine-also-others-table-header',
+        };
+        var options = {
+          'sort'         : 'disable',
+          'cssClassNames': cssClassNames,
+        };
+        var chart = new google.visualization.Table(document.getElementById('{{ chartDivId }}'));
+        chart.draw(data, options);
+      }
+    </script>
+    <!--Div that will hold the chart-->
+    <div id="{{ chartDivId }}" style="width:400; height:180; margin: 30px 20px;"></div>
+    <!-- END CHART -->
+{% endautoescape %}
