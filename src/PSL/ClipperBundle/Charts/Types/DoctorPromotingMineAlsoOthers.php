@@ -18,7 +18,7 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
   private $brands     = array();
   private $respondent = array();
 
-  private $respondent_count = array();
+  private $respondent_count = 0;
 
   private $promoting  = array();
 
