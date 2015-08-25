@@ -18,6 +18,8 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
   private $brands     = array();
   private $respondent = array();
 
+  private $respondent_count = array();
+
   private $promoting  = array();
 
   private static $decimalPoint = 1;
@@ -41,9 +43,10 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
 
     //extract respondent
     foreach ($event->getData() as $response) {
-      //update @var $this->brands
+      //update @var $this->respondent
       $this->extractRespondent($response);
     }
+    $this->respondent_count = count($this->respondent);
 
     //calculate each brands score
     foreach ($this->brands as $brand) {
@@ -95,7 +98,7 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
    * Process will populate
    * - @var $this->respondent
    *
-   * Post-format $this->brands:
+   * Post-format:
    *   $this->respondent
    *     TOKEN
    *       BRAND => ANSWER-VALUE
@@ -140,20 +143,31 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
    * The score doesn't count if respondent votes for the specific brand,
    * but get average in favor of other brands.
    *
+   * Process will populate
+   * - @var $this->promoting
+   *
+   * Post-format:
+   *   $this->promoting
+   *     BRAND
+   *       SCORE-VALUE
+   *     BRAND
+   *       SCORE-VALUE
+   *       SCORE-VALUE
+   *     ...
+   *
    * @param  string $brand
    *
    * @return void
    */
   private function calculateBrandScores($brand) {
-    $score        = 0;
-    $respondent_c = count($this->respondent);
+    $score = 0;
     foreach ($this->respondent as $token => $brandsAnswer) {
       $promoting = ($brandsAnswer[$brand] > 0 ? 1 : 0);
       $allBrandCount = array_filter($brandsAnswer);
       $allBrandCount = count($allBrandCount);
       $score += ($allBrandCount - $promoting);
     }
-    $this->promoting[$brand] = $this->roundingUpValue(($score / $respondent_c));
+    $this->promoting[$brand] = $this->roundingUpValue(($score / $this->respondent_count));
   }
 
   /**
@@ -163,6 +177,7 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
    * @param  integer $value
    * @param  boolean|int $decPoint
    *    Assign decimal point count, or else @var self::$decimalPoint
+   *
    * @param  boolean $force_string
    *    Flag to forcing the decimal point, in string.
    *
