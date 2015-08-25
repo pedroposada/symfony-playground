@@ -42,10 +42,6 @@ class ClipperControllerTest extends WebTestCase
 
         // Assert that the response content is not empty.
         $this->assertNotEmpty($content);
-
-        // TODO: mock the result in clipper.brands and clipper.conditions.
-        // Find a way to set parameters for test environment.
-        // $this->assertEquals($result, $content);
     }
 
     public function autocompleteParametersProvider()
@@ -170,36 +166,117 @@ class ClipperControllerTest extends WebTestCase
 
     public function testGetOrderAction()
     {
+        $uri = $this->getUrl('get_order', array('uuid' => 123));
+        $this->assertBehindFirewall('GET', $uri);
 
+        $this->authenticatedClient->request('GET', $uri);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
+
+        $this->assertEquals(
+            array(
+                'content' => 'No order with this id: 123',
+                'status' => 204,
+                'headers' => array(),
+            ),
+            $content
+        );
     }
 
     public function testPostOrderProcessAction()
     {
+        $uri = $this->getUrl('post_order_process');
+        $this->assertBehindFirewall('POST', $uri);
 
-    }
+        // Assesrt post without params.
+        $this->authenticatedClient->request('POST', $uri);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
 
-    public function testDebugAction()
-    {
+        $this->assertEquals(
+            array(
+                'content' => 'Invalid request - missing parameters',
+                'status' => 400,
+                'headers' => array(),
+            ),
+            $content
+        );
 
+        // Assert invalid FirstQ uuid.
+        $postData = array('firstq_uuid' => 123, 'stripeToken' => 123, 'amount' => 123, 'email' => 'a@b.c');
+        $postData = json_encode($postData);
+
+        $this->authenticatedClient->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
+
+        $this->assertEquals(
+            array(
+                'content' => 'Error - FirstQ uuid is invalid',
+                'status' => 400,
+                'headers' => array(),
+            ),
+            $content
+        );
+
+        // Assert payment system error.
+        // Assert order complete.
+        // Assert Card was declined.
+        // Assert Network problem, perhaps try again.
+        // Assert Invalid request
+        // Assert Network problem, perhaps try again.
+        // Assert Error - Please try again.
     }
 
     public function testExitAction()
     {
+        $uri = $this->getUrl('psl_clipper_exit');
+        $crawler = $this->client->request('GET', $uri, array('lstoken' => 123));
 
+        $this->assertEquals(
+            1,
+            $crawler->filter('p:contains("Thanks for completing the survey.")')->count()
+        );
+
+        $this->assertEquals(
+            1,
+            $crawler->filter('small:contains("Participant token: 123.")')->count()
+        );
+
+        $this->assertEquals(
+            'http://habcentral.habcommunity.com/',
+            $crawler->selectLink('')->link()->getUri()
+        );
     }
 
     public function testThankyouAction()
     {
+        $uri = $this->getUrl('psl_clipper_thankyou', array('fquuid' => 123));
+        $crawler = $this->client->request('GET', $uri);
 
+        $this->assertEquals(
+            'Error - FirstQ uuid is invalid',
+            $this->client->getResponse()->getContent()
+        );
+
+        // Todo: try to find a valid fquuid and assert the redirection.
     }
 
     public function testRedirectLimeSurveyAction()
     {
+        $parameters = array(
+            'sid' => 123,
+            'slug' => 123,
+            'lang' => 123,
+        );
+        $uri = $this->getUrl('psl_clipper_limesurvey_redirect', $parameters);
+        $crawler = $this->client->request('GET', $uri);
 
-    }
+        $this->assertEquals(
+            'Redirecting to http://dev-limesurvey.pslgroup.com/index.php/survey/index/sid/123/token/123/lang/en?lstoken=123',
+            $crawler->filter('title')->text()
+        );
 
-    public function testAutocompleteAction()
-    {
-
+        // Todo: Assert expires response.
     }
 }

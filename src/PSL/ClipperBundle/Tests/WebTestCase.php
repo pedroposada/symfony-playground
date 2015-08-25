@@ -2,7 +2,7 @@
 
 namespace PSL\ClipperBundle\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
+use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
 use Doctrine\ORM\Tools\SchemaTool;
 
 /**
@@ -26,43 +26,17 @@ abstract class WebTestCase extends BaseWebTestCase
     protected $authorizationHeaderPrefix = 'Bearer';
 
     /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $em;
-
-    /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
-        $this->client = static::createClient();
+        $this->loadFixtures(array(
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
+        ));
+
+        $this->client = static::makeClient();
         $this->authenticatedClient = static::createAuthenticatedClient('uuser', 'userpass');
-
-        self::bootKernel();
-        $this->em = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $this->regenerateSchema();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function tearDown()
-    {
-        parent::tearDown();
-        $this->em->close();
-    }
-
-    /**
-     * Drops current schema and creates a brand new one.
-     */
-    protected function regenerateSchema()
-    {
-        $metadatas = $this->em->getMetadataFactory()->getAllMetadata();
-        if (!empty($metadatas)) {
-            $schemaTool = new SchemaTool($this->em);
-            $schemaTool->dropSchema($metadatas);
-            $schemaTool->createSchema($metadatas);
-        }
     }
 
     /**
@@ -75,7 +49,11 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     protected function createAuthenticatedClient($username = 'user', $password = 'password')
     {
-        $client = static::createClient();
+        // We do not use static::makeClient(true) because
+        // LiipFunctionalTestBundle do not support HTTP_Authorization. They
+        // only have PHP_AUTH_USER and PHP_AUTH_PW header. Thus we make our
+        // own JWT compatiable authenticated client.
+        $client = static::makeClient();
         $client->request(
             'POST',
             $this->getUrl('api_login_admin_check'),
@@ -88,55 +66,10 @@ abstract class WebTestCase extends BaseWebTestCase
         $response = $client->getResponse();
         $data     = json_decode($response->getContent(), true);
 
-        return static::createClient(
-            array(),
+        return static::makeClient(
+            false,
             array('HTTP_Authorization' => sprintf('%s %s', $this->authorizationHeaderPrefix, $data['token']))
         );
-    }
-
-    /**
-     * Extracts the location from the given route.
-     *
-     * @param string $route  The name of the route
-     * @param array $params  Set of parameters
-     * @param boolean $absolute
-     *
-     * @return string
-     */
-    protected function getUrl($route, $params = array(), $absolute = false)
-    {
-        $client = static::createClient();
-        return $client->getContainer()->get('router')->generate($route, $params, $absolute);
-    }
-
-    /**
-     * Checks the success state of a response
-     *
-     * @param Response $response Response object
-     * @param bool $success to define whether the response is expected to be successful
-     * @param string $type
-     *
-     * @return void
-     */
-    public function isSuccessful($response, $success = true, $type = 'text/html')
-    {
-        try {
-            $crawler = new Crawler();
-            $crawler->addContent($response->getContent(), $type);
-            if (! count($crawler->filter('title'))) {
-                $title = '['.$response->getStatusCode().'] - '.$response->getContent();
-            } else {
-                $title = $crawler->filter('title')->text();
-            }
-        } catch (\Exception $e) {
-            $title = $e->getMessage();
-        }
-
-        if ($success) {
-            $this->assertTrue($response->isSuccessful(), 'The Response was not successful: '.$title);
-        } else {
-            $this->assertFalse($response->isSuccessful(), 'The Response was successful: '.$title);
-        }
     }
 
     /**
