@@ -23,12 +23,14 @@ final class SurveyChartMap
         'doctor_promoting_brands'                 => 'G003Q001',
         'doctor_promoting_mine_also_others'       => 'G003Q001',
         'doctor_promoting_mine_also_others_table' => 'G003Q001',
+        'detractors_promotes_these_brands'        => 'G003Q001',
         'chart_types' => array(
           'net_promoters',
           'devoted_doctor_to_brands',
           'doctor_promoting_brands',
           'doctor_promoting_mine_also_others',
           'doctor_promoting_mine_also_others_table',
+          'detractors_promotes_these_brands',
         ),
       ),
     );
