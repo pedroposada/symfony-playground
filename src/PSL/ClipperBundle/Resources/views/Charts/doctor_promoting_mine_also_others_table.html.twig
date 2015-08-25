@@ -14,7 +14,6 @@
       google.setOnLoadCallback(drawChart);
       function drawChart() {
         var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
-        console.log(data);
         var cssClassNames = {
           'headerRow': 'google-visualization-table-tr-head doctor-promoting-mine-also-others-table-header',
         };
