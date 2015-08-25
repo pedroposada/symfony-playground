@@ -34,11 +34,11 @@ services:
 
   fw_sso_user_provider:
     class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
-    arguments: ["@service_container"]
+    arguments: ["@service_container", "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
 
   fw_sso_quick_login_user_provider:
     class: PSL\ClipperBundle\Security\User\FWSSOQuickLoginUserProvider
-    arguments: ["@service_container"]
+    arguments: ["@service_container", "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
 
   fw_sso_webservice:
     class: PSL\ClipperBundle\Service\FWSSOWebservice

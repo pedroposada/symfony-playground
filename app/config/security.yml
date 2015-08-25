@@ -12,9 +12,10 @@ security:
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
                                                                                               # ROLE_USER - regular users
-        ROLE_ADMIN:       ROLE_USER                                                           # regular admins
-        ROLE_ADMINUI_USER:  ROLE_USER                                                         # regular Admin UI users
-        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMINUI_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]  # SUPER COOL ADMIN TO RULE THEM ALL
+        ROLE_INVOICE_WHITELISTED:   ROLE_USER
+        ROLE_ADMIN:                 ROLE_USER                                                           # regular admins
+        ROLE_ADMINUI_USER:          ROLE_USER                                                         # regular Admin UI users
+        ROLE_SUPER_ADMIN:           [ROLE_USER, ROLE_ADMINUI_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]  # SUPER COOL ADMIN TO RULE THEM ALL
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
