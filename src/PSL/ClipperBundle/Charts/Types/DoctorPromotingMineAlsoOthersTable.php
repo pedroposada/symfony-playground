@@ -20,8 +20,8 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
 
   private $respondent_count = 0;
 
-  private $promoting  = array();
-  private $average    = array();
+  private $promoting   = array();
+  private $competitors = array();
 
   private static $decimalPoint = 1;
 
@@ -42,21 +42,25 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
     $this->map    = $this->survey_chart_map->map($event->getSurveyType());
     $this->qcode  = $this->map[$event->getChartType()];
 
+    //prep competitors structure
+    $this->competitors = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+
     //extract respondent
     foreach ($event->getData() as $response) {
       //update @var $this->respondent
-      //update @var $this->average
+      //update @var $this->competitors
       $this->extractRespondent($response);
     }
     $this->respondent_count = count($this->respondent);
-    //calculate average, update @var $this->average
-    $this->calculateAverage();
 
     //calculate each brands score
     foreach ($this->brands as $brand) {
       //update @var $this->promoting
       $this->calculateBrandScores($brand);
     }
+
+    //calculate competitors, update @var $this->competitors
+    $this->identifyCompetitors();
 
     //data formation
     $dataTable = array(
@@ -80,20 +84,16 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
       ),
       'rows' => array(),
     );
-    $index = 0;
-    $ave_list = array_keys($this->average);
     foreach ($this->promoting as $brand => $score) {
       $dataTable['rows'][] = array(
         'c' => array(
           array('v' => $brand),
           array('v' => $score),
-          array('v' => $ave_list[$index]),
-          array('v' => $this->average[$ave_list[$index]] . '%'),
+          array('v' => $this->competitors[$brand]['brand']),
+          array('v' => $this->competitors[$brand]['perc']),
         ),
       );
-      $index++;
     }
-
     return $dataTable;
   }
 
@@ -103,7 +103,7 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
    *
    * Process will populate
    * - @var $this->respondent
-   * - @var $this->average
+   * - @var $this->competitors
    *
    * Post-format:
    *   $this->respondent
@@ -115,11 +115,18 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
    *       BRAND => ANSWER-VALUE
    *     ...
    *
-   *   $this->average
+   *   $this->competitors
    *     BRAND
-   *       RESPONSE-COUNT
+   *       BRAND =>
+   *         c => TOTAL-COUNT
+   *         m => MAX-VOTE
+   *       BRAND =>
+   *         c => TOTAL-COUNT
+   *         m => MAX-VOTE
    *     BRAND
-   *       RESPONSE-COUNT
+   *       BRAND =>
+   *         c => TOTAL-COUNT
+   *         m => MAX-VOTE
    *    ...
    *
    * @param  LimeSurveyResponse $response
@@ -147,12 +154,20 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
         $this->respondent[$lstoken] = array();
       }
       $this->respondent[$lstoken][$brand] = (int) $answers[$index];
-      if (!isset($this->average[$brand])) {
-        $this->average[$brand] = 0;
+    }
+
+    //get competitor
+    foreach ($this->brands as $index => $brand) {
+      $respondent_copy = $this->respondent[$lstoken];
+      unset($respondent_copy[$brand]); //exclude itself
+      arsort($respondent_copy);
+      $respondent_copy = array_slice($respondent_copy, 0, 1, TRUE);
+      list($competitor_name) = array_keys($respondent_copy);
+      if (!isset($this->competitors[$brand][$competitor_name])) {
+        $this->competitors[$brand][$competitor_name] = array('c' => 0, 'm' => 0);
       }
-      if (!empty($this->respondent[$lstoken][$brand])) {
-        $this->average[$brand]++;
-      }
+      $this->competitors[$brand][$competitor_name]['c']++;
+      $this->competitors[$brand][$competitor_name]['m'] = max($this->competitors[$brand][$competitor_name]['m'], $respondent_copy[$competitor_name]);
     }
   }
 
@@ -192,28 +207,51 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
 
 
   /**
-   * Method to calculate average of each brands, then sort.
-   * @method calculateAverage
+   * Method to select brands competitors by highest answer value.
+   * @method identifyCompetitors
    *
    * Process will change structure
-   * - @var $this->average
+   * - @var $this->competitors
    *
    * Post-format:
-   *  $this->average
+   *  $this->competitors
+   *    BRAND  =>
+   *      brand => BRAND-NAME
+   *      value => VOTES-PERCENTAGE
+   *      perc  => STR-VOTES-PERCENTAGE
    *    BRAND
-   *      AVERAGE-%
-   *    BRAND
-   *      AVERAGE-%
+   *      brand => BRAND-NAME
+   *      value => VOTES-PERCENTAGE
+   *      perc  => STR-VOTES-PERCENTAGE
    *    ...
    *
    * @return void
    */
-  private function calculateAverage() {
-    foreach ($this->average as $brand => $count) {
-      $this->average[$brand] = $this->roundingUpValue((($count / $this->respondent_count) * 100), 0);
+  private function identifyCompetitors() {
+    foreach ($this->competitors as $brand => $competitors) {
+      if ((count($competitors)) == 1) {
+        $competitor_max = array_keys($competitors);
+        $competitor_max = end($competitor_max);
+        $perc = 100;
+      }
+      else {
+        $competitor_max    = array();
+        $competitor_counts = 0;
+        array_walk($competitors, function($set, $key) use (&$competitor_max, &$competitor_counts) {
+          $competitor_max[$key] = $set['m'];
+          $competitor_counts += $set['c'];
+        });
+        arsort($competitor_max);
+        $competitor_max = array_slice($competitor_max, 0, 1, TRUE);
+        list($competitor_max) = array_keys($competitor_max);
+        $perc = (($competitors[$competitor_max]['c'] / $competitor_counts) * 100);
+      }
+      $this->competitors[$brand] = array(
+        'brand' => $competitor_max,
+        'value' => $perc,
+        'perc'  => $this->roundingUpValue($perc, 0, TRUE) . '%',
+      );
     }
-    //sort
-    arsort($this->average);
   }
 
   /**
