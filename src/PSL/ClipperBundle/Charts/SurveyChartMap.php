@@ -25,6 +25,7 @@ final class SurveyChartMap
         'doctor_promoting_mine_also_others_table' => 'G003Q001',
         'detractors_promotes_these_brands'        => 'G003Q001',
         'promoters_prescribe_versus_detractors'   => 'G002Q001',
+        'what_they_say'                           => array('G004Q001', 'G005Q001', 'G006Q001', 'G007Q001', 'G008Q001', 'G009Q001'),
         'chart_types' => array(
           'net_promoters',
           'devoted_doctor_to_brands',
@@ -33,6 +34,7 @@ final class SurveyChartMap
           'doctor_promoting_mine_also_others_table',
           'detractors_promotes_these_brands',
           'promoters_prescribe_versus_detractors',
+          'what_they_say',
         ),
       ),
     );

@@ -127,3 +127,9 @@ services:
     arguments: ["@service_container", "promoters_prescribe_versus_detractors"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.what_they_say:
+    class: PSL\ClipperBundle\Charts\Types\WhatTheySay
+    arguments: ["@service_container", "what_they_say"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
