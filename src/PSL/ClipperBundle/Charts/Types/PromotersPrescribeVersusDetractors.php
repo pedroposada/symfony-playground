@@ -16,8 +16,6 @@ class PromotersPrescribeVersusDetractors extends ChartType {
 
   private $brands_scores = array();
 
-  private static $aDetractorsMax = 6;
-
   /**
    * Method call to return chart data.
    * @method dataTable
@@ -109,6 +107,8 @@ class PromotersPrescribeVersusDetractors extends ChartType {
    * Method to extract a respondent answer.
    * @method extractRespondent
    *
+   * Only account for promoter, passive is ignored.
+   *
    * Process will populate
    * - @var $this->brands_scores
    *
@@ -145,7 +145,13 @@ class PromotersPrescribeVersusDetractors extends ChartType {
     //values assignments
     foreach ($this->brands as $brand) {
       //update brands' scores
-      $type = (($answers_type[$brand] > self::$aDetractorsMax) ? 'pro' : 'det');
+      $type = $this->identifyRespondentCategory($answers_type[$brand]);
+      $type = array_search($type, array('detractor', 'promoter'), TRUE);
+      if ($type === FALSE) {
+        //ignore passive
+        continue; //foreach
+      }
+      $type = (empty($type) ? 'det' : 'pro');
       $this->brands_scores[$brand][$type]['c']++;
       $this->brands_scores[$brand][$type]['t'] += $answers_que[$brand];
     }
