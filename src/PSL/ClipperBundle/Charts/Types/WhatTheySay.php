@@ -1,6 +1,7 @@
 <?php
 /**
  * Machine Name      = WhatTheySay
+ * Slide             = NPS:009
  * Service Name      = clipper.chart.what_they_say
  * Targeted Question = G004Q001, G005Q001, G006Q001, G007Q001, G008Q001, G009Q001
  * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/what_they_say.html.twig

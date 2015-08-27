@@ -1,6 +1,7 @@
 <?php
 /**
  * Machine Name      = NetPromoters
+ * Slide             = NPS:001
  * Service Name      = clipper.chart.net_promoters
  * Targeted Question = G003Q001
  * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/net_promoters.html.twig

@@ -1,5 +1,4 @@
 <?php
-
 namespace PSL\ClipperBundle\Charts\Types;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -139,7 +138,7 @@ abstract class ChartType
    *
    * @param  integer $value
    * @param  boolean|int $decPoint
-   *    Assign decimal point count, or else @var self::$decimalPoint
+   *    Assign decimal point count, or else @var self::$decimal_point
    *
    * @param  boolean $force_string
    *    Flag to forcing the decimal point, in string.
@@ -169,7 +168,7 @@ abstract class ChartType
    *
    * @param  integer|string $respondentAnswer
    * @param  boolean|string|int $validate_to
-   *    Flag to ditermine the return type/value.
+   *    Flag to determine the return type/value.
    *    @see  keys on @var this::$net_promoters_cat_range
    *    - FALSE; return as string key; category (singular).
    *    - string; return in boolean, compare result with key within given range.

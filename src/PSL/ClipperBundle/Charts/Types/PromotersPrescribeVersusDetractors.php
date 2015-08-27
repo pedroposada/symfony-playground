@@ -1,6 +1,7 @@
 <?php
 /**
  * Machine Name      = PromotersPrescribeVersusDetractors
+ * Slide             = NPS:007
  * Service Name      = clipper.chart.promoters_prescribe_versus_detractors
  * Targeted Question = G002Q001
  * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/promoters_prescribe_versus_detractors.html.twig

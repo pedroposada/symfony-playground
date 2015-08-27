@@ -1,6 +1,7 @@
 <?php
 /**
  * Machine Name      = DoctorPromotingMineAlsoOthersTable
+ * Slide             = NPS:005
  * Service Name      = clipper.chart.doctor_promoting_mine_also_others_table
  * Targeted Question = G003Q001
  * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/doctor_promoting_mine_also_others_table.html.twig

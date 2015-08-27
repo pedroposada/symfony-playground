@@ -1,6 +1,7 @@
 <?php
 /**
  * Machine Name      = DevotedDoctorToBrands
+ * Slide             = NPS:002
  * Service Name      = clipper.chart.devoted_doctor_to_brands
  * Targeted Question = G003Q001
  * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/devoted_doctor_to_brands.html.twig

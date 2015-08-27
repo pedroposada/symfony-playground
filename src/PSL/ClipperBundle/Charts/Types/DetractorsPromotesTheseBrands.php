@@ -1,6 +1,7 @@
 <?php
 /**
  * Machine Name      = DetractorsPromotesTheseBrands
+ * Slide             = NPS:006
  * Service Name      = clipper.chart.detractors_promotes_these_brands
  * Targeted Question = G003Q001
  * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/detractors_promotes_these_brands.html.twig
