@@ -16,6 +16,9 @@
         width: 48%;
         margin: 5px;
       }
+      .what-they-say-set.count-0 {
+        display: none;
+      }
       .what-they-say-set.detractors {
         float: left;
       }
@@ -61,7 +64,7 @@
       <!--Div that will hold the chart-->
       <h4>{{ dataSection.title }}</h4>
       <div id="{{ chartDivId }}-{{ loop.index0 }}" class="what-they-say-wrapper">
-        <div class="what-they-say-set detractors">
+        <div class="what-they-say-set detractors count-{{ dataSection.res.det|length }}">
           <div class="what-they-say-set-head">{{ dataSection.headings.det }}</div>
           <div class="what-they-say-set-body">
             <ul>
@@ -71,7 +74,7 @@
             </ul>
           </div>
         </div>
-        <div class="what-they-say-set promoters">
+        <div class="what-they-say-set promoters  count-{{ dataSection.res.pro|length }}">
           <div class="what-they-say-set-head">{{ dataSection.headings.pro }}</div>
           <div class="what-they-say-set-body">
             <ul>
