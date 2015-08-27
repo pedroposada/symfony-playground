@@ -28,3 +28,7 @@ doctrine:
                 password: db_password
                 path: %kernel.cache_dir%/test.db
                 charset: utf8
+
+parameters:
+    clipper.brands: Tests/Resources/terms/test_brands.xml
+    clipper.conditions: Tests/Resources/terms/test_conditions.xml

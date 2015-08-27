@@ -42,25 +42,40 @@ class ClipperControllerTest extends WebTestCase
 
         // Assert that the response content is not empty.
         $this->assertNotEmpty($content);
+
+        // Assert the result is correct.
+        $this->assertEquals(
+            $content['content'],
+            $result
+        );
     }
 
     public function autocompleteParametersProvider()
     {
+        // Test data located in Tests/Resources/terms/test_{group}.xml.
         return array(
             // ?keyword=a
             'Has keyword only' => array(
                 array(
                     'keyword' => 'a',
                 ),
-                array(),
+                array(
+                    'A-Brand-1',
+                    'A-Brand-2',
+                    'A-Brand-3',
+                ),
             ),
-            // ?group=brands&keyword=a
+            // ?group=brands&keyword=b
             'Has brand and keyword' => array(
                 array(
                     'group' => 'brands',
-                    'keyword' => 'a',
+                    'keyword' => 'b',
                 ),
-                array(),
+                array(
+                    'B-Brand-1',
+                    'B-Brand-2',
+                    'B-Brand-3',
+                ),
             ),
             // ?group=conditions&keyword=a
             'Has condition and keyword' => array(
@@ -68,7 +83,11 @@ class ClipperControllerTest extends WebTestCase
                     'group' => 'conditions',
                     'keyword' => 'a',
                 ),
-                array(),
+                array(
+                    'A Condition 1',
+                    'A Condition 2',
+                    'A Condition 3',
+                ),
             ),
         );
     }
@@ -76,7 +95,7 @@ class ClipperControllerTest extends WebTestCase
     /**
      * @dataProvider postOrderDataProvider
      */
-    public function testPostOrderAction($postData)
+    public function testPostNeworderAction($postData)
     {
         $uri = $this->getUrl('post_neworder');
         $this->client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
@@ -96,11 +115,22 @@ class ClipperControllerTest extends WebTestCase
             $this->client->getResponse()->headers->get('content-type')
         );
 
-        // Assert that the response content contains a string.
-        $this->assertContains(
-            'firstq_uuid',
-            $this->client->getResponse()->getContent()
-        );
+        // Assert that the response content contains expected format.
+        $content = json_decode($this->client->getResponse()->getContent(), true);
+        $content = $content['content'];
+        $this->assertTrue(!empty($content['product']));
+        $this->assertTrue(!empty($content['product']['price']));
+        $this->assertTrue(!empty($content['product']['firstq_uuid']));
+        $this->assertTrue(!empty($content['product']['end_date']));
+
+        // Assert the new order is saved.
+        $record = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+            ->findOneBy(array('id' => $content['product']['firstq_uuid']));
+        $this->assertEquals(1, count($record));
+
+        // Todo: Assert the new order data is saved correctly.
     }
 
     public function postOrderDataProvider()
@@ -147,9 +177,10 @@ class ClipperControllerTest extends WebTestCase
 
     public function testGetOrdersAction()
     {
-        $uri = $this->getUrl('get_orders', array('user_id' => 123));
+        $uri = $this->getUrl('get_orders', array('user_id' => 'test-user-id-1'));
         $this->assertBehindFirewall('GET', $uri);
 
+        $uri = $this->getUrl('get_orders', array('user_id' => 'wrong-user-id'));
         $this->authenticatedClient->request('GET', $uri);
         $content = $this->authenticatedClient->getResponse()->getContent();
         $content = json_decode($content, true);
@@ -162,6 +193,35 @@ class ClipperControllerTest extends WebTestCase
             ),
             $content
         );
+
+        $uri = $this->getUrl('get_orders', array('user_id' => 'test-user-id-1'));
+        $this->authenticatedClient->request('GET', $uri);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
+
+        // Assert the returned result is correct.
+        $record = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+            ->findOneBy(array('userId' => 'test-user-id-1'));
+        $this->assertEquals(
+            $record->getId(),
+            $content['content'][0]['id']
+        );
+    }
+
+    public function testGetOrdersAdminAction()
+    {
+        $uri = $this->getUrl('get_orders_admin');
+        $this->assertBehindFirewall('GET', $uri);
+
+        // Todo: Pending the following exception to be fixed.
+        // There is no extension able to load the configuration for "fwsso_api"
+        // (in /var/www/PSL/projects/clipper/app/config/parameters.yml).
+        /*
+        $this->authenticatedClient->request('GET', $uri, array('status' => 'order_pending'));
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        */
     }
 
     public function testGetOrderAction()
@@ -173,6 +233,7 @@ class ClipperControllerTest extends WebTestCase
         $content = $this->authenticatedClient->getResponse()->getContent();
         $content = json_decode($content, true);
 
+        // Assert invalid uuid.
         $this->assertEquals(
             array(
                 'content' => 'No order with this id: 123',
@@ -180,6 +241,23 @@ class ClipperControllerTest extends WebTestCase
                 'headers' => array(),
             ),
             $content
+        );
+
+        // Assert valid uuid.
+        $records = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+            ->findAll();
+        $record = $records[0];
+
+        $uri = $this->getUrl('get_order', array('uuid' => $record->getId()));
+        $this->authenticatedClient->request('GET', $uri);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
+
+        $this->assertEquals(
+            $record->getId(),
+            $content['content']['id']
         );
     }
 
@@ -219,6 +297,7 @@ class ClipperControllerTest extends WebTestCase
             $content
         );
 
+        // Todo:
         // Assert payment system error.
         // Assert order complete.
         // Assert Card was declined.
@@ -226,6 +305,89 @@ class ClipperControllerTest extends WebTestCase
         // Assert Invalid request
         // Assert Network problem, perhaps try again.
         // Assert Error - Please try again.
+    }
+
+    public function testPostOrderAdminprocessActionNoAuthentication()
+    {
+        $uri = $this->getUrl('post_order_adminprocess');
+        $this->assertBehindFirewall('POST', $uri);
+    }
+
+    /**
+     * @dataProvider postOrderAdminprocessActionDataProvider
+     */
+    public function testPostOrderAdminprocessAction($firstq_uuid, $task, $result, $state)
+    {
+        $uri = $this->getUrl('post_order_adminprocess');
+
+        $postData = array();
+        if ($firstq_uuid && $task) {
+            $postData = array('firstq_uuid' => $firstq_uuid, 'task' => $task);
+        }
+        $postData = json_encode($postData);
+
+        $this->authenticatedClient->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
+        $content = $this->authenticatedClient->getResponse()->getContent();
+        $content = json_decode($content, true);
+
+        if (!$state) {
+            $this->assertEquals($result, $content);
+        } else {
+            $record = $this
+                ->getObjectManager()
+                ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+                ->find($firstq_uuid);
+            $this->assertEquals($state, $record->getState());
+        }
+    }
+
+    public function postOrderAdminprocessActionDataProvider()
+    {
+        // Reset data.
+        $this->loadFixtures(array(
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
+        ));
+
+        $record = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+            ->findOneBy(array('state' => 'ORDER_INVOICE'));
+
+        return array(
+            'Without params' => array(
+                null,
+                null,
+                array(
+                    'content' => 'Invalid request - missing parameters',
+                    'status' => 400,
+                    'headers' => array(),
+                ),
+                null,
+            ),
+            'Invalid firstq_uuid' => array(
+                123,
+                'accept',
+                array(
+                    'content' => 'Error - FirstQ uuid is invalid',
+                    'status' => 400,
+                    'headers' => array(),
+                ),
+                null,
+            ),
+            'Valid firstq_uuid 1' => array(
+                $record->getId(),
+                'accept',
+                array(),
+                'ORDER_COMPLETE',
+            ),
+            'Valid firstq_uuid 2' => array(
+                $record->getId(),
+                'other',
+                array(),
+                'ORDER_DECLINED',
+            ),
+        );
     }
 
     public function testExitAction()
