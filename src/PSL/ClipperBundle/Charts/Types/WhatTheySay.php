@@ -15,7 +15,6 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 class WhatTheySay extends ChartType {
   private $comments = array();
 
-  private static $aDetractorsMax = 6;
   private static $enclosure      = '<span>"</span>';
   private static $maxComments    = 15;
 
@@ -64,6 +63,8 @@ class WhatTheySay extends ChartType {
    * Method to extracts answer.
    * @method extractDetractors
    *
+   * Only account for promoter, passive is ignored.
+   *
    * Process will populate
    * - @var $this->comments
    *
@@ -92,7 +93,13 @@ class WhatTheySay extends ChartType {
     $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
 
     foreach ($this->brands as $brand) {
-      $type = (($answers_type[$brand] > self::$aDetractorsMax) ? 'pro' : 'det');
+      $type = $this->identifyRespondentCategory($answers_type[$brand]);
+      $type = array_search($type, array('detractor', 'promoter'), TRUE);
+      if ($type === FALSE) {
+        //ignore passive
+        continue; //foreach
+      }
+      $type = (empty($type) ? 'det' : 'pro');
       if ((!empty($answers_que[$brand])) && (count($this->comments[$brand][$type]) <= self::$maxComments)) {
         $this->comments[$brand][$type][] = self::$enclosure . $answers_que[$brand] . self::$enclosure;
       }
