@@ -17,8 +17,6 @@ class DetractorsPromotesTheseBrands extends ChartType {
   private $detractors = array();
   private $respondent_count = 0;
 
-  private static $aDetractorsMax = 6;
-
   /**
    * Method call to return chart data.
    * @method dataTable
@@ -85,17 +83,19 @@ class DetractorsPromotesTheseBrands extends ChartType {
    * Method to extract a respondent answer.
    * @method extractRespondent
    *
+   * Only account for promoter, passive is ignored.
+   *
    * Process will populate
    * - @var $this->detractors
    *
    * Post-format:
    *   $this->detractors
    *     BRAND-A
-   *       BRAND-A => 0
+   *       BRAND-A => 0; no-changes
    *       BRAND-B => PROMOTE-COUNT
    *     BRAND-B
    *       BRAND-A => PROMOTE-COUNT
-   *       BRAND-B => 0
+   *       BRAND-B => 0; no-changes
    *     ...
    *
    * @param  LimeSurveyResponse $response
@@ -109,10 +109,13 @@ class DetractorsPromotesTheseBrands extends ChartType {
 
     //values assignments
     foreach ($this->brands as $brand) {
-      if ($answers[$brand] <= self::$aDetractorsMax) {
-        foreach ($this->detractors[$brand] as $decBrand => $devCount)  {
-          if (($brand != $decBrand) && ($answers[$decBrand] > self::$aDetractorsMax)) {
-            $this->detractors[$brand][$decBrand]++;
+      if ($this->identifyRespondentCategory($answers[$brand], 'detractor')) {
+        foreach ($this->detractors[$brand] as $detractor_brand => $devCount)  {
+          if ($brand == $detractor_brand) {
+            continue;
+          }
+          if ($this->identifyRespondentCategory($answers[$detractor_brand], 'promoter')) {
+            $this->detractors[$brand][$detractor_brand]++;
           }
         }
       }
@@ -156,6 +159,4 @@ class DetractorsPromotesTheseBrands extends ChartType {
     //sort
     asort($this->detractors[$brand]);
   }
-
-
 }
