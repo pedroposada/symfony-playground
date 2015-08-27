@@ -12,14 +12,9 @@ use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class PromotersPrescribeVersusDetractors extends ChartType {
-  private $map    = array();
-  private $qcode  = '';
-  private $qcode2 = '';
-  private $brands = array();
 
   private $brands_scores = array();
 
-  private static $decimalPoint   = 1;
   private static $aDetractorsMax = 6;
 
   /**
@@ -35,10 +30,7 @@ class PromotersPrescribeVersusDetractors extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep other attributes
-    $this->brands = $event->getBrands();
-    $this->map    = $this->survey_chart_map->map($event->getSurveyType());
-    $this->qcode  = $this->map[$event->getChartType()];
-    $this->qcode2 = $this->map['net_promoters']; //@todo review how to obtain question ID Slide #1
+    parent::$decimal_point = 1;
 
     //create basic structure for @var $this->brands_scores
     $score_set = array(
@@ -144,29 +136,17 @@ class PromotersPrescribeVersusDetractors extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
-
     //filtering answers to which related question
-    $qcode = $this->qcode; //avoid lexical
-    $answers_que = array_filter($answers, function($key) use ($qcode) {
-      return (strpos($key, $qcode) !== FALSE);
-    }, ARRAY_FILTER_USE_KEY);
-    $answers_que = array_values($answers_que);
-    $answers_que = array_map('intval', $answers_que);
-
+    $answers_que  = $this->filterAnswersToQuestionMap($answers, 'int');
     //filtering answers for promote-scale
-    $qcode = $this->qcode2; //avoid lexical
-    $answers_type = array_filter($answers, function($key) use ($qcode) {
-      return (strpos($key, $qcode) !== FALSE);
-    }, ARRAY_FILTER_USE_KEY);
-    $answers_type = array_values($answers_type);
-    $answers_type = array_map('intval', $answers_type);
+    $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
 
     //values assignments
-    foreach ($this->brands as $index => $brand) {
+    foreach ($this->brands as $brand) {
       //update brands' scores
-      $type = (($answers_type[$index] > self::$aDetractorsMax) ? 'pro' : 'det');
+      $type = (($answers_type[$brand] > self::$aDetractorsMax) ? 'pro' : 'det');
       $this->brands_scores[$brand][$type]['c']++;
-      $this->brands_scores[$brand][$type]['t'] += $answers_que[$index];
+      $this->brands_scores[$brand][$type]['t'] += $answers_que[$brand];
     }
   }
 
@@ -210,28 +190,5 @@ class PromotersPrescribeVersusDetractors extends ChartType {
     if (!empty($pro)) {
       $this->brands_scores[$brand]['cal']['res'] = ((($pro - $det) / $det) * 100) * 100;
     }
-  }
-
-  /**
-   * Helper method to rounding up the given value.
-   * @method roundingUpValue
-   *
-   * @param  integer $value
-   * @param  boolean|int $decPoint
-   *    Assign decimal point count, or else @var self::$decimalPoint
-   *
-   * @param  boolean $force_string
-   *    Flag to forcing the decimal point, in string.
-   *
-   * @return float|string
-   */
-  private function roundingUpValue($value = 0, $decPoint = FALSE, $force_string = FALSE) {
-    if ($decPoint === FALSE) {
-      $decPoint = self::$decimalPoint;
-    }
-    if ($force_string) {
-      return number_format($value, $decPoint, '.', ',');
-    }
-    return round($value, $decPoint, PHP_ROUND_HALF_UP);
   }
 }

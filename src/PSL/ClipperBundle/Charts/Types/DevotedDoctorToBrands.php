@@ -12,13 +12,8 @@ use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DevotedDoctorToBrands extends ChartType {
-  private $map        = array();
-  private $qcode      = '';
-
-  private $brands     = array();
   private $respondent = array();
-
-  private static $decimalPoint = 2;
+  private $brands_results;
 
   /**
    * Method call to return chart data.
@@ -33,31 +28,30 @@ class DevotedDoctorToBrands extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep other attributes
-    $this->map   = $this->survey_chart_map->map($event->getSurveyType());
-    $this->qcode = $this->map[$event->getChartType()];
+    parent::$decimal_point = 2;
 
-    $this->brands = $event->getBrands();
-    $this->brands = array_flip($this->brands);
+    //prep brands_results structure
+    $this->brands_results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
 
     //extract respondent
     foreach ($event->getData() as $response) {
-      //update @var $this->brands
+      //update @var $this->brands_results
       $this->extractRespondent($response);
     }
 
     //#final-calculation
     $overall_total = $overall_count = 0;
-    foreach ($this->brands as $brand => $respondent) {
+    foreach ($this->brands_results as $brand => $respondent) {
       $total = array_sum($respondent);
       $overall_total += $total;
       $count = count($respondent);
       $overall_count += $count;
-      $this->brands[$brand] = $this->roundingUpValue(($total / $count));
+      $this->brands_results[$brand] = $this->roundingUpValue(($total / $count));
     }
     $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
 
     //sorting
-    arsort($this->brands);
+    arsort($this->brands_results);
 
     //data formation
     $dataTable = array(
@@ -90,7 +84,7 @@ class DevotedDoctorToBrands extends ChartType {
         ),
       ),
     );
-    foreach ($this->brands as $brand => $loyalty) {
+    foreach ($this->brands_results as $brand => $loyalty) {
       $dataTable['rows'][] = array(
         'c' => array(
           array('v' => $brand),
@@ -108,13 +102,12 @@ class DevotedDoctorToBrands extends ChartType {
    * @method extractRespondent
    *
    * Process will populate
-   * - @var $this->brands
+   * - @var $this->brands_results
    * - @var $this->respondent
    *
    *
-   * Post-format $this->brands:
-   *
-   *   $this->brands
+   * Post-format
+   *   $this->brands_results
    *     BRAND
    *       TOKEN => SCORE
    *       TOKEN => SCORE
@@ -123,12 +116,12 @@ class DevotedDoctorToBrands extends ChartType {
    *     ...
    *
    * Note: This format will change once at #final-calculation
-   *   $this->brands
+   *   $this->brands_results
    *     BRAND => SCORE
    *     BRAND => SCORE
    *     ...
    *
-   * Post-format $this->brands:
+   * Post-format:
    *   $this->respondent
    *     TOKEN
    *       BRAND => ANSWER-VALUE
@@ -143,35 +136,24 @@ class DevotedDoctorToBrands extends ChartType {
    * @return void
    */
   private function extractRespondent(LimeSurveyResponse $response) {
-    //getting repondent token
+    //getting respondent token
     $lstoken = $response->getLsToken();
 
     //getting answers
     $answers = $response->getResponseDecoded();
-
-    //filtering answers to which related question
-    $qcode = $this->qcode; //avoid lexical
-    $answers = array_filter($answers, function($key) use ($qcode) {
-      return (strpos($key, $qcode) !== FALSE);
-    }, ARRAY_FILTER_USE_KEY);
-    $answers = array_values($answers);
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
 
     //values assignments
-    $index = 0;
-    foreach ($this->brands as $brand => $resp) {
-      if (!is_array($resp)) {
-        $this->brands[$brand] = array();
-      }
+    foreach ($this->brands as $brand) {
       //brands overall
-      if (!isset($this->brands[$brand][$lstoken])) {
-        $this->brands[$brand][$lstoken] = 0;
+      if (!isset($this->brands_results[$brand][$lstoken])) {
+        $this->brands_results[$brand][$lstoken] = 0;
       }
       //respondent overall
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = (int) $answers[$index];
-      $index++;
+      $this->respondent[$lstoken][$brand] = $answers[$brand];
     }
 
     //convert brand into score by each respondent
@@ -183,15 +165,8 @@ class DevotedDoctorToBrands extends ChartType {
    * @method calculateRespondentScore
    *
    * This process will change value for;
-   * - @var $this->brands, based on respondent answers
-   *
-   * |---------|-----------|---------------------------|
-   * | Answers |  Category |           Score           |
-   * |---------|-----------|---------------------------|
-   * | 0 to 6  | Detractor | 1                         |
-   * | 7 to 8  | Passive   | 2                         |
-   * | 9 to 10 | Promoter  | 3 + (2 / OtherBrandCount) |
-   * |---------|-----------|---------------------------|
+   * - @var $this->brands_results, based on respondent answers
+   * - @see  parent->identifyRespondentCategory()
    *
    * @param  string $lstoken
    * @param  array $brandsAnswer
@@ -200,43 +175,23 @@ class DevotedDoctorToBrands extends ChartType {
    */
   private function calculateRespondentScore($lstoken, $brandsAnswer = array()) {
     foreach ($brandsAnswer as $brand => $answer) {
-      $brandsAnswer[$brand] = 0; //blank
+      $brandsAnswer[$brand] = 0;
+      switch ($this->identifyRespondentCategory($answer)) {
+        case 'detractor':
+          $brandsAnswer[$brand] = 1;
+          break;
 
-      if (in_array($answer, range(1, 6))) {
-        //Detractor
-        $brandsAnswer[$brand] = 1;
-      }
-      elseif (in_array($answer, array(7, 8))) {
-        //Passive
-        $brandsAnswer[$brand] = 2;
-      }
-      elseif (in_array($answer, array(9, 10))) {
-        //Promoter
-        $OtherBrandCount = array_map(function($value) {
-          return ($value > 1 ? 1 : 0);
-        }, $brandsAnswer);
-        $OtherBrandCount = array_filter($OtherBrandCount);
-        $OtherBrandCount = count($OtherBrandCount);
-        $brandsAnswer[$brand] = $this->roundingUpValue((3 + (2 / $OtherBrandCount)));
-      }
-      $this->brands[$brand][$lstoken] = $brandsAnswer[$brand];
-    }
-  }
+        case 'passive':
+          $brandsAnswer[$brand] = 2;
+          break;
 
-  /**
-   * Helper method to rounding up the given value.
-   * @method roundingUpValue
-   *
-   * @param  integer $value
-   * @param  boolean $force_string
-   *    Flag to forcing the decimal point, in string.
-   *
-   * @return float|string
-   */
-  private function roundingUpValue($value = 0, $force_string = FALSE) {
-    if ($force_string) {
-      return number_format($value, self::$decimalPoint, '.', ',');
-    }
-    return round($value, self::$decimalPoint, PHP_ROUND_HALF_UP);
+        case 'promoter':
+          $OtherBrandCount = array_filter($brandsAnswer);
+          $OtherBrandCount = count($OtherBrandCount);
+          $brandsAnswer[$brand] = $this->roundingUpValue((3 + (2 / $OtherBrandCount)));
+          break;
+      } //switch
+      $this->brands_results[$brand][$lstoken] = $brandsAnswer[$brand];
+    } //foreach
   }
 }

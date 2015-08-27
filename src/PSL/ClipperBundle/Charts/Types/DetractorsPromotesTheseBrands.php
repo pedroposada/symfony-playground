@@ -12,15 +12,10 @@ use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DetractorsPromotesTheseBrands extends ChartType {
-  private $map        = array();
-  private $qcode      = '';
 
-  private $brands     = array();
   private $detractors = array();
-
   private $respondent_count = 0;
 
-  private static $decimalPoint   = 0;
   private static $aDetractorsMax = 6;
 
   /**
@@ -36,9 +31,7 @@ class DetractorsPromotesTheseBrands extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep other attributes
-    $this->brands = $event->getBrands();
-    $this->map    = $this->survey_chart_map->map($event->getSurveyType());
-    $this->qcode  = $this->map[$event->getChartType()];
+    parent::$decimal_point = 0;
 
     //prep detractors structure
     $this->detractors = array_combine($this->brands, array_fill(0, count($this->brands), 0));
@@ -111,17 +104,10 @@ class DetractorsPromotesTheseBrands extends ChartType {
   private function extractDetractors(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-
-    //filtering answers to which related question
-    $qcode = $this->qcode; //avoid lexical
-    $answers = array_filter($answers, function($key) use ($qcode) {
-      return (strpos($key, $qcode) !== FALSE);
-    }, ARRAY_FILTER_USE_KEY);
-    $answers = array_combine($this->brands, array_values($answers));
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
 
     //values assignments
     foreach ($this->brands as $brand) {
-      $answers[$brand] = (int) $answers[$brand];
       if ($answers[$brand] <= self::$aDetractorsMax) {
         foreach ($this->detractors[$brand] as $decBrand => $devCount)  {
           if (($brand != $decBrand) && ($answers[$decBrand] > self::$aDetractorsMax)) {
@@ -170,26 +156,5 @@ class DetractorsPromotesTheseBrands extends ChartType {
     asort($this->detractors[$brand]);
   }
 
-  /**
-   * Helper method to rounding up the given value.
-   * @method roundingUpValue
-   *
-   * @param  integer $value
-   * @param  boolean|int $decPoint
-   *    Assign decimal point count, or else @var self::$decimalPoint
-   *
-   * @param  boolean $force_string
-   *    Flag to forcing the decimal point, in string.
-   *
-   * @return float|string
-   */
-  private function roundingUpValue($value = 0, $decPoint = FALSE, $force_string = FALSE) {
-    if ($decPoint === FALSE) {
-      $decPoint = self::$decimalPoint;
-    }
-    if ($force_string) {
-      return number_format($value, $decPoint, '.', ',');
-    }
-    return round($value, $decPoint, PHP_ROUND_HALF_UP);
-  }
+
 }

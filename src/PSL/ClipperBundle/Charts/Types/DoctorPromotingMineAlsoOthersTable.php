@@ -12,18 +12,11 @@ use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DoctorPromotingMineAlsoOthersTable extends ChartType {
-  private $map        = array();
-  private $qcode      = '';
 
-  private $brands     = array();
-  private $respondent = array();
-
+  private $respondent       = array();
   private $respondent_count = 0;
-
-  private $promoting   = array();
-  private $competitors = array();
-
-  private static $decimalPoint = 1;
+  private $promoting        = array();
+  private $competitors      = array();
 
   /**
    * Method call to return chart data.
@@ -38,9 +31,7 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep other attributes
-    $this->brands = $event->getBrands();
-    $this->map    = $this->survey_chart_map->map($event->getSurveyType());
-    $this->qcode  = $this->map[$event->getChartType()];
+    parent::$decimal_point = 1;
 
     //prep competitors structure
     $this->competitors = array_combine($this->brands, array_fill(0, count($this->brands), array()));
@@ -139,25 +130,19 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
-
-    //filtering answers to which related question
-    $qcode = $this->qcode; //avoid lexical
-    $answers = array_filter($answers, function($key) use ($qcode) {
-      return (strpos($key, $qcode) !== FALSE);
-    }, ARRAY_FILTER_USE_KEY);
-    $answers = array_values($answers);
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
 
     //values assignments
-    foreach ($this->brands as $index => $brand) {
+    foreach ($this->brands as $brand) {
       //respondent overall
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = (int) $answers[$index];
+      $this->respondent[$lstoken][$brand] = $answers[$brand];
     }
 
     //get competitor
-    foreach ($this->brands as $index => $brand) {
+    foreach ($this->brands as $brand) {
       $respondent_copy = $this->respondent[$lstoken];
       unset($respondent_copy[$brand]); //exclude itself
       arsort($respondent_copy);
@@ -252,28 +237,5 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
         'perc'  => $this->roundingUpValue($perc, 0, TRUE) . '%',
       );
     }
-  }
-
-  /**
-   * Helper method to rounding up the given value.
-   * @method roundingUpValue
-   *
-   * @param  integer $value
-   * @param  boolean|int $decPoint
-   *    Assign decimal point count, or else @var self::$decimalPoint
-   *
-   * @param  boolean $force_string
-   *    Flag to forcing the decimal point, in string.
-   *
-   * @return float|string
-   */
-  private function roundingUpValue($value = 0, $decPoint = FALSE, $force_string = FALSE) {
-    if ($decPoint === FALSE) {
-      $decPoint = self::$decimalPoint;
-    }
-    if ($force_string) {
-      return number_format($value, $decPoint, '.', ',');
-    }
-    return round($value, $decPoint, PHP_ROUND_HALF_UP);
   }
 }

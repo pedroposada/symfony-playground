@@ -13,13 +13,7 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DoctorPromotingBrands extends ChartType {
 
-  private $map        = array();
-  private $qcode      = '';
-
-  private $brands     = array();
   private $respondent = array();
-
-  private static $decimalPoint = 2;
 
   private $promoting  = array(
     'ds' => array(
@@ -64,14 +58,9 @@ class DoctorPromotingBrands extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
-    //prep other attributes
-    $this->map   = $this->survey_chart_map->map($event->getSurveyType());
-    $this->qcode = $this->map[$event->getChartType()];
-    $this->brands = $event->getBrands();
-
     //extract respondent
     foreach ($event->getData() as $response) {
-      //update @var $this->brands
+      //update @var $this->respondent
       $this->extractRespondent($response);
     }
 
@@ -92,7 +81,7 @@ class DoctorPromotingBrands extends ChartType {
    * Process will populate
    * - @var $this->respondent
    *
-   * Post-format $this->brands:
+   * Post-format:
    *   $this->respondent
    *     TOKEN
    *       BRAND => ANSWER-VALUE
@@ -111,21 +100,15 @@ class DoctorPromotingBrands extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
-
-    //filtering answers to which related question
-    $qcode = $this->qcode; //avoid lexical
-    $answers = array_filter($answers, function($key) use ($qcode) {
-      return (strpos($key, $qcode) !== FALSE);
-    }, ARRAY_FILTER_USE_KEY);
-    $answers = array_values($answers);
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
 
     //values assignments
-    foreach ($this->brands as $index => $brand) {
+    foreach ($this->brands as $brand) {
       //respondent overall
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = (int) $answers[$index];
+      $this->respondent[$lstoken][$brand] = $answers[$brand];
     }
 
     //convert brand's answers into score by each respondent
@@ -162,27 +145,5 @@ class DoctorPromotingBrands extends ChartType {
     }
     $this->promoting['ds']['count']++;
     return;
-  }
-
-  /**
-   * Helper method to rounding up the given value.
-   * @method roundingUpValue
-   *
-   * @param  integer $value
-   * @param  boolean|int $decPoint
-   *    Assign decimal point count, or else @var self::$decimalPoint
-   * @param  boolean $force_string
-   *    Flag to forcing the decimal point, in string.
-   *
-   * @return float|string
-   */
-  private function roundingUpValue($value = 0, $decPoint = FALSE, $force_string = FALSE) {
-    if ($decPoint === FALSE) {
-      $decPoint = self::$decimalPoint;
-    }
-    if ($force_string) {
-      return number_format($value, $decPoint, '.', ',');
-    }
-    return round($value, $decPoint, PHP_ROUND_HALF_UP);
   }
 }

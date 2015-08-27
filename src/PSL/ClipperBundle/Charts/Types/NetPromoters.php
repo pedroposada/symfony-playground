@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * Machine Name      = NetPromoters
+ * Service Name      = clipper.chart.net_promoters
+ * Targeted Question = G003Q001
+ * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/net_promoters.html.twig
+ */
 namespace PSL\ClipperBundle\Charts\Types;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,13 +22,13 @@ class NetPromoters extends ChartType
   {
     $dataTable = array();
     $rows = array();
-    
+
     // find Detractors, Passives, Promoters and Score per brand
     foreach ($event->getData() as $response) {
       $this->dataRow($event, $response, $rows);
     }
     $tree = $this->explode_tree->explodeTree($rows, "/");
-    
+
     $dataTable['cols'] = array(
       array(
         'id' => 'b',
@@ -51,34 +56,34 @@ class NetPromoters extends ChartType
         'type' => 'number',
       ),
     );
-    
+
     foreach ($tree as $brand => $values) {
-      $promoters = isset($values['Promoter']) ? count($values['Promoter']) : 0;
-      $passives = isset($values['Passive']) ? count($values['Passive']) : 0;
+      $promoters  = isset($values['Promoter']) ? count($values['Promoter']) : 0;
+      $passives   = isset($values['Passive']) ? count($values['Passive']) : 0;
       $detractors = isset($values['Detractor']) ? count($values['Detractor']) : 0;
-      
+
       $total = $promoters + $passives + $detractors;
-      
-      $Promoters = round($promoters / $total, 2, PHP_ROUND_HALF_UP) * 100;
-      $Passives = round($passives / $total, 2, PHP_ROUND_HALF_UP) * 100;
-      $Detractors = round($detractors / $total, 2, PHP_ROUND_HALF_UP) * 100;
-      $Score = ($Promoters - $Detractors);
-      
+
+      $Promoters  = $this->roundingUpValue(($promoters / $total)) * 100;
+      $Passives   = $this->roundingUpValue(($passives / $total)) * 100;
+      $Detractors = $this->roundingUpValue(($detractors / $total)) * 100;
+      $Score      = ($Promoters - $Detractors);
+
       $dataTable['rows'][] = array(
         'c' => array(
           array('v' => $brand),
-          array('v' => $Promoters, 'f' => number_format($Promoters, 0) . '%'),
-          array('v' => $Passives, 'f' => number_format($Passives, 0) . '%'),
-          array('v' => $Detractors, 'f' => number_format($Detractors, 0) . '%'),
-          array('v' => $Score, 'f' => number_format($Score, 0)),
+          array('v' => $Promoters, 'f' => $this->roundingUpValue($Promoters, 0, TRUE) . '%'),
+          array('v' => $Passives, 'f' => $this->roundingUpValue($Passives, 0, TRUE) . '%'),
+          array('v' => $Detractors, 'f' => $this->roundingUpValue($Detractors, 0, TRUE) . '%'),
+          array('v' => $Score, 'f' => $this->roundingUpValue($Score, 0, TRUE)),
         ),
         'p' => array('Brand' => $brand)
       );
     }
-    
+
     return $dataTable;
   }
-  
+
   /**
    * @param $event ChartEvent
    * @param $response LimeSurveyResponse
@@ -88,63 +93,23 @@ class NetPromoters extends ChartType
   {
     // get response for specific respondent
     $answers = $response->getResponseDecoded();
-    
-    // get brands array
-    $brands = $event->getBrands();
-    
-    // question code
-    $map = $this->survey_chart_map->map($event->getSurveyType());
-    $qcode = $map[$event->getChartType()];
-    
+
     // extract answers from response array
-    $answers = array_filter($answers, function($key) use ($qcode) {
-      return( strpos($key, $qcode) !== FALSE );
-    }, ARRAY_FILTER_USE_KEY);
-    $answers = array_values($answers);
-    
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+
     // Brand
     //      Type
     //          Token
     //          Token
     //      Type
     //          Token
-    foreach ($brands as $key => $brand) {
-      // get answer  
-      $points = (int)$answers[$key]; // empty string "" = 0
+    foreach ($this->brands as $key => $brand) {
       // determine category
-      $category = $this->calculateCategory($points);
+      $category = $this->identifyRespondentCategory($answers[$brand]);
+      $category = ucwords($category);
       // set values in rows
       $lstoken = $response->getLsToken();
       $rows["{$brand}/{$category}/{$lstoken}"] = $lstoken;
     }
-    
   }
-  
-  /**
-   * Respondent category
-   * 
-   * @param $points integer
-   * @return string
-   */
-  // 0-6 = Detractor
-  // 7-8 = Passive
-  // 9-10 = Promoter
-   private function calculateCategory($points = 0)
-   {
-     $category = 'Detractor';
-     
-     switch (TRUE) {
-       
-       case (in_array($points, array(7, 8))):
-         $category = 'Passive';
-         break;
-         
-       case (in_array($points, array(9, 10))):
-         $category = 'Promoter';
-         break;
-         
-     }
-     
-     return $category;
-   }
 }
