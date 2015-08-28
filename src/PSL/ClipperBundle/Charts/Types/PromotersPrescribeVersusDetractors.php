@@ -95,11 +95,7 @@ class PromotersPrescribeVersusDetractors extends ChartType {
         );
       }
     }
-    // FOR DEV ONLY
-    if ((php_sapi_name() === 'cli') || (stripos($_SERVER['HTTP_USER_AGENT'], 'curl') !== FALSE)) {
-      var_export($this->brands_scores);
-      die();
-    }
+
     return $dataTable;
   }
 
