@@ -16,7 +16,7 @@ class Assembler
   protected $params;
   protected $responses;
   protected $dispatcher;
-  
+
   public function __construct(ContainerInterface $container)
   {
     $this->container = $container;
@@ -25,15 +25,15 @@ class Assembler
     $this->params = $this->container->getParameter('clipper');
     $this->dispatcher = $this->container->get('event_dispatcher');
   }
-  
+
   /**
    * Get data table to render a chart
-   * 
+   *
    * @param $order_id UUID of the FirstQGroup
    * @param $chart_type string, unique identifier for the chart type
    * @param $survey_type string, unique identifier for the survey type
-   * @param $params array of additional filters 
-   * 
+   * @param $params array of additional filters
+   *
    * @return $this
    */
   public function getChartDataTable($order_id, $chart_type, $survey_type, $params = array())
@@ -46,11 +46,12 @@ class Assembler
     $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg);
     $responses = new ArrayCollection($responses);
     $event->setBrands($responses->first()->getFirstqgroup()->getFormDataByField('brands'));
+    $event->setParams($responses->first()->getFirstqgroup()->getFormDataByField('attributes'));
     $event->setData($responses);
     $event->setSurveyType($survey_type);
     $this->dispatcher->dispatch(ClipperEvents::CHART_PROCESS, $event);
-    
+
     return $event->getDataTable();
   }
-  
+
 }

@@ -133,3 +133,9 @@ services:
     arguments: ["@service_container", "what_they_say"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.associate_categories_importance:
+    class: PSL\ClipperBundle\Charts\Types\AssociateCategoriesImportance
+    arguments: ["@service_container", "associate_categories_importance"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }

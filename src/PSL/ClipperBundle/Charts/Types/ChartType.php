@@ -100,10 +100,30 @@ abstract class ChartType
       return FALSE;
     }
 
-    $answers = array_filter($answers, function($key) use ($qcode) {
+    $cp_answers = $answers;
+    $multi_structure = FALSE;
+    $answers = array_filter($cp_answers, function($key) use ($qcode) {
       $method = (is_array($qcode) ? 'in_array' : 'strpos');
       return ($method($key, $qcode) !== FALSE);
     }, ARRAY_FILTER_USE_KEY);
+
+    //if given array but need to get using strpos; use by AssociateCategoriesImportance
+    //see @var $multi_structure
+    if (empty($answers)) {
+      $answers = array();
+      foreach ($qcode as $qc) {
+        $answers[$qc] = array_filter($cp_answers, function($key) use ($qc) {
+          return (strpos($key, $qc) !== FALSE);
+        }, ARRAY_FILTER_USE_KEY);
+      }
+
+      //still failing
+      if (empty($answers)) {
+        return array();
+      }
+      $multi_structure = TRUE;
+    }
+    unset($cp_answers);
 
     //check if flipped
     $ids = array_keys($brands);
@@ -112,21 +132,22 @@ abstract class ChartType
       $brands = array_flip($brands);
     }
 
-    $result = array_combine($brands, array_values($answers));
-
-    if (!empty($convert)) {
-      switch (strtolower($convert)) {
-        case 'int':
-        case 'integer':
-          $result = array_map('intval', $result);
-          break;
-
-        case 'str':
-        case 'string':
-        case 'trim':
-          $result = array_map('trim', $result);
-          break;
+    $result = array();
+    if (!$multi_structure) {
+      $result = array_combine($brands, array_values($answers));
+      if (!empty($convert)) {
+        $result = $this->formatAnswerResult($convert, $result);
       }
+    }
+    else {
+      $result = array_combine($brands, array_values($answers));
+      foreach ($result as $brand => $answers) {
+        $answers = array_values($answers);
+        if (!empty($convert)) {
+          $answers = $this->formatAnswerResult($convert, $answers);
+        }
+        $result[$brand] = $answers;
+      } //if multi_structure
     }
 
     return $result;
@@ -217,6 +238,31 @@ abstract class ChartType
       $result = array_slice($int_ids, -1, 1);
     }
     return end($result);
+  }
+
+  protected function formatAnswerResult($type, $answers) {
+    $type = strtolower($type);
+    switch ($type) {
+      case 'int':
+      case 'integer':
+        $answers = array_map('intval', $answers);
+        break;
+
+      case 'str':
+      case 'string':
+      case 'trim':
+        $answers = array_map('trim', $answers);
+        break;
+
+      case 'y/n':
+        $answers = array_map('strtolower', $answers);
+        $answers = array_map('trim', $answers);
+        array_walk($answers, function(&$value,  $key) {
+          $value = ($value == 'yes' ? 1 : 0);
+        });
+        break;
+    }
+    return $answers;
   }
 
   /**

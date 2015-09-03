@@ -35,8 +35,24 @@ final class SurveyChartMap
         'detractors_promotes_these_brands'        => 'G003Q001',
         //NPS:007
         'promoters_prescribe_versus_detractors'   => 'G002Q001',
-        //NPS:009
-        'what_they_say'                           => array('G004Q001', 'G005Q001', 'G006Q001', 'G007Q001', 'G008Q001', 'G009Q001'),
+        //NPS:008; this based number of brands
+        'associate_categories_importance'         => array(
+          'G0010Q001',
+          'G0011Q001',
+          'G0012Q001',
+          'G0013Q001',
+          'G0014Q001',
+          'G0015Q001',
+        ),
+        //NPS:009; this based number of brands
+        'what_they_say'                           => array(
+          'G004Q001',
+          'G005Q001',
+          'G006Q001',
+          'G007Q001',
+          'G008Q001',
+          'G009Q001'
+        ),
       ), //nps_plus
     );
 
