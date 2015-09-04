@@ -109,8 +109,8 @@ class LimeSurveyResponses
         // TODO: get mid (member id) from MDM. Default to "1" for now.
         // $lsresp->setMemberId($mid);
         $lsresp->setResponseRaw($this->serializer->encode($resp, 'json'));
-        $lsresp->setFirstqproject($fqp);
         $lsresp->setFirstqgroup($fqg);
+        $lsresp->setFirstqproject($fqp);
         
         // Invoking the persist method on an entity does NOT cause an immediate 
         // SQL INSERT to be issued on the database.
