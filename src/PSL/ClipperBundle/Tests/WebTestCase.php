@@ -26,6 +26,21 @@ abstract class WebTestCase extends BaseWebTestCase
     protected $authorizationHeaderPrefix = 'Bearer';
 
     /**
+     * @var array
+     */
+    protected $params;
+
+    /**
+     * @var appTestDebugProjectContainer
+     */
+    protected $container;
+
+    /**
+     * @var TraceableEventDispatcher
+     */
+    protected $dispatcher;
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
@@ -36,6 +51,9 @@ abstract class WebTestCase extends BaseWebTestCase
         ));
 
         $this->client = static::makeClient();
+        $this->container = $this->client->getContainer();
+        $this->params = $this->container->getParameter('clipper');
+        $this->dispatcher = $this->container->get('event_dispatcher');
         $this->authenticatedClient = static::createAuthenticatedClient('uuser', 'userpass');
     }
 

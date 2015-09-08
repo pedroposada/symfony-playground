@@ -1,14 +1,15 @@
 <?php
 
-// src/PSL/ClipperBundle/Tests/Listener/LimeSurveyCompleteTest.php
+// src/PSL/ClipperBundle/Tests/Listener/LimeSurveyCreatedTest.php
 
 namespace PSL\ClipperBundle\Tests\Listener;
 
 use PSL\ClipperBundle\Tests\WebTestCase;
-use PSL\ClipperBundle\Listener\LimeSurveyComplete;
+use PSL\ClipperBundle\Listener\LimeSurveyCreated;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
+use Doctrine\Common\Collections\ArrayCollection;
 
-class LimeSurveyCompleteTest extends WebTestCase
+class LimeSurveyCreatedTest extends WebTestCase
 {
     /**
      * @var PSL\ClipperBundle\Event\FirstQProjectEvent
@@ -16,9 +17,9 @@ class LimeSurveyCompleteTest extends WebTestCase
     protected $firstQProjectEvent;
 
     /**
-     * @var PSL\ClipperBundle\Listener\LimeSurveyResponses
+     * @var PSL\ClipperBundle\Listener\LimeSurveyCreated
      */
-    protected $limeSurveyComplete;
+    protected $limeSurveyCreated;
 
     /**
      * {@inheritdoc}
@@ -38,16 +39,16 @@ class LimeSurveyCompleteTest extends WebTestCase
             ->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
             ->findByFirstqgroupAndNotState($firstQGroup, $this->params['state_codes']['order_complete']);
         $firstQProject = $firstQProjects->first();
-        $firstQProject->setState($this->params['state_codes']['limesurvey_complete']);
+        $firstQProject->setState($this->params['state_codes']['limesurvey_created']);
 
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
-        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete');
+        $this->limeSurveyCreated= new LimeSurveyCreated($this->container, 'limesurvey_created');
     }
 
     public function testOnMain()
     {
         // TODO: call function
-        $response = $this->limeSurveyComplete->main($this->$firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
+        $response = $this->limeSurveyCreated->onMain($this->firstQProjectEvent, 'limesurvey_created', $this->dispatcher);
 
         // TODO: assert output
 

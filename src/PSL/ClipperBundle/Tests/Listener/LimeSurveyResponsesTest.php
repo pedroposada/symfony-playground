@@ -1,69 +1,94 @@
 <?php
 
-// phpunit -c app src/PSL/ClipperBundle/Tests/Listener/LimeSurveyResponsesTest.php
+// src/PSL/ClipperBundle/Tests/Listener/LimeSurveyResponsesTest.php
 
 namespace PSL\ClipperBundle\Tests\Listener;
 
-use \Exception as Exception;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
-use PSL\ClipperBundle\Listener\LimeSurveyResponses as LimeSurveyResponses;
+use PSL\ClipperBundle\Tests\WebTestCase;
+use PSL\ClipperBundle\Listener\LimeSurveyResponses;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\ClipperEvents as ClipperEvents;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class LimeSurveyResponsesTest extends WebTestCase
 {
-  protected $client;
-  protected $container;
-  protected $params;
-  protected $em;
-  protected $dispatcher;
+    /**
+     * @var PSL\ClipperBundle\Event\FirstQProjectEvent
+     */
+    protected $firstQProjectEvent;
 
-  public function __construct()
-  {
-    $this->client = static::createClient();
-    $this->container = $this->client->getContainer();
-    $this->params = $this->container->getParameter('clipper');
-    $this->em = $this->container->get('doctrine')->getManager();
-    $this->dispatcher = $this->container->get('event_dispatcher');
-  }
-  
-  public function testRefreshResponses()
-  {
-    // TODO: prepare input
-    $fqgs = $this->em->getRepository('PSLClipperBundle:FirstQGroup')->findByState($this->params['state_codes']['order_complete']);
-    $fqg = $fqgs->first();
-    $fqps = $this->em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
-    $fqps = new ArrayCollection($fqps);
-    $fqp = $fqps->first();
-    $event = new FirstQProjectEvent($fqg, $fqp);
-    $lsresps = new LimeSurveyResponses($this->container);
-    
-    // TODO: call function
-    
-    // TODO: assert output
-    
-    // TODO: assert values in db (integration tests)
-    
-  }
-  
-  /**
-   * @expectedException Exception
-   */
-  public function testExceptions()
-  {
-    // TODO: prepare input
-    $fqgs = $this->em->getRepository('PSLClipperBundle:FirstQGroup')->findByState($this->params['state_codes']['order_complete']);
-    $fqg = $fqgs->first();
-    $fqps = $this->em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
-    $fqps = new ArrayCollection($fqps);
-    $fqp = $fqps->first();
-    $event = new FirstQProjectEvent($fqg, $fqp);
-    $lsresps = new LimeSurveyResponses($this->container);
-    
-    // TODO: call function
-    $lsresps->fetchResponses('123'); // this is supposed to throw and Exception
-    
-  }
+    /**
+     * @var PSL\ClipperBundle\Listener\LimeSurveyResponses
+     */
+    protected $limeSurveyResponses;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        parent::setUp();
+
+        $firstQGroups = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+            ->findByState($this->params['state_codes']['order_complete']);
+        $firstQGroup = $firstQGroups->first();
+
+        $firstQProjects = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+            ->findByFirstqgroupAndNotState($firstQGroup, $this->params['state_codes']['order_complete']);
+        $firstQProject = $firstQProjects->first();
+        $firstQProject->setState($this->params['state_codes']['limesurvey_complete']);
+
+        $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
+        $this->limeSurveyResponses= new LimeSurveyResponses($this->container);
+    }
+
+    public function testRefreshResponses()
+    {
+        // TODO: call function
+        $this->limeSurveyResponses->refreshResponses();
+
+        // TODO: assert output
+
+        // TODO: assert values in db (integration tests)
+    }
+
+    /**
+     * @dataProvider fetchResponsesProvider
+     */
+    public function testFetchResponses($iSurveyID, $expectedResponse)
+    {
+        // TODO: call function
+        $response = $this->limeSurveyResponses->fetchResponses($iSurveyID);
+
+        // TODO: assert output
+        $this->assertEquals($expectedResponse, $response);
+
+        // TODO: assert values in db (integration tests)
+    }
+
+    public function fetchResponsesProvider()
+    {
+        return array(
+            'invalid survey id' => array(
+                123,
+                new \Exception
+            ),
+            'valid survey id' => array(
+                456,
+                new \Exception
+            ),
+        );
+    }
+
+    public function testSaveResponses()
+    {
+        // TODO: call function
+        $this->limeSurveyResponses->saveResponses();
+
+        // TODO: assert output
+
+        // TODO: assert values in db (integration tests)
+    }
 }
