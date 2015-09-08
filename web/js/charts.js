@@ -142,7 +142,9 @@ var ChartList = React.createClass({
   },
   
   componentDidMount: function() {
-    this.setState({data: this.props.data || []});
+    this.setState({
+      data: this.props.data || []
+    });
   },
   
   _getCharts: function(){
