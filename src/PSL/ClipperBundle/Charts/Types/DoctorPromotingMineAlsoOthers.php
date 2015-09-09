@@ -148,7 +148,7 @@ class DoctorPromotingMineAlsoOthers extends ChartType {
   private function calculateBrandScores($brand) {
     $score = 0;
     foreach ($this->respondent as $token => $brandsAnswer) {
-      $promoting = ($brandsAnswer[$brand] > 0 ? 1 : 0);
+      $promoting = (int) $this->identifyRespondentCategory($brandsAnswer[$brand], 'promoter');
       $allBrandCount = array_filter($brandsAnswer);
       $allBrandCount = count($allBrandCount);
       $score += ($allBrandCount - $promoting);

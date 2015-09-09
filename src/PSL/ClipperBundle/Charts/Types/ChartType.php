@@ -228,7 +228,10 @@ abstract class ChartType
 
     // in range
     if (isset($values[$respondentAnswer])) {
-      return (((!empty($validate_to)) && ($validate_to == $values[$respondentAnswer])) ? TRUE : $values[$respondentAnswer]);
+      if (!empty($validate_to)) {
+        return ($validate_to == $values[$respondentAnswer]);
+      }
+      return $values[$respondentAnswer];
     }
 
     //out of range
@@ -237,7 +240,11 @@ abstract class ChartType
     if ($respondentAnswer > max($values)) {
       $result = array_slice($int_ids, -1, 1);
     }
-    return end($result);
+    $result = end($result);
+    if (!empty($validate_to)) {
+      return ($validate_to == $result);
+    }
+    return $result;
   }
 
   protected function formatAnswerResult($type, $answers) {
