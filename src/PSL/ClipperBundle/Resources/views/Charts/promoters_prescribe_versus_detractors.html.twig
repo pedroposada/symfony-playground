@@ -33,10 +33,7 @@
               'gridlines': {
                 'color': 'none'
               },
-            },
-            'tooltip' : {
-              'trigger': 'none'
-            }
+            },            
           };
           var chart = new google.visualization.ColumnChart(document.getElementById('{{ chartDivId }}-{{ loop.index0 }}'));
           chart.draw(data, options);

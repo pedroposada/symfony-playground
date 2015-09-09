@@ -53,6 +53,10 @@ class AssociateCategoriesImportance extends ChartType {
     //final calculation
     foreach ($this->qcode as $qindex => $qcode) {
       foreach ($this->counts as $type => $info) {
+        if (empty($this->result[$qcode][$type]['count'])) {
+          $this->result[$qcode][$type]['perc'] = 0;
+          continue;  
+        }
         $this->result[$qcode][$type]['perc'] = (($this->result[$qcode][$type]['count'] / $info['count']) * 100);
         $this->result[$qcode][$type]['perc'] = $this->roundingUpValue($this->result[$qcode][$type]['perc']);
       }

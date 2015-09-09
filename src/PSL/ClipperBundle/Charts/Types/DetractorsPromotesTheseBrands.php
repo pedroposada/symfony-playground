@@ -149,7 +149,10 @@ class DetractorsPromotesTheseBrands extends ChartType {
     $promotes_count = array_values($this->detractors[$brand]);
     $promotes_count = array_filter($promotes_count);
     $promotes_count = array_sum($promotes_count);
-    $per_promote = 100 / $promotes_count;
+    $per_promote = 0;
+    if ($promotes_count) {
+      $per_promote = 100 / $promotes_count;
+    }
 
     //calculate, then fix as string
     foreach ($this->detractors[$brand] as $decBrand => $promotes) {
