@@ -1,6 +1,6 @@
 # This file is auto-generated during the composer install
 parameters:
-  
+
   # Database settings
   database_driver:                    "pdo_mysql"
   database_host:                      "[*db_host*]"
@@ -8,10 +8,10 @@ parameters:
   database_name:                      "[*db_name*]"
   database_user:                      "[*db_user*]"
   database_password:                  "[*db_pass*]"
-  
+
   # Locale
   locale:                             "en"
-  
+
   # secret key
   secret:                             "[*secret*]"
 
@@ -19,6 +19,15 @@ parameters:
   fwsso_api:
         url: "[*fwsso_baseurl*]"
         app_token: "[*fwsso_app_token*]"
+
+  # BigCommerce Settings
+  bigcommerce:
+    api:
+      username:                       "[*bigcommerce_api_username*]"
+      store_url:                      "[*bigcommerce_api_store_url*]"
+      api_key:                        "[*bigcommerce_api_api_key*]"
+    order_status_code_completed:      10 # numeric code in bigcommerce for Completed orders
+    category_code_firstq:             "[*bigcommerce_category_code_firstq*]" # numeric code in bigcommerce for FirstQ category
 
   # Clipper settings
   clipper:
@@ -53,7 +62,7 @@ parameters:
   clipper.conditions:                 "Resources/terms/conditions.xml"
   clipper.frontend.url:               "[*clipper.frontend.url*]"
   clipper.quota.universal             1 # Number of respondents required
-      
+
   # LimeSurvey settings
   limesurvey:
     api:
@@ -70,7 +79,7 @@ parameters:
   limesurvey.url_redirect_base:         "[*limesurvey.url_redirect_base*]"
   limesurvey.url_redirect:              "%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]"
   limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/exit?lstoken={PASSTHRU:lstoken}"
-    
+
   # Rpanel
   rpanel:
     user_id:                          "[*rpanel_user_id*]" # Userid is the user ID of the one created by Guohui for you
@@ -116,7 +125,7 @@ parameters:
 # Monolog
 monolog:
     channels:                         ["clipper"]
-    
+
 
 # Swiftmailer Configuration
 swiftmailer:

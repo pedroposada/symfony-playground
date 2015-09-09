@@ -26,5 +26,7 @@ class PSLClipperExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        //clipper_cache service
+        $container->setParameter('clipper_cache.config', $config['clipper_cache']['config']);
     }
 }

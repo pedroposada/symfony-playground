@@ -1,33 +1,45 @@
 services:
-  
+  clipper_cache:
+    class: PSL\ClipperBundle\Service\ClipperCacheService
+    arguments: [%clipper_cache.config%]
+
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
     arguments: [%google_spreadsheets%]
-  
+
   rpanel:
     class: PSL\ClipperBundle\Service\RPanelService
     arguments: [%rpanel%]
-  
+
   survey_builder:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
     # @TODO: only get templating
     arguments: [@service_container]
+    # arguments: [@templating]
+    # calls:
+      # - [setTemplating, ["@templating"]]
+
+  # nps_plus_survey:
+    # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
+    # calls:
+      # - [setParentTemplating, ["@templating"]]
+
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
-  
+
   explode_tree:
     class: PSL\ClipperBundle\Utils\ExplodeTree
-  
+
   survey_chart_map:
     class: PSL\ClipperBundle\Charts\SurveyChartMap
-  
+
   chart_assembler:
     class: PSL\ClipperBundle\Charts\Assembler
     arguments: [@service_container]
-  
+
   clipper_serializer:
     class: PSL\ClipperBundle\Utils\ClipperSerializer
-    
+
   yaml_admin_user_provider:
     class: PSL\ClipperBundle\Security\User\YamlAdminUserProvider
     arguments: ["%kernel.root_dir%/Resources/users.yml"]
@@ -50,7 +62,7 @@ services:
   # --------------------------- #
   #   Clipper event listeners   #
   # --------------------------- #
-  
+
   # Listeners are called in descending order by priority. Highest priority is called first.
 
   clipper.listener.order_complete:
@@ -58,25 +70,25 @@ services:
     arguments: ["@service_container", "limesurvey_pending"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 100 }
-      
+
   clipper.listener.limesurvey_created:
     class: PSL\ClipperBundle\Listener\LimeSurveyCreated
     arguments: ["@service_container", "limesurvey_created"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 90 }
-      
+
   clipper.listener.rpanel_complete:
     class: PSL\ClipperBundle\Listener\RpanelComplete
     arguments: ["@service_container", "rpanel_complete"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 80 }
-      
+
   clipper.listener.limesurvey_complete:
     class: PSL\ClipperBundle\Listener\LimeSurveyComplete
     arguments: ["@service_container", "limesurvey_complete"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 70 }
-  
+
   # refresh responses
   clipper.listener.limesurvey_responses:
     class: PSL\ClipperBundle\Listener\LimeSurveyResponses
@@ -84,7 +96,7 @@ services:
     tags:
       - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }
       - { name: kernel.event_listener, event: after_limesurvey_complete, method: refreshResponses, priority: 0 }
-  
+
   # types of charts
   clipper.chart.net_promoters:
     class: PSL\ClipperBundle\Charts\Types\NetPromoters

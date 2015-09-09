@@ -175,6 +175,7 @@ class ClipperController extends FOSRestController
       
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
+      $gsc->setupFeasibilitySheet();
       
       $gs_result_array = array();
       $gs_result_total = 0;
