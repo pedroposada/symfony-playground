@@ -1,165 +1,67 @@
-/**
- * This file provided by Facebook is for non-commercial testing and evaluation
- * purposes only. Facebook reserves all rights not expressly granted.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-var Comment = React.createClass({
-  render: function() {
-    var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
-    return (
-      <div className="comment">
-        <h2 className="commentAuthor">
-          {this.props.author}
-        </h2>
-        <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
-      </div>
-    );
-  }
-});
-
-var CommentBox = React.createClass({
-  
-  loadCommentsFromServer: function() {
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      cache: false,
-      success: function(data) {
-        this.setState({data: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-  },
-  
-  handleCommentSubmit: function(comment) {
-    var comments = this.state.data;
-    var newComments = comments.concat([comment]);
-    this.setState({data: newComments});
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      type: 'POST',
-      data: comment,
-      success: function(data) {
-        this.setState({data: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-  },
-  
-  getInitialState: function() {
-    return {data: []};
-  },
-  
-  componentDidMount: function() {
-    this.loadCommentsFromServer();
-    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
-  },
-  
-  render: function() {
-    return (
-      <div className="commentBox">
-        <h1>Comments</h1>
-        <CommentList data={this.state.data} />
-        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
-      </div>
-    );
-  }
-});
-
-var CommentList = React.createClass({
-  render: function() {
-    var commentNodes = this.props.data.map(function(comment, index) {
-      return (
-        // `key` is a React-specific concept and is not mandatory for the
-        // purpose of this tutorial. if you're curious, see more here:
-        // http://facebook.github.io/react/docs/multiple-components.html#dynamic-children
-        <Comment author={comment.author} key={index}>
-          {comment.text}
-        </Comment>
-      );
-    });
-    return (
-      <div className="commentList">
-        {commentNodes}
-      </div>
-    );
-  }
-});
-
-var CommentForm = React.createClass({
-  
-  handleSubmit: function(e) {
-    e.preventDefault();
-    var author = React.findDOMNode(this.refs.author).value.trim();
-    var text = React.findDOMNode(this.refs.text).value.trim();
-    if (!text || !author) {
-      return;
-    }
-    this.props.onCommentSubmit({author: author, text: text});
-    React.findDOMNode(this.refs.author).value = '';
-    React.findDOMNode(this.refs.text).value = '';
-  },
-  
-  render: function() {
-    return (
-      <form className="commentForm" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Your name" ref="author" />
-        <input type="text" placeholder="Say something..." ref="text" />
-        <input type="submit" value="Post" />
-      </form>
-    );
-  }
-});
 
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-
+// TODO: remove object from this file, dev demo only
 var chartsdata = [
+
+  //////////
   {
-    type: "BarChart", 
+    // required
+    charttype: "BarChart",
+    // required 
     datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
-    drilldown: { 
-      countries: ['USA', 'Canada'],
-      specialties: ['Oncology', 'Diabetes'],
-    },
+    // required
     options: {
       isStacked: 'percent',
       legend : {
         position : 'top',
         maxLines : 3
       },
-    }
-  },
-  {
-    type: "what_they_say", 
-    datatable: "some data here"
+    },
+    // optional
+    drilldown: { 
+      countries: ['USA', 'Canada'],
+      specialties: ['Oncology', 'Diabetes'],
+      regions: ['Europe'],
+    },
+  }
+  
+  ////////////
+  ,{
+    charttype: "BarChart", 
+    datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
+    options: {
+      isStacked: 'percent',
+      legend : {
+        position : 'top',
+        maxLines : 3
+      },
+    },
   }
 ];
 
-// ChartForm
+
+
+/**
+ * logic starts here
+ */
+
+
+/**
+ *  ChartForm
+ */
 var ChartForm = React.createClass({
   
   handleSubmit: function(e) {
     e.preventDefault();
     var country = React.findDOMNode(this.refs.country).value.trim();
     var specialty = React.findDOMNode(this.refs.specialty).value.trim();
-    this.props.loadCharts({country: country, specialty: specialty});
-    // console.log(this.props);
+    var region = React.findDOMNode(this.refs.region).value.trim();
+    this.props.loadCharts({
+      country: country, 
+      specialty: specialty,
+      region: region,
+    });
   },
   
   Countries: function(){
@@ -188,10 +90,24 @@ var ChartForm = React.createClass({
     );
   },
   
+  Regions: function(){
+    var output = this.props.regions.map(function(region, index){
+      return (
+        <option key={index} value={region}>{region}</option>        
+      );
+    });
+    return (
+      <select ref="region">
+        {output}
+      </select>
+    );
+  },
+  
   render: function() {
     return (
       <form className="chart-form" onSubmit={this.handleSubmit}>
         {this.Countries()}
+        {this.Regions()}
         {this.Specialties()}
         <input type="submit" value="Filter" />
       </form>
@@ -199,46 +115,79 @@ var ChartForm = React.createClass({
   }
 })
 
-// Chart
-var Chart = React.createClass({
+
+/**
+ * GoogleChart
+ */
+var GoogleChart = React.createClass({
   
-  gsChart: function(dataTable, chartId, chartType, options){
-    google.setOnLoadCallback(drawChart);
-    var drawChart = function(dataTable) {
-      var data = new google.visualization.DataTable();
-      var chart = new google.visualization.chartType(document.getElementById(chartId));
-      chart.draw(data, options);
-    }
+  drawChart: function(){
+    var data = new google.visualization.DataTable(this.props.datatable);
+    var chart = new google.visualization[this.props.charttype](
+      React.findDOMNode(this)
+    );
+    chart.draw(data, this.props.options);
+  },
+  componentDidMount: function(){
+    google.setOnLoadCallback(this.drawChart());
+  },
+  componentDidUpdate: function(){
+    this.drawChart();
+  },
+  render: function(){
+    return (
+      <div 
+        className="google-chart" 
+        style={{ height: "500px", width: "500px"}} 
+      />
+    );
   },
   
+});
+
+
+/**
+ * Chart wrapper
+ */
+var Chart = React.createClass({
+  
+  hasForm: function() {
+    return this.props.countries.length && this.props.regions.length && this.props.specialties.length;
+  },
   
   render: function() {
     return (
-      <div className="charts-chart">
-        {/* TODO: render actual chart here */}
+      <div className="chart-container">
+        <GoogleChart 
+          charttype = {this.props.charttype}
+          datatable = {this.props.datatable}
+          options = {this.props.options}  
+          // TODO: set width and height in options object
+          // rows = {this.state.rows} 
+          // columns = {this.state.columns} 
+        />  
         
-        <div id={this.props.key}>replace with chart</div>
-        
-        { this.props.countries.length && this.props.specialties.length ? 
+        {  this.hasForm() ? 
           <ChartForm 
             countries={this.props.countries} 
             specialties={this.props.specialties}
+            regions={this.props.regions}
             loadCharts={this.props.loadCharts}
           /> : null }
       </div>
     );
   }
+  
 });
 
-// ChartList
+
+/**
+ * ChartList
+ */
 var ChartList = React.createClass({
   
   loadCharts: function(drilldown) {
-    var country = drilldown.country;
-    var specialty = drilldown.specialty;
-    console.log(country);
-    console.log(specialty);
-    this._getChartsData();
+    this._getChartsData(drilldown);
   },
   
   getInitialState: function() {
@@ -249,10 +198,38 @@ var ChartList = React.createClass({
     this._getChartsData();
   },
   
-  _getChartsData: function(){
-    this.setState({
-      data: chartsdata || []
+  _getChartsData: function(request){
+    var $element = $('#react-content');
+    var url = $element.data('charts_data_url');
+    
+    // post
+    var request = request || {};
+    request.order_id = $element.data('order_id');
+    
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      type: 'POST',
+      data: request,
+      success: function(data) {
+        switch(data.status){
+          case 200:
+            this.setState({data: data.content || []});
+          break;
+          default:
+            console.error(url, data.status, data.content.toString());
+          break;
+        }
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(url, status, err.toString());
+      }.bind(this)
     });
+    
+    // TODO: to be removed
+    // this.setState({
+      // data: chartsdata || []
+    // });
   },
   
   render: function() {
@@ -261,11 +238,13 @@ var ChartList = React.createClass({
       var drill = chart.drilldown || {};
       return (
         <Chart 
-          charttype={chart.type} 
           key={index} 
-          datatable={chart.datatable} 
+          charttype={chart.charttype} 
+          datatable={chart.datatable || {}} 
+          options={chart.options || {}} 
           countries={drill.countries || []}
           specialties={drill.specialties || []}
+          regions={drill.regions || []}
           loadCharts={loadCharts}
         />
       );  
@@ -277,6 +256,7 @@ var ChartList = React.createClass({
       </div>
     );
   }
+  
 });
 
 
@@ -285,6 +265,8 @@ var ChartList = React.createClass({
  */
 
 React.render(
-  <ChartList />,
-  document.getElementById('content')
+  <ChartList />
+  ,document.getElementById('react-content')
 );
+
+

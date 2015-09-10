@@ -27,16 +27,16 @@ class Assembler
   }
 
   /**
-   * Get data table to render a chart
-   *
+   * Set ChartEvent
+   * 
    * @param $order_id UUID of the FirstQGroup
    * @param $chart_type string, unique identifier for the chart type
    * @param $survey_type string, unique identifier for the survey type
    * @param $drilldown array of additional filters
    *
-   * @return $this
+   * @return $event \PSL\ClipperBundle\Event\ChartEvent
    */
-  public function getChartDataTable($order_id, $chart_type, $survey_type, $drilldown = array())
+  private function setChartEvent($order_id, $chart_type, $survey_type, $drilldown = array())
   {
     $event = new ChartEvent();
     $event->setOrderId($order_id);
@@ -48,13 +48,32 @@ class Assembler
     
     if ($first = $responses->first()) {
       $event->setBrands($first->getFirstqgroup()->getFormDataByField('brands'));
-      $event->setParams($first->getFirstqgroup()->getFormDataByField('attributes'));
       $event->setData($responses);
       $event->setSurveyType($survey_type);
       $this->dispatcher->dispatch(ClipperEvents::CHART_PROCESS, $event);
     }
+    
+    return $event;
+  }
+    
+  /**
+   * Get data table to render a chart
+   * 
+   * @see setChartEvent()
+   */
+  public function getChartEvent($order_id, $chart_type, $survey_type, $drilldown = array())
+  {
+    return $this->setChartEvent($order_id, $chart_type, $survey_type, $drilldown);
+  }
 
-    return $event->getDataTable();
+  /**
+   * Get data table to render a chart
+   * 
+   * @see setChartEvent()
+   */
+  public function getChartDataTable($order_id, $chart_type, $survey_type, $drilldown = array())
+  {
+    return $this->setChartEvent($order_id, $chart_type, $survey_type, $drilldown)->getDataTable();
   }
 
 }

@@ -46,6 +46,10 @@ abstract class ChartType
     $this->explode_tree     = $container->get('explode_tree');
   }
 
+  // TODO: new method to return distinct list of countries
+  // TODO: new method to return distinct list of regions
+  // TODO: new method to return distinct list of specialties
+
   public function onDataTable(ChartEvent $event, $eventName, EventDispatcherInterface $dispatcher)
   {
     if ($event->getChartType() === $this->chart_type) {
@@ -57,6 +61,8 @@ abstract class ChartType
       $this->qcode  = $this->map[$event->getChartType()];
 
       $event->setDataTable($this->dataTable($event));
+      
+      // TODO: set drilldown, options, charttype into event object
     }
   }
 

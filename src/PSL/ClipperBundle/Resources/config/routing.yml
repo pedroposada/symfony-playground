@@ -28,11 +28,9 @@ clipper_user:
 api_login_check:
    path:    /api/login_check
 
-
 # FW SSO Quick Login users
 api_quick_login_check:
     path:   /api/ql/login_check
-
 
 # Admin UI users
 api_login_admin_check:
@@ -43,18 +41,22 @@ api_login_admin_check:
 psl_clipper_charts:
   path:     /charts
   defaults: { _controller: PSLClipperBundle:Charts:charts }
-psl_clipper_chart:
-  path:     /charts/chart
-  defaults: { _controller: PSLClipperBundle:Charts:chart }
 psl_clipper_charts_static:
   path:     /charts/static
   defaults:
     _controller: FrameworkBundle:Template:template
     template:    views/static/charts.html.twig
+psl_clipper_charts_react:
+  path:     /charts/react
+  defaults: { _controller: PSLClipperBundle:Charts:chartsReact }
+psl_clipper_charts_rest:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\ChartsController
+  prefix:   /charts
 
 
 # Automatic routes
-clipper:
-  type:     rest
-  resource: PSL\ClipperBundle\Controller\ClipperController
-  prefix:   /ws
+# clipper:
+  # type:     rest
+  # resource: PSL\ClipperBundle\Controller\ClipperController
+  # prefix:   /ws

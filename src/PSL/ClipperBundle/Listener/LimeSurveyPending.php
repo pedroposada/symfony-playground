@@ -9,11 +9,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Common\Util\Debug as Debug;
 
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
@@ -64,10 +59,9 @@ class LimeSurveyPending extends FqProcess
     $iSurveyID = $ls->import_survey(array(
       'sImportData' => base64_encode($lss), // BASE 64 encoded data of a lss
       'sImportDataType' => 'lss', 
-      'sNewSurveyName' => "Clipper test - " . $fqp->getId(), 
+      'sNewSurveyName' => $form_data['title'], 
     ));
-    
-    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'import_survey'));
+    $this->logger->debug($ls->__toString(), array('bigcommerce_complete', 'import_survey'));
     if (!is_int($iSurveyID)) {
       throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [import_survey]");
     }
@@ -76,7 +70,7 @@ class LimeSurveyPending extends FqProcess
     $response = $ls->activate_survey(array(
       'iSurveyID' => $iSurveyID, 
     ));
-    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'activate_survey'));
+    $this->logger->debug($ls->__toString(), array('bigcommerce_complete', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
       throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_survey]");
     }
@@ -117,10 +111,9 @@ class LimeSurveyPending extends FqProcess
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $response;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this
-      ->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
+    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
     
-    $fqp->setLimesurveyDataRaw($this->getSerializer()->encode($ls_raw_data, 'json'));
+    $fqp->setLimesurveyDataRaw($this->serializer->encode($ls_raw_data));
     
   }
 
@@ -149,14 +142,4 @@ class LimeSurveyPending extends FqProcess
     return $urls;
   }
 
-  /**
-   * Helper function to deserialize JSON
-   */
-  protected function getSerializer()
-  {
-    $encoders = array(new XmlEncoder(), new JsonEncoder());
-    $normalizers = array(new ObjectNormalizer());
-    
-    return new Serializer($normalizers, $encoders);
-  }
 }
