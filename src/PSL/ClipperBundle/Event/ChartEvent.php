@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ChartEvent extends Event
 {
   // TODO: add setter and getter for drilldown (filter options for countries, regions, specialties)
-  // TODO: add setter and getter for options (google charts options object)
   // TODO: add setter and getter for charttype (google chart type)
   
   

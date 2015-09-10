@@ -9,6 +9,7 @@ use \stdClass;
 use \Exception;
 use \DateTime;
 use \DateTimeZone;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,8 +40,9 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ChartsController extends FOSRestController
 {
+   // TODO: to be removed, this end-point will be replaced with chartsReactAction
+  
   /**
-   * TODO: to be removed, this end-point will be replaced with chartsReactAction
    * /clipper/charts
    *
    * @param ParamFetcher $paramFetcher
@@ -110,6 +112,9 @@ class ChartsController extends FOSRestController
    */
   public function postReactAction(Request $request)
   {
+    $content = null;
+    $code = 200;
+    
     try {
       $order_id = $request->request->get('order_id');
       $drilldown['country'] = $request->request->get('country', null);
@@ -118,26 +123,23 @@ class ChartsController extends FOSRestController
       
       $charts = new ArrayCollection();
       $em = $this->container->get('doctrine')->getManager();
-      $survey_type = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id)->getFormDataByField('survey_type');
+      $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
+      if (!$fqg) {
+        throw new Exception("FQG with id [{$order_id}] not found");
+      }
+      
+      $survey_type = $fqg->getFormDataByField('survey_type');
       $survey_type = reset($survey_type);
       $map = $this->container->get('survey_chart_map')->map($survey_type);
       $assembler = $this->container->get('chart_assembler');
       
-      // TODO: uncomment foreach loop
+      // TODO: uncomment this foreach loop
       // foreach ($map as $chart_type => $val) {
         $chEvent = $assembler->getChartEvent($order_id, 'net_promoters', $survey_type, $drilldown);
         $chart = array(
           'datatable' => $chEvent->getDataTable(),
           // TODO: replace with $chEvent->getChartType()
           'charttype' => "BarChart",
-          // TODO: replace with $chEvent->getOptions()
-          'options' => array(
-            'isStacked' => 'percent',
-            'legend' => array(
-              'position' => 'top',
-              'maxLines' => 3,
-            ),
-          ),
           // TODO: replace with $chEvent->getDrilldown()
           'drilldown' => array(
             'countries' => array('USA', 'Canada'),
@@ -147,13 +149,13 @@ class ChartsController extends FOSRestController
         );
         $charts->add($chart);
       // }
-      
-      $response = new Response($charts);
+      $content = $charts;
     }
     catch(Exception $e) {
-      $response = new Response($e->getMessage(), 204);
+      $content = $e->getMessage();
+      $code = 204;
     }
     
-    return $response;
+    return new Response($content, $code);
   }
 }

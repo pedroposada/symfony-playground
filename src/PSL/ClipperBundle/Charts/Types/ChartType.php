@@ -62,7 +62,7 @@ abstract class ChartType
 
       $event->setDataTable($this->dataTable($event));
       
-      // TODO: set drilldown, options, charttype into event object
+      // TODO: set drilldown and charttype into event object
     }
   }
 
