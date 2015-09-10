@@ -1,5 +1,36 @@
 {# src/PSL/ClipperBundle/Resources/views/Charts/what_they_say.html.twig #}
 {% autoescape false %}
+  <script type="text/javascript">
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var tables = [
+      {% for dataSection in dataTable %}
+        {
+          brand: '{{ dataSection.title|escape('js') }}',
+          detractors: [
+            {% for item in dataSection.res.det %}
+              "{{ item|escape('js') }}",
+            {% endfor %}
+          ],
+          promoters: [
+            {% for item in dataSection.res.pro %}
+              "{{ item|escape('js') }}",
+            {% endfor %}
+          ]
+        },
+      {% endfor %}
+      ];
+
+      var data = clipper.charts.formatters.DNA_Chart(tables);
+
+      var chart = clipper.charts.DNA_Chart('{{ chartDivId }}', null, data);
+    }
+  </script>
+
+  <div id="{{ chartDivId }}" style="width: 800px; height: 600px"></div>
+
+
+
     <!-- @todo: move this css / js / header -->
     <style type="text/css" media="screen">
       body {

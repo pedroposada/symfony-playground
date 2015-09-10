@@ -1,5 +1,22 @@
 {# src/PSL/ClipperBundle/Resources/views/Charts/detractors_promotes_these_brands.html.twig #}
 {% autoescape false %}
+  <script type="text/javascript">
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var tables = [
+      {% for dataSection in dataTable %}
+        {{ dataSection|json_encode() }},
+      {% endfor %}
+      ];
+
+      var data = clipper.charts.formatters.PromVsDetrPromote_Chart(tables);
+
+      var chart = new clipper.charts.PromVsDetrPromote_Chart('{{ chartDivId }}', null, data);
+    }
+  </script>
+
+    <div id="{{ chartDivId }}" style="width: 600px; height: 400px"></div>
+
     {% for dataSection in dataTable %}
       <!-- START CHART #7-{{ loop.index0 }} -->
       <script type="text/javascript">
@@ -33,7 +50,10 @@
               'gridlines': {
                 'color': 'none'
               },
-            },            
+            },
+            'tooltip' : {
+              'trigger': 'none'
+            }
           };
           var chart = new google.visualization.ColumnChart(document.getElementById('{{ chartDivId }}-{{ loop.index0 }}'));
           chart.draw(data, options);

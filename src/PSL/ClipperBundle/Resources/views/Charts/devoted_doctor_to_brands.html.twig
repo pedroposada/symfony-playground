@@ -5,39 +5,44 @@
       google.setOnLoadCallback(drawChart);
       function drawChart() {
         //set data
-        var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+        var data = clipper.charts.formatters.Loyalty_Chart({{ dataTable|json_encode() }});
 
-        //Mean (first) color
-        data.setCell(0, 3, 'fill-color: #F90;');
+        var chart = new clipper.charts.Loyalty_Chart('{{ chartDivId }}', null, data);
+        // var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
 
-        //set options
-        var options = {
-          'title' : 'How loyal are doctors to my brand?',
-          'legend': 'none',
-          'annotations' : {
-            'alwaysOutside': true,
-            'textStyle' : {
-              'bold' : true,
-              'color': '#000'
-            }
-          },
-          'hAxis': {
-            'gridlines': {
-              'color': 'none'
-            },
-            'viewWindowMode' : 'explicit',
-              'viewWindow': {
-                //- Chart Width; default the chart will maximize bar to its length
-                'max': (Math.floor((Math.max.apply(Math, data.getDistinctValues(1))) + 1)) * 1.8,
-                'min': 0
-            },
-          },
-          'colors': ['#36C']
-        };
+        // console.log({{ dataTable|json_encode() }});
 
-        //draw
-        var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
-        chart.draw(data, options);
+        // //Mean (first) color
+        // data.setCell(0, 3, 'fill-color: #F90;');
+
+        // //set options
+        // var options = {
+        //   'title' : 'How loyal are doctors to my brand?',
+        //   'legend': 'none',
+        //   'annotations' : {
+        //     'alwaysOutside': true,
+        //     'textStyle' : {
+        //       'bold' : true,
+        //       'color': '#000'
+        //     }
+        //   },
+        //   'hAxis': {
+        //     'gridlines': {
+        //       'color': 'none'
+        //     },
+        //     'viewWindowMode' : 'explicit',
+        //       'viewWindow': {
+        //         //- Chart Width; default the chart will maximize bar to its length
+        //         'max': (Math.floor((Math.max.apply(Math, data.getDistinctValues(1))) + 1)) * 1.8,
+        //         'min': 0
+        //     },
+        //   },
+        //   'colors': ['#36C']
+        // };
+
+        // //draw
+        // var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
+        // chart.draw(data, options);
       }
     </script>
     <!--Div that will hold the chart-->

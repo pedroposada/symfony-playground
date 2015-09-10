@@ -4,39 +4,43 @@
     <script type="text/javascript">
       google.setOnLoadCallback(drawChart);
       function drawChart() {
-        var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+        var data = clipper.charts.formatters.PromotersPromote_Chart({{ dataTable|json_encode() }});
 
-        var options = {
-          'title' : 'Amongst doctors promoting my brand, how many other brands do they also promote?',
-          'bars'  : 'horizontal',
-          'legend': 'none',
-          'annotations' : {
-            'alwaysOutside': true,
-            'textStyle' : {
-              'bold' : true,
-              'color': '#000'
-            }
-          },
-          'hAxis': {
-            'title'    : data.getColumnLabel(1),
-            'gridlines': {
-              'color': 'none'
-            },
-            'viewWindowMode' : 'explicit',
-              'viewWindow': {
-                'max': (Math.floor((Math.max.apply(Math, data.getDistinctValues(1)))) + 1),
-                'min': 0
-            },
-          },
-          'vAxis': {
-            'title': data.getColumnLabel(0),
-          },
-          'baselineColor': 'none',
-          'colors'       : ['#36C']
-        };
+        var chart = new clipper.charts.PromotersPromote_Chart('{{ chartDivId }}', null, data);
 
-        var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
-        chart.draw(data, options);
+        // var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+
+        // var options = {
+        //   'title' : 'Amongst doctors promoting my brand, how many other brands do they also promote?',
+        //   'bars'  : 'horizontal',
+        //   'legend': 'none',
+        //   'annotations' : {
+        //     'alwaysOutside': true,
+        //     'textStyle' : {
+        //       'bold' : true,
+        //       'color': '#000'
+        //     }
+        //   },
+        //   'hAxis': {
+        //     'title'    : data.getColumnLabel(1),
+        //     'gridlines': {
+        //       'color': 'none'
+        //     },
+        //     'viewWindowMode' : 'explicit',
+        //       'viewWindow': {
+        //         'max': (Math.floor((Math.max.apply(Math, data.getDistinctValues(1)))) + 1),
+        //         'min': 0
+        //     },
+        //   },
+        //   'vAxis': {
+        //     'title': data.getColumnLabel(0),
+        //   },
+        //   'baselineColor': 'none',
+        //   'colors'       : ['#36C']
+        // };
+
+        // var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
+        // chart.draw(data, options);
       }
     </script>
     <!--Div that will hold the chart-->

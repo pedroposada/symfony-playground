@@ -1,5 +1,25 @@
 {# src/PSL/ClipperBundle/Resources/views/Charts/detractors_promotes_these_brands.html.twig #}
 {% autoescape false %}
+
+  <script type?"text/javascript">
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var tables = [
+      {% for dataSection in dataTable %}
+        {{ dataSection|json_encode() }},
+      {% endfor %}
+      ];
+
+      var data = clipper.charts.formatters.DetractorsPromote_Chart(tables);
+
+      var chart = new clipper.charts.DetractorsPromote_Chart('{{ chartDivId }}', {
+        valueType: 'absolute'
+      }, data);
+    }
+  </script>
+
+    <div id="{{ chartDivId }}" style="width: 600px; height: 400px"></div>
+
     {% for dataSection in dataTable %}
       <!-- START CHART #6-{{ loop.index0 }} -->
       <script type="text/javascript">
