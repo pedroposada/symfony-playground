@@ -1,5 +1,5 @@
 <?php
-namespace PSL\ClipperBundle\Charts\Types;
+namespace PSL\ClipperBundle\Charts\Types; 
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
