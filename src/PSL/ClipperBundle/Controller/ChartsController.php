@@ -134,10 +134,13 @@ class ChartsController extends FOSRestController
       $assembler = $this->container->get('chart_assembler');
       
       // TODO: uncomment this foreach loop
-      // foreach ($map as $chart_type => $val) {
+      // foreach ($map['chart_types] as $chart_type) {
+        // TODO: replace 'net_promoters' with $chart_type
         $chEvent = $assembler->getChartEvent($order_id, 'net_promoters', $survey_type, $drilldown);
         $chart = array(
           'datatable' => $chEvent->getDataTable(),
+          // TODO: replace with $chart_type
+          'chartmachinename' => "net_promoters",
           // TODO: replace with $chEvent->getChartType()
           'charttype' => "BarChart",
           // TODO: replace with $chEvent->getDrilldown()

@@ -7,6 +7,8 @@ var chartsdata = [
   //////////
   {
     // required
+    chartmachinename: "net_promoters",
+    // required
     charttype: "BarChart",
     // optional
     drilldown: { 
@@ -43,6 +45,7 @@ var ChartForm = React.createClass({
     var specialty = React.findDOMNode(this.refs.specialty).value.trim();
     var region = React.findDOMNode(this.refs.region).value.trim();
     this.props.loadCharts({
+      chartmachinename: this.props.chartmachinename, 
       country: country, 
       specialty: specialty,
       region: region,
@@ -156,12 +159,14 @@ var Chart = React.createClass({
     return (
       <div className="chart-container">
         <GoogleChart 
+          chartmachinename = {this.props.chartmachinename}
           charttype = {this.props.charttype}
           datatable = {this.props.datatable}
         />  
         
         {  this.hasForm() ? 
           <ChartForm 
+            chartmachinename={this.props.chartmachinename} 
             countries={this.props.countries} 
             specialties={this.props.specialties}
             regions={this.props.regions}
@@ -228,6 +233,7 @@ var ChartList = React.createClass({
       return (
         <Chart 
           key={index} 
+          chartmachinename={chart.chartmachinename} 
           charttype={chart.charttype} 
           datatable={chart.datatable || {}} 
           countries={drill.countries || []}
