@@ -103,3 +103,51 @@ services:
     arguments: ["@service_container", "net_promoters"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.devoted_doctor_to_brands:
+    class: PSL\ClipperBundle\Charts\Types\DevotedDoctorToBrands
+    arguments: ["@service_container", "devoted_doctor_to_brands"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.doctor_promoting_brands:
+    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingBrands
+    arguments: ["@service_container", "doctor_promoting_brands"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.doctor_promoting_mine_also_others:
+    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingMineAlsoOthers
+    arguments: ["@service_container", "doctor_promoting_mine_also_others"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.doctor_promoting_mine_also_others_table:
+    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingMineAlsoOthersTable
+    arguments: ["@service_container", "doctor_promoting_mine_also_others_table"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.detractors_promotes_these_brands:
+    class: PSL\ClipperBundle\Charts\Types\DetractorsPromotesTheseBrands
+    arguments: ["@service_container", "detractors_promotes_these_brands"]
+    tags:
+      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.promoters_prescribe_versus_detractors:
+    class: PSL\ClipperBundle\Charts\Types\PromotersPrescribeVersusDetractors
+    arguments: ["@service_container", "promoters_prescribe_versus_detractors"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.what_they_say:
+    class: PSL\ClipperBundle\Charts\Types\WhatTheySay
+    arguments: ["@service_container", "what_they_say"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  clipper.chart.associate_categories_importance:
+    class: PSL\ClipperBundle\Charts\Types\AssociateCategoriesImportance
+    arguments: ["@service_container", "associate_categories_importance"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }

@@ -1,19 +1,31 @@
 {% autoescape false %}
 <html>
   <head>
+    <style type="text/css" media="screen">
+      .slides-number {
+        color: #E4560B;
+      }
+    </style>
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <!--Load Clipper Charts-->
+    <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/clipper.charts.js') }}"></script>
+
     <script type="text/javascript">
-    
-      // Load the Visualization API and the piechart package.
-      google.load('visualization', '1', {'packages' : ['corechart']});
+
+      // Load the Visualization API and packages.
+      google.load('visualization', '1', {packages: ['corechart', 'bar', 'sankey', 'orgchart', 'table']});
 
     </script>
+    <title>clipper:gCharts</title>
   </head>
 
   <body>
     {% for chart in charts %}
+      <h3 class="slides-number">Slide #{{ loop.index }}</h3>
       {{ chart }}
+      <hr/>
     {% endfor %}
   </body>
 </html>

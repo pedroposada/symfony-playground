@@ -7,7 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class ChartEvent extends Event
 {
+  // TODO: add setter and getter for drilldown (filter options for countries, regions, specialties)
+  // TODO: add setter and getter for charttype (google chart type)
+  
+  
   protected $order_id;
+  protected $brands;
   protected $params;
   protected $survey_type;
   protected $chart_type;
@@ -67,6 +72,16 @@ class ChartEvent extends Event
   public function setData(ArrayCollection $data)
   {
     $this->data = $data;
+  }
+
+  public function getBrands()
+  {
+    return $this->brands;
+  }
+
+  public function setBrands($brands)
+  {
+    $this->brands = $brands;
   }
   
   /**

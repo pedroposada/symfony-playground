@@ -3,17 +3,26 @@ psl_clipper_limesurvey_redirect:
   defaults: { _controller: PSLClipperBundle:Clipper:redirectLimeSurvey }
   requirements:
     sid: \d+
-    
+psl_clipper_thankyou:
+  path:     /thankyou/{fquuid}
+  defaults: { _controller: PSLClipperBundle:Clipper:thankyou }
+psl_clipper_debug:
+  path:     /debug
+  defaults: { _controller: PSLClipperBundle:Clipper:debug }
+psl_clipper_exit:
+  path:     /limesurvey/exit
+  defaults: { _controller: PSLClipperBundle:Clipper:exit }
+  
 # Automatic routes
 clipper:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ClipperController
   prefix:   /api
-
 clipper_user:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ClipperUserController
   prefix:   /api
+
 
 # FW SSO users
 api_login_check:
@@ -27,24 +36,30 @@ api_quick_login_check:
 api_login_admin_check:
     path:   /api/admin/login_check
 
-psl_clipper_debug:
-  path:     /debug
-  defaults: { _controller: PSLClipperBundle:Clipper:debug }
 
-psl_clipper_exit:
-  path:     /limesurvey/exit
-  defaults: { _controller: PSLClipperBundle:Clipper:exit }
-
-psl_clipper_chart:
-  path:     /api/charts
+# Charts
+psl_clipper_charts:
+  path:     /charts
   defaults: { _controller: PSLClipperBundle:Charts:charts }
+  
+psl_clipper_charts_static:
+  path:     /charts/static
+  defaults:
+    _controller: FrameworkBundle:Template:template
+    template:    views/static/charts.html.twig
 
-psl_clipper_thankyou:
-  path:     /thankyou/{fquuid}
-  defaults: { _controller: PSLClipperBundle:Clipper:thankyou }
+psl_clipper_charts_react:
+  path:     /charts/react
+  defaults: { _controller: PSLClipperBundle:Charts:chartsReact }
+
+psl_clipper_charts_rest:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\ChartsController
+  prefix:   /charts
+
 
 # Automatic routes
-clipper:
-  type:     rest
-  resource: PSL\ClipperBundle\Controller\ClipperController
-  prefix:   /ws
+# clipper:
+  # type:     rest
+  # resource: PSL\ClipperBundle\Controller\ClipperController
+  # prefix:   /ws

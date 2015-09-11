@@ -1,0 +1,122 @@
+{# src/PSL/ClipperBundle/Resources/views/Charts/what_they_say.html.twig #}
+{% autoescape false %}
+  <script type="text/javascript">
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var tables = [
+      {% for dataSection in dataTable %}
+        {
+          brand: '{{ dataSection.title|escape('js') }}',
+          detractors: [
+            {% for item in dataSection.res.det %}
+              "{{ item|escape('js') }}",
+            {% endfor %}
+          ],
+          promoters: [
+            {% for item in dataSection.res.pro %}
+              "{{ item|escape('js') }}",
+            {% endfor %}
+          ]
+        },
+      {% endfor %}
+      ];
+
+      var data = clipper.charts.formatters.DNA_Chart(tables);
+
+      var chart = clipper.charts.DNA_Chart('{{ chartDivId }}', null, data);
+    }
+  </script>
+
+  <div id="{{ chartDivId }}" style="width: 800px; height: 600px"></div>
+
+
+
+    <!-- @todo: move this css / js / header -->
+    <style type="text/css" media="screen">
+      body {
+      }
+      .what-they-say-wrapper {
+        /**body**/
+        font-family: sans-serif;
+        font-size: x-small;
+
+        width: 600px;
+        margin: 30px 20px;
+      }
+      .what-they-say-set {
+        width: 48%;
+        margin: 5px;
+      }
+      .what-they-say-set.count-0 {
+        display: none;
+      }
+      .what-they-say-set.detractors {
+        float: left;
+      }
+      .what-they-say-set.promoters {
+        float: right;
+      }
+      .what-they-say-set-head {
+        font-weight: bold;
+        text-align: center;
+        font-size: larger;
+        margin-bottom: 10px;
+      }
+      .what-they-say-set-body {
+        padding: 5px;
+        color: white;
+        min-height: 300px;
+      }
+      .detractors .what-they-say-set-body {
+        background-color: darkred;
+      }
+      .promoters .what-they-say-set-body {
+        background-color: midnightblue;
+      }
+      .what-they-say-set-body ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+      .what-they-say-set-body ul li {
+        padding: 5px;
+        margin: 5px;
+      }
+      .what-they-say-set-body ul li span {
+        font-size: larger;
+        font-weight: bold;
+      }
+      .what-they-say-set-footer {
+        clear: both;
+      }
+    </style>
+    {% for dataSection in dataTable %}
+      <!-- START CHART #9-{{ loop.index0 }} -->
+      <!--Div that will hold the chart-->
+      <h4>{{ dataSection.title }}</h4>
+      <div id="{{ chartDivId }}-{{ loop.index0 }}" class="what-they-say-wrapper">
+        <div class="what-they-say-set detractors count-{{ dataSection.res.det|length }}">
+          <div class="what-they-say-set-head">{{ dataSection.headings.det }}</div>
+          <div class="what-they-say-set-body">
+            <ul>
+            {% for item in dataSection.res.det %}
+              <li>{{ item }}</li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="what-they-say-set promoters  count-{{ dataSection.res.pro|length }}">
+          <div class="what-they-say-set-head">{{ dataSection.headings.pro }}</div>
+          <div class="what-they-say-set-body">
+            <ul>
+            {% for item in dataSection.res.pro %}
+              <li>{{ item }}</li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="what-they-say-set-footer"></div>
+      </div>
+      <!-- END CHART -->
+    {% endfor %}
+{% endautoescape %}

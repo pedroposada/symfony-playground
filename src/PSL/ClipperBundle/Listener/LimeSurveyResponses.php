@@ -74,14 +74,14 @@ class LimeSurveyResponses
     // stop if errors from request
     if( is_array($responses) ) {
       $responses = implode(', ', $responses);
-      throw new Exception("LS export_responses error: [{$responses}] for fqp->id: [{$fqp->getId()}] and iSurveyID: [{$iSurveyID}]");
+      throw new Exception("LS export_responses error: [{$responses}] for iSurveyID: [{$iSurveyID}]");
     }
     $responses = base64_decode($responses);
     $responses = $this->serializer->decode($responses, 'json');
     
     // stop if no responses
     if (!is_array($responses['responses']) || empty($responses['responses'])) {
-      throw new Exception("LS export_responses returns empty for fqp->id: [{$fqp->getId()}] and iSurveyID: [{$iSurveyID}]");
+      throw new Exception("LS export_responses empty for iSurveyID: [{$iSurveyID}]");
     }
     
     return $responses;
@@ -109,8 +109,8 @@ class LimeSurveyResponses
         // TODO: get mid (member id) from MDM. Default to "1" for now.
         // $lsresp->setMemberId($mid);
         $lsresp->setResponseRaw($this->serializer->encode($resp, 'json'));
-        $lsresp->setFirstqproject($fqp);
         $lsresp->setFirstqgroup($fqg);
+        $lsresp->setFirstqproject($fqp);
         
         // Invoking the persist method on an entity does NOT cause an immediate 
         // SQL INSERT to be issued on the database.
