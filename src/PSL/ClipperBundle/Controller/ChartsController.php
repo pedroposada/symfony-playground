@@ -60,7 +60,7 @@ class ChartsController extends FOSRestController
     $map = $this->container->get('survey_chart_map')->map($survey_type);
     $assembler = $this->container->get('chart_assembler');
     
-    foreach ($map as $chart_type => $val) {
+    foreach ($map['chart_types'] as $chart_type) {
       $placeholders = array(
         'dataTable' => $assembler->getChartDataTable($order_id, $chart_type, $survey_type),
         'chartDivId' => uniqid(),

@@ -48,6 +48,7 @@ class Assembler
     
     if ($first = $responses->first()) {
       $event->setBrands($first->getFirstqgroup()->getFormDataByField('brands'));
+      $event->setParams($first->getFirstqgroup()->getFormDataByField('attributes'));
       $event->setData($responses);
       $event->setSurveyType($survey_type);
       $this->dispatcher->dispatch(ClipperEvents::CHART_PROCESS, $event);
