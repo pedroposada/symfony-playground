@@ -175,6 +175,7 @@ class ClipperController extends FOSRestController
       
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
+      $gsc->setupFeasibilitySheet();
       
       $gs_result_array = array();
       $gs_result_total = 0;
@@ -316,19 +317,32 @@ class ClipperController extends FOSRestController
         $firstqs_formatted = array(); 
         foreach ($firstq_groups as $key => $firstq_group) {
           
-          // @TODO: load real user info
-          $user_info = array();
-          $user_info['username'] = 'Username Person';
-          $user_info['company_name'] = 'Company Name X';
-          $user_info['phone'] = '514-123-1234';
-          $user_info['address'] = '1234 fake street</br>Montreal, QC<br/>H1H 1H1';
+          // User info retrieval from the FW SSO
+          $fwsso_config = $this->container->getParameter('fwsso_api');
+          $settings['fwsso_baseurl'] = $fwsso_config['url'];
+          $settings['fwsso_app_token'] = $fwsso_config['app_token'];
+          
+          $fwsso_ws = $this->container->get('fw_sso_webservice');
+          $fwsso_ws->configure($settings);
+          $response = $fwsso_ws->getUser(array('uid' => $firstq_group->getUserId()));
+          
+          if ($response->isOk()) {
+            
+            $content = @json_decode($response->getContent(), TRUE);
+            if (json_last_error() != JSON_ERROR_NONE) {
+              throw new Exception('JSON decode error: ' . json_last_error());
+            }
+            
+            // User info
+            $user_info = array();
+            $user_info['username'] = $content['field_firstname']['und'][0]['value'] . " " . $content['field_lastname']['und'][0]['value'];
+            $user_info['address'] = $content['name']; // email
+            $user_info['phone'] = $content['field_company']['und'][0]['value'] . '<br/>' . $content['field_phone']['und'][0]['value'];
+            $user_info['company_name'] = $content['field_company']['und'][0]['value'];
+          }
           
           $processed_info = NULL;
           if ($params['state_codes'][$status] == $params['state_codes']['order_declined']) {
-            
-            
-            
-            // Doesn't seem to work no-moh
             
             $firstq_process = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProcessAction')
                                    ->findOneBy(array('groupUuid' => $firstq_group->getId()));
@@ -340,13 +354,9 @@ class ClipperController extends FOSRestController
               
             }
             else {
-              $processed_info['username'] = $firstq_group->getId();//'bob';
+              $processed_info['username'] = $firstq_group->getId();
               $processed_info['updated'] = 'now';
             }
-            
-            
-            
-            
           }
           
           $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup($user_info, $processed_info);
@@ -416,6 +426,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="amount", default="", description="Amount of the project.")
    * @requestparam(name="email", default="", description="Email of the client.")
+   * @requestparam(name="method", default="", description="Payment method.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -428,6 +439,7 @@ class ClipperController extends FOSRestController
     $stripe_token = $paramFetcher->get('stripeToken');
     $amount = (int)$paramFetcher->get('amount') * 100; // in cents
     $email = $paramFetcher->get('email'); // not necessary
+    $method = $paramFetcher->get('method'); // not necessary
     
     // return error if empty
     if (empty($firstq_group_uuid) || empty($stripe_token)) {
@@ -441,6 +453,26 @@ class ClipperController extends FOSRestController
     if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
       $message = 'Error - FirstQ uuid is invalid';
       return new Response($message, 400);
+    }
+
+    $parameters_clipper = $this->container->getParameter('clipper');
+
+    if ($method == 'INVOICE') {
+      if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
+        $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+        $em->persist($firstq_group);
+        $em->flush();
+
+        $message = 'Order complete. Your payment will be via invoice.';
+        return new Response($message, 200);
+      } else {
+        $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
+        $em->persist($firstq_group);
+        $em->flush();
+
+        $message = 'Order pending. The order will be activated after payment.';
+        return new Response($message, 200);
+      }
     }
     
     // create the charge on Stripe's servers
@@ -518,7 +550,6 @@ class ClipperController extends FOSRestController
       $message = 'Error - Please try again.';
       return new Response($message, 400); // no content
     }
-    
   }
   
   /**
@@ -668,17 +699,6 @@ class ClipperController extends FOSRestController
     $em->flush();
     
     return $firstq_group->getId();
-  }
-  
-  /**
-   * Simple debug output
-   * /clipper/autocomplete
-   */
-  public function autocompleteAction()
-  {
-    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
-
-    return $response;
   }
   
   /**

@@ -8,11 +8,11 @@ gremo_buzz:
     max_redirects: 5
     timeout: 5
     verify_peer: true
- 
+
 # Nelmio CORS
 nelmio_cors:
   paths:
-    '^/clipper/api':
+    '^/clipper/ws':
       allow_credentials: true
       allow_origin: ['*']
       allow_headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']

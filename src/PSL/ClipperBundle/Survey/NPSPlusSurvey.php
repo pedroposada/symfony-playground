@@ -51,6 +51,47 @@ class NPSPlusSurvey extends LimeSurvey
   */
   
   /**
+   * Function to create think time analysis question.
+   * 
+   */
+  public function createTimerQuestion($sid, $group_id, $question_id, $question_title)
+  {
+    
+    $templating = $this->getTemplating();
+    
+    $question = 'Time Thinking Analysis (hidden)
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+  $("#question{QID}").hide();
+  $("#movenextbtn").click(function(){
+   $("#answer{SID}X{GID}X{QID}").val(get_timethinking());
+  });
+});
+</script>';
+    
+    $question_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $question_id,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $group_id,
+        'type' => 'S',
+        'title' => $question_title,
+        'question' => $question,
+        'help' => '',
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'N',
+        'question_order' => 8,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 1,
+      )
+    );
+    
+    $this->addQuestion($question_row);
+  }
+
+  /**
    * Function to fill the arrays needed for the survey
    */
   public function createSurveyComponants()
@@ -530,39 +571,8 @@ $(document).ready(function(){
     // Time Thinking Analysis (hidden)
     // hidden
     // ------------------------------------------------------------------------------
-
     $qid_0_5 = 30500;
-    $question_0_5 = 'Time Thinking Analysis (hidden)
-<script type="text/javascript" charset="utf-8">
-$(document).ready(function(){
-  $("#question{QID}").hide();
-  var start_time = $.now();
-  $("#movenextbtn").click(function(){
-   $("#answer{SID}X{GID}X{QID}").val(($.now() - start_time) / 1000);
-  });
-});
-</script>';
-    
-    $question_0_5_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-      array('qid' => $qid_0_5,
-        'parent_qid' => 0,
-        'sid' => $sid,
-        'gid' => $gid_0,
-        'type' => 'S',
-        'title' => 'G001Q006',
-        'question' => $question_0_5,
-        'help' => '',
-        'preg' => '',
-        'other' => 'N',
-        'mandatory' => 'N',
-        'question_order' => 8,
-        'scale_id' => 0,
-        'same_default' => 0,
-        'relevance' => 1,
-      )
-    );
-    
-    $this->addQuestion($question_0_5_row);
+    $this->createTimerQuestion($sid, $gid_0, $qid_0_5, 'G001Q006');
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
@@ -728,38 +738,8 @@ $(document).ready(function(){
     // ------------------------------------------------------------------------------
 
     $qid_1_2 = 30700;
-    $question_1_2 = 'Time Thinking Analysis (hidden)
-<script type="text/javascript" charset="utf-8">
-$(document).ready(function(){
-  $("#question{QID}").hide();
-  var start_time = $.now();
-  $("#movenextbtn").click(function(){
-   $("#answer{SID}X{GID}X{QID}").val(($.now() - start_time) / 1000);
-  });
-});
-</script>';
-    
-    $question_1_2_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-      array('qid' => $qid_1_2,
-        'parent_qid' => 0,
-        'sid' => $sid,
-        'gid' => $gid_1,
-        'type' => 'S',
-        'title' => 'G002Q002',
-        'question' => $question_1_2,
-        'help' => '',
-        'preg' => '',
-        'other' => 'N',
-        'mandatory' => 'N',
-        'question_order' => 2,
-        'scale_id' => 0,
-        'same_default' => 0,
-        'relevance' => 1,
-      )
-    );
-    
-    $this->addQuestion($question_1_2_row);
-    
+    $this->createTimerQuestion($sid, $gid_1, $qid_1_2, 'G002Q002');
+
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 2
 
@@ -866,37 +846,7 @@ $(document).ready(function(){
     // ------------------------------------------------------------------------------
 
     $qid_2_1 = 30900;
-    $question_2_1 = 'Time Thinking Analysis (hidden)
-<script type="text/javascript" charset="utf-8">
-$(document).ready(function(){
-  $("#question{QID}").hide();
-  var start_time = $.now();
-  $("#movenextbtn").click(function(){
-   $("#answer{SID}X{GID}X{QID}").val(($.now() - start_time) / 1000);
-  });
-});
-</script>';
-    
-    $question_2_1_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-      array('qid' => $qid_2_1,
-        'parent_qid' => 0,
-        'sid' => $sid,
-        'gid' => $gid_2,
-        'type' => 'S',
-        'title' => 'G003Q002',
-        'question' => $question_2_1,
-        'help' => '',
-        'preg' => '',
-        'other' => 'N',
-        'mandatory' => 'N',
-        'question_order' => 2,
-        'scale_id' => 0,
-        'same_default' => 0,
-        'relevance' => 1,
-      )
-    );
-    
-    $this->addQuestion($question_2_1_row);
+    $this->createTimerQuestion($sid, $gid_2, $qid_2_1, 'G003Q002');
 
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 3
@@ -984,37 +934,7 @@ $(document).ready(function(){
       // ------------------------------------------------------------------------------
 
       $qid_3_1 = 31100;
-      $question_3_1 = 'Time Thinking Analysis (hidden)
-  <script type="text/javascript" charset="utf-8">
-  $(document).ready(function(){
-    $("#question{QID}").hide();
-    var start_time = $.now();
-    $("#movenextbtn").click(function(){
-     $("#answer{SID}X{GID}X{QID}").val(($.now() - start_time) / 1000);
-    });
-  });
-  </script>';
-      
-      $question_3_1_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-        array('qid' => $qid_3_1 + $index,
-          'parent_qid' => 0,
-          'sid' => $sid,
-          'gid' => $gid_3 + $index,
-          'type' => 'S',
-          'title' => 'G00' . $group_order . 'Q002',
-          'question' => $question_3_1,
-          'help' => '',
-          'preg' => '',
-          'other' => 'N',
-          'mandatory' => 'N',
-          'question_order' => 2,
-          'scale_id' => 0,
-          'same_default' => 0,
-          'relevance' => 1,
-        )
-      );
-      
-      $this->addQuestion($question_3_1_row);
+      $this->createTimerQuestion($sid, $gid_3 + $index, $qid_3_1 + $index, 'G00' . $group_order . 'Q002');
 
     }
     
@@ -1082,41 +1002,9 @@ $(document).ready(function(){
       // Time Thinking Analysis (hidden)
       // hidden
       // ------------------------------------------------------------------------------
-
       $qid_4_1 = 31300 + $index;
-      $question_4_1 = 'Time Thinking Analysis (hidden)
-  <script type="text/javascript" charset="utf-8">
-  $(document).ready(function(){
-    $("#question{QID}").hide();
-    var start_time = $.now();
-    $("#movenextbtn").click(function(){
-     $("#answer{SID}X{GID}X{QID}").val(($.now() - start_time) / 1000);
-    });
-  });
-  </script>';
-      
-      $question_4_1_row = $templating->render('PSLClipperBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
-        array('qid' => $qid_4_1 + $index,
-          'parent_qid' => 0,
-          'sid' => $sid,
-          'gid' => $gid_4 + $index,
-          'type' => 'S',
-          'title' => 'G00' . $group_order . 'Q002',
-          'question' => $question_4_1,
-          'help' => '',
-          'preg' => '',
-          'other' => 'N',
-          'mandatory' => 'N',
-          'question_order' => 2,
-          'scale_id' => 0,
-          'same_default' => 0,
-          'relevance' => 1,
-        )
-      );
-      
-      $this->addQuestion($question_4_1_row);
+      $this->createTimerQuestion($sid, $gid_4 + $index, $qid_4_1, 'G00' . $group_order . 'Q002');
 
-      
       // ------------------------------------------------------------------------------
       // Subquestion
       // Attributes
@@ -1205,4 +1093,3 @@ $(document).ready(function(){
     return $this;
   }
 }
-  

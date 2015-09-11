@@ -1,4 +1,7 @@
 services:
+  clipper_cache:
+    class: PSL\ClipperBundle\Service\ClipperCacheService
+    arguments: [%clipper_cache.config%]
 
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
@@ -12,6 +15,15 @@ services:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
     # @TODO: only get templating
     arguments: [@service_container]
+    # arguments: [@templating]
+    # calls:
+      # - [setTemplating, ["@templating"]]
+
+  # nps_plus_survey:
+    # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
+    # calls:
+      # - [setParentTemplating, ["@templating"]]
+
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
 
@@ -34,11 +46,11 @@ services:
 
   fw_sso_user_provider:
     class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
-    arguments: ["@service_container"]
+    arguments: ["@service_container", "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
 
   fw_sso_quick_login_user_provider:
     class: PSL\ClipperBundle\Security\User\FWSSOQuickLoginUserProvider
-    arguments: ["@service_container"]
+    arguments: ["@service_container", "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
 
   fw_sso_webservice:
     class: PSL\ClipperBundle\Service\FWSSOWebservice
