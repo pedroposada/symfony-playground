@@ -24,7 +24,20 @@ class Configuration implements ConfigurationInterface
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.
-        
+
+        $rootNode
+          ->children()
+            //clipper_cache: service
+            ->arrayNode('clipper_cache')
+              ->children()
+                ->integerNode('config')
+                    ->isRequired()
+                    ->min(-1)->max(24) //disabled - 24 hours
+                    //->defaultValue(1) //default to enable
+                    ->end()
+              ->end()
+            ->end();
+
         return $treeBuilder;
     }
 }
