@@ -11,6 +11,8 @@ clipper.charts = clipper.charts || {};
 			throw 'Google Visualization API must be loaded before creating charts.';
 		}
 
+		if (typeof id == 'string' && document.getElementById(id) == null) throw 'DOM element ID "' + id + '" not found.';
+
 		this.id = id;
 
 		var defaultSettings = {
@@ -70,6 +72,12 @@ clipper.charts = clipper.charts || {};
 
 clipper.charts.factory = function(type, id, settings, data) {
 	if (!clipper.charts.hasOwnProperty(type)) throw 'Chart type "' + type + '" does not exist.';
+
+	if (settings.hasOwnProperty('formatter')) {
+		if (!clipper.charts.formatters.hasOwnProperty(settings.formatter)) throw 'Chart data formatter "' + setting.formatter + '" does not exist.';
+		data = clipper.charts.formatters[settings.formatter](data);
+	}
+
 	return new clipper.charts[type](id, settings, data);
 };
 
@@ -93,7 +101,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		this._gchart = new google.visualization.BarChart(document.getElementById(this.id));
 
 		var options = {
-			isStacked: 'percent',
+			isStacked: 'true',
 			bar: {
 				groupWidth: '80%'
 			},
@@ -156,7 +164,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 			dt.addRow([
 				this._data[idx].brand,
-				this._data[idx].detractors,
+				this._data[idx].detractors * -1,
 				(this._data[idx].detractors * 100) + '%',
 				'stroke-width: 1; stroke-color: #ccc; stroke-opacity: 1',
 				this._data[idx].passives,
@@ -175,9 +183,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 	    var chartArea = cli.getChartAreaBoundingBox();
 		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
 		var overlay = document.createElement('div');
+		var overlay_bar = null;
 		var overlay_text = document.createTextNode('Score');
 		overlay_style = overlay.style;
-		overlay_style.left = Math.floor(cli.getXLocation(1)) + 15 + "px";
+		overlay_style.left = (chartArea.left + chartArea.width) + 'px';
 		var vdiff = (this._data.length > 1) ? Math.floor(cli.getYLocation(1)) - Math.floor(cli.getYLocation(0)) : 40;
 		overlay_style.top = Math.floor(cli.getYLocation(0)) - vdiff + "px";
 		overlay_style.position = 'absolute';
@@ -187,19 +196,40 @@ clipper.charts.factory = function(type, id, settings, data) {
 		overlay_style.fontSize = '13px';
 		overlay.appendChild(overlay_text);
 		wrapper.appendChild(overlay);
+
 		for (var idx = 0; idx < this._data.length; idx++) {
 			if (!this._data[idx].score) { this._data[idx].score = 0; }
 			overlay = document.createElement('div');
+			overlay_bar = document.createElement('div');
 			overlay_style = overlay.style;
-			overlay_style.left = Math.floor(cli.getXLocation(1)) + 15 + "px";
-			overlay_style.top = Math.floor(cli.getYLocation(idx)) - 9 + "px";
 			overlay_style.position = 'absolute';
-			overlay_style.width = '30px';
+			overlay_style.left = (chartArea.left + chartArea.width) + 'px';
+			overlay_style.top = Math.floor(cli.getBoundingBox('bar#0#' + idx).top) + "px";
+			overlay_style.height = Math.floor(cli.getBoundingBox('bar#0#' + idx).height) + "px";
+			overlay_style.width = wrapper.offsetWidth - (chartArea.left + chartArea.width) + 'px';
 			overlay_style.color = '#aaa';
 			overlay_style.fontFamily = 'sans-serif';
+			overlay_style.textAlign = 'center';
 			overlay_style.fontSize = '13px';
+			overlay_style.backgroundColor = '#fafafa';
 			overlay_text = document.createTextNode(this._data[idx].score);
-			overlay.appendChild(overlay_text);
+			overlay_bar.style.position = 'absolute';
+			overlay_bar.style.height = '100%';
+			if (this._data[idx].score > 0) {
+				overlay_bar.style.width = (this._data[idx].score * 0.5) + '%';
+				overlay_bar.style.backgroundColor = '#cde8cc';	
+				overlay_bar.style.left = '50%';
+			} else if (this._data[idx].score == 0) {
+				overlay_bar.style.width = '1px';
+				overlay_bar.style.backgroundColor = '#cccccc';	
+				overlay_bar.style.left = '50%';
+			} else {
+				overlay_bar.style.width = (this._data[idx].score * -1 * 0.5) + '%';
+				overlay_bar.style.backgroundColor = '#facccc';
+				overlay_bar.style.right = '50%';
+			}
+			overlay.appendChild(overlay_bar);
+			overlay_bar.appendChild(overlay_text);
 			wrapper.appendChild(overlay);
 		}
 
@@ -234,15 +264,24 @@ clipper.charts.factory = function(type, id, settings, data) {
 		document.getElementById(this.id).innerHTML = '';
 		this._gchart = new google.visualization.BubbleChart(document.getElementById(this.id));
 
+		var max = Math.ceil(this._data[this._data.length - 1].loyalty) + 1;
+		var min = Math.floor(this._data[0].loyalty)-1;
+		var ticks = [];
+		for (var t = min; t <= max; t++) {
+			ticks.push(t);
+		}
+
 		var options = {
 			colors: ['#cccccc', '#cc0000'],
 			hAxis: {
+				ticks: ticks,
 				gridlines: {
+					count: max - min + 2,
 					color: '#ffffff'
 				}
 			},
 			vAxis: {
-				minValue: -1,
+				minValue: 0,
 				textPosition: 'none',
 				gridlines: {
 					count: this._data.length + 3
@@ -267,48 +306,74 @@ clipper.charts.factory = function(type, id, settings, data) {
 		});
 
 		// Populate Data.
-		for (var idx = 0; idx < this._data.length; idx++) {
+		var data = Object.create(this._data);
+		var mean = this.getMean();
+		data.push({
+			brand: 'Mean',
+			loyalty: parseFloat(mean.toFixed(2))
+		});
+
+		data.sort(function(a, b) {
+			return b.loyalty - a.loyalty;
+		});
+
+		for (var idx = 0; idx < data.length; idx++) {
 			// Defaults.
-			if (!this._data[idx].brand) { this._data[idx].brand = 'undefined'; }
-			if (!this._data[idx].loyalty) { this._data[idx].loyalty = 0; }
+			if (!data[idx].brand) { data[idx].brand = 'undefined'; }
+			if (!data[idx].loyalty) { data[idx].loyalty = 0; }
 
-			dt.addRow([
-				'',
-				this._data[idx].loyalty,
-				(this._data.length - idx),
-				'#cccccc'
-			]);
+			if (data[idx].brand == 'Mean') {
+				dt.addRow([
+					'',
+					data[idx].loyalty,
+					(data.length - idx),
+					'#cc0000'
+				]);
+			} else {
+				dt.addRow([
+					'',
+					data[idx].loyalty,
+					(data.length - idx),
+					'#cccccc'
+				]);
+			}
+
 		}
-
-		dt.addRow([
-			'Mean',
-			this.getMean(),
-			0,
-			'#cc0000'
-		]);
+		
 
 		this._gchart.draw(dt, options);
 
 		// Create Score labels.
-		var cli = this._gchart.getChartLayoutInterface();
+		cli = this._gchart.getChartLayoutInterface();
 	    var chartArea = cli.getChartAreaBoundingBox();
 		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
 		var overlay = null;
-		for (var idx = 0; idx < this._data.length; idx++) {
-			if (!this._data[idx].score) { this._data[idx].score = 0; }
+		var overlay_values = null;
+		for (var idx = 0; idx < data.length; idx++) {
 			overlay = document.createElement('div');
 			overlay_style = overlay.style;
 			overlay_style.textAlign = 'right';
 			overlay_style.width = (chartArea.left - 15) + "px";
 			overlay_style.left = "10px";
-			overlay_style.top = Math.floor(cli.getYLocation((this._data.length - idx))) - 9 + "px";
+			overlay_style.top = Math.floor(cli.getYLocation((data.length - idx))) - 9 + "px";
 			overlay_style.position = 'absolute';
 			overlay_style.color = '#aaa';
 			overlay_style.fontFamily = 'sans-serif';
 			overlay_style.fontSize = '13px';
-			overlay_text = document.createTextNode(this._data[idx].brand);
+			overlay_text = document.createTextNode(data[idx].brand);
 			overlay.appendChild(overlay_text);
 			wrapper.appendChild(overlay);
+
+			overlay_values = document.createElement('div');
+			overlay_values.style.position = 'absolute';
+			overlay_values.style.color = '#aaa';
+			overlay_values.style.fontFamily = 'sans-serif';
+			overlay_values.style.fontSize = '13px';
+			overlay_values.style.left = chartArea.width + chartArea.left + 10 + 'px';
+			overlay_values.style.top = cli.getBoundingBox('vAxis#0#gridline#' + (data.length - idx)).top - 9 + 'px';
+			overlay_text = document.createTextNode(data[idx].loyalty);
+			overlay_values.appendChild(overlay_text);
+			wrapper.appendChild(overlay_values);
 		}
 
 	};
@@ -347,13 +412,13 @@ clipper.charts.factory = function(type, id, settings, data) {
 		// Populate Data.
 		dt.addRow([ {v:'All Doctors', f:'All doctors'}, '', 0 ]);
 		dt.setRowProperty(0, 'style', 'padding: 1em; font-weight: normal; color: #fff; background: #ccc; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Dissatisfied', f:'Dissatisfied<br><small>(0 brands promoted)</small><br>' + (this._data[0].dissatisfied.amount * 100) + '%'}, 'All Doctors', this._data[0].dissatisfied.amount ]);
+		dt.addRow([ {v:'Dissatisfied', f:'<big style="font-size:2em">' + (this._data[0].dissatisfied.amount * 100) + '%</big><br><strong>Dissatisfied</strong><br><small>(0 brands promoted)</small>'}, 'All Doctors', this._data[0].dissatisfied.amount ]);
 		dt.setRowProperty(1, 'style', 'padding: 1em; font-weight: normal; color: #fff; background: #d96d20; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Satisfied', f:'Satisfied<br><small>(&gt;0 brands promoted)</small><br>' + (this._data[0].satisfied.amount * 100) + '%'}, 'All Doctors', this._data[0].satisfied.amount ]);
+		dt.addRow([ {v:'Satisfied', f:'<big style="font-size:2em">' + (this._data[0].satisfied.amount * 100) + '%</big><br><strong>Satisfied</strong><br><small>(&gt;0 brands promoted)</small>'}, 'All Doctors', this._data[0].satisfied.amount ]);
 		dt.setRowProperty(2, 'style', 'padding: 1em; font-weight: normal; color: #fff; background: #6dacdf; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Exclusive', f:'Exclusive<br><small>(1 brand promoted)</small><br>' + (this._data[0].satisfied.exclusive.amount * 100) + '%'}, 'Satisfied', this._data[0].satisfied.exclusive.amount ]);
+		dt.addRow([ {v:'Exclusive', f:'<big style="font-size:2em">' + (this._data[0].satisfied.exclusive.amount * 100) + '%</big><br><strong>Exclusive</strong><br><small>(1 brand promoted)</small>'}, 'Satisfied', this._data[0].satisfied.exclusive.amount ]);
 		dt.setRowProperty(3, 'style', 'padding: 1em; font-weight: normal; color: #fff; background: #6dacdf; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Shared', f:'Shared<br><small>(&gt;1 brand promoted)</small><br>' + (this._data[0].satisfied.shared.amount * 100) + '%'}, 'Satisfied', this._data[0].satisfied.shared.amount ]);
+		dt.addRow([ {v:'Shared', f:'<big style="font-size:2em">' + (this._data[0].satisfied.shared.amount * 100) + '%</big><br><strong>Shared</strong><br><small>(&gt;1 brand promoted)</small><br>'}, 'Satisfied', this._data[0].satisfied.shared.amount ]);
 		dt.setRowProperty(4, 'style', 'padding: 1em; font-weight: normal; color: #fff; background: #6dacdf; border: 0px; box-shadow: none');
 
 		this._gchart.draw(dt, options);
@@ -368,110 +433,191 @@ clipper.charts.factory = function(type, id, settings, data) {
 	clipper.charts.PromotersPromote_Chart = function(id, settings, data) {
 		clipper.charts.Chart.call(this, id, settings, data);
 
+		this._brand_index = [];
+
 		this.draw();
 	};
 	clipper.charts.PromotersPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
 	clipper.charts.PromotersPromote_Chart.constructor = clipper.charts.PromotersPromote_Chart;
 
+	clipper.charts.PromotersPromote_Chart.prototype.getBoundaries = function() {
+		var max = 0;
+		var min = 0;
+		if (this.settings.valueType === 'absolute') {
+			return {
+				min: 0,
+				max: 1
+			};
+		}
+		for (var i = 0; i < this._data.length; i++) {
+			if (!this._data[i].hasOwnProperty('brands')) continue;
+			for (var j in this._data[i].brands) {
+				if (this._data[i].brands[j] > max) max = this._data[i].brands[j];
+				if (this._data[i].brands[j] < min) min = this._data[i].brands[j];
+			}
+		}
+		return {
+			min: min,
+			max: max
+		}
+	};
+
+	clipper.charts.PromotersPromote_Chart.prototype.getPercent = function(value, max, min) {
+		min = min || 0;
+		v = value - min;
+		M = max - min;
+		return (v / M);
+	};
+
+	clipper.charts.PromotersPromote_Chart.prototype.getColor = function(percent) {
+		val = 255 - Math.floor(percent * 255);
+		hex = val.toString(16);
+		return '#' + hex + hex + hex;
+	}
+
+	clipper.charts.PromotersPromote_Chart.prototype.getTopMargin = function() {
+		var el = document.createElement('div');
+		el.style.display = 'inline';
+		var txt = '';
+		for (var i = 0; i < this._data.length; i++) {
+			if (txt.length < this._data[i].brand.length) {
+				txt = this._data[i].brand;
+			}
+		}
+		var el_txt = document.createTextNode(txt);
+		el.appendChild(el_txt);
+		document.getElementsByTagName('body')[0].appendChild(el);
+		var width = el.offsetWidth;
+		document.getElementsByTagName('body')[0].removeChild(el);
+		return width * 0.7071; // * sin(45º)
+	};
+
+	clipper.charts.PromotersPromote_Chart.prototype.draw_note = function(brand, value, x, y) {
+		var note = document.createElement('div');
+		note.id = this.id + '-note';
+		note.style.position = 'absolute';
+		note.style.left = x - 65 + 'px';
+		note.style.top = y - 70 + 'px';
+		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
+ 		noteSVG += '<g>';
+ 		noteSVG += '  <g>';
+ 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m2.999998,48.000004a1,1 0 0 1 -0.999999,-1l0,-44.000005a1,1 0 0 1 0.999999,-0.999999l109.000025,0a1,1 0 0 1 1,0.999999l0,44.000005a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000025,0z"/>';
+ 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.999999,47.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
+ 		noteSVG += '   <path fill="#ffffff" stroke="#cccccc" d="m0.999999,46.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
+ 		noteSVG += '   <g>';
+ 		noteSVG += '    <text id="' + this.id + '-note-brands" class="clipper-charts-promoterspromotechart-note-brands" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + brand + '</text>';
+ 		noteSVG += '   </g>';
+ 		noteSVG += '   <g>';
+ 		noteSVG += '    <text fill="#000000" stroke-width="0" font-size="13" font-family="Arial" y="35.55" x="7.500001" text-anchor="start">Brands:</text>';
+ 		noteSVG += '    <text class="clipper-charts-promoterspromotechart-note-value" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="35.55" x="55" text-anchor="start">' + value + '</text>';
+ 		noteSVG += '   </g>';
+ 		noteSVG += '  </g>';
+ 		noteSVG += ' </g>';
+ 		noteSVG += '</svg>';
+		note.innerHTML = noteSVG;
+		return note;
+	}
+
+	clipper.charts.PromotersPromote_Chart.prototype.hnd_touch = function(e) {
+		var self = e.target;
+		var idx = self.getAttribute('data-brand-i');
+		var j = self.getAttribute('data-brand-j');
+		var cStatus = (this._data[idx].hasOwnProperty('touchStatus')) ? this._data[idx].touchStatus : '';
+		if (cStatus == 'touchstart' && e.type == 'touchend') {
+			var brand = this._brand_index[idx];
+			var value = (this._data[idx].brands.hasOwnProperty(this._brand_index[j])) ? this._data[idx].brands[this._brand_index[j]] : 0;
+			var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
+			var x = Math.floor(e.changedTouches[0].clientX) - wrapper.getBoundingClientRect().left;
+			var y = Math.floor(e.changedTouches[0].clientY) - wrapper.getBoundingClientRect().top;
+			var oldNote = document.getElementById(this.id + '-note');
+			if (oldNote) {
+				oldNote.parentNode.removeChild(oldNote);
+			}
+			wrapper.appendChild(this.draw_note(brand, value, x, y));
+		}
+		this._data[idx].touchStatus = e.type;
+	};
+
+	clipper.charts.PromotersPromote_Chart.prototype.hnd_click = function(e) {
+		var self = e.target;
+		var idx = self.getAttribute('data-brand-i');
+		var j = self.getAttribute('data-brand-j');
+		var brand = this._brand_index[idx];
+		var value = (this._data[idx].brands.hasOwnProperty(this._brand_index[j])) ? this._data[idx].brands[this._brand_index[j]] : 0;
+		var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
+		var x = Math.floor(e.clientX) - wrapper.getBoundingClientRect().left;
+		var y = Math.floor(e.clientY) - wrapper.getBoundingClientRect().top;
+		var oldNote = document.getElementById(this.id + '-note');
+		if (oldNote) {
+			oldNote.parentNode.removeChild(oldNote);
+		}
+		wrapper.appendChild(this.draw_note(brand, value, x, y));
+	};
+
 	clipper.charts.PromotersPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.BubbleChart(document.getElementById(this.id));
+		var wrapper = document.createElement('div');
+		wrapper.style.position = 'relative';
+		wrapper.style.height = '100%';
+		wrapper.style.width = '100%';
 
-		var options = {
-			colors: ['#cccccc'],
-			hAxis: {
-				minValue: 0,
-				maxValue: this._data.length + 1,
-				textPosition: 'none',
-				gridlines: {
-					count: this._data.length + 2
-				}
-			},
-			vAxis: {
-				minValue: 0,
-				textPosition: 'none',
-				gridlines: {
-					count: this._data.length + 2
-				}
-			},
-			legend: {
-				position: 'none'
-			},
-			sizeAxis: {
-				maxSize: 13
+		document.getElementById(this.id).appendChild(wrapper);
+
+		this._brand_index = [];
+		var value = 0;
+		var boundaries = this.getBoundaries();
+		var color = '';
+
+		var html = '';
+
+		var topMarg = this.getTopMargin();
+
+		html += '<div style="margin-top: ' + topMarg + 'px;margin-left: 1%; width:9%; float:right"><table style="font-family: sans-serif; font-size: 12px; text-align: center">';
+		for (var i = 0; i <= 10; i++) {
+			html += '<tr>';
+			color = this.getColor(i / 10);
+			html += '<td style="width: 30px; background-color: ' + color + ';"><div style="width:30px;height:30px;"></div></td>';
+			html += '<td style="width: 30px; height: 30px">' + (i * 10) + '%</td>';
+			html += '</tr>';
+		}
+		html += '</tr></table></div>';
+
+		var overflow = (this._data.length > Math.floor((wrapper.clientHeight - topMarg) / 50)) ? 'scroll' : 'auto';
+
+		html += '<div style="zoom:1;margin-top:' + topMarg + 'px;width:90%;overflow-x: ' + overflow + '; float: left;"><table cellspacing="0" style="margin-bottom: 15px; font-size: 12px; font-family: sans-serif; text-align: center; color: #aaa"><tr><td>&nbsp;</td>';
+		for (var i = 0; i < this._data.length; i++) {
+			html += '<th><div style="text-align: left; position:absolute; transform: rotate(-45deg) translateX(5%); transform-origin: 0% 0%">' + this._data[i].brand + '</div></th>';
+			this._brand_index.push(this._data[i].brand);
+		}
+		html += '</tr>';
+		for (var i = 0; i < this._data.length; i++) {
+			html += '<tr>';
+			html += '<th style="text-align:right">' + this._data[i].brand + '</th>';
+			for (var j = 0; j < this._data.length; j++) {
+				value = (this._data[i].brands.hasOwnProperty(this._brand_index[j])) ? this._data[i].brands[this._brand_index[j]] : 0;
+				percent = this.getPercent(value, boundaries.max, boundaries.min);
+				color = this.getColor(percent);
+				html += '<td style="width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '" class="clipper-charts-promoterspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">&nbsp;</td>';
 			}
-		};
-
-		var brand_index = [];
-		for (var i in this._data) {
-			brand_index.push(this._data[i].brand);
+			html += '</tr>';
 		}
+		html += '</table></div>';
 
-		// Create Data Table.
-		var dt = new google.visualization.DataTable({
-			cols: [
-				{ id: 'brand', label: 'brand', type: 'string' },
-				{ id: 'brandIdxA', label: 'Brands', type: 'number' },
-				{ id: 'brandIdxB', label: 'Brands', type: 'number' },
-				{ id: 'type', label: 'type', type: 'string' },
-				{ id: 'size', label: 'size', type: 'number' },
-			]
-		});
+		html += '<div style="clear:both"></div>';
 
-		// Populate Data.
-		for (var idx = 0; idx < this._data.length; idx++) {
-			// Defaults.
-			if (!this._data[idx].brand) { this._data[idx].brand = 'undefined'; }
-			if (!this._data[idx].brands) { this._data[idx].brands = {}; }
-			for (var idxB in this._data[idx].brands) {
-				dt.addRow([
-					'',
-					(brand_index.indexOf(idxB) + 1),
-					(this._data.length - idx),
-					'Brand',
-					this._data[idx].brands[idxB]
-				]);
+		wrapper.innerHTML = html;
+
+		var cells = wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-cell');
+		if (cells) {
+			for (var i = 0; i < cells.length; i++) {
+				cells[i].addEventListener('touchstart', this.hnd_touch.bind(this));
+				cells[i].addEventListener('touchmove', this.hnd_touch.bind(this));
+				cells[i].addEventListener('touchend', this.hnd_touch.bind(this));
+				cells[i].addEventListener('click', this.hnd_click.bind(this));
 			}
 		}
 
-		this._gchart.draw(dt, options);
-
-		// Create vertical labels.
-		var cli = this._gchart.getChartLayoutInterface();
-	    var chartArea = cli.getChartAreaBoundingBox();
-		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
-		var overlay = null;
-		for (var idx = 0; idx < this._data.length; idx++) {
-			overlay = document.createElement('div');
-			overlay_style = overlay.style;
-			overlay_style.textAlign = 'right';
-			overlay_style.width = (chartArea.left - 15) + "px";
-			overlay_style.left = "10px";
-			overlay_style.top = Math.floor(cli.getYLocation((this._data.length - idx))) - 5 + "px";
-			overlay_style.position = 'absolute';
-			overlay_style.color = '#aaa';
-			overlay_style.fontFamily = 'sans-serif';
-			overlay_style.fontSize = '13px';
-			overlay_text = document.createTextNode(this._data[idx].brand);
-			overlay.appendChild(overlay_text);
-			wrapper.appendChild(overlay);
-		}
-		for (var idx = 0; idx < this._data.length; idx++) {
-			overlay = document.createElement('div');
-			overlay_style = overlay.style;
-			overlay_style.left = Math.floor(cli.getBoundingBox('hAxis#0#gridline#' + (idx + 1)).left) - 20 + "px";
-			overlay_style.top = (chartArea.top - 35) + "px";
-			overlay_style.transform = 'rotate(-90deg)';
-			overlay_style.position = 'absolute';
-			overlay_style.color = '#aaa';
-			overlay_style.fontFamily = 'sans-serif';
-			overlay_style.fontSize = '13px';
-			overlay_text = document.createTextNode(this._data[idx].brand);
-			overlay.appendChild(overlay_text);
-			wrapper.appendChild(overlay);
-		}
-
-	}
+	};
 // END Amongst my Promoters, how many other brands do they promote and which other brand is most promoted Chart
 
 /**
@@ -489,6 +635,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 		} else {
 			this.settings = defaultSettings;
 		}
+
+		this._brand_index = [];
 
 		this.draw();
 	};
@@ -530,11 +678,91 @@ clipper.charts.factory = function(type, id, settings, data) {
 		return '#' + hex + hex + hex;
 	}
 
+	clipper.charts.DetractorsPromote_Chart.prototype.getTopMargin = function() {
+		var el = document.createElement('div');
+		el.style.display = 'inline';
+		var txt = '';
+		for (var i = 0; i < this._data.length; i++) {
+			if (txt.length < this._data[i].brand.length) {
+				txt = this._data[i].brand;
+			}
+		}
+		var el_txt = document.createTextNode(txt);
+		el.appendChild(el_txt);
+		document.getElementsByTagName('body')[0].appendChild(el);
+		var width = el.offsetWidth;
+		document.getElementsByTagName('body')[0].removeChild(el);
+		return width * 0.7071; // * sin(45º)
+	};
+
+	clipper.charts.DetractorsPromote_Chart.prototype.hnd_touch = function(e) {
+		var self = e.target;
+		var idx = self.getAttribute('data-brand-i');
+		var j = self.getAttribute('data-brand-j');
+		var cStatus = (this._data[idx].hasOwnProperty('touchStatus')) ? this._data[idx].touchStatus : '';
+		if (cStatus == 'touchstart' && e.type == 'touchend') {
+			var brand = this._brand_index[idx];
+			var value = (this._data[idx].brands.hasOwnProperty(this._brand_index[j])) ? this._data[idx].brands[this._brand_index[j]] : 0;
+			var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
+			var x = Math.floor(e.changedTouches[0].clientX) - wrapper.getBoundingClientRect().left;
+			var y = Math.floor(e.changedTouches[0].clientY) - wrapper.getBoundingClientRect().top;
+			var oldNote = document.getElementById(this.id + '-note');
+			if (oldNote) {
+				oldNote.parentNode.removeChild(oldNote);
+			}
+			wrapper.appendChild(this.draw_note(brand, value, x, y));
+		}
+		this._data[idx].touchStatus = e.type;
+	};
+
+	clipper.charts.DetractorsPromote_Chart.prototype.hnd_click = function(e) {
+		var self = e.target;
+		var idx = self.getAttribute('data-brand-i');
+		var j = self.getAttribute('data-brand-j');
+		var brand = this._brand_index[idx];
+		var value = (this._data[idx].brands.hasOwnProperty(this._brand_index[j])) ? this._data[idx].brands[this._brand_index[j]] : 0;
+		var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
+		var x = Math.floor(e.clientX) - wrapper.getBoundingClientRect().left;
+		var y = Math.floor(e.clientY) - wrapper.getBoundingClientRect().top;
+		var oldNote = document.getElementById(this.id + '-note');
+		if (oldNote) {
+			oldNote.parentNode.removeChild(oldNote);
+		}
+		wrapper.appendChild(this.draw_note(brand, value, x, y));
+	};
+
+	clipper.charts.DetractorsPromote_Chart.prototype.draw_note = function(brand, value, x, y) {
+		var note = document.createElement('div');
+		note.id = this.id + '-note';
+		note.style.position = 'absolute';
+		note.style.left = x - 65 + 'px';
+		note.style.top = y - 70 + 'px';
+		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
+ 		noteSVG += '<g>';
+ 		noteSVG += '  <g>';
+ 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m2.999998,48.000004a1,1 0 0 1 -0.999999,-1l0,-44.000005a1,1 0 0 1 0.999999,-0.999999l109.000025,0a1,1 0 0 1 1,0.999999l0,44.000005a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000025,0z"/>';
+ 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.999999,47.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
+ 		noteSVG += '   <path fill="#ffffff" stroke="#cccccc" d="m0.999999,46.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
+ 		noteSVG += '   <g>';
+ 		noteSVG += '    <text id="' + this.id + '-note-brands" class="clipper-charts-detractorspromotechart-note-brands" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + brand + '</text>';
+ 		noteSVG += '   </g>';
+ 		noteSVG += '   <g>';
+ 		noteSVG += '    <text fill="#000000" stroke-width="0" font-size="13" font-family="Arial" y="35.55" x="7.500001" text-anchor="start">Brands:</text>';
+ 		noteSVG += '    <text class="clipper-charts-detractorspromotechart-note-value" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="35.55" x="55" text-anchor="start">' + value + '</text>';
+ 		noteSVG += '   </g>';
+ 		noteSVG += '  </g>';
+ 		noteSVG += ' </g>';
+ 		noteSVG += '</svg>';
+		note.innerHTML = noteSVG;
+		return note;
+	}
+
 	clipper.charts.DetractorsPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		var wrapper = document.createElement('div');
 		wrapper.style.position = 'relative';
 		wrapper.style.height = '100%';
+		wrapper.style.width = '100%';
 
 		document.getElementById(this.id).appendChild(wrapper);
 
@@ -543,38 +771,55 @@ clipper.charts.factory = function(type, id, settings, data) {
 		var boundaries = this.getBoundaries();
 		var color = '';
 
-		var html = '<table style="height: 10%; font-family: sans-serif; font-size: 12px; text-align: center"><tr>';
-		for (var i = 0; i <= 10; i++) {
-			color = this.getColor(i / 10);
-			html += '<td style="background-color: ' + color + ';"></td>';
-		}
-		html += '</tr><tr>';
-		for (var i = 0; i <= 10; i++) {
-			html += '<td>' + (i * 10) + '%</td>';
-		}
-		html += '</tr></table>';
+		var html = '';
 
-		html += '<table cellspacing="5" style="height: 90%; font-size: 12px; font-family: sans-serif; text-align: center; color: #aaa"><tr><td>&nbsp;</td>';
+		var topMarg = this.getTopMargin();
+
+		html += '<div style="margin-top: ' + topMarg + 'px;margin-left: 1%; width:9%; float:right"><table style="font-family: sans-serif; font-size: 12px; text-align: center">';
+		for (var i = 0; i <= 10; i++) {
+			html += '<tr>';
+			color = this.getColor(i / 10);
+			html += '<td style="width: 30px; background-color: ' + color + ';"><div style="width:30px;height:30px;"></div></td>';
+			html += '<td style="width: 30px; height: 30px">' + (i * 10) + '%</td>';
+			html += '</tr>';
+		}
+		html += '</tr></table></div>';
+
+		var overflow = (this._data.length > Math.floor((wrapper.clientHeight - topMarg) / 50)) ? 'scroll' : 'auto';
+
+		html += '<div style="zoom:1;margin-top:' + topMarg + 'px;width:90%;overflow-x: ' + overflow + '; float: left;"><table cellspacing="0" style="margin-bottom: 15px; font-size: 12px; font-family: sans-serif; text-align: center; color: #aaa"><tr><td>&nbsp;</td>';
 		for (var i = 0; i < this._data.length; i++) {
-			html += '<th>' + this._data[i].brand + '</th>';
-			brand_index.push(this._data[i].brand);
+			html += '<th><div style="text-align: left; position:absolute; transform: rotate(-45deg) translateX(5%); transform-origin: 0% 0%">' + this._data[i].brand + '</div></th>';
+			this._brand_index.push(this._data[i].brand);
 		}
 		html += '</tr>';
 		for (var i = 0; i < this._data.length; i++) {
 			html += '<tr>';
-			html += '<th>' + this._data[i].brand + '</th>';
+			html += '<th style="text-align:right">' + this._data[i].brand + '</th>';
 			for (var j = 0; j < this._data.length; j++) {
-				value = (this._data[i].brands.hasOwnProperty(brand_index[j])) ? this._data[i].brands[brand_index[j]] : 0;
+				value = (this._data[i].brands.hasOwnProperty(this._brand_index[j])) ? this._data[i].brands[this._brand_index[j]] : 0;
 				percent = this.getPercent(value, boundaries.max, boundaries.min);
-				color = this.getColor(percent);
+				color = (i == j) ? '#ffffff' : this.getColor(percent);
 				label = (i == j) ? 'X' : '&nbsp;';
-				html += '<td style="background-color: ' + color + '">' + label + '</td>';
+				html += '<td style="width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '" class="clipper-charts-detractorspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">' + label + '</td>';
 			}
 			html += '</tr>';
 		}
-		html += '</table>';
+		html += '</table></div>';
+
+		html += '<div style="clear:both"></div>';
 
 		wrapper.innerHTML = html;
+
+		var cells = wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-cell');
+		if (cells) {
+			for (var i = 0; i < cells.length; i++) {
+				cells[i].addEventListener('touchstart', this.hnd_touch.bind(this));
+				cells[i].addEventListener('touchmove', this.hnd_touch.bind(this));
+				cells[i].addEventListener('touchend', this.hnd_touch.bind(this));
+				cells[i].addEventListener('click', this.hnd_click.bind(this));
+			}
+		}
 
 	};
 // END Amongst my Detractors, which other brands do they promote Chart
@@ -585,6 +830,20 @@ clipper.charts.factory = function(type, id, settings, data) {
 	clipper.charts.PromVsDetrPromote_Chart = function(id, settings, data) {
 		clipper.charts.Chart.call(this, id, settings, data);
 
+		var defaultSettings = {
+			brandContainer: {
+				width: 220,
+				height: 200,
+				className: 'clipper-charts-promvsdetrpromotechart-brand'
+			}
+		};
+
+		if (settings) {
+			this.settings = clipper._merge(settings, defaultSettings);
+		} else {
+			this.settings = defaultSettings;
+		}
+
 		this.draw();
 	};
 	clipper.charts.PromVsDetrPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
@@ -592,102 +851,43 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 	clipper.charts.PromVsDetrPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.BarChart(document.getElementById(this.id));
-
-		var options = {
-			bar: {
-				groupWidth: '80%'
-			},
-			colors: ['#d96d20', '#6dacdf'],
-
-			hAxis: {
-				textPosition: 'none',
-				gridlines: {
-					count: 2
-				}
-			},
-			vAxis: {
-				textStyle: {
-					color: '#aaa',
-					fontSize: '13'
-				}
-			},
-			legend: {
-				position: 'top',
-				textStyle: {
-					color: '#aaa'
-				}
-			},
-			annotations: {
-				highContrast: false,
-				textStyle: {
-					color: '#333',
-					fontSize: '13',
-					auraColor: '#fafafa'
-				}
-			},
-			tooltip: {
-				trigger: 'select'
-			}
-		};
-
-		// Create Data Table.
-		var dt = new google.visualization.DataTable({
-			cols: [
-				{ id: 'brand', label: 'brand', type: 'string' },
-				{ id: 'promoters', label: 'promoters', type: 'number' },
-				{ type: 'string', role: 'annotation' },
-				{ type: 'string', role: 'style' },
-				{ id: 'detractors', label: 'detractors', type: 'number' },
-				{ type: 'string', role: 'annotation' },
-				{ type: 'string', role: 'style' }
-			]
-		});
-
-		// Populate Data.
+		var wrapper = document.createElement('div');
+		wrapper.style.position = 'relative';
+		wrapper.style.width = '100%';
+		document.getElementById(this.id).appendChild(wrapper);
+		var fHtml = '<div style="font-family:sans-serif;font-size:13px;margin-bottom:10px;color:#aaa">';
+		fHtml += '	<div style="background-color:#d96d20;width:26px;height:13px;display:inline-block;"></div> Promoters';
+		fHtml += '	<div style="background-color:#6dacdf;width:26px;height:13px;display:inline-block;"></div> Detractors';
+		fHtml += '</div>';
+		var itm = null,
+			Pv = 0,
+			Dv = 0;
 		for (var idx = 0; idx < this._data.length; idx++) {
-			// Defaults.
-			if (!this._data[idx].brand) { this._data[idx].brand = 'undefined'; }
-			if (!this._data[idx].detractors) { this._data[idx].detractors = 0; }
-			if (!this._data[idx].promoters) { this._data[idx].promoters = 0; }
+			itm = this._data[idx];
+			Pv = ((itm.promoters * 0.85) / 2) * 100;
+			Dv = ((itm.detractors * 0.85) / 2) * 100;
+			Px = (itm.promoters * 40) + 10;
+			Dx = (itm.detractors * -40) + 90;
+			svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;width:' + this.settings.brandContainer.width + ';height:' + this.settings.brandContainer.height + ';float:left;border: 1px solid #ccc">';
+			svg += '	<h2 style="position:absolute;right: 10px;font-size:13px;font-family:sans-serif;text-align:right">' + itm.brand + '</h2>';
+			svg += '	<svg width="100%" height="100%">';
+			svg += '		<g>';
+			svg += '			<circle cx="' + Px + '%" cy="50%" r="' + Pv + '%" fill="#d96d20" />';
+			svg += '			<circle cx="' + Dx + '%" cy="50%" r="' + Dv + '%" fill="#6dacdf" />';
+			svg += '		</g>';
+			svg += '		<g>';
+			svg += '			<text x="' + Px + '%" y="50%" font-size="16" font-family="verdana" style="fill:#333;text-anchor:middle;stroke-width:2px;stroke:#fff;stroke-opacity:0.25;">' + (itm.promoters*100) + '%</text>';
+			svg += '			<text x="' + Dx + '%" y="50%" font-size="16" font-family="verdana" style="fill:#333;text-anchor:middle;stroke-width:2px;stroke:#fff;stroke-opacity:0.25;">' + (itm.detractors*100) + '%</text>';
+			svg += '			<text x="50%" y="90%" font-size="16" font-family="verdana" style="fill:#333;text-anchor:middle;stroke-width:2px;stroke:#fff;stroke-opacity:0.25;">' + (itm.diff*100) + '%</text>';
+			svg += '		</g>';
+			svg += '	</svg>';
+			svg += '</div>';
+			fHtml += svg;
+		}	
 
-			dt.addRow([
-				this._data[idx].brand,
-				this._data[idx].promoters,
-				(this._data[idx].promoters * 100) + '%',
-				'stroke-width: 1; stroke-color: #ccc; stroke-opacity: 1',
-				this._data[idx].detractors,
-				(this._data[idx].detractors * 100) + '%',
-				'stroke-width: 1; stroke-color: #ccc; stroke-opacity: 1'
-			]);
-		}
+		fHtml += '<div style="clear:both;"></div>';	
 
-		this._gchart.draw(dt, options);
-
-		// Create Score labels.
-		var cli = this._gchart.getChartLayoutInterface();
-	    var chartArea = cli.getChartAreaBoundingBox();
-		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
-		var overlay = null;
-		var overlay_text = null;
-		var diff_text = '';
-		for (var idx = 0; idx < this._data.length; idx++) {
-			if (!this._data[idx].diff) { this._data[idx].diff = 0; }
-			overlay = document.createElement('div');
-			overlay_style = overlay.style;
-			overlay_style.left = chartArea.width + chartArea.left + 10 + "px";
-			overlay_style.top = Math.floor(cli.getYLocation(idx)) - 6 + "px";
-			overlay_style.position = 'absolute';
-			overlay_style.width = '30px';
-			overlay_style.color = '#6dacdf';
-			overlay_style.fontFamily = 'sans-serif';
-			overlay_style.fontSize = '13px';
-			diff_text = (this._data[idx].diff > 0) ? '+' : '';
-			diff_text += (this._data[idx].diff * 100) + '%';
-			overlay_text = document.createTextNode(diff_text);
-			overlay.appendChild(overlay_text);
-			wrapper.appendChild(overlay);
-		}
+		wrapper.innerHTML = fHtml;
 	};
 // END How much more of my brand do Promoters use compared to Detractors Chart
 
@@ -828,7 +1028,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		}
 		var fHeight = 0;
 
-		var duration = 1000;
+		var duration = 400;
 		var framerate = 20;
 		var interval = duration / framerate;
 		var frames = Math.ceil(duration / interval);
@@ -852,7 +1052,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		var height = 0;
 		var fHeight = parseInt(item.getAttribute('data-initialHeight'));
 
-		var duration = 1000;
+		var duration = 400;
 		var framerate = 20;
 		var interval = duration / framerate;
 		var frames = Math.ceil(duration / interval);
@@ -886,12 +1086,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 		css = '.clipper-charts-dnachart-wrapper {' +
 			'	font-family: sans-serif;' +
 			'	width: 100%;' + 
-			'	height: 100%;' + 
-			'	overflow-y: scroll;' + 
 			'}' + 
 			'.clipper-charts-dnachart-brand {' + 
 			'	width: 100%;' + 
-			'	max-height: 100%;' + 
 			'}' +
 			'.clipper-charts-dnachart-brand > h3 {' +
 			'	cursor: pointer;' + 
@@ -899,10 +1096,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 			'	margin: 0px;' + 
 			'	padding-top: 2%;' + 
 			'}' +
-			'.clipper-charts-dnachart-brand > h3.open:before {' +
+			'.clipper-charts-dnachart-brand > h3.clipper-charts-dnachart-title-open:before {' +
 			'	content: \'▲ \'' +
 			'}' +
-			'.clipper-charts-dnachart-brand > h3.close:before {' +
+			'.clipper-charts-dnachart-brand > h3.clipper-charts-dnachart-title-close:before {' +
 			'	content: \'▼ \'' +
 			'}' +
 			'.clipper-charts-dnachart-body {' +
@@ -910,11 +1107,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 			'	padding-bottom: 2%;' +
 			'}' +
 			'.clipper-charts-dnachart-promoters, .clipper-charts-dnachart-detractors {' +
-			'	width: 46%;' +
-			'	height: 100%;' +
-			'	float: left;' +
-			'	margin: 0% 1% 0% 1%;' +
-			'	padding: 0% 1% 0% 1%;' +
+			'	width: 98%;' +
+			'	margin: 0%;' +
+			'	padding: 1% 1% 1% 1%;' +
 			'}' +
 			'.clipper-charts-dnachart-promoters {' +
 			'	background: #f0f6fb' +
@@ -953,7 +1148,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		var html = '<div class="clipper-charts-dnachart-wrapper">'; // Wrapper
 		for (var i = 0; i < this._data.length; i++) {
 			html += '<div class="clipper-charts-dnachart-brand">';
-			html += '<h3 class="open">What is ' + this._data[i].brand + '\'s brand DNA?</h3>';
+			html += '<h3 class="clipper-charts-dnachart-title-open">What is ' + this._data[i].brand + '\'s brand DNA?</h3>';
 			html += '<div class="clipper-charts-dnachart-body">';
 			if (this._data[i].promoters.length > 0) {
 				html += '<div class="clipper-charts-dnachart-promoters">';
@@ -986,12 +1181,12 @@ clipper.charts.factory = function(type, id, settings, data) {
 		var titles = document.querySelectorAll('[id="' + this.id + '"] .clipper-charts-dnachart-brand > h3');
 		for (var t = 0; t < titles.length; t++) {
 			titles[t].addEventListener('click', function(e) {
-				if (e.target.classList.contains('open')) {
-					e.target.classList.remove('open');
-					e.target.classList.add('close');
+				if (e.target.classList.contains('clipper-charts-dnachart-title-open')) {
+					e.target.classList.remove('clipper-charts-dnachart-title-open');
+					e.target.classList.add('clipper-charts-dnachart-title-close');
 				} else {
-					e.target.classList.remove('close');
-					e.target.classList.add('open');
+					e.target.classList.remove('clipper-charts-dnachart-title-close');
+					e.target.classList.add('clipper-charts-dnachart-title-open');
 				}
 				var parent = e.target.parentElement;
 				var body = parent.getElementsByClassName('clipper-charts-dnachart-body');
@@ -1057,21 +1252,8 @@ clipper.charts.formatters = {
 		if (!data.hasOwnProperty('rows')) throw 'Unexpected format.';
 		var rows = data.rows;
 		var f = [];
-		for (var i = 1; i < rows.length; i++) {
-			f.push({
-				brand: rows[i].c[0].v,
-				promotedBrands: rows[i].c[1].v
-			});
-		}
-		return f;
-	},
-
-	PromotersPromote2_Chart: function(data) {
-		if (!data.hasOwnProperty('rows')) throw 'Unexpected format.';
-		var rows = data.rows;
-		var f = [];
 		var o = null;
-		for (var i = 1; i < rows.length; i++) {
+		for (var i = 0; i < rows.length; i++) {
 			o = {};
 			o.brand = rows[i].c[0].v;
 			o.brands = {};
@@ -1193,4 +1375,10 @@ clipper._merge = function(obj, defaults) {
 		}
 	}
 	return obj;
+}
+
+clipper.uid = function() {
+	var now = Date.now();
+	var rnd = (Math.random().toString(36)+'00000000000000000').slice(2,18);
+	return now + '-' + rnd;
 }

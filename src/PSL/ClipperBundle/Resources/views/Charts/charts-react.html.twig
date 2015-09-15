@@ -4,19 +4,20 @@
   <head>
     <meta charset="UTF-8" />
     <title>Charts</title>
+
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+    <!--Load Clipper Charts-->
+    <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/clipper.charts.js') }}"></script>
+    <script type="text/javascript">
+      // Load the Visualization API and the corechart and table packages.
+      google.load('visualization', '1', {'packages' : ['corechart', 'bar', 'sankey', 'orgchart', 'table']});
+    </script>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
-    <script src="{{ asset('assets/vendor/react-bootstrap/react-bootstrap.min.js', null, true) }}"></script>
-    <script type="text/javascript" src="//www.google.com/jsapi"></script>
-    <script type="text/javascript">
-
-      // Load the Visualization API and the corechart and table packages.
-      google.load('visualization', '1', {'packages' : ['corechart', 'table']});
-      
-    </script>
-    
+    <script src="{{ asset('assets/vendor/react-bootstrap/react-bootstrap.min.js', null, true) }}"></script>    
     
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
