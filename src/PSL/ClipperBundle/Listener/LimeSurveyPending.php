@@ -24,12 +24,8 @@ class LimeSurveyPending extends FqProcess
     $fqg = $event->getFirstQProjectGroup();
     $fqp = $event->getFirstQProject();
     
-    // get LS settings
-    $params_ls = $this->container->getParameter('limesurvey');
-    
-    // config connection to LS
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // get LS
+    $ls = $this->container->get('limesurvey');
     
     // array for limesurvey data
     $ls_data_raw_array = array();

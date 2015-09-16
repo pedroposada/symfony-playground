@@ -5,7 +5,14 @@ services:
 
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
-    arguments: [%google_spreadsheets%]
+    arguments: 
+      - @service_container
+      - %google_spreadsheets.client_id%
+      - %google_spreadsheets.service_account_name%
+      - %google_spreadsheets.p12_file_name%
+      - %google_spreadsheets.spreadsheet_name%
+      - %google_spreadsheets.worksheet_name%
+      - %google_spreadsheets.p12_file_path%
 
   rpanel:
     class: PSL\ClipperBundle\Service\RPanelService
@@ -13,19 +20,15 @@ services:
 
   survey_builder:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
-    # @TODO: only get templating
+    # @TODO: only get @templating service
     arguments: [@service_container]
-    # arguments: [@templating]
-    # calls:
-      # - [setTemplating, ["@templating"]]
-
-  # nps_plus_survey:
-    # class: PSL\ClipperBundle\Survey\NPSPlusSurvey
-    # calls:
-      # - [setParentTemplating, ["@templating"]]
 
   limesurvey:
     class: PSL\ClipperBundle\Utils\LimeSurvey
+    arguments:
+      - %limesurvey.api.ls_baseurl%
+      - %limesurvey.api.ls_user%
+      - %limesurvey.api.ls_password%
 
   explode_tree:
     class: PSL\ClipperBundle\Utils\ExplodeTree
