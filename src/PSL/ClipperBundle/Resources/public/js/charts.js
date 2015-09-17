@@ -305,10 +305,11 @@ var ChartList = React.createClass({
       type: 'POST',
       data: request,
       success: function(data) {
+        // this.setState({data: chartsdata});
+        // return;
         switch(data.status){
           case 200:
-            //this.setState({data: data.content || []});
-            this.setState({data: chartsdata});
+            this.setState({data: data.content || []});
           break;
           default:
             console.error(url, data.status, data.content.toString());
