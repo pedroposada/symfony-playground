@@ -7,17 +7,36 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class ChartEvent extends Event
 {
-  // TODO: add setter and getter for drilldown (filter options for countries, regions, specialties)
-  // TODO: add setter and getter for charttype (google chart type)
-  
-  
+  //int refers to project ID
   protected $order_id;
-  protected $brands;
-  protected $params;
+  //string refers to survey-unique-type keyed on chart map; eg nps_plus
   protected $survey_type;
-  protected $chart_type;
+  //string refers to chart-unique-name keyed on chart map; eg net_promoter
+  protected $machine_name;
+  //array list of brands name which offer on survey: index-oriented
+  protected $brands;
+  //~none for now
+  protected $params;
+  //list of attributes useful for chart-specific
+  protected $attributes;
+  //ArrayCollection of responses object
   protected $data;
+  //array output for graph
   protected $data_table = array();
+  
+  //available "drilldown" option by survey_type
+  protected static $drilldown_keys = array('countries', 'specialties', 'regions');
+  protected $drilldown      = array(
+    'countries'   => array(),
+    'specialties' => array(),
+    'regions'     => array(),
+  );
+  //active drilldown "filters" for current result
+  protected $filters        = array();
+  //all responses count
+  protected $count_total    = 0;
+  //filtered responses count
+  protected $count_filtered = 0;
 
   public function setOrderId($order_id)
   {
@@ -27,6 +46,36 @@ class ChartEvent extends Event
   public function getOrderId()
   {
     return $this->order_id;
+  }
+  
+  public function setChartMachineName($machine_name)
+  {
+    $this->machine_name = $machine_name;
+  }
+
+  public function getChartMachineName()
+  {
+    return $this->machine_name;
+  }
+  
+  public function setSurveyType($survey_type)
+  {
+    $this->survey_type = $survey_type;
+  }
+
+  public function getSurveyType()
+  {
+    return $this->survey_type;
+  }
+  
+  public function getBrands()
+  {
+    return $this->brands;
+  }
+
+  public function setBrands($brands)
+  {
+    $this->brands = $brands;
   }
 
   public function setParams($params)
@@ -38,25 +87,15 @@ class ChartEvent extends Event
   {
     return $this->params;
   }
-
-  public function setSurveyType($survey_type)
+  
+  public function setAttributes($attributes)
   {
-    $this->survey_type = $survey_type;
+    $this->attributes = $attributes;
   }
 
-  public function getSurveyType()
+  public function getAttributes()
   {
-    return $this->survey_type;
-  }
-
-  public function setChartType($chart_type)
-  {
-    $this->chart_type = $chart_type;
-  }
-
-  public function getChartType()
-  {
-    return $this->chart_type;
+    return $this->attributes;
   }
 
   public function setDataTable($data_table)
@@ -74,16 +113,6 @@ class ChartEvent extends Event
     $this->data = $data;
   }
 
-  public function getBrands()
-  {
-    return $this->brands;
-  }
-
-  public function setBrands($brands)
-  {
-    $this->brands = $brands;
-  }
-  
   /**
    * @return ArrayCollection
    */
@@ -91,5 +120,69 @@ class ChartEvent extends Event
   {
     return $this->data;
   }
-
+  
+  public function setDrillDown($type, $value = FALSE) 
+  {
+    if (is_array($type) && ($value === FALSE)) {
+      foreach ($type as $set => $values) {
+        $this->setDrillDown($set, $values);
+      }
+    }
+    
+    $type   = strtolower($type);
+    $values = (array) $value;
+    $values = array_map('trim', $values);
+    
+    if ((empty($values)) || (!in_array($type, self::$drilldown_keys))) {
+      //@TODO: error log
+      return FALSE;
+    }
+    $this->drilldown[$type] = array_merge($this->drilldown[$type], $values);
+  }
+  
+  public function getDrillDown($type = FALSE) 
+  {
+    if (empty($type)) {
+      return $this->drilldown; 
+    }
+    $type  = strtolower($type);
+    if ((empty($type)) || (!in_array($type, self::$drilldown_keys))) {
+      //@TODO: error log
+      return array();
+    }
+    return $this->drilldown[$type];
+  }
+  
+  public function setFilters($filters) 
+  {    
+    $this->filters = $filters;
+  }
+  
+  public function getFilters() 
+  {    
+    return $this->filters;
+  }
+  
+  public function setCountTotal($count = 0) 
+  {    
+    $this->count_total = $count;
+    if (!empty($count) && (empty($this->count_filtered))) {
+      $this->count_filtered = $count;
+    }
+  }
+  
+  public function getCountTotal()
+  {    
+    return (int) $this->count_total;
+  }
+  
+  public function setCountFiltered($count = 0)
+  {    
+    $this->count_filtered = $count;
+  }
+  
+  public function getCountFiltered()
+  {    
+    return (int) $this->count_filtered;
+  }
 }

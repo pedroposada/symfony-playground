@@ -41,7 +41,7 @@ class AssociateCategoriesImportance extends ChartType {
     $this->counts = array_combine(array_keys(parent::$net_promoters_cat_range), $set);
 
     //get set of question
-    $questions = $event->getParams();
+    $questions = $event->getAttributes();
 
     //extract respondent
     foreach ($event->getData() as $response) {

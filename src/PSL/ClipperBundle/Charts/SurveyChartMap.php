@@ -56,10 +56,10 @@ final class SurveyChartMap
       ), //nps_plus
     );
 
-    //register chart_types
+    //register machine_names
     array_walk($map, function(&$charts, $type) {
       $machine_names = array_keys($charts);
-      $charts['chart_types'] = $machine_names;
+      $charts['machine_names'] = $machine_names;
     });
 
     return isset($map[$survey_type]) ? $map[$survey_type] : array();
