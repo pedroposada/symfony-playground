@@ -20,6 +20,15 @@ class LimeSurvey
   public $response;
   public $param_arr;
   
+  
+  public function __construct($ls_baseurl, $ls_user, $ls_password) 
+  {
+    $settings['ls_baseurl'] = $ls_baseurl;
+    $settings['ls_user'] = $ls_user;
+    $settings['ls_password'] = $ls_password;
+    $this->configure($settings);
+  }
+  
   /**
    * Configure the API client with the required credentials.
    *

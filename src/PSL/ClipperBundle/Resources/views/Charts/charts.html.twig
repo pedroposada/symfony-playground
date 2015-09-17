@@ -22,8 +22,10 @@
   </head>
 
   <body>
+    <p>Charts: {{ charts.count() }}</p>
     {% for chart in charts %}
       <h3 class="slides-number">Slide #{{ loop.index }}</h3>
+      <p>{{ chart }}</p>
       {{ chart }}
       <hr/>
     {% endfor %}

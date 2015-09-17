@@ -61,11 +61,15 @@ class ChartsController extends FOSRestController
     $assembler = $this->container->get('chart_assembler');
     
     foreach ($map['chart_types'] as $chart_type) {
-      $placeholders = array(
-        'dataTable' => $assembler->getChartDataTable($order_id, $chart_type, $survey_type),
-        'chartDivId' => uniqid(),
-      );
-      $charts->add($this->container->get('twig')->render("PSLClipperBundle:Charts:{$chart_type}.html.twig", $placeholders));
+      try {
+        $placeholders = array(
+          'dataTable' => $assembler->getChartDataTable($order_id, $chart_type, $survey_type),
+          'chartDivId' => uniqid(),
+        );
+        $charts->add($this->container->get('twig')->render("PSLClipperBundle:Charts:{$chart_type}.html.twig", $placeholders));
+      } catch (Exception $e) {
+        // Do something, maybe?
+      }
     }
     
     return $this->render("PSLClipperBundle:Charts:charts.html.twig", array('charts' => $charts));

@@ -5,38 +5,27 @@ clipper.charts = clipper.charts || {};
 /**
  * Chart Base object
  */
-clipper.charts.Chart = function(id, settings, data) {
-	// Check dependencies
-	if (typeof google.visualization == 'undefined') {
-		throw 'Google Visualization API must be loaded before creating charts.';
-	}
+	clipper.charts.Chart = function(id, settings, data) {
+		// Check dependencies
+		if (typeof google.visualization == 'undefined') {
+			throw 'Google Visualization API must be loaded before creating charts.';
+		}
 
-	this._catalogs = {};
-	this._catalogs.countries = [
-		'Country 1',
-		'Country 2',
-		'Country 3'
-	];
+		this.id = id;
 
-	this._catalogs.specialties = [
-		'Specialty 1',
-		'Specialty 2',
-		'Specialty 3'
-	];
+		var defaultSettings = {
+		};
+		if (settings) {
+			this.settings = clipper._merge(settings, defaultSettings);
+		} else {
+			this.settings = defaultSettings;
+		}
 
-	this.id = id;
+		this._data = data || [];
 
-	var defaultSettings = {
 	};
-	if (settings) {
-		this.settings = clipper._merge(settings, defaultSettings);
-	} else {
-		this.settings = defaultSettings;
-	}
 
-	this._data = data || [];
-
-	this.setData = function(data, redraw) {
+	clipper.charts.Chart.prototype.setData = function(data, redraw) {
 		var rd = redraw || false;
 		this._data = data;
 		if (rd) this.draw();
@@ -45,7 +34,7 @@ clipper.charts.Chart = function(id, settings, data) {
 	/**
 	 * Returns the current data table
 	 */
-	this.getData = function() {
+	clipper.charts.Chart.prototype.getData = function() {
 		return this._data;
 	};
 
@@ -54,7 +43,7 @@ clipper.charts.Chart = function(id, settings, data) {
 	 * @param object data
 	 *   The new object to add. It will be merged with the default row, if exists.
 	 */
-	this.addRow = function(data, redraw) {
+	clipper.charts.Chart.prototype.addRow = function(data, redraw) {
 		var rd = redraw || false;
 		this._data.push(data);
 		if (rd) this.draw();
@@ -65,7 +54,7 @@ clipper.charts.Chart = function(id, settings, data) {
 	 *  @param int index
 	 *    Which element to delete
 	 */
-	this.delRow = function(index, redraw) {
+	clipper.charts.Chart.prototype.delRow = function(index, redraw) {
 		var rd = redraw || false;
 		if (index >= 0 && index < this._data.length) {
 			return this._data.splice(index, 1)[0];
@@ -76,22 +65,30 @@ clipper.charts.Chart = function(id, settings, data) {
 	};
 
 	// Abstract method
-	this.draw = function() { throw 'Draw method must be overriden by child class.'; };
-
-};
+	clipper.charts.Chart.prototype.draw = function() { throw 'Draw method must be overriden by child class.'; };
 // END Chart Base object
+
+clipper.charts.factory = function(type, id, settings, data) {
+	if (!clipper.charts.hasOwnProperty(type)) throw 'Chart type "' + type + '" does not exist.';
+	return new clipper.charts[type](id, settings, data);
+};
 
 /**
  * NPS Chart
  */
-clipper.charts.NPS_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.NPS_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	if (typeof google.visualization.BarChart == 'undefined') {
-		throw 'Google Visualization API must be loaded with the BarChart module before creating charts.';
+		if (typeof google.visualization.BarChart == 'undefined') {
+			throw 'Google Visualization API must be loaded with the BarChart module before creating charts.';
+		}
+
+		this.draw();
 	}
+	clipper.charts.NPS_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.NPS_Chart.constructor = clipper.charts.NPS_Chart;
 
-	this.draw = function() {
+	clipper.charts.NPS_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		this._gchart = new google.visualization.BarChart(document.getElementById(this.id));
 
@@ -207,22 +204,24 @@ clipper.charts.NPS_Chart = function(id, settings, data) {
 		}
 
 	}
-
-	this.draw();
-}
 // END NPS Chart
 
 /**
  * How loyal are doctors to my brand Chart
  */
-clipper.charts.Loyalty_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.Loyalty_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	if (typeof google.visualization.BubbleChart == 'undefined') {
-		throw 'Google Visualization API must be loaded with the BubbleChart module before creating charts.';
-	}
+		if (typeof google.visualization.BubbleChart == 'undefined') {
+			throw 'Google Visualization API must be loaded with the BubbleChart module before creating charts.';
+		}
 
-	this.getMean = function() {
+		this.draw();
+	};
+	clipper.charts.Loyalty_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.Loyalty_Chart.constructor = clipper.charts.Loyalty_Chart;
+
+	clipper.charts.Loyalty_Chart.prototype.getMean = function() {
 		if (this._data.length < 1) return 0;
 		var total = 0;
 		for (var i = 0; i < this._data.length; i++) {
@@ -231,9 +230,9 @@ clipper.charts.Loyalty_Chart = function(id, settings, data) {
 		return total / this._data.length;
 	};
 
-	this.draw = function() {
+	clipper.charts.Loyalty_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.BubbleChart(document.getElementById(id));
+		this._gchart = new google.visualization.BubbleChart(document.getElementById(this.id));
 
 		var options = {
 			colors: ['#cccccc', '#cc0000'],
@@ -313,59 +312,24 @@ clipper.charts.Loyalty_Chart = function(id, settings, data) {
 		}
 
 	};
-
-	this.draw();
-};
 // END How loyal are doctors to my brand Chart
-
-/**
- * How many brands does a doctor promote Sankey Chart
- */
-clipper.charts.DoctorsPromote_Sankey_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
-
-	if (typeof google.visualization.Sankey == 'undefined') {
-		throw 'Google Visualization API must be loaded with the Sankey module before creating charts.';
-	}
-
-	this.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.Sankey(document.getElementById(this.id));
-
-		var options = {
-		};
-
-		// Create Data Table.
-		var dt = new google.visualization.DataTable();
-		dt.addColumn('string', 'From');
-		dt.addColumn('string', 'To');
-		dt.addColumn('number', 'Weight');
-
-		// Populate Data.
-		dt.addRow([ 'All doctors', 'Satisfied', this._data[0].satisfied.amount ]);
-		dt.addRow([ 'Satisfied', 'Exclusive', this._data[0].satisfied.exclusive.amount ]);
-		dt.addRow([ 'Satisfied', 'Shared', this._data[0].satisfied.shared.amount ]);
-		dt.addRow([ 'All doctors', 'Dissatisfied', this._data[0].dissatisfied.amount ]);
-
-		this._gchart.draw(dt, options);
-
-	}
-
-	this.draw();
-};
-// END How many brands does a doctor promote Sankey Chart
 
 /**
  * How many brands does a doctor promote Chart
  */
-clipper.charts.DoctorsPromote_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.DoctorsPromote_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	if (typeof google.visualization.OrgChart == 'undefined') {
-		throw 'Google Visualization API must be loaded with the OrgChart module before creating charts.';
-	}
+		if (typeof google.visualization.OrgChart == 'undefined') {
+			throw 'Google Visualization API must be loaded with the OrgChart module before creating charts.';
+		}
 
-	this.draw = function() {
+		this.draw();
+	};
+	clipper.charts.DoctorsPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.DoctorsPromote_Chart.constructor = clipper.charts.DoctorsPromote_Chart;
+
+	clipper.charts.DoctorsPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		this._gchart = new google.visualization.OrgChart(document.getElementById(this.id));
 
@@ -395,92 +359,21 @@ clipper.charts.DoctorsPromote_Chart = function(id, settings, data) {
 		this._gchart.draw(dt, options);
 
 	}
-
-	this.draw();
-};
 // END How many brands does a doctor promote Chart
 
 /**
  * Amongst my Promoters, how many other brands do they promote 
  *  and which other brand is most promoted Chart
  */
-clipper.charts.PromotersPromote_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.PromotersPromote_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	this.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.BarChart(document.getElementById(this.id));
+		this.draw();
+	};
+	clipper.charts.PromotersPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.PromotersPromote_Chart.constructor = clipper.charts.PromotersPromote_Chart;
 
-		var options = {
-			bar: {
-				groupWidth: '80%'
-			},
-			colors: ['#d96d20', '#6dacdf'],
-			hAxis: {
-				textPosition: 'bottom'
-			},
-			vAxis: {
-				textStyle: {
-					color: '#aaa',
-					fontSize: '13'
-				}
-			},
-			legend: {
-				position: 'top',
-				textStyle: {
-					color: '#aaa'
-				}
-			},
-			annotations: {
-				highContrast: false,
-				textStyle: {
-					color: '#333',
-					fontSize: '13',
-					auraColor: '#fafafa'
-				}
-			},
-			tooltip: {
-				trigger: 'select'
-			}
-		};
-
-		// Create Data Table.
-		var dt = new google.visualization.DataTable({
-			cols: [
-				{ id: 'brand', label: 'brand', type: 'string' },
-				{ id: 'promotedBrands', label: 'Promoted brands', type: 'number' },
-				{ type: 'string', role: 'style' },
-			]
-		});
-
-		// Populate Data.
-		for (var idx = 0; idx < this._data.length; idx++) {
-			// Defaults.
-			if (!this._data[idx].brand) { this._data[idx].brand = 'undefined'; }
-			if (!this._data[idx].promotedBrands) { this._data[idx].promotedBrands = 0; }
-			
-			dt.addRow([
-				this._data[idx].brand,
-				this._data[idx].promotedBrands,
-				'stroke-width: 1; stroke-color: #ccc; stroke-opacity: 1'
-			]);
-		}
-
-		this._gchart.draw(dt, options);
-	}
-
-	this.draw();
-};
-// END Amongst my Promoters, how many other brands do they promote and which other brand is most promoted Chart
-
-/**
- * Amongst my Promoters, how many other brands do they promote 
- *  and which other brand is most promoted Chart 2
- */
-clipper.charts.PromotersPromote2_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
-
-	this.draw = function() {
+	clipper.charts.PromotersPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		this._gchart = new google.visualization.BubbleChart(document.getElementById(this.id));
 
@@ -579,28 +472,30 @@ clipper.charts.PromotersPromote2_Chart = function(id, settings, data) {
 		}
 
 	}
-
-	this.draw();
-};
-// END Amongst my Promoters, how many other brands do they promote and which other brand is most promoted Chart 2
+// END Amongst my Promoters, how many other brands do they promote and which other brand is most promoted Chart
 
 /**
  * Amongst my Detractors, which other brands do they promote Chart
  */
-clipper.charts.DetractorsPromote_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.DetractorsPromote_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	var defaultSettings = {
-		valueType: 'relative'
+		var defaultSettings = {
+			valueType: 'relative'
+		};
+
+		if (settings) {
+			this.settings = clipper._merge(settings, defaultSettings);
+		} else {
+			this.settings = defaultSettings;
+		}
+
+		this.draw();
 	};
+	clipper.charts.DetractorsPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.DetractorsPromote_Chart.constructor = clipper.charts.DetractorsPromote_Chart;
 
-	if (settings) {
-		this.settings = clipper._merge(settings, defaultSettings);
-	} else {
-		this.settings = defaultSettings;
-	}
-
-	this.getBoundaries = function() {
+	clipper.charts.DetractorsPromote_Chart.prototype.getBoundaries = function() {
 		var max = 0;
 		var min = 0;
 		if (this.settings.valueType === 'absolute') {
@@ -622,20 +517,20 @@ clipper.charts.DetractorsPromote_Chart = function(id, settings, data) {
 		}
 	};
 
-	this.getPercent = function(value, max, min) {
+	clipper.charts.DetractorsPromote_Chart.prototype.getPercent = function(value, max, min) {
 		min = min || 0;
 		v = value - min;
 		M = max - min;
 		return (v / M);
 	};
 
-	this.getColor = function(percent) {
+	clipper.charts.DetractorsPromote_Chart.prototype.getColor = function(percent) {
 		val = 255 - Math.floor(percent * 255);
 		hex = val.toString(16);
 		return '#' + hex + hex + hex;
 	}
 
-	this.draw = function() {
+	clipper.charts.DetractorsPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		var wrapper = document.createElement('div');
 		wrapper.style.position = 'relative';
@@ -682,18 +577,20 @@ clipper.charts.DetractorsPromote_Chart = function(id, settings, data) {
 		wrapper.innerHTML = html;
 
 	};
-
-	this.draw();
-};
 // END Amongst my Detractors, which other brands do they promote Chart
 
 /**
  * How much more of my brand do Promoters use compared to Detractors Chart
  */
-clipper.charts.PromVsDetrPromote_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.PromVsDetrPromote_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	this.draw = function() {
+		this.draw();
+	};
+	clipper.charts.PromVsDetrPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.PromVsDetrPromote_Chart.constructor = clipper.charts.PromVsDetrPromote_Chart;
+
+	clipper.charts.PromVsDetrPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		this._gchart = new google.visualization.BarChart(document.getElementById(this.id));
 
@@ -792,18 +689,20 @@ clipper.charts.PromVsDetrPromote_Chart = function(id, settings, data) {
 			wrapper.appendChild(overlay);
 		}
 	};
-
-	this.draw();
-};
 // END How much more of my brand do Promoters use compared to Detractors Chart
 
 /**
  * What brand messages are associated with Promoters, Passives and Detractors Chart
  */
-clipper.charts.PPDBrandMessages_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.PPDBrandMessages_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);		
 
-	this.draw = function() {
+		this.draw();
+	};
+	clipper.charts.PPDBrandMessages_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.PPDBrandMessages_Chart.constructor = clipper.charts.PPDBrandMessages_Chart;
+
+	clipper.charts.PPDBrandMessages_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		this._gchart = new google.visualization.LineChart(document.getElementById(this.id));
 
@@ -909,18 +808,20 @@ clipper.charts.PPDBrandMessages_Chart = function(id, settings, data) {
 			wrapper.appendChild(ci);
 		}
 	};
-
-	this.draw();
-};
 // END What brand messages are associated with Promoters, Passives and Detractors Chart
 
 /**
  * What does my brand represent to Promoters as compared to Detractors Chart
  */
-clipper.charts.DNA_Chart = function(id, settings, data) {
-	clipper.charts.Chart.apply(this, arguments);
+	clipper.charts.DNA_Chart = function(id, settings, data) {
+		clipper.charts.Chart.call(this, id, settings, data);
 
-	this.slideUp = function(item) {
+		this.draw();
+	};
+	clipper.charts.DNA_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.DNA_Chart.constructor = clipper.charts.DNA_Chart;
+
+	clipper.charts.DNA_Chart.prototype.slideUp = function(item) {
 		var height = item.clientHeight;
 		if (!item.hasAttribute('data-initialHeight')) {
 			item.setAttribute('data-initialHeight', height);
@@ -947,7 +848,7 @@ clipper.charts.DNA_Chart = function(id, settings, data) {
 		tween();
 	};
 
-	this.slideDown = function(item) {
+	clipper.charts.DNA_Chart.prototype.slideDown = function(item) {
 		var height = 0;
 		var fHeight = parseInt(item.getAttribute('data-initialHeight'));
 
@@ -972,7 +873,7 @@ clipper.charts.DNA_Chart = function(id, settings, data) {
 		tween();
 	}
 
-	this.slideToggle = function(item) {
+	clipper.charts.DNA_Chart.prototype.slideToggle = function(item) {
 		var h = item.clientHeight;
 		if (h > 0) {
 			this.slideUp(item);
@@ -981,7 +882,7 @@ clipper.charts.DNA_Chart = function(id, settings, data) {
 		}
 	}
 
-	this.getCSS = function() {
+	clipper.charts.DNA_Chart.prototype.getCSS = function() {
 		css = '.clipper-charts-dnachart-wrapper {' +
 			'	font-family: sans-serif;' +
 			'	width: 100%;' + 
@@ -1033,7 +934,7 @@ clipper.charts.DNA_Chart = function(id, settings, data) {
 		return css;
 	};
 
-	this.draw = function() {
+	clipper.charts.DNA_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 
 		if (document.getElementById('clipper-charts-dnachart-style') === null) {
@@ -1074,6 +975,7 @@ clipper.charts.DNA_Chart = function(id, settings, data) {
 					html += '</ul>';
 				html += '</div>';
 			}
+			html += '<div style="clear:both"></div>';
 			html += '</div>';
 			html += '</div>';
 		}
@@ -1098,8 +1000,6 @@ clipper.charts.DNA_Chart = function(id, settings, data) {
 		}
 	};
 
-	this.draw();
-};
 // END What does my brand represent to Promoters as compared to Detractors Chart
 
 /***** DATA FORMATTING **************************************************************/

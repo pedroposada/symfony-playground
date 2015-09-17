@@ -60,10 +60,8 @@ class LimeSurveyResponses
   {
     $responses = array();
     
-    // call LS api
-    $params_ls = $this->container->getParameter('limesurvey');
+    // get LS
     $ls = $this->container->get('limesurvey');
-    $ls->configure($params_ls['api']);
     $responses = $ls->export_responses(array(
       'iSurveyID' => $iSurveyID,
       'sHeadingType' => 'code',
