@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = DoctorPromotingMineAlsoOthersTable
- * Slide             = NPS:005
- * Service Name      = clipper.chart.doctor_promoting_mine_also_others_table
+ * Machine Name      = PromotersPromote
+ * Slide             = NPS:004
+ * Service Name      = clipper.chart.promoterspromote
  * Targeted Question = G003Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/doctor_promoting_mine_also_others_table.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class DoctorPromotingMineAlsoOthersTable extends ChartType {
+class PromotersPromote extends ChartType {
 
   private $respondent       = array();
   private $respondent_count = 0;
@@ -46,13 +45,15 @@ class DoctorPromotingMineAlsoOthersTable extends ChartType {
     $this->respondent_count = count($this->respondent);
 
     //calculate each brands score
-    foreach ($this->brands as $brand) {
-      //update @var $this->promoting
-      $this->calculateBrandScores($brand);
-    }
+    if ($this->respondent_count) {
+      foreach ($this->brands as $brand) {
+        //update @var $this->promoting
+        $this->calculateBrandScores($brand);
+      }
 
-    //calculate competitors, update @var $this->competitors
-    $this->identifyCompetitors();
+      //calculate competitors, update @var $this->competitors
+      $this->identifyCompetitors();
+    }
 
     //data formation
     $dataTable = array(

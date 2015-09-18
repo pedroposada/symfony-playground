@@ -1,11 +1,9 @@
 <?php
 /**
- * Machine Name      = AssociateCategoriesImportance
- * Slide             = NPS:008
- * Service Name      = clipper.chart.associate_categories_importance
+ * Machine Name      = PPDBrandMessages
+ * Slide             = NPS:007
+ * Service Name      = clipper.chart.ppdbrandmessages
  * Targeted Question = G0010Q001, G0011Q001, G0012Q001, G0013Q001, G0014Q001, G0015Q001
- *                     !!- this however is based on number of brands
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/associate_categories_importance.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -13,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class AssociateCategoriesImportance extends ChartType {
+class PPDBrandMessages extends ChartType {
 
   private $result = array();
   private $counts = array();
@@ -134,7 +132,7 @@ class AssociateCategoriesImportance extends ChartType {
         array('v' => $this->result[$qcode]['confidence']['high']),
       );
       //merge
-      $empty   = array('v' => NULL);
+      $empty   = array('v' => '');
       $postfix = $prefix = array();
       if ($qindex > 0) {
         $prefix  = array_fill(0, ($series_count * $qindex), $empty);

@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = PromotersPrescribeVersusDetractors
- * Slide             = NPS:007
- * Service Name      = clipper.chart.promoters_prescribe_versus_detractors
+ * Machine Name      = PromVsDetrPromote
+ * Slide             = NPS:006
+ * Service Name      = clipper.chart.promvsdetrpromote
  * Targeted Question = G002Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/promoters_prescribe_versus_detractors.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,9 +11,10 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class PromotersPrescribeVersusDetractors extends ChartType {
+class PromVsDetrPromote extends ChartType {
 
-  private $brands_scores = array();
+  private $brands_scores         = array();
+  private $brands_scores_results = array();
 
   /**
    * Method call to return chart data.
@@ -48,7 +48,8 @@ class PromotersPrescribeVersusDetractors extends ChartType {
       ),
     );
     $this->brands_scores = array_combine($this->brands, array_fill(0, count($this->brands), $score_set));
-
+    $this->brands_scores_results = array_flip($this->brands);
+    
     //extract respondent
     foreach ($event->getData() as $response) {
       //update @var $this->brands_scores
@@ -58,10 +59,14 @@ class PromotersPrescribeVersusDetractors extends ChartType {
       //update @var $this->brands_scores
       $this->calculateBrandScore($brand);
     }
-
+    
+    //sort
+    arsort($this->brands_scores_results);
+    
     //data formation
     $dataTable = array();
-    foreach ($this->brands as $index => $brand) {
+    $index = 0;
+    foreach ($this->brands_scores_results as $brand => $result) {
       $dataTable[$index] = array(
         'title' => "{$brand}: How much more of my brand do Promoters prescribe versus Detractors?",
         'cols'  => array(
@@ -94,6 +99,7 @@ class PromotersPrescribeVersusDetractors extends ChartType {
           ),
         );
       }
+      $index++;
     }
 
     return $dataTable;
@@ -190,8 +196,12 @@ class PromotersPrescribeVersusDetractors extends ChartType {
         $$type = $this->brands_scores[$brand]['cal'][$type] = (($this->brands_scores[$brand][$type]['t'] / $base) * 100);
       }
     }
-    if (!empty($pro)) {
-      $this->brands_scores[$brand]['cal']['res'] = ((($pro - $det) / $det) * 100) * 100;
+    $result = ($pro - $det);
+    if (!empty($det)) {
+      $result = ($result / $det);
     }
+    $result *= 0.1;
+    $result *= 0.1;
+    $this->brands_scores[$brand]['cal']['res']= $this->brands_scores_results[$brand] = $result;
   }
 }

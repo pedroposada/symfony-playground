@@ -40,7 +40,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ChartsController extends FOSRestController
 {
-   // TODO: to be removed, this end-point will be replaced with chartsReactAction
+  private static $js_charttype_postfix = '_Chart';
   
   /**
    * /clipper/charts
@@ -142,6 +142,7 @@ class ChartsController extends FOSRestController
         $chEvent = $assembler->getChartEvent($order_id, $machine_name, $survey_type, $drilldown);
         $chart = array(
           'chartmachinename' => $machine_name,
+          'charttype'        => $machine_name . self::$js_charttype_postfix,
           'drilldown'        => $chEvent->getDrillDown(),
           'filter'           => $chEvent->getFilters(),
           'countTotal'       => $chEvent->getCountTotal(),

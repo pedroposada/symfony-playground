@@ -30,7 +30,7 @@ abstract class ChartType
   protected $map;
   protected $qcode;
   protected $drill_down;
-  protected static $net_promoters           = 'net_promoters';
+  protected static $net_promoters           = 'NPS';
   protected static $decimal_point           = 2;
   protected static $net_promoters_cat_range = array(
     'detractor' => array(0, 1, 2, 3, 4, 5, 6),
@@ -137,16 +137,18 @@ abstract class ChartType
     
     foreach ($responses as $index => $response) {
       $sheet_data = $response->getFirstqproject()->getSheetDataUnserialized();
-      $removed = FALSE;      
       if ((!empty($drilldown['region'])) && ($drilldown['region'] == $sheet_data['market'])) {
         //selected the same region
       }
       elseif ((!empty($drilldown['countries'])) && (in_array($sheet_data['market'], $drilldown['countries']) == FALSE)) {
         $responses->remove($index);
-        $removed = TRUE;
+        continue;
       }      
       
-      if ((!$removed) && (!empty($drilldown['specialty'])) && (strtolower($drilldown['specialty']) != strtolower($sheet_data['specialty']))) {
+      if ( //@todo: review if empty sheet_data
+          (empty($sheet_data['specialty'])) || 
+          ((!empty($drilldown['specialty'])) && (strtolower($drilldown['specialty']) != strtolower($sheet_data['specialty'])))
+        ) {
         $responses->remove($index);
       }
     }
@@ -199,7 +201,7 @@ abstract class ChartType
       return ($method($key, $qcode) !== FALSE);
     }, ARRAY_FILTER_USE_KEY);
 
-    //if given array but need to get using strpos; use by AssociateCategoriesImportance
+    //if given array but need to get using strpos; use by DNA slide
     //see @var $multi_structure
     if (empty($answers)) {
       $answers = array();

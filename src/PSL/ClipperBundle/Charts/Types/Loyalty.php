@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = DevotedDoctorToBrands
+ * Machine Name      = Loyalty
  * Slide             = NPS:002
- * Service Name      = clipper.chart.devoted_doctor_to_brands
+ * Service Name      = clipper.chart.loyalty
  * Targeted Question = G003Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/devoted_doctor_to_brands.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class DevotedDoctorToBrands extends ChartType {
+class Loyalty extends ChartType {
   private $respondent = array();
   private $brands_results;
 
@@ -39,17 +38,19 @@ class DevotedDoctorToBrands extends ChartType {
       //update @var $this->brands_results
       $this->extractRespondent($response);
     }
-
-    //#final-calculation
-    $overall_total = $overall_count = 0;
-    foreach ($this->brands_results as $brand => $respondent) {
-      $total = array_sum($respondent);
-      $overall_total += $total;
-      $count = count($respondent);
-      $overall_count += $count;
-      $this->brands_results[$brand] = $this->roundingUpValue(($total / $count));
+    
+    $overall_avg = $overall_total = $overall_count = 0;
+    if (!empty($this->respondent)) {
+      //#final-calculation
+      foreach ($this->brands_results as $brand => $respondent) {
+        $total = array_sum($respondent);
+        $overall_total += $total;
+        $count = count($respondent);
+        $overall_count += $count;
+        $this->brands_results[$brand] = $this->roundingUpValue(($total / $count));
+      }
+      $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
     }
-    $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
 
     //sorting
     arsort($this->brands_results);

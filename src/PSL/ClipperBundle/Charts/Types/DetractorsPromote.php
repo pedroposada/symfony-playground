@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = DetractorsPromotesTheseBrands
- * Slide             = NPS:006
- * Service Name      = clipper.chart.detractors_promotes_these_brands
+ * Machine Name      = DetractorsPromote
+ * Slide             = NPS:005
+ * Service Name      = clipper.chart.detractorspromote
  * Targeted Question = G003Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/detractors_promotes_these_brands.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class DetractorsPromotesTheseBrands extends ChartType {
+class DetractorsPromote extends ChartType {
 
   private $detractors = array();
   private $respondent_count = 0;

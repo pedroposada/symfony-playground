@@ -1,26 +1,11 @@
-
-
-
-// TODO: remove object from this file, dev demo only
+// @TODO: remove object from this file; #devDemoOnly
+function getParameterByName(name) {
+  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+  return (results === null ? undefined : decodeURIComponent(results[1].replace(/\+/g, " ")));
+}
 var chartsdata = [
-
-  //////////
-  // {
-  //   // required
-  //   chartmachinename: "net_promoters",
-  //   // required
-  //   charttype: "NPS_Chart",
-  //   // optional
-  //   drilldown: { 
-  //     countries: ['USA', 'Canada'],
-  //     specialties: ['Oncology', 'Diabetes'],
-  //     regions: ['Europe'],
-  //   },
-  //   // required 
-  //   datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
-  // },
-  
-  ////////////
   {
     charttype: "NPS_Chart", 
     datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
@@ -60,6 +45,10 @@ var chartsdata = [
       {"title":"EE-456 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of EE-456 detractor","type":"string"}],"rows":[{"c":[{"v":"FF-789"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"0%"}]},{"c":[{"v":"AA-123"},{"v":"0%"}]}]},
       {"title":"FF-789 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of FF-789 detractor","type":"string"}],"rows":[{"c":[{"v":"EE-456"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"50%"}]},{"c":[{"v":"AA-123"},{"v":"50%"}]}]}
     ]
+  },
+  {
+    charttype: "PromVsDetrPromote_Chart",
+    datatable: [{"title":"EE-456: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":2},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":1},{"v":"100.0%"},{"v":""}]}]},{"title":"AA-123: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":1},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":2},{"v":"90.0%"},{"v":""}]}]},{"title":"DD-123: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":2},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":1},{"v":"0.0%"},{"v":""}]}]},{"title":"CC-789: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":1},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":1},{"v":"0.0%"},{"v":""}]}]},{"title":"BB-456: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":2},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":0},{"v":"0.0%"},{"v":""}]}]},{"title":"FF-789: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":3},{"v":"1.7%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":0},{"v":"0.0%"},{"v":""}]}]}]
   },
   {
     charttype: "PPDBrandMessages_Chart",
@@ -128,19 +117,16 @@ var chartsdata = [
     ]
   }
 ];
-
-
+// #devDemoOnly
 
 /**
  * logic starts here
  */
 
-
 /**
  *  ChartForm
  */
-var ChartForm = React.createClass({
-  
+var ChartForm = React.createClass({  
   handleSubmit: function(e) {
     e.preventDefault();
     var country = React.findDOMNode(this.refs.country).value.trim();
@@ -152,47 +138,55 @@ var ChartForm = React.createClass({
       specialty: specialty,
       region: region,
     });
-  },
-  
+  },  
   Countries: function(){
     var output = this.props.countries.map(function(country, index){
       return (
-        <option key={index} value={country}>{country}</option>        
+        <option key={index} value={country}>{country}</option>
       );
     });
     return (
-      <select ref="country">
+      <select 
+        ref="country"
+        style={{ display: (this.props.countries.length ? 'inline-block' : 'none') }}
+        >
+        <option key="" value="">Country</option>
         {output}
       </select>
     );
   },
-  
-  Specialties: function(){
-    var output = this.props.specialties.map(function(specialty, index){
-      return (
-        <option key={index} value={specialty}>{specialty}</option>        
-      );
-    });
-    return (
-      <select ref="specialty">
-        {output}
-      </select>
-    );
-  },
-  
   Regions: function(){
     var output = this.props.regions.map(function(region, index){
       return (
-        <option key={index} value={region}>{region}</option>        
+        <option key={index} value={region}>{region}</option>
       );
     });
     return (
-      <select ref="region">
+      <select 
+        ref="region"
+        style={{ display: (this.props.regions.length ? 'inline-block' : 'none') }}
+        >
+        <option key="" value="">Region</option>
         {output}
       </select>
     );
-  },
-  
+  },    
+  Specialties: function(){
+    var output = this.props.specialties.map(function(specialty, index){
+      return (
+        <option key={index} value={specialty}>{specialty}</option>
+      );
+    });
+    return (
+      <select 
+        ref="specialty"
+        style={{ display: (this.props.specialties.length ? 'inline-block' : 'none') }}
+        >
+        <option key="" value="">Specialty</option>
+        {output}
+      </select>
+    );
+  },  
   render: function() {
     return (
       <form className="chart-form" onSubmit={this.handleSubmit}>
@@ -205,18 +199,15 @@ var ChartForm = React.createClass({
   }
 })
 
-
 /**
  * GoogleChart
  */
-var GoogleChart = React.createClass({
-  
+var GoogleChart = React.createClass({  
   drawChart: function() {
     var chart = clipper.charts.factory(this.props.charttype, this.state.id, {
       formatter: this.props.charttype
     }, this.props.datatable)
   },
-
   getInitialState: function() {
     return {
       id: 'clipper-chart-' + clipper.uid()
@@ -233,32 +224,68 @@ var GoogleChart = React.createClass({
       <div 
         className="google-chart" 
         id={this.state.id}
-        style={{ height: "500px", width: "500px"}} 
+        style={{ minHeight: "500px", width: "700px"}} 
       />
     );
-  },
-  
+  },  
 });
-
 
 /**
  * Chart wrapper
  */
-var Chart = React.createClass({
-  
-  hasForm: function() {
-    return this.props.countries.length && this.props.regions.length && this.props.specialties.length;
+//#devDemoOnly
+var slideSerialCount = 1;
+var ChartHeader = React.createClass({ 
+  getInitialState: function() {
+    return {
+      id: slideSerialCount++
+    }
   },
-  
   render: function() {
+    var subs = this.props.subs;
     return (
-      <div className="chart-container">
-        <GoogleChart 
-          chartmachinename = {this.props.chartmachinename}
-          charttype = {this.props.charttype}
-          datatable = {this.props.datatable}
-        />  
-        
+      <div
+        class="subheading"
+        >
+        <h3>
+          {this.state.id}: {this.props.caption}        
+        </h3>
+        <ul>
+          {subs.map(function(sub){
+            return <li>{sub}</li>;
+          })}
+        </ul>
+      </div>
+    );
+  }
+});
+
+var Chart = React.createClass({  
+  hasForm: function() {
+    return this.props.countries.length || this.props.regions.length || this.props.specialties.length;
+  },
+  render: function() {
+    var subHeadings = [];
+    subHeadings[subHeadings.length] = 'Filtered: ' + this.props.countFiltered + ', Total: ' + this.props.countTotal;
+    subHeadings[subHeadings.length] = 'Selected Country: ' + (this.props.filters.country || '');
+    subHeadings[subHeadings.length] = 'Selected Region: ' + (this.props.filters.region || '');
+    subHeadings[subHeadings.length] = 'Selected Specialty: ' + (this.props.filters.specialty || '');
+    
+    return (
+      <div 
+        className="chart-container"
+        style={{ margin: '30px 20px 20px', border: '1px solid #DDD', padding: '10px' }} 
+        >
+        <ChartHeader 
+          caption = {this.props.chartmachinename || this.props.charttype}
+          subs    = {subHeadings}
+        />
+        { this.props.countFiltered ? 
+          <GoogleChart 
+            chartmachinename = {this.props.chartmachinename}
+            charttype = {this.props.charttype}
+            datatable = {this.props.datatable}
+          /> : null }        
         {  this.hasForm() ? 
           <ChartForm 
             chartmachinename={this.props.chartmachinename} 
@@ -269,28 +296,22 @@ var Chart = React.createClass({
           /> : null }
       </div>
     );
-  }
-  
+  }  
 });
-
 
 /**
  * ChartList
  */
-var ChartList = React.createClass({
-  
+var ChartList = React.createClass({  
   loadCharts: function(drilldown) {
     this._getChartsData(drilldown);
-  },
-  
+  },  
   getInitialState: function() {
     return {data: []};
-  },
-  
+  },  
   componentDidMount: function() {
     this._getChartsData();
-  },
-  
+  },  
   _getChartsData: function(request){
     var $element = $('#react-content');
     var url = $element.data('charts_data_url');
@@ -299,14 +320,18 @@ var ChartList = React.createClass({
     var request = request || {};
     request.order_id = $element.data('order_id');
     
+    //@TODO: Remove this #devDemoOnly
+    if (getParameterByName('dev') != undefined) {
+      this.setState({data: chartsdata});
+      return;
+    }
+    
     $.ajax({
       url: url,
       dataType: 'json',
       type: 'POST',
       data: request,
       success: function(data) {
-        // this.setState({data: chartsdata});
-        // return;
         switch(data.status){
           case 200:
             this.setState({data: data.content || []});
@@ -319,10 +344,8 @@ var ChartList = React.createClass({
       error: function(xhr, status, err) {
         console.error(url, status, err.toString());
       }.bind(this)
-    });
-    
-  },
-  
+    });    
+  },  
   render: function() {
     var loadCharts = this.loadCharts;
     var chartNodes = this.state.data.map(function(chart, index) {
@@ -337,27 +360,24 @@ var ChartList = React.createClass({
           specialties={drill.specialties || []}
           regions={drill.regions || []}
           loadCharts={loadCharts}
+          filters={chart.filter}
+          countTotal={chart.countTotal}
+          countFiltered={chart.countFiltered}
         />
       );  
-    });
-    
+    });    
     return (
       <div className="charts-list">
         {chartNodes}
       </div>
     );
-  }
-  
+  }  
 });
-
 
 /**
  * output to page
  */
-
 React.render(
-  <ChartList />
-  ,document.getElementById('react-content')
+  <ChartList />,
+  document.getElementById('react-content')
 );
-
-
