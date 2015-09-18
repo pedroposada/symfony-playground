@@ -66,9 +66,11 @@ class DoctorsPromote extends ChartType {
 
     //#final-calculation; calculate the aggregated count into parentage
     $total = $this->promoting['ds']['count'] + $this->promoting['sa']['count'];
-    foreach ($this->promoting as $ty => $set) {
-      $this->promoting[$ty]['perc'] = $this->roundingUpValue((($set['count'] / $total) * 100));
-      $this->promoting[$ty]['show'] = $this->roundingUpValue($this->promoting[$ty]['perc'], 0, TRUE) . '%';
+    if (!empty($this->respondent)) {
+      foreach ($this->promoting as $ty => $set) {
+        $this->promoting[$ty]['perc'] = $this->roundingUpValue((($set['count'] / $total) * 100));
+        $this->promoting[$ty]['show'] = $this->roundingUpValue($this->promoting[$ty]['perc'], 0, TRUE) . '%';
+      }
     }
 
     return $this->promoting;
