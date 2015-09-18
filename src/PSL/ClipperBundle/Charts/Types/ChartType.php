@@ -137,16 +137,18 @@ abstract class ChartType
     
     foreach ($responses as $index => $response) {
       $sheet_data = $response->getFirstqproject()->getSheetDataUnserialized();
-      $removed = FALSE;      
       if ((!empty($drilldown['region'])) && ($drilldown['region'] == $sheet_data['market'])) {
         //selected the same region
       }
       elseif ((!empty($drilldown['countries'])) && (in_array($sheet_data['market'], $drilldown['countries']) == FALSE)) {
         $responses->remove($index);
-        $removed = TRUE;
+        continue;
       }      
       
-      if ((!$removed) && (!empty($drilldown['specialty'])) && (strtolower($drilldown['specialty']) != strtolower($sheet_data['specialty']))) {
+      if ( //@todo: review if empty sheet_data
+          (empty($sheet_data['specialty'])) || 
+          ((!empty($drilldown['specialty'])) && (strtolower($drilldown['specialty']) != strtolower($sheet_data['specialty'])))
+        ) {
         $responses->remove($index);
       }
     }
