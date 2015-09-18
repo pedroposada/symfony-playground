@@ -126,38 +126,73 @@ class ChartsController extends FOSRestController
         'region'    => $request->request->get('region', ''),
         'specialty' => $request->request->get('specialty', ''),
       );
-      $charts = new ArrayCollection();
-      $em = $this->container->get('doctrine')->getManager();
-      $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
-      if (!$fqg) {
-        throw new Exception("FQG with id [{$order_id}] not found");
-      }
-      
-      $survey_type = $fqg->getFormDataByField('survey_type');
-      $survey_type = reset($survey_type);
-      $map = $this->container->get('survey_chart_map')->map($survey_type);
-      $assembler = $this->container->get('chart_assembler');
-      
-      foreach ($map['machine_names'] as $index => $machine_name) {
-        $chEvent = $assembler->getChartEvent($order_id, $machine_name, $survey_type, $drilldown);
-        $chart = array(
-          'chartmachinename' => $machine_name,
-          'charttype'        => $machine_name . self::$js_charttype_postfix,
-          'drilldown'        => $chEvent->getDrillDown(),
-          'filter'           => $chEvent->getFilters(),
-          'countTotal'       => $chEvent->getCountTotal(),
-          'countFiltered'    => $chEvent->getCountFiltered(),
-          'datatable'        => $chEvent->getDataTable(),
-        );
-        $charts->add($chart);
-      }
-      $content = $charts;
+      $content = $this->getChartsByOrderId($order_id, $drilldown);
     }
     catch(Exception $e) {
-      $content = $e->getMessage();
+      $content = "Message: [{$e->getMessage()}] - Line: {[$e->getLine()]}";
       $code = 204;
     }
     
     return new Response($content, $code);
+  }
+
+
+  /**
+   * Download CSV
+   * /clipper/charts/download
+   *
+   * @param ParamFetcher $paramFetcher
+   *
+   * @QueryParam(name="order_id", default="(empty)", description="FirstQGroup UUID")
+   */
+  public function downloadCsvAction(ParamFetcher $paramFetcher)
+  {
+    $order_id = $paramFetcher->get('order_id');
+    $survey_type = null;
+    
+    $charts = $this->getChartsByOrderId($order_id, array(), $survey_type);
+    
+    // TODO: use ExcelBundle to output file
+    // https://github.com/liuggio/ExcelBundle
+
+    return $response;
+  }
+
+  /**
+   * 
+   * 
+   * @param $order_id
+   * @return $charts ArrayCollection
+   */
+  private function getChartsByOrderId($order_id, $drilldown = array(), &$survey_type) 
+  {
+    $charts = new ArrayCollection();
+    $em = $this->container->get('doctrine')->getManager();
+    $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
+    
+    if (!$fqg) {
+      throw new Exception("FQG with id [{$order_id}] not found");
+    }
+    
+    $survey_type = $fqg->getFormDataByField('survey_type');
+    $survey_type = reset($survey_type);
+    $map = $this->container->get('survey_chart_map')->map($survey_type);
+    $assembler = $this->container->get('chart_assembler');
+    
+    foreach ($map['machine_names'] as $index => $machine_name) {
+      $chEvent = $assembler->getChartEvent($order_id, $machine_name, $survey_type, $drilldown);
+      $chart = array(
+        'chartmachinename' => $machine_name,
+        'charttype'        => $machine_name . self::$js_charttype_postfix,
+        'drilldown'        => $chEvent->getDrillDown(),
+        'filter'           => $chEvent->getFilters(),
+        'countTotal'       => $chEvent->getCountTotal(),
+        'countFiltered'    => $chEvent->getCountFiltered(),
+        'datatable'        => $chEvent->getDataTable(),
+      );
+      $charts->add($chart);
+    }
+
+    return $charts;
   }
 }
