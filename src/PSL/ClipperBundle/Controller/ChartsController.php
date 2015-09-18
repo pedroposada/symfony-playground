@@ -154,9 +154,8 @@ class ChartsController extends FOSRestController
       $content = $charts;
     }
     catch(Exception $e) {
-      print_r($e);
-      // $content = $e->getMessage();
-      // $code = 204;
+      $content = $e->getMessage();
+      $code = 204;
     }
     
     return new Response($content, $code);
