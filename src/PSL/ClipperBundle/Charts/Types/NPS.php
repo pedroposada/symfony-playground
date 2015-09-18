@@ -31,51 +31,48 @@ class NPS extends ChartType
 
     $dataTable['cols'] = array(
       array(
-        'id' => 'b',
+        'id'    => 'b',
         'label' => 'Brand',
-        'type' => 'string',
+        'type'  => 'string',
       ),
       array(
-        'id' => 'P',
+        'id'    => 'P',
         'label' => 'Promoters',
-        'type' => 'number',
+        'type'  => 'number',
       ),
       array(
-        'id' => 'a',
+        'id'    => 'a',
         'label' => 'Passives',
-        'type' => 'number',
+        'type'  => 'number',
       ),
       array(
-        'id' => 'd',
+        'id'    => 'd',
         'label' => 'Detractors',
-        'type' => 'number',
+        'type'  => 'number',
       ),
       array(
-        'id' => 's',
+        'id'    => 's',
         'label' => 'Score',
-        'type' => 'number',
+        'type'  => 'number',
       ),
     );
 
     foreach ($tree as $brand => $values) {
-      $promoters  = isset($values['Promoter']) ? count($values['Promoter']) : 0;
-      $passives   = isset($values['Passive']) ? count($values['Passive']) : 0;
-      $detractors = isset($values['Detractor']) ? count($values['Detractor']) : 0;
-
+      $promoters  = (isset($values['Promoter'])  ? count($values['Promoter']) : 0);
+      $passives   = (isset($values['Passive'])   ? count($values['Passive']) : 0);
+      $detractors = (isset($values['Detractor']) ? count($values['Detractor']) : 0);
       $total = $promoters + $passives + $detractors;
-
-      $Promoters  = $this->roundingUpValue(($promoters / $total)) * 100;
-      $Passives   = $this->roundingUpValue(($passives / $total)) * 100;
-      $Detractors = $this->roundingUpValue(($detractors / $total)) * 100;
+      $Promoters  = ($this->roundingUpValue(($promoters / $total)) * 100);
+      $Passives   = ($this->roundingUpValue(($passives / $total)) * 100);
+      $Detractors = ($this->roundingUpValue(($detractors / $total)) * 100);
       $Score      = ($Promoters - $Detractors);
-
       $dataTable['rows'][] = array(
         'c' => array(
           array('v' => $brand),
-          array('v' => $Promoters, 'f' => $this->roundingUpValue($Promoters, 0, TRUE) . '%'),
-          array('v' => $Passives, 'f' => $this->roundingUpValue($Passives, 0, TRUE) . '%'),
+          array('v' => $Promoters,  'f' => $this->roundingUpValue($Promoters, 0, TRUE) . '%'),
+          array('v' => $Passives,   'f' => $this->roundingUpValue($Passives, 0, TRUE) . '%'),
           array('v' => $Detractors, 'f' => $this->roundingUpValue($Detractors, 0, TRUE) . '%'),
-          array('v' => $Score, 'f' => $this->roundingUpValue($Score, 0, TRUE)),
+          array('v' => $Score,      'f' => $this->roundingUpValue($Score, 0, TRUE)),
         ),
         'p' => array('Brand' => $brand)
       );
