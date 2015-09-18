@@ -45,13 +45,15 @@ class PromotersPromote extends ChartType {
     $this->respondent_count = count($this->respondent);
 
     //calculate each brands score
-    foreach ($this->brands as $brand) {
-      //update @var $this->promoting
-      $this->calculateBrandScores($brand);
-    }
+    if ($this->respondent_count) {
+      foreach ($this->brands as $brand) {
+        //update @var $this->promoting
+        $this->calculateBrandScores($brand);
+      }
 
-    //calculate competitors, update @var $this->competitors
-    $this->identifyCompetitors();
+      //calculate competitors, update @var $this->competitors
+      $this->identifyCompetitors();
+    }
 
     //data formation
     $dataTable = array(
