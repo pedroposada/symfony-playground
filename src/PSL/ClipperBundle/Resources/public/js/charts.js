@@ -146,7 +146,10 @@ var ChartForm = React.createClass({
       );
     });
     return (
-      <select ref="country">
+      <select 
+        ref="country"
+        style={{ display: (this.props.countries.length ? 'inline-block' : 'none') }}
+        >
         <option key="" value="">Country</option>
         {output}
       </select>
@@ -159,7 +162,10 @@ var ChartForm = React.createClass({
       );
     });
     return (
-      <select ref="region">
+      <select 
+        ref="region"
+        style={{ display: (this.props.regions.length ? 'inline-block' : 'none') }}
+        >
         <option key="" value="">Region</option>
         {output}
       </select>
@@ -172,7 +178,10 @@ var ChartForm = React.createClass({
       );
     });
     return (
-      <select ref="specialty">
+      <select 
+        ref="specialty"
+        style={{ display: (this.props.specialties.length ? 'inline-block' : 'none') }}
+        >
         <option key="" value="">Specialty</option>
         {output}
       </select>
@@ -233,10 +242,20 @@ var ChartHeader = React.createClass({
     }
   },
   render: function() {
+    var subs = this.props.subs;
     return (
-      <h4>
-        {this.state.id}: {this.props.caption}
-      </h4>
+      <div
+        class="subheading"
+        >
+        <h3>
+          {this.state.id}: {this.props.caption}        
+        </h3>
+        <ul>
+          {subs.map(function(sub){
+            return <li>{sub}</li>;
+          })}
+        </ul>
+      </div>
     );
   }
 });
@@ -244,22 +263,29 @@ var ChartHeader = React.createClass({
 var Chart = React.createClass({  
   hasForm: function() {
     return this.props.countries.length || this.props.regions.length || this.props.specialties.length;
-  },  
+  },
   render: function() {
+    var subHeadings = [];
+    subHeadings[subHeadings.length] = 'Filtered: ' + this.props.countFiltered + ', Total: ' + this.props.countTotal;
+    subHeadings[subHeadings.length] = 'Selected Country: ' + (this.props.filters.country || '');
+    subHeadings[subHeadings.length] = 'Selected Region: ' + (this.props.filters.region || '');
+    subHeadings[subHeadings.length] = 'Selected Specialty: ' + (this.props.filters.specialty || '');
+    
     return (
       <div 
         className="chart-container"
         style={{ margin: '30px 20px 20px', border: '1px solid #DDD', padding: '10px' }} 
         >
         <ChartHeader 
-          caption = {this.props.chartmachinename || this.props.charttype} 
+          caption = {this.props.chartmachinename || this.props.charttype}
+          subs    = {subHeadings}
         />
-        <GoogleChart 
-          chartmachinename = {this.props.chartmachinename}
-          charttype = {this.props.charttype}
-          datatable = {this.props.datatable}
-        />  
-        
+        { this.props.countFiltered ? 
+          <GoogleChart 
+            chartmachinename = {this.props.chartmachinename}
+            charttype = {this.props.charttype}
+            datatable = {this.props.datatable}
+          /> : null }        
         {  this.hasForm() ? 
           <ChartForm 
             chartmachinename={this.props.chartmachinename} 
@@ -334,6 +360,9 @@ var ChartList = React.createClass({
           specialties={drill.specialties || []}
           regions={drill.regions || []}
           loadCharts={loadCharts}
+          filters={chart.filter}
+          countTotal={chart.countTotal}
+          countFiltered={chart.countFiltered}
         />
       );  
     });    
