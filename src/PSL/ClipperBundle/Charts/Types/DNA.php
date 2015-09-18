@@ -14,7 +14,7 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 class DNA extends ChartType {
   private $comments = array();
 
-  private static $enclosure      = '<span>"</span>';
+  private static $enclosure      = '';
   private static $maxComments    = 15;
 
   /**
