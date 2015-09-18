@@ -225,13 +225,36 @@ var GoogleChart = React.createClass({
 /**
  * Chart wrapper
  */
+//#devDemoOnly
+var slideSerialCount = 1;
+var ChartHeader = React.createClass({ 
+  getInitialState: function() {
+    return {
+      id: slideSerialCount++
+    }
+  },
+  render: function() {
+    return (
+      <h4>
+        {this.state.id}: {this.props.caption}
+      </h4>
+    );
+  }
+});
+
 var Chart = React.createClass({  
   hasForm: function() {
     return this.props.countries.length || this.props.regions.length || this.props.specialties.length;
   },  
   render: function() {
     return (
-      <div className="chart-container">
+      <div 
+        className="chart-container"
+        style={{ margin: '30px 20px 20px', border: '1px solid #DDD', padding: '10px' }} 
+        >
+        <ChartHeader 
+          caption = {this.props.chartmachinename || this.props.charttype} 
+        />
         <GoogleChart 
           chartmachinename = {this.props.chartmachinename}
           charttype = {this.props.charttype}
