@@ -30,7 +30,7 @@ abstract class ChartType
   protected $map;
   protected $qcode;
   protected $drill_down;
-  protected static $net_promoters           = 'net_promoters';
+  protected static $net_promoters           = 'NPS';
   protected static $decimal_point           = 2;
   protected static $net_promoters_cat_range = array(
     'detractor' => array(0, 1, 2, 3, 4, 5, 6),

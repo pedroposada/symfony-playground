@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = DoctorPromotingMineAlsoOthers
+ * Machine Name      = PromotersPromote
  * Slide             = NPS:004
- * Service Name      = clipper.chart.doctor_promoting_mine_also_others
+ * Service Name      = clipper.chart.promoterspromote
  * Targeted Question = G003Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/doctor_promoting_mine_also_others.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class DoctorPromotingMineAlsoOthers extends ChartType {
+class PromotersPromote extends ChartType {
 
   private $respondent       = array();
   private $respondent_count = 0;

@@ -127,6 +127,7 @@ class ChartEvent extends Event
       foreach ($type as $set => $values) {
         $this->setDrillDown($set, $values);
       }
+      return;
     }
     
     $type   = strtolower($type);

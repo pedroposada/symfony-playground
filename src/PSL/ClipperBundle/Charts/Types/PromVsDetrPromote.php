@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = PromotersPrescribeVersusDetractors
- * Slide             = NPS:007
- * Service Name      = clipper.chart.promoters_prescribe_versus_detractors
+ * Machine Name      = PromVsDetrPromote
+ * Slide             = NPS:006
+ * Service Name      = clipper.chart.promvsdetrpromote
  * Targeted Question = G002Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/promoters_prescribe_versus_detractors.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class PromotersPrescribeVersusDetractors extends ChartType {
+class PromVsDetrPromote extends ChartType {
 
   private $brands_scores = array();
 
@@ -190,8 +189,12 @@ class PromotersPrescribeVersusDetractors extends ChartType {
         $$type = $this->brands_scores[$brand]['cal'][$type] = (($this->brands_scores[$brand][$type]['t'] / $base) * 100);
       }
     }
-    if (!empty($pro)) {
-      $this->brands_scores[$brand]['cal']['res'] = ((($pro - $det) / $det) * 100) * 100;
+    //@todo: REVIEW!!
+    $this->brands_scores[$brand]['cal']['res'] = ($pro - $det);
+    if (!empty($det)) {
+      $this->brands_scores[$brand]['cal']['res'] = ($this->brands_scores[$brand]['cal']['res'] / $det);
     }
+    $this->brands_scores[$brand]['cal']['res'] *= 100;
+    $this->brands_scores[$brand]['cal']['res'] *= 100;
   }
 }

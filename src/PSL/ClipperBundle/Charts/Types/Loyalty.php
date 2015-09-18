@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = DevotedDoctorToBrands
+ * Machine Name      = Loyalty
  * Slide             = NPS:002
- * Service Name      = clipper.chart.devoted_doctor_to_brands
+ * Service Name      = clipper.chart.loyalty
  * Targeted Question = G003Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/devoted_doctor_to_brands.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class DevotedDoctorToBrands extends ChartType {
+class Loyalty extends ChartType {
   private $respondent = array();
   private $brands_results;
 

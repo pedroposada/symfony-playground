@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = WhatTheySay
+ * Machine Name      = DNA
  * Slide             = NPS:009
- * Service Name      = clipper.chart.what_they_say
+ * Service Name      = clipper.chart.dna
  * Targeted Question = G004Q001, G005Q001, G006Q001, G007Q001, G008Q001, G009Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/what_they_say.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -12,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class WhatTheySay extends ChartType {
+class DNA extends ChartType {
   private $comments = array();
 
   private static $enclosure      = '<span>"</span>';

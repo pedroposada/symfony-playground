@@ -1,10 +1,9 @@
 <?php
 /**
- * Machine Name      = NetPromoters
+ * Machine Name      = NPS
  * Slide             = NPS:001
- * Service Name      = clipper.chart.net_promoters
+ * Service Name      = clipper.chart.nps
  * Targeted Question = G003Q001
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/net_promoters.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -14,7 +13,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class NetPromoters extends ChartType
+class NPS extends ChartType
 {
   /**
    * @see ChartType dataTable
