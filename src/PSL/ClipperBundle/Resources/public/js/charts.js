@@ -216,7 +216,7 @@ var GoogleChart = React.createClass({
       <div 
         className="google-chart" 
         id={this.state.id}
-        style={{ height: "500px", width: "500px"}} 
+        style={{ minHeight: "500px", width: "700px"}} 
       />
     );
   },  
