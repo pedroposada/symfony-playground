@@ -199,7 +199,7 @@ abstract class ChartType
       return ($method($key, $qcode) !== FALSE);
     }, ARRAY_FILTER_USE_KEY);
 
-    //if given array but need to get using strpos; use by AssociateCategoriesImportance
+    //if given array but need to get using strpos; use by DNA slide
     //see @var $multi_structure
     if (empty($answers)) {
       $answers = array();
