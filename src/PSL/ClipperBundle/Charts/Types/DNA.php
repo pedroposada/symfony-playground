@@ -43,15 +43,9 @@ class DNA extends ChartType {
 
     foreach ($this->brands as $brand) {
       $dataTable[] = array(
-        'title'    => "What is {$brand}'s brand DNA?",
-        'headings' => array(
-          'det' => 'DETRACTORS:',
-          'pro' => 'PROMOTERS:',
-        ),
-        'res'      => array(
-          'det' => $this->comments[$brand]['det'],
-          'pro' => $this->comments[$brand]['pro'],
-        ),
+        'brand'      => "What is {$brand}'s brand DNA?",
+        'detractors' => $this->comments[$brand]['det'],
+        'promoters'  => $this->comments[$brand]['pro'],
       );
     }
 
