@@ -1,0 +1,30 @@
+{# src/PSL/ClipperBundle/Resources/views/Charts/doctor_promoting_brands.html.twig #}
+{% autoescape false %}
+    <!-- START CHART -->
+    <!--Div that will hold the chart-->
+    <!-- canvas id="{{ chartDivId }}" style="width:400; height:300" width="400" height="300"></canvas-->
+    <div id="{{ chartDivId }}" style="width:400; height:300"></div>
+    <script type="text/javascript">
+      //data
+      var data = clipper.charts.formatters.DoctorsPromote_Chart({{ dataTable|json_encode() }});
+
+      var chart = new clipper.charts.DoctorsPromote_Chart('{{ chartDivId }}', null, data);
+
+      // console.log({{ dataTable|json_encode() }});
+      // // canvas id; must have size
+      // var canvas_id = '{{ chartDivId }}';
+      // //box background color
+      // var boxbgcolor = 'lightblue';
+      // //box border color
+      // var boxbrcolor = 'darkgrey';
+      // //font color
+      // var boxftcolor = '#222';
+      // //font family
+      // var boxftfamily = 'Arial';
+      // //line color
+      // var linecolor = '#555';
+
+      // function roundRect(t,o,e,n,c,a,r){"undefined"==typeof r&&(r="grey"),"undefined"==typeof c&&(c=5),context.beginPath(),void 0!=a&&(context.fillStyle=a),void 0!=r&&(context.strokeStyle=r),context.moveTo(t+c,o),context.lineTo(t+e-c,o),context.quadraticCurveTo(t+e,o,t+e,o+c),context.lineTo(t+e,o+n-c),context.quadraticCurveTo(t+e,o+n,t+e-c,o+n),context.lineTo(t+c,o+n),context.quadraticCurveTo(t,o+n,t,o+n-c),context.lineTo(t,o+c),context.quadraticCurveTo(t,o,t+c,o),context.closePath(),void 0!=a&&context.fill(),void 0!=r&&context.stroke()}function drawCenterStage(){var t="lightgrey";context.beginPath(),context.moveTo(0,middle),context.lineTo(canw,middle),context.lineWidth=1,context.strokeStyle=t,context.stroke(),context.closePath(),context.beginPath(),context.moveTo(center,0),context.lineTo(center,canh),context.lineWidth=1,context.strokeStyle=t,context.stroke(),context.closePath()}function writeInRect(t,o,e){context.beginPath(),context.fillStyle=boxftcolor,context.textAlign="center",font_starts=e,context.font=font,context.fillText(t.label,o,font_starts),context.font=small_font+"px "+boxftfamily,context.fillText(t.append,o,font_starts+=font_spa),context.font=font,context.fillText(t.show,o,font_starts+=font_spa),context.closePath()}function drawLine(t,o,e,n){context.beginPath(),context.moveTo(t,o),context.lineTo(e,n),context.lineWidth=line_width,context.strokeStyle=linecolor,context.stroke(),context.closePath()}var canvas=document.getElementById(canvas_id),context=canvas.getContext("2d"),canw=canvas.width,canh=canvas.height,center=canw/2,middle=canh/2,boxw=canh/2,boxh=boxw/3,cornerRadius=canw/40,bstartsw=canw/10,font=Math.floor(canw/33),small_font=Math.floor(canw/40),font_spa=boxw/10,font_pad=font;font=font+"px "+boxftfamily;var font_starts=0,line_width=2;roundRect(bstartsw,middle-2*boxh,boxw,boxh,cornerRadius,boxbgcolor,boxbrcolor),roundRect(center+bstartsw,middle/8,boxw,boxh,cornerRadius,boxbgcolor,boxbrcolor),roundRect(center+bstartsw,middle/8*4.2,boxw,boxh,cornerRadius,boxbgcolor,boxbrcolor),roundRect(bstartsw,middle+boxh,boxw,boxh,cornerRadius,boxbgcolor,boxbrcolor),writeInRect(data.se,center+bstartsw+.5*boxw,middle/8+font_spa),writeInRect(data.ss,center+bstartsw+.5*boxw,middle/8*4.2+font_spa),writeInRect(data.sa,bstartsw+.5*boxw,middle-2*boxh+font_spa),writeInRect(data.ds,bstartsw+.5*boxw,middle+boxh+font_spa),drawLine(bstartsw+boxw-font_pad,middle/2,center+bstartsw+font_pad/2,middle/8*2.5),drawLine(bstartsw+boxw-font_pad,middle/2,center+bstartsw+font_pad/2,middle/8*5.5),drawLine(font_pad,middle,bstartsw+font_pad/2,middle/8*4.2),drawLine(font_pad,middle,bstartsw+font_pad/2,middle+middle/8*4.2);
+    </script>
+    <!-- END CHART -->
+{% endautoescape %}

@@ -2,11 +2,12 @@
 
 namespace PSL\ClipperBundle\DataFixtures\ORM;
 
-use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use PSL\ClipperBundle\Entity\FirstQGroup;
 
-class LoadFirstQGroups implements FixtureInterface
+class LoadFirstQGroups extends AbstractFixture implements OrderedFixtureInterface
 {
     /**
      * {@inheritDoc}

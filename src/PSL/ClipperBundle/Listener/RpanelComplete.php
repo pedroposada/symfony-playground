@@ -24,10 +24,8 @@ class RpanelComplete extends FqProcess
     // get survey ID
     $iSurveyID = current($fqp->getLimesurveyDataByField('sid'));
     
-    // config connection to LS
-    $params_ls = $this->container->getParameter('limesurvey');
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // get LS
+    $ls = $this->container->get('limesurvey');
     
     // check if quota has been reached
     $response = $ls->get_summary(array(
@@ -35,7 +33,7 @@ class RpanelComplete extends FqProcess
       'sStatName' => 'completed_responses', 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fqp->getId()}] on [get_summary]");
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [get_summary]");
     }
     
     // TODO: quota needs to be dynamic per type of survey
@@ -57,7 +55,7 @@ class RpanelComplete extends FqProcess
     
     if (is_array($response) && isset($response['status'])) {
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fq->id: [{$fqp->getId()}] on [set_survey_properties]");
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [set_survey_properties]");
     }
 
   }
