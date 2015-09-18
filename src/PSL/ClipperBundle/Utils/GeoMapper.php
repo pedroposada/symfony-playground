@@ -46,7 +46,8 @@ class GeoMapper {
         'UK',
       ),
       //additional data from net
-      //@todo: review the needs of these data
+    /** 
+    //disabled since this is not in use, TBA
       'Eastern Africa' => array(
         'Burundi',
         'Comoros',
@@ -309,6 +310,7 @@ class GeoMapper {
         'Tonga',
         'Vanuatu',
       ),
+    **/
     );
   }
     
