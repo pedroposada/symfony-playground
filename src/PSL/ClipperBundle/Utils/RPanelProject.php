@@ -20,7 +20,7 @@ class RPanelProject
   
   protected $quote_id; // feasibility_project_quota.quota_id // quota_id in a db and quote_id in the other... I know...
   
-  protected $proj_name;
+  protected $proj_name; // has content from user input field 'title', they fill in the title of the project
   
   protected $proj_status;
   
@@ -138,6 +138,8 @@ class RPanelProject
 
   /**
    * Set proj_name
+   * @param $name
+   *  has content from user input field 'title', they fill in the title of the project
    */
   public function setProjName($name)
   {
@@ -147,7 +149,7 @@ class RPanelProject
   /**
    * Get proj_name
    *
-   * @return string
+   * @return string, user input 'title', user fills in the title of the project
    */
   public function getProjName()
   {

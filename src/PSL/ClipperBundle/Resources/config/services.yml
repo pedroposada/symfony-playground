@@ -76,7 +76,7 @@ services:
 
   clipper.listener.limesurvey_created:
     class: PSL\ClipperBundle\Listener\LimeSurveyCreated
-    arguments: ["@service_container", "limesurvey_created"]
+    arguments: ["@service_container", "limesurvey_created", "@rpanel"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 90 }
 
