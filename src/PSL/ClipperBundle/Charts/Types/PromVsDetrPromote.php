@@ -13,7 +13,8 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class PromVsDetrPromote extends ChartType {
 
-  private $brands_scores = array();
+  private $brands_scores         = array();
+  private $brands_scores_results = array();
 
   /**
    * Method call to return chart data.
@@ -47,7 +48,8 @@ class PromVsDetrPromote extends ChartType {
       ),
     );
     $this->brands_scores = array_combine($this->brands, array_fill(0, count($this->brands), $score_set));
-
+    $this->brands_scores_results = array_flip($this->brands);
+    
     //extract respondent
     foreach ($event->getData() as $response) {
       //update @var $this->brands_scores
@@ -57,10 +59,14 @@ class PromVsDetrPromote extends ChartType {
       //update @var $this->brands_scores
       $this->calculateBrandScore($brand);
     }
-
+    
+    //sort
+    arsort($this->brands_scores_results);
+    
     //data formation
     $dataTable = array();
-    foreach ($this->brands as $index => $brand) {
+    $index = 0;
+    foreach ($this->brands_scores_results as $brand => $result) {
       $dataTable[$index] = array(
         'title' => "{$brand}: How much more of my brand do Promoters prescribe versus Detractors?",
         'cols'  => array(
@@ -93,6 +99,7 @@ class PromVsDetrPromote extends ChartType {
           ),
         );
       }
+      $index++;
     }
 
     return $dataTable;
@@ -189,12 +196,12 @@ class PromVsDetrPromote extends ChartType {
         $$type = $this->brands_scores[$brand]['cal'][$type] = (($this->brands_scores[$brand][$type]['t'] / $base) * 100);
       }
     }
-    //@todo: REVIEW!!
-    $this->brands_scores[$brand]['cal']['res'] = ($pro - $det);
+    $result = ($pro - $det);
     if (!empty($det)) {
-      $this->brands_scores[$brand]['cal']['res'] = ($this->brands_scores[$brand]['cal']['res'] / $det);
+      $result = ($result / $det);
     }
-    $this->brands_scores[$brand]['cal']['res'] *= 100;
-    $this->brands_scores[$brand]['cal']['res'] *= 100;
+    $result *= 0.1;
+    $result *= 0.1;
+    $this->brands_scores[$brand]['cal']['res']= $this->brands_scores_results[$brand] = $result;
   }
 }
