@@ -38,17 +38,19 @@ class Loyalty extends ChartType {
       //update @var $this->brands_results
       $this->extractRespondent($response);
     }
-
-    //#final-calculation
-    $overall_total = $overall_count = 0;
-    foreach ($this->brands_results as $brand => $respondent) {
-      $total = array_sum($respondent);
-      $overall_total += $total;
-      $count = count($respondent);
-      $overall_count += $count;
-      $this->brands_results[$brand] = $this->roundingUpValue(($total / $count));
+    
+    $overall_avg = $overall_total = $overall_count = 0;
+    if (!empty($this->respondent)) {
+      //#final-calculation
+      foreach ($this->brands_results as $brand => $respondent) {
+        $total = array_sum($respondent);
+        $overall_total += $total;
+        $count = count($respondent);
+        $overall_count += $count;
+        $this->brands_results[$brand] = $this->roundingUpValue(($total / $count));
+      }
+      $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
     }
-    $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
 
     //sorting
     arsort($this->brands_results);
