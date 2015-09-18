@@ -14,10 +14,13 @@ namespace PSL\ClipperBundle\Survey;
 use Symfony\Component\Templating\PhpEngine as PhpEngine;
 use Symfony\Component\Templating\TemplateNameParser;
 
+use PSL\ClipperBundle\ClipperEvents;
+use PSL\ClipperBundle\Event\LimeSurveyTranslationEvent;
+
 class LimeSurvey
 {
   
-  protected $templating;
+  protected $container;
   
   protected $answers;
   
@@ -37,6 +40,10 @@ class LimeSurvey
   
   protected $survey_url_parameters;
   
+  protected $languages;
+  
+  protected $type;
+  
   public function __construct()
   {
     
@@ -45,10 +52,21 @@ class LimeSurvey
   /**
    * Function to assemble all arrays created in the subclass
    */
-  public function assembleSurvey() {
+  public function assembleSurvey()
+  {
+    $elements_array = $this->getElementsArray();
     
-    $assembled_survey = $this->templating->render('PSLClipperBundle:limesurvey:limesurveyTemplate.xml.twig', 
-      array('answers' => $this->answers,
+    $assembled_survey = $this->container->get('templating')->render('PSLClipperBundle:limesurvey:limesurveyTemplate.xml.twig', $elements_array);
+    
+    return $assembled_survey;
+  }
+
+  /**
+   * Function to prepare the elements for the render function 
+   */
+  public function getElementsArray()
+  {
+    $elements_array = array('answers' => $this->answers,
         'conditions' => $this->conditions,
         'groups' => $this->groups,
         'questions' => $this->questions,
@@ -57,30 +75,39 @@ class LimeSurvey
         'surveys' => $this->surveys,
         'surveys_languagesettings' => $this->surveys_languagesettings,
         'survey_url_parameters' => $this->survey_url_parameters,
-      )
-    );
+        'languages' => $this->languages,
+      );
     
-    return $assembled_survey;
+    // get dispatcher class
+    $dispatcher = $this->getContainer()->get('event_dispatcher');
+    // instantiate event object
+    $event = new LimeSurveyTranslationEvent($elements_array, $this->languages, $this->type);
+    // main event, triggers subscribed listeners 
+    $dispatcher->dispatch(ClipperEvents::LIMESURVEY_TRANSLATION, $event);
+    
+    $elements_array = $event->getElements();
+    
+    return $elements_array;
   }
   
   /**
-   * templating
+   * container
    * 
-   * @returns $templating 
+   * @returns $container 
    */
-  public function getTemplating() {
-    return $this->templating;
+  public function getContainer()
+  {
+    return $this->container;
   }
   
   /**
-   * templating
+   * container
    * 
-   * @returns $templating 
+   * @returns $container 
    */
-  public function setTemplating($templating) {
-    // $templating = new PhpEngine(new TemplateNameParser());
-    // $this->templating = $templating;
-    $this->templating = $templating;
+  public function setContainer($container)
+  {
+    $this->container = $container;
   }
   
   // ------------------------------------------------------------------------------------------
@@ -90,7 +117,7 @@ class LimeSurvey
    *
    * @param object $answers
    */
-  public function addAnswer($answer) 
+  public function addAnswer($answer)
   {
     $this->answers[] = $answer;
   }
@@ -100,7 +127,7 @@ class LimeSurvey
    *
    * @param object $conditions
    */
-  public function addCondition($condition) 
+  public function addCondition($condition)
   {
     $this->conditions[] = $condition;
   }
@@ -110,7 +137,7 @@ class LimeSurvey
    *
    * @param object $groups
    */
-  public function addGroup($group) 
+  public function addGroup($group)
   {
     $this->groups[] = $group;
   }
@@ -120,7 +147,7 @@ class LimeSurvey
    *
    * @param object $questions
    */
-  public function addQuestion($question) 
+  public function addQuestion($question)
   {
     $this->questions[] = $question;
   }
@@ -130,7 +157,7 @@ class LimeSurvey
    *
    * @param object $subquestions
    */
-  public function addSubquestion($subquestion) 
+  public function addSubquestion($subquestion)
   {
     $this->subquestions[] = $subquestion;
   }
@@ -140,7 +167,7 @@ class LimeSurvey
    *
    * @param object $question_attributes
    */
-  public function addQuestionAttribute($question_attribute) 
+  public function addQuestionAttribute($question_attribute)
   {
     $this->question_attributes[] = $question_attribute;
   }
@@ -150,7 +177,7 @@ class LimeSurvey
    *
    * @param object $surveys
    */
-  public function addSurvey($survey) 
+  public function addSurvey($survey)
   {
     $this->surveys[] = $survey;
   }
@@ -160,7 +187,7 @@ class LimeSurvey
    *
    * @param object $surveys
    */
-  public function addSurveysLanguagesetting($surveys_languagesetting) 
+  public function addSurveysLanguagesetting($surveys_languagesetting)
   {
     $this->surveys_languagesettings[] = $surveys_languagesetting;
   }
@@ -170,8 +197,38 @@ class LimeSurvey
    *
    * @param object $survey_url_parameters
    */
-  public function addSurveyUrlParameter($survey_url_parameter) 
+  public function addSurveyUrlParameter($survey_url_parameter)
   {
     $this->survey_url_parameters[] = $survey_url_parameter;
   }
+  
+  /**
+   * Languages 
+   *
+   * @param object $languages
+   */
+  public function setLanguages($languages)
+  {
+    $this->languages = $languages;
+  }
+  
+  /**
+   * Languages
+   *
+   * @param object $languages
+   */
+  public function getLanguages()
+  {
+    return $this->languages;
+  }
+  
+  /**
+   * Type
+   * 
+   * @param string $type
+   */
+   public function setType($type)
+   {
+     $this->type = $type;
+   }
 }

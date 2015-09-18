@@ -1,0 +1,43 @@
+# PSL/ClipperBundle/Resources/translations/limesurvey/nps/messagesSurvey.fr.yml
+
+# NPS+ English Translation
+
+#In which country is your practice located? : In which country is your practice located?
+#Please select one answer only. : Please select one answer only.
+#What is your primary medical specialty? : What is your primary medical specialty?
+
+# Do you personally play an active prescribing role by writing prescriptions for patients with @patient_type?
+pre-group-000.question-000 : "Êtes-vous personnellement et activement responsable de la prescription écrite de traitements aux patients atteints de @patient_type ?"
+
+# Thinking about the following drugs used to treat patients with @patient_type, which of these statements applies to each of them? Please select one response for each drug.
+group-000.question-000: "Parmi les affirmations suivantes, lesquelles s'appliquent aux médicaments énumérés ci-dessous, utilisés pour le traitement des patients atteints de @patient_type ? Veuillez sélectionner une seule réponse par médicament."
+
+# I currently use this drug : I currently use this drug
+group-000.question-000.answer-000 : "J'utilise actuellement ce médicament"
+
+# I have used this drug previously and would consider using it again
+group-000.question-000.answer-001 : "J'ai déjà utilisé ce médicament par le passé et je serais prêt(e) à recommencer"
+
+# I have used this drug previously but no longer consider it
+group-000.question-000.answer-002 : "J'ai déjà utilisé ce médicament par le passé mais je ne souhaite plus l'utiliser"
+
+# I have never used this drug but would consider it
+group-000.question-000.answer-003 : "Je n'ai jamais utilisé ce médicament mais je serais disposé(e) à l'utiliser"
+
+# I have never used this drug and would not consider it
+group-000.question-000.answer-004 : "Je n'ai jamais utilisé ce médicament et je ne suis pas disposé(e) à l'utiliser"
+
+# I am not aware of this drug
+group-000.question-000.answer-005 : "Je ne connais pas ce médicament"
+
+# In a typical month what % of your patients do you prescribe each of the following drugs for the treatment of @patient_type? We realise it is not possible to know this exactly, but we would sincerely appreciate your best approximation. Please express your answer as a percentage. Your responses must add up to at least 100% and can be more if drugs are co-prescribed.
+group-001.question-000 : "Au cours d'un mois normal, à quel pourcentage de vos patients prescrivez-vous chacun des médicaments suivants pour le traitement de @patient_type ? Nous comprenons qu'il est difficile d'estimer ce nombre avec précision, mais nous vous serions très reconnaissants de nous donner une estimation. Veuillez exprimer votre réponse en pourcentage. Vos réponses doivent s'additionner pour atteindre un total de 100 %, voire davantage si vous prescrivez plusieurs médicaments à la fois."
+
+#If a colleague asked you for your recommendation, how likely would you be to recommend each of the following drugs for the treatment of @patient_type? Please select a response for each drug. 0 = Not at all likely, 10 = Extremely likely
+group-002.question-000 : "Si un collègue vous demandait une recommandation, quelle serait la probabilité que vous lui recommandiez chacun des médicaments suivants pour le traitement de @patient_type ? Veuillez sélectionner une seule réponse par médicament. 0 = Pas du tout probable, 10 = Extrêmement probable"
+
+# Thinking about the treatment of your @patient_type patients, how would you summarise in a short phrase of no more than 10 words what @brand means to you? Please use no more than 10 words. 
+group-003.question-000 : "Veuillez considérer le traitement de vos patients atteints de @patient_type. En une courte phrase de 10 mots maximum, comment décririez-vous ce que le @brand représente pour vous ?"
+
+# Which of the following drugs do you associate with each of the following statements for the treatment of @patient_type? Please select all that apply. You must select at least one drug or “None of these” for each row. 
+group-004.question-000 : "Parmi les médicaments suivants, lesquels associez-vous à chacune des affirmations ci-dessous pour le traitement de @patient_type ? Veuillez sélectionner toutes les réponses appropriées. Pour chaque ligne, vous devez sélectionner au moins un médicament ou choisir « Aucune de ces réponses »."

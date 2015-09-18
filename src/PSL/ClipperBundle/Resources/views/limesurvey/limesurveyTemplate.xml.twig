@@ -4,7 +4,9 @@
  <LimeSurveyDocType>Survey</LimeSurveyDocType>
  <DBVersion>177</DBVersion>
  <languages>
-  <language>en</language>
+{% for language in languages %}
+    <language>{{ language }}</language>
+{% endfor %}
  </languages>
  <answers>
   <fields>
@@ -18,7 +20,15 @@
   </fields>
   <rows>
 {% for answer in answers %}
-{{ answer }}
+    <row>
+      <qid><![CDATA[{{ answer.qid }}]]></qid>
+      <code><![CDATA[{{ answer.code }}]]></code>
+      <answer><![CDATA[{{ answer.answer }}]]></answer>
+      <sortorder><![CDATA[{{ answer.sortorder }}]]></sortorder>
+      <assessment_value><![CDATA[{{ answer.assessment_value }}]]></assessment_value>
+      <language><![CDATA[{{ answer.language }}]]></language>
+      <scale_id><![CDATA[0]]></scale_id>
+    </row>
 {% endfor %}
   </rows>
  </answers>
@@ -34,7 +44,15 @@
   </fields>
   <rows>
 {% for condition in conditions %}
-{{ condition }}
+    <row>
+      <cid><![CDATA[{{ condition.cid }}]]></cid>
+      <qid><![CDATA[{{ condition.qid }}]]></qid>
+      <cqid><![CDATA[{{ condition.cqid }}]]></cqid>
+      <cfieldname><![CDATA[{{ condition.cfieldname }}]]></cfieldname>
+      <method><![CDATA[{{ condition.method }}]]></method>
+      <value><![CDATA[{{ condition.value }}]]></value>
+      <scenario><![CDATA[{{ condition.scenario }}]]></scenario>
+    </row>
 {% endfor %}
   </rows>
  </conditions>
@@ -51,7 +69,16 @@
   </fields>
   <rows>
 {% for group in groups %}
-{{ group }}
+    <row>
+      <gid><![CDATA[{{ group.gid }}]]></gid>
+      <sid><![CDATA[{{ group.sid }}]]></sid>
+      <group_name><![CDATA[{{ group.group_name }}]]></group_name>
+      <group_order><![CDATA[{{ group.group_order }}]]></group_order>
+      <description/>
+      <language><![CDATA[{{ group.language }}]]></language>
+      <randomization_group/>
+      <grelevance/>
+    </row>
 {% endfor %}
   </rows>
  </groups>
@@ -76,7 +103,24 @@
   </fields>
   <rows>
 {% for question in questions %}
-{{ question }}
+    <row>
+      <qid><![CDATA[{{ question.qid }}]]></qid>
+      <parent_qid><![CDATA[{{ question.parent_qid }}]]></parent_qid>
+      <sid><![CDATA[{{ question.sid }}]]></sid>
+      <gid><![CDATA[{{ question.gid }}]]></gid>
+      <type><![CDATA[{{ question.type }}]]></type>
+      <title><![CDATA[{{ question.title }}]]></title>
+      <question><![CDATA[{{ question.question }}]]></question>
+      <preg><![CDATA[{{ question.preg }}]]></preg>
+      <help><![CDATA[{{ question.help }}]]></help>
+      <other><![CDATA[{{ question.other }}]]></other>
+      <mandatory><![CDATA[{{ question.mandatory }}]]></mandatory>
+      <question_order><![CDATA[{{ question.question_order }}]]></question_order>
+      <language><![CDATA[{{ question.language }}]]></language>
+      <scale_id><![CDATA[{{ question.scale_id }}]]></scale_id>
+      <same_default><![CDATA[{{ question.same_default }}]]></same_default>
+      <relevance><![CDATA[{{ question.relevance }}]]></relevance>
+   </row>
 {% endfor %}
   </rows>
  </questions>
@@ -101,7 +145,20 @@
   </fields>
   <rows>
 {% for subquestion in subquestions %}
-{{ subquestion }}
+    <row>
+      <qid><![CDATA[{{ subquestion.qid }}]]></qid>
+      <parent_qid><![CDATA[{{ subquestion.parent_qid }}]]></parent_qid>
+      <sid><![CDATA[{{ subquestion.sid }}]]></sid>
+      <gid><![CDATA[{{ subquestion.gid }}]]></gid>
+      <type><![CDATA[{{ subquestion.type }}]]></type>
+      <title><![CDATA[{{ subquestion.title }}]]></title>
+      <question><![CDATA[{{ subquestion.question }}]]></question>
+      <other><![CDATA[{{ subquestion.other }}]]></other>
+      <question_order><![CDATA[{{ subquestion.question_order }}]]></question_order>
+      <language><![CDATA[{{ subquestion.language }}]]></language>
+      <scale_id><![CDATA[{{ subquestion.scale_id }}]]></scale_id>
+      <same_default><![CDATA[0]]></same_default>
+    </row>
 {% endfor %}
   </rows>
  </subquestions>
@@ -114,7 +171,12 @@
   </fields>
   <rows>
 {% for question_attribute in question_attributes %}
-{{ question_attribute }}
+  <row>
+    <qid><![CDATA[{{ question_attribute.qid }}]]></qid>
+    <attribute><![CDATA[{{ question_attribute.attribute }}]]></attribute>
+    <value><![CDATA[{{ question_attribute.value }}]]></value>
+    <language><![CDATA[{{ question_attribute.language }}]]></language>
+  </row>
 {% endfor %}
   </rows>
  </question_attributes>
@@ -178,7 +240,54 @@
   </fields>
   <rows>
 {% for survey in surveys %}
-{{ survey }}
+    <row>
+      <sid><![CDATA[{{ survey.survey_id }}]]></sid>
+      <admin><![CDATA[Administrator]]></admin>
+      <adminemail><![CDATA[{{ survey.adminemail }}]]></adminemail>
+      <anonymized><![CDATA[N]]></anonymized>
+      <faxto><![CDATA[{{ survey.faxto }}]]></faxto>
+      <format><![CDATA[G]]></format>
+      <savetimings><![CDATA[Y]]></savetimings>
+      <template><![CDATA[{{ survey.surveytemplate }}]]></template>
+      <language><![CDATA[{{ survey.language }}]]></language>
+      <additional_languages><![CDATA[{{ survey.additional_languages }}]]></additional_languages>
+      <datestamp><![CDATA[Y]]></datestamp>
+      <usecookie><![CDATA[N]]></usecookie>
+      <allowregister><![CDATA[N]]></allowregister>
+      <allowsave><![CDATA[Y]]></allowsave>
+      <autonumber_start><![CDATA[136]]></autonumber_start>
+      <autoredirect><![CDATA[N]]></autoredirect>
+      <allowprev><![CDATA[Y]]></allowprev>
+      <printanswers><![CDATA[N]]></printanswers>
+      <ipaddr><![CDATA[N]]></ipaddr>
+      <refurl><![CDATA[N]]></refurl>
+      <publicstatistics><![CDATA[N]]></publicstatistics>
+      <publicgraphs><![CDATA[N]]></publicgraphs>
+      <listpublic><![CDATA[Y]]></listpublic>
+      <htmlemail><![CDATA[Y]]></htmlemail>
+      <sendconfirmation><![CDATA[Y]]></sendconfirmation>
+      <tokenanswerspersistence><![CDATA[N]]></tokenanswerspersistence>
+      <assessments><![CDATA[N]]></assessments>
+      <usecaptcha><![CDATA[D]]></usecaptcha>
+      <usetokens><![CDATA[N]]></usetokens>
+      <bounce_email><![CDATA[{{ survey.bounce_email }}]]></bounce_email>
+      <emailresponseto/>
+      <emailnotificationto/>
+      <tokenlength><![CDATA[15]]></tokenlength>
+      <showxquestions><![CDATA[N]]></showxquestions>
+      <showgroupinfo><![CDATA[B]]></showgroupinfo>
+      <shownoanswer><![CDATA[Y]]></shownoanswer>
+      <showqnumcode><![CDATA[X]]></showqnumcode>
+      <bounceprocessing><![CDATA[N]]></bounceprocessing>
+      <showwelcome><![CDATA[N]]></showwelcome>
+      <showprogress><![CDATA[Y]]></showprogress>
+      <questionindex><![CDATA[0]]></questionindex>
+      <navigationdelay><![CDATA[0]]></navigationdelay>
+      <nokeyboard><![CDATA[N]]></nokeyboard>
+      <alloweditaftercompletion><![CDATA[N]]></alloweditaftercompletion>
+      <googleanalyticsstyle><![CDATA[0]]></googleanalyticsstyle>
+      <googleanalyticsapikey/>
+    </row>
 {% endfor %}
   </rows>
  </surveys>
@@ -225,7 +334,13 @@
   </fields>
   <rows>
 {% for survey_url_parameter in survey_url_parameters %}
-{{ survey_url_parameter }}
+   <row>
+    <id><![CDATA[{{ survey_url_parameter.id }}]]></id>
+    <sid><![CDATA[{{ survey_url_parameter.sid }}]]></sid>
+    <parameter><![CDATA[{{ survey_url_parameter.parameter }}]]></parameter>
+    <targetqid><![CDATA[{{ survey_url_parameter.targetqid }}]]></targetqid>
+    <targetsqid><![CDATA[{{ survey_url_parameter.targetsqid }}]]></targetsqid>
+   </row>
 {% endfor %}
   </rows>
  </survey_url_parameters>
