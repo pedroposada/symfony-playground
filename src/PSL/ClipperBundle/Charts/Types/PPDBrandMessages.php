@@ -132,7 +132,7 @@ class PPDBrandMessages extends ChartType {
         array('v' => $this->result[$qcode]['confidence']['high']),
       );
       //merge
-      $empty   = array('v' => NULL);
+      $empty   = array('v' => '');
       $postfix = $prefix = array();
       if ($qindex > 0) {
         $prefix  = array_fill(0, ($series_count * $qindex), $empty);
