@@ -1,117 +1,120 @@
    <row>
     <surveyls_survey_id><![CDATA[{{ surveyls_survey_id }}]]></surveyls_survey_id>
-    <surveyls_language><![CDATA[fr]]></surveyls_language>
+    <surveyls_language><![CDATA[es]]></surveyls_language>
     <surveyls_title><![CDATA[NPS+ TEMPLATE AUTOMATED]]></surveyls_title>
     <surveyls_description/>
     <surveyls_welcometext><![CDATA[Welcome to our Survey]]></surveyls_welcometext>
     <surveyls_endtext><![CDATA[Thanks for completing our survey]]></surveyls_endtext>
     <surveyls_url><![CDATA[{{ surveyls_url }}]]></surveyls_url>
     <surveyls_urldescription/>
-    <surveyls_email_invite_subj><![CDATA[Invitation to participate in a survey]]></surveyls_email_invite_subj>
-    <surveyls_email_invite><![CDATA[Dear {FIRSTNAME},<br />
+    <surveyls_email_invite_subj><![CDATA[Invitación para participar en una encuesta]]></surveyls_email_invite_subj>
+    <surveyls_email_invite><![CDATA[Estimado/a {FIRSTNAME} {LASTNAME}:<br />
 <br />
-you have been invited to participate in a survey.<br />
+Ha sido invitado a participar en la siguiente encuesta:<br />
 <br />
-The survey is titled:<br />
-"{SURVEYNAME}"<br />
+«{SURVEYNAME}»<br />
 <br />
-"{SURVEYDESCRIPTION}"<br />
+«{SURVEYDESCRIPTION}»<br />
 <br />
-To participate, please click on the link below.<br />
+Para hacerlo, por favor pulse en el siguiente enlace:<br />
 <br />
-Sincerely,<br />
+{SURVEYURL}<br />
+<br />
+¡Muchas gracias por su interés y colaboración!<br />
+<br />
+Atentamente,<br />
 <br />
 {ADMINNAME} ({ADMINEMAIL})<br />
 <br />
-----------------------------------------------<br />
-Click here to do the survey:<br />
-{SURVEYURL}<br />
-<br />
-If you do not want to participate in this survey and don't want to receive any more invitations please click the following link:<br />
+Si no desea participar en esta encuesta y tampoco desea recibir más invitaciones a la misma, por favor, pulse en el siguiente enlace:<br />
 {OPTOUTURL}<br />
 <br />
-If you are blacklisted but want to participate in this survey and want to receive invitations please click the following link:<br />
+Si usted se encuentra en la lista negra de usuarios, pero quiere participar en esta encuesta y quiere recibir invitaciones, por favor haga click en el siguiente enlace:<br />
 {OPTINURL}]]></surveyls_email_invite>
-    <surveyls_email_remind_subj><![CDATA[Reminder to participate in a survey]]></surveyls_email_remind_subj>
-    <surveyls_email_remind><![CDATA[Dear {FIRSTNAME},<br />
+    <surveyls_email_remind_subj><![CDATA[Recordatorio para participar en una encuesta]]></surveyls_email_remind_subj>
+    <surveyls_email_remind><![CDATA[Estimado/a {FIRSTNAME} {LASTNAME}:<br />
 <br />
-Recently we invited you to participate in a survey.<br />
+Recientemente se le invitó a participar en la encuesta de título<br />
 <br />
-We note that you have not yet completed the survey, and wish to remind you that the survey is still available should you wish to take part.<br />
+«{SURVEYNAME}»<br />
 <br />
-The survey is titled:<br />
-"{SURVEYNAME}"<br />
+«{SURVEYDESCRIPTION}»<br />
 <br />
-"{SURVEYDESCRIPTION}"<br />
+Advertimos que aún no la ha completado, y de la forma más atenta queríamos recordarle que todavía se encuentra disponible si desea participar.<br />
 <br />
-To participate, please click on the link below.<br />
+Para hacerlo, por favor pulse en el siguiente enlace:<br />
 <br />
-Sincerely,<br />
+{SURVEYURL}<br />
+<br />
+Nuevamente le agradecemos su interés y colaboración.<br />
+Atentamente,<br />
 <br />
 {ADMINNAME} ({ADMINEMAIL})<br />
 <br />
-----------------------------------------------<br />
-Click here to do the survey:<br />
-{SURVEYURL}<br />
-<br />
-If you do not want to participate in this survey and don't want to receive any more invitations please click the following link:<br />
+Si no desea participar en esta encuesta y tampoco desea recibir más invitaciones a la misma, por favor, pulse en el siguiente enlace:<br />
 {OPTOUTURL}]]></surveyls_email_remind>
-    <surveyls_email_register_subj><![CDATA[Survey registration confirmation]]></surveyls_email_register_subj>
-    <surveyls_email_register><![CDATA[Dear {FIRSTNAME},<br />
+    <surveyls_email_register_subj><![CDATA[Confirmación de registro en la encuesta]]></surveyls_email_register_subj>
+    <surveyls_email_register><![CDATA[Estimado/a {FIRSTNAME} {LASTNAME}:<br />
 <br />
-You, or someone using your email address, have registered to participate in an online survey titled {SURVEYNAME}.<br />
+Usted, o alguien utilizando su dirección de correo electrónico, se ha registrado para participar en una encuesta en línea titulada <br />
 <br />
-To complete this survey, click on the following URL:<br />
+«{SURVEYNAME}»<br />
+<br />
+«{SURVEYDESCRIPTION}»<br />
+<br />
+Para completarla, pulse en la siguiente dirección:<br />
 <br />
 {SURVEYURL}<br />
 <br />
-If you have any questions about this survey, or if you did not register to participate and believe this email is in error, please contact {ADMINNAME} at {ADMINEMAIL}.]]></surveyls_email_register>
-    <surveyls_email_confirm_subj><![CDATA[Confirmation of your participation in our survey]]></surveyls_email_confirm_subj>
-    <surveyls_email_confirm><![CDATA[Dear {FIRSTNAME},<br />
+Si tiene cualquier duda con respecto a la encuesta, o si no se registró para participar y cree que este correo es un error, por favor, póngase en contacto con {ADMINNAME} en {ADMINEMAIL}.]]></surveyls_email_register>
+    <surveyls_email_confirm_subj><![CDATA[Confirmación de su participación en nuestra encuesta]]></surveyls_email_confirm_subj>
+    <surveyls_email_confirm><![CDATA[Estimado/a {FIRSTNAME} {LASTNAME}:<br />
 <br />
-this email is to confirm that you have completed the survey titled {SURVEYNAME} and your response has been saved. Thank you for participating.<br />
+Este correo es para confirmarle que ha completado la encuesta titulada "{SURVEYNAME}" y sus respuestas han quedado correctamente guardadas.<br />
 <br />
-If you have any further questions about this email, please contact {ADMINNAME} on {ADMINEMAIL}.<br />
+ ¡Muchas gracias por su participación!.<br />
 <br />
-Sincerely,<br />
+Si tiene alguna duda o consulta adicional, por favor póngase en contacto con {ADMINNAME} en {ADMINEMAIL}.<br />
+<br />
+Reciba un cordial saludo,<br />
 <br />
 {ADMINNAME}]]></surveyls_email_confirm>
-    <surveyls_dateformat><![CDATA[9]]></surveyls_dateformat>
-    <email_admin_notification_subj><![CDATA[Response submission for survey {SURVEYNAME}]]></email_admin_notification_subj>
-    <email_admin_notification><![CDATA[Hello,<br />
+    <surveyls_dateformat><![CDATA[5]]></surveyls_dateformat>
+    <email_admin_notification_subj><![CDATA[Envío de respuestas de la encuesta {SURVEYNAME}]]></email_admin_notification_subj>
+    <email_admin_notification><![CDATA[Hola!<br />
 <br />
-A new response was submitted for your survey '{SURVEYNAME}'.<br />
+Una nueva respuesta ha sido concluida en su encuesta '{SURVEYNAME}'.<br />
 <br />
-Click the following link to reload the survey:<br />
+Pulse aquí para recargar la encuesta:<br />
 {RELOADURL}<br />
 <br />
-Click the following link to see the individual response:<br />
+Pulse el siguiente enlace para ver la respuesta individual:<br />
 {VIEWRESPONSEURL}<br />
 <br />
-Click the following link to edit the individual response:<br />
+Pulse el siguiente enlace para editar la respuesta individual:<br />
 {EDITRESPONSEURL}<br />
 <br />
-View statistics by clicking here:<br />
+Ver estadísticas pulsando el siguiente enlace:<br />
 {STATISTICSURL}]]></email_admin_notification>
-    <email_admin_responses_subj><![CDATA[Response submission for survey {SURVEYNAME} with results]]></email_admin_responses_subj>
-    <email_admin_responses><![CDATA[Hello,<br />
+    <email_admin_responses_subj><![CDATA[Enviar los resultados de las respuestas en la encuesta {SURVEYNAME}]]></email_admin_responses_subj>
+    <email_admin_responses><![CDATA[Hola!<br />
 <br />
-A new response was submitted for your survey '{SURVEYNAME}'.<br />
+Una nueva respuesta ha sido concluida en su encuesta '{SURVEYNAME}'.<br />
 <br />
-Click the following link to reload the survey:<br />
+Pulse aquí para recargar la encuesta:<br />
 {RELOADURL}<br />
 <br />
-Click the following link to see the individual response:<br />
+Pulse el siguiente enlace para ver la respuesta individual:<br />
 {VIEWRESPONSEURL}<br />
 <br />
-Click the following link to edit the individual response:<br />
+Pulse el siguiente enlace para editar la respuesta individual:<br />
 {EDITRESPONSEURL}<br />
 <br />
-View statistics by clicking here:<br />
+Ver estadísticas pulsando el siguiente enlace:<br />
 {STATISTICSURL}<br />
 <br />
 <br />
-The following answers were given by the participant:<br />
+Estas son las respuestas dadas por el/la encuestado/a:<br />
 {ANSWERTABLE}]]></email_admin_responses>
     <surveyls_numberformat><![CDATA[0]]></surveyls_numberformat>
    </row>

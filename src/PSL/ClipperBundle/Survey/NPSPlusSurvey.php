@@ -41,8 +41,7 @@ class NPSPlusSurvey extends LimeSurvey
     $this->url_exit = $survey_data->url_exit;
     
     $this->setType('nps_plus');
-    // $this->setLanguages(array('en', 'es', 'fr', 'de', 'it'));
-    $this->setLanguages(array('en', 'fr'));
+    $this->setLanguages(array('en', 'fr', 'es', 'de', 'it'));
   }
   
   /**
@@ -108,7 +107,9 @@ $(document).ready(function(){
     $main_language = 'en';
     $additional_languages = '';
     foreach ($languages as $language) {
-      $additional_languages .= $language . ' ';
+      if ($language != $main_language) {
+        $additional_languages .= $language . ' ';
+      }
     }
      
     $survey_row = array('survey_id' => $sid,
