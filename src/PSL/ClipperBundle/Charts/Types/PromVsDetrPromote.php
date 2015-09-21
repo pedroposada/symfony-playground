@@ -50,56 +50,30 @@ class PromVsDetrPromote extends ChartType {
     $this->brands_scores = array_combine($this->brands, array_fill(0, count($this->brands), $score_set));
     $this->brands_scores_results = array_flip($this->brands);
     
-    //extract respondent
-    foreach ($event->getData() as $response) {
-      //update @var $this->brands_scores
-      $this->extractRespondent($response);
+    if ($event->getCountFiltered()) {
+      //extract respondent
+      foreach ($event->getData() as $response) {
+        //update @var $this->brands_scores
+        $this->extractRespondent($response);
+      }
+      foreach ($this->brands as $index => $brand) {
+        //update @var $this->brands_scores
+        $this->calculateBrandScore($brand);
+      }
+      
+      //sort
+      arsort($this->brands_scores_results);
     }
-    foreach ($this->brands as $index => $brand) {
-      //update @var $this->brands_scores
-      $this->calculateBrandScore($brand);
-    }
-    
-    //sort
-    arsort($this->brands_scores_results);
     
     //data formation
     $dataTable = array();
-    $index = 0;
     foreach ($this->brands_scores_results as $brand => $result) {
-      $dataTable[$index] = array(
-        'title' => "{$brand}: How much more of my brand do Promoters prescribe versus Detractors?",
-        'cols'  => array(
-          array(
-            'label' => "% of market share in each segment",
-            'type'  => 'string',
-          ),
-          array(
-            'label' => '',
-            'type'  => 'number',
-          ),
-          array(
-            'type' => 'string',
-            'p'    => array('role' => 'annotation'),
-          ),
-          array(
-            'type' => 'string',
-            'p'    => array('role' => 'style')
-          ),
-        ),
-        'rows' => array(),
+      $dataTable[] = array(
+        'brand'      => $brand,
+        'promoters'  => $this->brands_scores[$brand]['pro']['c'],
+        'detractors' => $this->brands_scores[$brand]['det']['c'],
+        'diff'       => $this->brands_scores[$brand]['cal']['res'],
       );
-      foreach (array('det', 'pro') as $type) {
-        $dataTable[$index]['rows'][] = array(
-          'c' => array(
-            array('v' => ($type == 'det' ? 'Detractors' : 'Promoters')),
-            array('v' => $this->brands_scores[$brand][$type]['c']),
-            array('v' => $this->roundingUpValue($this->brands_scores[$brand]['cal'][$type], FALSE, TRUE) . '%'),
-            array('v' => ''), //color will be set on template
-          ),
-        );
-      }
-      $index++;
     }
 
     return $dataTable;
@@ -202,6 +176,6 @@ class PromVsDetrPromote extends ChartType {
     }
     $result *= 0.1;
     $result *= 0.1;
-    $this->brands_scores[$brand]['cal']['res']= $this->brands_scores_results[$brand] = $result;
+    $this->brands_scores[$brand]['cal']['res'] = $this->brands_scores_results[$brand] = $result;
   }
 }
