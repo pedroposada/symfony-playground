@@ -32,6 +32,14 @@ class Loyalty extends ChartType {
 
     //prep brands_results structure
     $this->brands_results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+    
+    //prep structure
+    $dataTable = array('mean' => 0, 'brands' => array());
+    
+    //stop if no responses
+    if (empty($event->getCountFiltered())) {
+      return $dataTable;
+    }
 
     //extract respondent
     foreach ($event->getData() as $response) {
@@ -54,48 +62,15 @@ class Loyalty extends ChartType {
 
     //sorting
     arsort($this->brands_results);
-
-    //data formation
-    $dataTable = array(
-      'cols' => array(
-        array(
-          'label' => '',
-          'type'  => 'string',
-        ),
-        array(
-          'label' => '',
-          'type'  => 'number',
-        ),
-        array(
-          'type' => 'string',
-          'p'    => array('role' => 'annotation'),
-        ),
-        array(
-          'type' => 'string',
-          'p'    => array('role' => 'style')
-        ),
-      ),
-      'rows' => array(
-        array(
-          'c' => array(
-            array('v' => 'Mean'),
-            array('v' => $overall_avg),
-            array('v' => $this->roundingUpValue($overall_avg, TRUE)),
-            array('v' => ''), //color will be set on template
-          ),
-        ),
-      ),
-    );
+     
+    $dataTable['mean'] = $this->roundingUpValue($overall_avg, TRUE);
     foreach ($this->brands_results as $brand => $loyalty) {
-      $dataTable['rows'][] = array(
-        'c' => array(
-          array('v' => $brand),
-          array('v' => $loyalty),
-          array('v' => $this->roundingUpValue($loyalty, TRUE)),
-          array('v' => ''), //color will be set on template
-        ),
+      $dataTable['brands'][] = array(
+        'brand'   => $brand,
+        'loyalty' => $this->roundingUpValue($loyalty, TRUE),
       );
     }
+    
     return $dataTable;
   }
 
