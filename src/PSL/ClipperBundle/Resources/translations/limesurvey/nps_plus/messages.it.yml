@@ -1,0 +1,43 @@
+# PSL/ClipperBundle/Resources/translations/limesurvey/nps/messagesSurvey.it.yml
+
+# NPS+ Italian Translation
+
+#In which country is your practice located? : In which country is your practice located?
+#Please select one answer only. : Please select one answer only.
+#What is your primary medical specialty? : What is your primary medical specialty?
+
+# Do you personally play an active prescribing role by writing prescriptions for patients with @patient_type?
+pre-group-000.question-000 : "Lei ha un ruolo attivo nella prescrizione di farmaci a pazienti affetti da @patient_type ?"
+
+# Thinking about the following drugs used to treat patients with @patient_type, which of these statements applies to each of them? Please select one response for each drug.
+group-000.question-000: "Considerando i seguenti farmaci utilizzati per trattare pazienti affetti da @patient_type, quale tra queste affermazioni è pertinente a ciascun farmaco? Selezionare una risposta per ciascun farmaco."
+
+# I currently use this drug : I currently use this drug
+group-000.question-000.answer-000 : "Attualmente utilizzo questo farmaco"
+
+# I have used this drug previously and would consider using it again
+group-000.question-000.answer-001 : "Ho utilizzato questo farmaco in passato e considererei di utilizzarlo di nuovo"
+
+# I have used this drug previously but no longer consider it
+group-000.question-000.answer-002 : "Ho utilizzato questo farmaco in passato ma non lo considero più"
+
+# I have never used this drug but would consider it
+group-000.question-000.answer-003 : "Non ho mai utilizzato questo farmaco ma lo considererei"
+
+# I have never used this drug and would not consider it
+group-000.question-000.answer-004 : "Non ho mai utilizzato questo farmaco e non lo considererei"
+
+# I am not aware of this drug
+group-000.question-000.answer-005 : "Non conosco questo farmaco"
+
+# In a typical month what % of your patients do you prescribe each of the following drugs for the treatment of @patient_type? We realise it is not possible to know this exactly, but we would sincerely appreciate your best approximation. Please express your answer as a percentage. Your responses must add up to at least 100% and can be more if drugs are co-prescribed.
+group-001.question-000 : "In un mese tipico, a quale percentuale di pazienti prescrive ognuno dei seguenti farmaci per il trattamento della @patient_type ? Siamo consapevoli che non può conoscere il numero esatto, tuttavia Le saremmo grati se potesse fornirci la Sua migliore stima. La preghiamo di fornire la Sua risposta in percentuale. Il totale delle Sue risposte deve dare almeno 100%; il totale può essere maggiore se sono prescritti più farmaci contemporaneamente."
+
+#If a colleague asked you for your recommendation, how likely would you be to recommend each of the following drugs for the treatment of @patient_type? Please select a response for each drug. 0 = Not at all likely, 10 = Extremely likely
+group-002.question-000 : "Se un collega Le chiedesse un consiglio, con quanta probabilità consiglierebbe ciascuno dei seguenti farmaci per il trattamento della @patient_type ? Selezionare una risposta per ogni farmaco. 0 = Per niente probabile, 10 = Estremamente probabile"
+
+# Thinking about the treatment of your @patient_type patients, how would you summarise in a short phrase of no more than 10 words what @brand means to you? Please use no more than 10 words. 
+group-003.question-000 : "Pensando al trattamento dei Suoi pazienti affetti da @patient_type, come riassumerebbe in una breve frase di non più di 10 parole cosa @brand significa per Lei ?"
+
+# Which of the following drugs do you associate with each of the following statements for the treatment of @patient_type? Please select all that apply. You must select at least one drug or “None of these” for each row. 
+group-004.question-000 : "Quali tra i seguenti farmaci associa a ognuna delle seguenti affermazioni per il trattamento della @patient_type ? Selezionare tutte le affermazioni pertinenti. Selezionare almeno un farmaco oppure l'opzione « Nessuno di questi » per ogni riga."
