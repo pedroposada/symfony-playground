@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\VarDumper;
 use Symfony\Component\Config\FileLocator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -140,22 +141,34 @@ class ChartsController extends FOSRestController
   /**
    * Download CSV
    * /clipper/charts/download
-   *
-   * @param ParamFetcher $paramFetcher
-   *
+   * 
+   * 
+   * @Route("/charts/download")
+   * @Method("GET")
    * @QueryParam(name="order_id", default="(empty)", description="FirstQGroup UUID")
+   * 
+   * @param ParamFetcher $paramFetcher
    */
-  public function downloadCsvAction(ParamFetcher $paramFetcher)
+  public function downloadAction(ParamFetcher $paramFetcher)
   {
-    $order_id = $paramFetcher->get('order_id');
-    $survey_type = null;
+    $content = null;
+    $code = 200;
     
-    $charts = $this->getChartsByOrderId($order_id, array(), $survey_type);
+    try {
+      $order_id = $paramFetcher->get('order_id');
+      $charts = $this->getChartsByOrderId($order_id);    
+      // ON DEVELOPEMENT
+      $content = array(
+        'order_id' => $order_id,
+        'data'     => $charts,
+      );
+    }
+    catch(Exception $e) {
+      $content = "Message: [{$e->getMessage()}] - Line: {[$e->getLine()]}";
+      $code = 204;
+    }
     
-    // TODO: use ExcelBundle to output file
-    // https://github.com/liuggio/ExcelBundle
-
-    return $response;
+    return new Response($content, $code);
   }
 
   /**
@@ -164,7 +177,7 @@ class ChartsController extends FOSRestController
    * @param $order_id
    * @return $charts ArrayCollection
    */
-  private function getChartsByOrderId($order_id, $drilldown = array(), &$survey_type) 
+  private function getChartsByOrderId($order_id, $drilldown = array()) 
   {
     $charts = new ArrayCollection();
     $em = $this->container->get('doctrine')->getManager();
