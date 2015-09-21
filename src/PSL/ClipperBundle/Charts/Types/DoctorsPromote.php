@@ -16,33 +16,21 @@ class DoctorsPromote extends ChartType {
   private $respondent = array();
 
   private $promoting  = array(
-    'ds' => array(
-      'label'  => 'Dissatisfied',
-      'append' => '(0 brands promoted)',
+    'ds' => array(  //Dissatisfied
       'count'  => 0,
       'perc'   => 0,
-      'show'   => 0,
     ),
-    'sa' => array(
-      'label'  => 'Satisfied',
-      'append' => '(>0 brands promoted)',
+    'sa' => array(  //Satisfied
       'count'  => 0,
       'perc'   => 0,
-      'show'   => 0,
     ),
-    'se' => array(
-      'label'  => 'Satisfied (Exclusive)',
-      'append' => '(1 brand promoted)',
+    'se' => array(  //Satisfied (Exclusive)
       'count'  => 0,
       'perc'   => 0,
-      'show'   => 0,
     ),
-    'ss' => array(
-      'label'  => 'Satisfied (Shared)',
-      'append' => '(>1 brands promoted)',
+    'ss' => array(  //Satisfied (Shared)
       'count'  => 0,
       'perc'   => 0,
-      'show'   => 0,
     ),
   );
 
@@ -58,22 +46,32 @@ class DoctorsPromote extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
-    //extract respondent
-    foreach ($event->getData() as $response) {
-      //update @var $this->respondent
-      $this->extractRespondent($response);
-    }
-
-    //#final-calculation; calculate the aggregated count into parentage
-    $total = $this->promoting['ds']['count'] + $this->promoting['sa']['count'];
-    if (!empty($this->respondent)) {
-      foreach ($this->promoting as $ty => $set) {
-        $this->promoting[$ty]['perc'] = $this->roundingUpValue((($set['count'] / $total) * 100));
-        $this->promoting[$ty]['show'] = $this->roundingUpValue($this->promoting[$ty]['perc'], 0, TRUE) . '%';
+    if ($event->getCountFiltered()) {
+      //extract respondent
+      foreach ($event->getData() as $response) {
+        //update @var $this->respondent
+        $this->extractRespondent($response);
       }
-    }
 
-    return $this->promoting;
+      //#final-calculation; calculate the aggregated count into parentage
+      $total = $this->promoting['ds']['count'] + $this->promoting['sa']['count'];
+      if (!empty($this->respondent)) {
+        foreach ($this->promoting as $ty => $set) {
+          $this->promoting[$ty]['perc'] = $this->roundingUpValue(($set['count'] / $total));
+        }
+      }
+    } // if getCountFiltered()
+
+    return array(
+      'satisfied'    => array(
+        'amount' => $this->promoting['sa']['perc'],
+        'exclusive' => array('amount' => $this->promoting['se']['perc']),
+        'shared'    => array('amount' => $this->promoting['ss']['perc']),
+      ),
+      'dissatisfied' => array(
+        'amount' => $this->promoting['ds']['perc'],
+      ),
+    );
   }
 
   /**
