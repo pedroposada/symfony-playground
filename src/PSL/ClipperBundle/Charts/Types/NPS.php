@@ -50,9 +50,9 @@ class NPS extends ChartType
         //formating
         foreach (array('detractor', 'passive', 'promoter') as $type) {
           $plural_var = $type . 's';
-          $set[$plural_var] = $this->roundingUpValue(($$type / $total));
+          $set[$plural_var] = $this->roundingUpValue((($$type / $total)) * 100);
         }
-        $set['score'] = ($set['promoters'] - $set['detractors']) * 100;
+        $set['score'] = ($set['promoters'] - $set['detractors']);
 
         unset($rows[$brand]);
       }
