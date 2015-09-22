@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<resultset>
+  <row>
+    <field name="name">A Condition 1</field>
+  </row>
+  <row>
+    <field name="name">A Condition 2</field>
+  </row>
+  <row>
+    <field name="name">A Condition 3</field>
+  </row>
+  <row>
+    <field name="name">B Condition 1</field>
+  </row>
+  <row>
+    <field name="name">B Condition 2</field>
+  </row>
+  <row>
+    <field name="name">B Condition 3</field>
+  </row>
+</resultset>
