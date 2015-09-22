@@ -201,6 +201,7 @@ class ChartsController extends FOSRestController
         'filter'           => $chEvent->getFilters(),
         'countTotal'       => $chEvent->getCountTotal(),
         'countFiltered'    => $chEvent->getCountFiltered(),
+        'brands'           => $chEvent->getBrands(),
         'datatable'        => $chEvent->getDataTable(),
       );
       $charts->add($chart);
