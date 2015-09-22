@@ -1,0 +1,156 @@
+# quota lookup by country and specialty
+
+# country: # list of countries extracted from front-end
+  # - "France"
+  # - "Germany"
+  # - "Italy"
+  # - "Spain"
+  # - "United Kingdom"
+  # - "United States"
+# specialty: # list of specialties extracted from front-end
+  # - "Anaesthesiology"
+  # - "Cardiology"
+  # - "Dermatology"
+  # - "Endocrinology"
+  # - "Gastroenterology"
+  # - "General Surgery"
+  # - "GPs / PCPs"
+  # - "IMs"
+  # - "Infectious Disease"
+  # - "Neurology"
+  # - "Nurse Practitioner"
+  # - "Obs / Gyn"
+  # - "Oncology"
+  # - "Ophthalmology"
+  # - "Orthopaedics"
+  # - "Paediatrics"
+  # - "Physician Assistant"
+  # - "Psychiatry"
+  # - "Rheumatology"
+  # - "Urology"
+  
+# [MDM Country Code]
+#   [MDM Specialty Code]: [quota]
+#   ...
+
+
+77: # France
+  12: 1 # Anaesthesiology
+  18: 1 # Cardiology
+  45: 1 # Endocrinology
+  53: 1 # Gastroenterology
+  56: 1 # General Surger
+  55: 1 # GPs / PCPs
+  78: 1 # IMs
+  76: 1 # Infectious Disease
+  94: 1 # Neurology
+  224: 1 # Nurse Practitioner
+  106: 1 # Obstetrics/Gynaecology
+  108: 1 # Oncology
+  109: 1 # Ophthalmology
+  115: 1 # Orthopaedics
+  152: 1 # Paediatrics
+  205: 1 # Physician Assistant
+  159: 1 # Psychiatry
+  168: 1 # Rheumatology
+  181: 1 # Urology
+84: # Germany
+  12: 1 # Anaesthesiology
+  18: 1 # Cardiology
+  45: 1 # Endocrinology
+  53: 1 # Gastroenterology
+  56: 1 # General Surger
+  55: 1 # GPs / PCPs
+  78: 1 # IMs
+  76: 1 # Infectious Disease
+  94: 1 # Neurology
+  224: 1 # Nurse Practitioner
+  106: 1 # Obstetrics/Gynaecology
+  108: 1 # Oncology
+  109: 1 # Ophthalmology
+  115: 1 # Orthopaedics
+  152: 1 # Paediatrics
+  205: 1 # Physician Assistant
+  159: 1 # Psychiatry
+  168: 1 # Rheumatology
+  181: 1 # Urology
+110: # Italy
+  12: 1 # Anaesthesiology
+  18: 1 # Cardiology
+  45: 1 # Endocrinology
+  53: 1 # Gastroenterology
+  56: 1 # General Surger
+  55: 1 # GPs / PCPs
+  78: 1 # IMs
+  76: 1 # Infectious Disease
+  94: 1 # Neurology
+  224: 1 # Nurse Practitioner
+  106: 1 # Obstetrics/Gynaecology
+  108: 1 # Oncology
+  109: 1 # Ophthalmology
+  115: 1 # Orthopaedics
+  152: 1 # Paediatrics
+  205: 1 # Physician Assistant
+  159: 1 # Psychiatry
+  168: 1 # Rheumatology
+  181: 1 # Urology
+210: # Spain
+  12: 1 # Anaesthesiology
+  18: 1 # Cardiology
+  45: 1 # Endocrinology
+  53: 1 # Gastroenterology
+  56: 1 # General Surger
+  55: 1 # GPs / PCPs
+  78: 1 # IMs
+  76: 1 # Infectious Disease
+  94: 1 # Neurology
+  224: 1 # Nurse Practitioner
+  106: 1 # Obstetrics/Gynaecology
+  108: 1 # Oncology
+  109: 1 # Ophthalmology
+  115: 1 # Orthopaedics
+  152: 1 # Paediatrics
+  205: 1 # Physician Assistant
+  159: 1 # Psychiatry
+  168: 1 # Rheumatology
+  181: 1 # Urology
+235: # UK
+  12: 1 # Anaesthesiology
+  18: 1 # Cardiology
+  45: 1 # Endocrinology
+  53: 1 # Gastroenterology
+  56: 1 # General Surger
+  55: 1 # GPs / PCPs
+  78: 1 # IMs
+  76: 1 # Infectious Disease
+  94: 1 # Neurology
+  224: 1 # Nurse Practitioner
+  106: 1 # Obstetrics/Gynaecology
+  108: 1 # Oncology
+  109: 1 # Ophthalmology
+  115: 1 # Orthopaedics
+  152: 1 # Paediatrics
+  205: 1 # Physician Assistant
+  159: 1 # Psychiatry
+  168: 1 # Rheumatology
+  181: 1 # Urology
+240: # USA
+  12: 1 # Anaesthesiology
+  18: 1 # Cardiology
+  45: 1 # Endocrinology
+  53: 1 # Gastroenterology
+  56: 1 # General Surger
+  55: 1 # GPs / PCPs
+  78: 1 # IMs
+  76: 1 # Infectious Disease
+  94: 1 # Neurology
+  224: 1 # Nurse Practitioner
+  106: 1 # Obstetrics/Gynaecology
+  108: 1 # Oncology
+  109: 1 # Ophthalmology
+  115: 1 # Orthopaedics
+  152: 1 # Paediatrics
+  205: 1 # Physician Assistant
+  159: 1 # Psychiatry
+  168: 1 # Rheumatology
+  181: 1 # Urology

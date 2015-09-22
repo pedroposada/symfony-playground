@@ -175,6 +175,7 @@ parameters:
   clipper.conditions: Resources/terms/conditions.xml
   clipper.quota.universal: "1"
   
+  
   #limeSurvey
   limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]'
   limesurvey.url_exit: '%limesurvey.url_redirect_base%/clipper/limesurvey/exit'

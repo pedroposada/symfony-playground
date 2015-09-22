@@ -43,3 +43,7 @@ monolog:
 
 assetic:
     use_controller: true
+    
+
+parameters:
+  clipper.participants_sample: 2 # setting for dev

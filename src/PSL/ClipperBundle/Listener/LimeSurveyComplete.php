@@ -20,7 +20,6 @@ class LimeSurveyComplete extends FqProcess
     // get FirstQProject object
     $fqp = $event->getFirstQProject();
 
-    // @TODO: Support multi market/specialty combo
     $iSurveyID = reset($fqp->getLimesurveyDataByField('sid'));
 
     // get LS
