@@ -33,6 +33,8 @@ class LimeSurvey
   protected $subquestions;
   
   protected $question_attributes;
+
+  protected $quotas;
   
   protected $surveys;
   
@@ -43,10 +45,12 @@ class LimeSurvey
   protected $languages;
   
   protected $type;
+
+  private $logger;
   
   public function __construct()
   {
-    
+     
   }
   
   /**
@@ -72,6 +76,7 @@ class LimeSurvey
         'questions' => $this->questions,
         'subquestions' => $this->subquestions,
         'question_attributes' => $this->question_attributes,
+        'quotas' => $this->quotas,
         'surveys' => $this->surveys,
         'surveys_languagesettings' => $this->surveys_languagesettings,
         'survey_url_parameters' => $this->survey_url_parameters,
@@ -170,6 +175,16 @@ class LimeSurvey
   public function addQuestionAttribute($question_attribute)
   {
     $this->question_attributes[] = $question_attribute;
+  }
+
+  /**
+   * Add to the quotas array 
+   *
+   * @param object $quota
+   */
+  public function addQuota($quota)
+  {
+    $this->quotas[] = $quota;
   }
   
   /**

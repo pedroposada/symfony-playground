@@ -142,6 +142,83 @@ $(document).ready(function(){
       'targetsqid' => '',
     );
     $this->addSurveyUrlParameter($survey_url_parameters_row);
+
+// ---------------------------------------------------------------------------------------------------------------------------
+// pre group
+
+// Screenout
+// ---------------------------------------------------------------------------------------------------------------------------
+
+    $group_order = 0;
+
+    $pre_gid_0 = 1000;
+
+    $pre_group_0_row = array('gid' => $pre_gid_0,
+      'sid' => $sid,
+      'group_name' => 'Screenout',
+      'group_order' => $group_order,
+      'language' => $language,
+    );
+    $this->addGroup($pre_group_0_row);
+
+    $group_order++;
+
+    // ------------------------------------------------------------------------------
+    // pre group 0
+    // question 0
+    // Do you personally play an active prescribing role by writing prescriptions for patients with {PATIENT} ?
+    // Please select one answer only.
+    // ------------------------------------------------------------------------------
+    
+    $pre_qid_0_0 = 20000;
+    // $question_0_0 = 'Thinking about the following drugs used to treat @patient_type, which of these statements applies to 
+    // each of them? Please select one response for each drug.';
+    $pre_question_0_0 = 'pre-group-000.question-000'; 
+    $pre_question_0_0_row = array('qid' => $pre_qid_0_0,
+      'parent_qid' => 0,
+      'sid' => $sid,
+      'gid' => $pre_gid_0,
+      'type' => 'Y',
+      'title' => 'G000Q001',
+      'question' => $pre_question_0_0,
+      'help' => '',
+      'preg' => '',
+      'other' => 'N',
+      'mandatory' => 'Y',
+      'question_order' => 0,
+      'scale_id' => 0,
+      'same_default' => 0,
+      'relevance' => 1,
+      'language' => '',
+      'tokens' => array('@patient_type' => $this->patients),
+    );
+    $this->addQuestion($pre_question_0_0_row);
+
+    // ------------------------------------------------------------------------------
+    // Quota 0
+    // ------------------------------------------------------------------------------
+    $quota_0_id = 300;
+    $quota_0_name = 'Screenout';
+
+    $quota = array('id' => $quota_0_id,
+      'qid' => $pre_qid_0_0,
+      'sid' => $sid,
+      'name' => $quota_0_name,
+      'qlimit' => 0,
+      'action' => 1,
+      'active' => 1,
+      'autoload_url' => 0,
+      'quota_id' => $quota_0_id,
+      'code' => 'N',
+      'quotals_id' => $quota_0_id,
+      'quotals_quota_id' => $quota_0_id,
+      'quotals_language' => 'en',
+      'quotals_name' => $quota_0_name,
+      'quotals_message' => 'Terminate message.',
+      'quotals_url' => '',
+      'quotals_urldescrip' => '',
+    );
+    $this->addQuota($quota);
     
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 0
@@ -149,8 +226,6 @@ $(document).ready(function(){
 // Adoption
 // ---------------------------------------------------------------------------------------------------------------------------
     
-    $group_order = 0;
-
     $gid_0 = 2000;
     
     $group_0_row = array('gid' => $gid_0,
@@ -174,7 +249,7 @@ $(document).ready(function(){
       
     // $question_0_0 = 'Thinking about the following drugs used to treat @patient_type, which of these statements applies to 
     // each of them? Please select one response for each drug.';
-    $question_0_0 = 'pre-group-000.question-000'; 
+    $question_0_0 = 'group-000.question-000'; 
     $question_0_0_row = array('qid' => $qid_0_0,
       'parent_qid' => 0,
       'sid' => $sid,
@@ -902,139 +977,121 @@ $(document).ready(function(){
     
     $gid_4 = 2400;
 
+    // ------------------------------------------------------------------------------
+    // Group
+    // ------------------------------------------------------------------------------
+    
+    $group_4_row = array('gid' => $gid_4,
+      'sid' => $sid,
+      'group_name' => 'Brand Association',
+      'group_order' => $group_order,
+      'language' => $language,
+    );
+    $this->addGroup($group_4_row);
+
+    $group_order++;
+
+
+    // ------------------------------------------------------------------------------
+    // Question
+    // ------------------------------------------------------------------------------
+    $qid_4_0 = 31200;
+    // $question_4_0 = 'Below are a series of statements. Please select "Yes" if you associate that statement 
+    // with @brand or "No" if you do not.';
+    $question_4_0 = 'group-004.question-000';
+    $title = 'G00' . $group_order . 'Q001';
+    $sgq = $sid . 'X' . $gid_0 . 'X' . $qid_0_2 . 'SQ001';
+    
+    $question_4_0_row = array('qid' => $qid_4_0,
+      'parent_qid' => 0,
+      'sid' => $sid,
+      'gid' => $gid_4,
+      'type' => 'F',
+      'title' => $title,
+      'question' => $question_4_0,
+      'help' => '',
+      'preg' => '',
+      'other' => 'N',
+      'mandatory' => 'Y',
+      'question_order' => 1,
+      'scale_id' => 0,
+      'same_default' => 0,
+      'relevance' => 1,
+      'language' => $language,
+      'tokens' => array('@brand' => $brand),
+    );
+    $this->addQuestion($question_4_0_row);
+
+    // ------------------------------------------------------------------------------
+    // Time Thinking Analysis (hidden)
+    // hidden
+    // ------------------------------------------------------------------------------
+    $qid_4_1 = 31300;
+    $this->createTimerQuestion($sid, $gid_4, $qid_4_1, 'G00' . $group_order . 'Q002');
+
+    // ------------------------------------------------------------------------------
+    // Subquestion
+    // Attributes
+    // ------------------------------------------------------------------------------
+    
+    $subquestions_4_0 = 40500;
+    
+    // loop through all attributes
+    foreach ($this->attributes as $key => $attribute) {
+      $sub_index = $key + 1;
+      $subquestion_row = array('qid' => $subquestions_4_0 * 10 + $sub_index,
+        'parent_qid' => $qid_4_0,
+        'sid' => $sid,
+        'gid' => $gid_4,
+        'type' => 'T',
+        'title' => 'SQ00' . $sub_index,
+        'question' => $attribute,
+        'other' => 'N',
+        'question_order' => $sub_index,
+        'scale_id' => 0,
+        'language' => $language,
+      );
+      $this->addSubquestion($subquestion_row);
+    }
+
+    // ------------------------------------------------------------------------------
+    // answers
+    // ------------------------------------------------------------------------------
+    
     // loop through all brands
     foreach ($this->brands as $key => $brand) {
-      
-      // ------------------------------------------------------------------------------
-      // Group
-      // ------------------------------------------------------------------------------
-      
       $index = $key + 1;
-      $group_id = $gid_4 + $index;
-      
-      $group_4_row = array('gid' => $group_id,
-        'sid' => $sid,
-        'group_name' => 'Brand Association - ' . $brand,
-        'group_order' => $group_order,
-        'language' => $language,
-      );
-      $this->addGroup($group_4_row);
-      
-      $group_order++;
-      
-      // ------------------------------------------------------------------------------
-      // Question
-      // ------------------------------------------------------------------------------
-      
-      $qid_4_0 = 31200 + $index;
-      // $question_4_0 = 'Below are a series of statements. Please select "Yes" if you associate that statement 
-      // with @brand or "No" if you do not.';
-      $question_4_0 = 'group-004.question-000';
-      $title = 'G00' . $group_order . 'Q001';
-      $sgq = $sid . 'X' . $gid_0 . 'X' . $qid_0_2 . 'SQ00' . $index;
-      
-      $question_4_0_row = array('qid' => $qid_4_0,
-        'parent_qid' => 0,
-        'sid' => $sid,
-        'gid' => $group_id,
-        'type' => 'F',
-        'title' => $title,
-        'question' => $question_4_0,
-        'help' => '',
-        'preg' => '',
-        'other' => 'N',
-        'mandatory' => 'Y',
-        'question_order' => 1,
-        'scale_id' => 0,
-        'same_default' => 0,
-        'relevance' => '((' . $sgq . '.NAOK == "A1"))',
-        'language' => $language,
-        'tokens' => array('@brand' => $brand),
-      );
-      $this->addQuestion($question_4_0_row);
-
-      // ------------------------------------------------------------------------------
-      // Time Thinking Analysis (hidden)
-      // hidden
-      // ------------------------------------------------------------------------------
-      $qid_4_1 = 31300 + $index;
-      $this->createTimerQuestion($sid, $gid_4 + $index, $qid_4_1, 'G00' . $group_order . 'Q002');
-
-      // ------------------------------------------------------------------------------
-      // Subquestion
-      // Attributes
-      // ------------------------------------------------------------------------------
-      
-      $subquestions_4_0 = 40500;
-      
-      // loop through all brands
-      foreach ($this->attributes as $key => $attribute) {
-        $sub_index = $key + 1;
-        $subquestion_row = array('qid' => $subquestions_4_0 + $index * 10 + $sub_index,
-          'parent_qid' => $qid_4_0,
-          'sid' => $sid,
-          'gid' => $group_id,
-          'type' => 'T',
-          'title' => 'SQ00' . $sub_index,
-          'question' => $attribute,
-          'other' => 'N',
-          'question_order' => $sub_index,
-          'scale_id' => 0,
-          'language' => $language,
-        );
-        $this->addSubquestion($subquestion_row);
-      }
-
-      // ------------------------------------------------------------------------------
-      // answers
-      // ------------------------------------------------------------------------------
-      
-      $answer_4_0_row_0 = array('qid' => $qid_4_0,
-        'code' => 'A1',
-        'answer' => 'Yes',
-        'sortorder' => 1,
+      $answer_4_0_row = array('qid' => $qid_4_0,
+        'code' => 'A0' . $index,
+        'answer' => $brand,
+        'sortorder' => $index,
         'assessment_value' => 0,
         'language' => $language,
       );
-      $this->addAnswer($answer_4_0_row_0);
-        
-      $answer_4_0_row_1 = array('qid' => $qid_4_0,
-        'code' => 'A2',
-        'answer' => 'No',
-        'sortorder' => 2,
-        'assessment_value' => 1,
-        'language' => $language,
-      );
-      $this->addAnswer($answer_4_0_row_1);
-      
-      // ------------------------------------------------------------------------------
-      // condition
-      // ------------------------------------------------------------------------------
-      
-      $cid_4_0 = 540 + $index;
-      
-      $condition_4_row = array('cid' => $cid_4_0,
-        'qid' => $qid_4_0,
-        'cqid' => $qid_0_2, // Group 0 Question 2 condition
-        'cfieldname' => $sgq,
-        'method' => '==',
-        'value' => 'A1',
-        'scenario' => 1,
-      );
-      $this->addCondition($condition_4_row);
-      
-      // ------------------------------------------------------------------------------
-      // Question attributes
-      // ------------------------------------------------------------------------------
-      
-      $question_attribute_4_0_row = array('qid' => $qid_4_0,
-        'attribute' => 'random_order',
-        'value' => 1,
-        'language' => $language,
-      );
-      $this->addQuestionAttribute($question_attribute_4_0_row);
+      $this->addAnswer($answer_4_0_row);
     }
 
+    // Non of these answer
+    $answer_4_0_row = array('qid' => $qid_4_0,
+      'code' => 'A0' . ($index + 1),
+      'answer' => 'None of these',
+      'sortorder' => $index + 1,
+      'assessment_value' => 0,
+      'language' => $language,
+    );
+    $this->addAnswer($answer_4_0_row);
+
+    // ------------------------------------------------------------------------------
+    // Question attributes
+    // ------------------------------------------------------------------------------
+    
+    $question_attribute_4_0_row = array('qid' => $qid_4_0,
+      'attribute' => 'random_order',
+      'value' => 1,
+      'language' => $language,
+    );
+    $this->addQuestionAttribute($question_attribute_4_0_row);
+    
     return $this;
   }
 }
