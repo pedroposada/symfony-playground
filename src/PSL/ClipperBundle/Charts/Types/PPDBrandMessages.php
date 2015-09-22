@@ -83,12 +83,15 @@ class PPDBrandMessages extends ChartType {
         $key += 1;
       }
       $dataTable[$key] = array(
-        'message'    => $questions[$qindex],
-        'detractors' => $this->result[$qcode]['detractor']['perc'],
-        'passives'   => $this->result[$qcode]['passive']['perc'],
-        'promoters'  => $this->result[$qcode]['promoter']['perc'],
-        'lcl'        => $this->result[$qcode]['confidence']['low'],
-        'hcl'        => $this->result[$qcode]['confidence']['high'],
+        'message'          => $questions[$qindex],
+        'detractors'       => $this->result[$qcode]['detractor']['perc'],
+        'detractors_count' => $this->result[$qcode]['detractor']['count'],
+        'passives'         => $this->result[$qcode]['passive']['perc'],
+        'passives_count'   => $this->result[$qcode]['passive']['count'],
+        'promoters'        => $this->result[$qcode]['promoter']['perc'],
+        'promoters_count'  => $this->result[$qcode]['promoter']['count'],
+        'lcl'              => $this->result[$qcode]['confidence']['low'],
+        'hcl'              => $this->result[$qcode]['confidence']['high'],
       );
       unset($questions[$qindex]);
       unset($this->result[$qcode]);
