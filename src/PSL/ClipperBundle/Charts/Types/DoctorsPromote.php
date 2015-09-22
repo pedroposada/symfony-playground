@@ -57,7 +57,7 @@ class DoctorsPromote extends ChartType {
       $total = $this->promoting['ds']['count'] + $this->promoting['sa']['count'];
       if (!empty($this->respondent)) {
         foreach ($this->promoting as $ty => $set) {
-          $this->promoting[$ty]['perc'] = $this->roundingUpValue(($set['count'] / $total));
+          $this->promoting[$ty]['perc'] = $this->roundingUpValue((($set['count'] / $total) * 100));
         }
       }
     } // if getCountFiltered()
