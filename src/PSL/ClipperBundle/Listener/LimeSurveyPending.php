@@ -59,7 +59,7 @@ class LimeSurveyPending extends FqProcess
     ));
     $this->logger->debug("form_data[title] {$form_data['title']}", array('LimeSurveyPending', 'import_survey'));
     if (!is_int($iSurveyID)) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fqp->getId()}] on [import_survey]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [import_survey]");
     }
     
     // activate S
@@ -68,7 +68,7 @@ class LimeSurveyPending extends FqProcess
     ));
     $this->logger->debug("iSurveyID [{$iSurveyID}]", array('LimeSurveyPending', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fqp->getId()}] on [activate_survey]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_survey]");
     }
     
     // activate tokens
@@ -76,15 +76,18 @@ class LimeSurveyPending extends FqProcess
       'iSurveyID' => $iSurveyID, 
     ));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fqp->getId()}] on [activate_tokens]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_tokens]");
     }
     
-    // add participants
-    // @TODO: change for real value  
-    // $participants_sample = $sheet_data['participants_sample']; // number of tokens (links) for participants
-    $participants_sample = 2;
+    // get amount of participants to be added for this survey
+    $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
+    if ($this->container->hasParameter('clipper.participants_sample')) {
+      // use DEV value from config_dev.yml
+      $participants_sample = $this->container->getParameter('clipper.participants_sample');
+    }
+    
     if (empty($participants_sample)) {
-      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fqp->getId()}] on [bigcommerce_complete]");
+      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]");
     }
     
     $participants = array();
@@ -100,7 +103,7 @@ class LimeSurveyPending extends FqProcess
       'participantData' => $participants, 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fqp->getId()}] on [add_participants]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [add_participants]");
     }
     
     // save limesurvey raw data
