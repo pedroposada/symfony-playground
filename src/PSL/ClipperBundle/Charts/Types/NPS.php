@@ -20,63 +20,46 @@ class NPS extends ChartType
    */
   public function dataTable(ChartEvent $event)
   {
-    $dataTable = array();
-    $rows = array();
+    $rows = $dataTable = array();
 
     // find Detractors, Passives, Promoters and Score per brand
     foreach ($event->getData() as $response) {
       $this->dataRow($event, $response, $rows);
     }
-    $tree = $this->explode_tree->explodeTree($rows, "/");
+    $rows = $this->explode_tree->explodeTree($rows, "/");
 
-    $dataTable['cols'] = array(
-      array(
-        'id'    => 'b',
-        'label' => 'Brand',
-        'type'  => 'string',
-      ),
-      array(
-        'id'    => 'P',
-        'label' => 'Promoters',
-        'type'  => 'number',
-      ),
-      array(
-        'id'    => 'a',
-        'label' => 'Passives',
-        'type'  => 'number',
-      ),
-      array(
-        'id'    => 'd',
-        'label' => 'Detractors',
-        'type'  => 'number',
-      ),
-      array(
-        'id'    => 's',
-        'label' => 'Score',
-        'type'  => 'number',
-      ),
-    );
+    //prep structure
+    $dataTable = array_combine($this->brands, array_fill(0, count($this->brands), array(
+      'brand'      => '',
+      'detractors' => 0,
+      'passives'   => 0,
+      'promoters'  => 0,
+      'score'      => 0,
+    )));
 
-    foreach ($tree as $brand => $values) {
-      $promoters  = (isset($values['Promoter'])  ? count($values['Promoter']) : 0);
-      $passives   = (isset($values['Passive'])   ? count($values['Passive']) : 0);
-      $detractors = (isset($values['Detractor']) ? count($values['Detractor']) : 0);
-      $total = $promoters + $passives + $detractors;
-      $Promoters  = ($this->roundingUpValue(($promoters / $total)) * 100);
-      $Passives   = ($this->roundingUpValue(($passives / $total)) * 100);
-      $Detractors = ($this->roundingUpValue(($detractors / $total)) * 100);
-      $Score      = ($Promoters - $Detractors);
-      $dataTable['rows'][] = array(
-        'c' => array(
-          array('v' => $brand),
-          array('v' => $Promoters,  'f' => $this->roundingUpValue($Promoters, 0, TRUE) . '%'),
-          array('v' => $Passives,   'f' => $this->roundingUpValue($Passives, 0, TRUE) . '%'),
-          array('v' => $Detractors, 'f' => $this->roundingUpValue($Detractors, 0, TRUE) . '%'),
-          array('v' => $Score,      'f' => $this->roundingUpValue($Score, 0, TRUE)),
-        ),
-        'p' => array('Brand' => $brand)
-      );
-    }
+    array_walk($dataTable, function(&$set, $brand) use (&$rows) {
+      $set['brand'] = $brand;
+      if (!empty($rows[$brand])) {
+        //calculation
+        $detractor = $passive = $promoter = 0;
+        foreach (array('detractor', 'passive', 'promoter') as $type) {
+          $$type  = (isset($rows[$brand][$type]) ? count($rows[$brand][$type]) : 0);
+        }
+        $total = array_sum(array($promoter, $passive, $detractor));
+
+        //formating
+        foreach (array('detractor', 'passive', 'promoter') as $type) {
+          $plural_var = $type . 's';
+          $set[$plural_var] = $this->roundingUpValue(($$type / $total));
+        }
+        $set['score'] = ($set['promoters'] - $set['detractors']) * 100;
+
+        unset($rows[$brand]);
+      }
+    });
+
+    //remove keys
+    $dataTable = array_values($dataTable);
 
     return $dataTable;
   }
@@ -103,7 +86,6 @@ class NPS extends ChartType
     foreach ($this->brands as $key => $brand) {
       // determine category
       $category = $this->identifyRespondentCategory($answers[$brand]);
-      $category = ucwords($category);
       // set values in rows
       $lstoken = $response->getLsToken();
       $rows["{$brand}/{$category}/{$lstoken}"] = $lstoken;

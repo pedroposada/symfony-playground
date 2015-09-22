@@ -29,6 +29,14 @@ class PPDBrandMessages extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep result structure
+    $dataTable = array();
+    
+    //stop if no responses
+    if (empty($event->getCountFiltered())) {
+      return $dataTable;
+    }
+    
+    //prep calculation structure
     $set = array_keys(parent::$net_promoters_cat_range);
     $set = array_flip($set);
     array_walk($set, function(&$value, $key) {
@@ -37,6 +45,7 @@ class PPDBrandMessages extends ChartType {
     $this->result = array_combine($this->qcode, array_fill(0, count($this->qcode), $set));
     //prep counts structure
     $this->counts = array_combine(array_keys(parent::$net_promoters_cat_range), $set);
+    
 
     //get set of question
     $questions = $event->getAttributes();
@@ -65,86 +74,31 @@ class PPDBrandMessages extends ChartType {
         'high' => $this->calculateConfidenceInterval($this->result[$qcode]['promoter']['perc'], 'up', $this->counts['promoter']['count']),
       );
     }
-
-    //sort & data formation
-    $data = array(
-      'cols' => array(
-        array(
-          'label' => 'Brand association question',
-          'type'  => 'string',
-        ),
-        //per-series
-      ),
-      'rows' => array(),
-    );
-
-    //per-series
-    $series = array(
-      array(
-        'label' => 'Detractor',
-        'type'  => 'number',
-      ),
-      array(
-        'label' => 'Passive',
-        'type'  => 'number',
-      ),
-      array(
-        'label' => 'Promoter',
-        'type'  => 'number',
-      ),
-      array(
-        'label' => 'Lowest confidence level',
-        'type'  => 'number',
-        'p'     => array('role' => 'interval'),
-      ),
-      array(
-        'label' => 'Highest confidence level',
-        'type'  => 'number',
-        'p'     => array('role' => 'interval'),
-      ),
-    );
-    $series_count = count($series);
-    $qcode_count  = count($this->qcode);
-    $ques_count   = count($questions);
-    for ($i = 0; $i < $qcode_count; $i++) {
-      $data['cols'] = array_merge($data['cols'], $series);
-    }
-
+    
+    //formatting
     foreach ($this->qcode as $qindex => $qcode) {
-      //for sorting
+      //for sorting; abstract key
       $key = $this->result[$qcode]['diff'];
-      while (isset($data['rows'][$key])) {
+      while (isset($dataTable[$key])) {
         $key += 1;
       }
-
-      //prep
-      $data['rows'][$key] = array(
-        'c' => array(
-          array('v' => $questions[$qindex]),
-        ),
+      $dataTable[$key] = array(
+        'message'    => $questions[$qindex],
+        'detractors' => $this->result[$qcode]['detractor']['perc'],
+        'passives'   => $this->result[$qcode]['passive']['perc'],
+        'promoters'  => $this->result[$qcode]['promoter']['perc'],
+        'lcl'        => $this->result[$qcode]['confidence']['low'],
+        'hcl'        => $this->result[$qcode]['confidence']['high'],
       );
-      //this-series
-      $siri = array(
-        array('v' => $this->result[$qcode]['detractor']['perc']),
-        array('v' => $this->result[$qcode]['passive']['perc']),
-        array('v' => $this->result[$qcode]['promoter']['perc']),
-        array('v' => $this->result[$qcode]['confidence']['low']),
-        array('v' => $this->result[$qcode]['confidence']['high']),
-      );
-      //merge
-      $empty   = array('v' => '');
-      $postfix = $prefix = array();
-      if ($qindex > 0) {
-        $prefix  = array_fill(0, ($series_count * $qindex), $empty);
-      }
-      if ($qcode_count > $qindex)  {
-        $postfix = array_fill(0, ($series_count * $qcode_count) - ($series_count * ($qindex + 1)), $empty);
-      }
-      $data['rows'][$key]['c'] = array_merge($data['rows'][$key]['c'], $prefix, $siri, $postfix);
+      unset($questions[$qindex]);
+      unset($this->result[$qcode]);
     }
-    asort($data['rows']);
-    $data['rows'] = array_values($data['rows']);
-    return $data;
+    
+    //sort by abstract key
+    asort($dataTable);
+    $dataTable = array_values($dataTable);
+    
+    return $dataTable;
   }
 
   /**

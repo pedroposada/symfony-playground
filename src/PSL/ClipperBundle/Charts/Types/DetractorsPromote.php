@@ -13,8 +13,7 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DetractorsPromote extends ChartType {
 
-  private $detractors = array();
-  private $respondent_count = 0;
+  private $competitors = array();
 
   /**
    * Method call to return chart data.
@@ -28,53 +27,37 @@ class DetractorsPromote extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
+    //prep structure
+    $dataTable = array();
+        
     //prep other attributes
-    parent::$decimal_point = 0;
+    parent::$decimal_point = 1;
 
-    //prep detractors structure
-    $this->detractors = array_combine($this->brands, array_fill(0, count($this->brands), 0));
-    $this->detractors = array_combine($this->brands, array_fill(0, count($this->brands), $this->detractors));
-
-    //extract detractors from respondent
-    foreach ($event->getData() as $response) {
-      //update @var $this->detractors
-      $this->extractDetractors($response);
-      $this->respondent_count++;
-    }
-
-    //update @var $this->detractors
-    foreach ($this->brands as $brand) {
-      $this->calculatePromoters($brand);
-    }
+    //prep competitors structure
+    $this->competitors = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+    
+    //stop if no responses
+    if ($event->getCountFiltered()) {
+      //extract respondent
+      foreach ($event->getData() as $response) {
+        //update @var $this->competitors
+        $this->extractRespondent($response);
+      }
+      
+      //calculate each brands score    
+      foreach ($this->brands as $brand) {
+        //calculate competitors, update @var $this->competitors
+        $this->calculateCompetitors($brand);
+      }
+    } //if getCountFiltered()
 
     //data formation
-    $dataTable = array();
-
-    foreach ($this->brands as $index => $brand) {
-      $dataTable[$index] = array(
-        'title' => "{$brand} Detractors promote these brands...",
-        'cols'  => array(
-          array(
-            'label' => '',
-            'type'  => 'string',
-          ),
-          array(
-            'label' => "% of {$brand} detractor",
-            'type'  => 'string',
-          ),
-        ),
-        'rows' => array(),
+    foreach ($this->brands as $brand) {
+      $dataTable[] = array(
+        'brand'       => $brand,
+        'competitors' => $this->competitors[$brand]
       );
-      foreach ($this->detractors[$brand] as $decBrand => $perc) {
-        $dataTable[$index]['rows'][] = array(
-          'c' => array(
-            array('v' => $decBrand),
-            array('v' => $perc . '%'),
-          ),
-        );
-      }
     }
-
     return $dataTable;
   }
 
@@ -82,83 +65,73 @@ class DetractorsPromote extends ChartType {
    * Method to extract a respondent answer.
    * @method extractRespondent
    *
-   * Only account for promoter, passive is ignored.
-   *
    * Process will populate
-   * - @var $this->detractors
+   * - @var $this->competitors
    *
-   * Post-format:
-   *   $this->detractors
-   *     BRAND-A
-   *       BRAND-A => 0; no-changes
-   *       BRAND-B => PROMOTE-COUNT
-   *     BRAND-B
-   *       BRAND-A => PROMOTE-COUNT
-   *       BRAND-B => 0; no-changes
-   *     ...
+   *   $this->competitors
+   *     BRAND
+   *       BRAND => PROMOTER-COUNT
+   *       BRAND => PROMOTER-COUNT
+   *     BRAND
+   *       BRAND => PROMOTER-COUNT
+   *    ...
    *
    * @param  LimeSurveyResponse $response
    *
    * @return void
    */
-  private function extractDetractors(LimeSurveyResponse $response) {
+  private function extractRespondent(LimeSurveyResponse $response) {
+    //getting respondent token
+    $lstoken = $response->getLsToken();
+
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
-
-    //values assignments
-    foreach ($this->brands as $brand) {
-      if ($this->identifyRespondentCategory($answers[$brand], 'detractor')) {
-        foreach ($this->detractors[$brand] as $detractor_brand => $devCount)  {
-          if ($brand == $detractor_brand) {
-            continue;
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');    
+    
+    $answers = array_filter($answers);
+    asort($answers);
+    
+    $answers_keys = array_keys($answers);
+    if ($this->identifyRespondentCategory($answers[$answers_keys[0]], 'detractor')) {
+      unset($answers[$answers_keys[0]]);
+      foreach ($answers as $answer_brand => $answers_value) {
+        if ($this->identifyRespondentCategory($answers_value, 'promoter')) {
+          if (!isset($this->competitors[$answers_keys[0]][$answer_brand])) {
+            $this->competitors[$answers_keys[0]][$answer_brand] = 0;
           }
-          if ($this->identifyRespondentCategory($answers[$detractor_brand], 'promoter')) {
-            $this->detractors[$brand][$detractor_brand]++;
-          }
+          $this->competitors[$answers_keys[0]][$answer_brand]++;
         }
       }
     }
   }
 
+
   /**
-   * Method to calculate Detractor promotes and then sort.
-   * @method calculatePromoters
+   * Method to select brands competitors by highest answer value.
+   * @method identifyCompetitors
    *
-   * Process will populate
-   * - @var $this->detractors
+   * Process will change structure
+   * - @var $this->competitors
    *
    * Post-format:
-   *   $this->detractors
-   *     BRAND-A
-   *       BRAND-B => PROMOTE-PERCENTAGE
-   *     BRAND-B
-   *       BRAND-A => PROMOTE-PERCENTAGE
-   *     ...
-   *
+   *  $this->competitors
+   *    BRAND  =>
+   *      BRAND-NAME => VOTES-PERCENTAGE
+   *      BRAND-NAME => VOTES-PERCENTAGE
+   *    BRAND  =>
+   *      BRAND-NAME => VOTES-PERCENTAGE
+   *    ...
    * @param  string $brand
-   *
+   * 
    * @return void
    */
-  private function calculatePromoters($brand) {
-    //remove itself; 0
-    unset($this->detractors[$brand][$brand]);
-
-    //get total count
-    $promotes_count = array_values($this->detractors[$brand]);
-    $promotes_count = array_filter($promotes_count);
-    $promotes_count = array_sum($promotes_count);
-    $per_promote = 0;
-    if ($promotes_count) {
-      $per_promote = 100 / $promotes_count;
+  private function calculateCompetitors($brand) {
+    if (empty($this->competitors[$brand])) {
+      return;
     }
-
-    //calculate, then fix as string
-    foreach ($this->detractors[$brand] as $decBrand => $promotes) {
-      $this->detractors[$brand][$decBrand] = $this->roundingUpValue($promotes * $per_promote);
-    }
-
-    //sort
-    asort($this->detractors[$brand]);
+    $competitors_count = count($this->competitors[$brand]);
+    array_walk($this->competitors[$brand], function(&$count, $comp_brand) use ($competitors_count) {
+      $count = $this->roundingUpValue((($count / $competitors_count) * 100));
+    });
   }
 }

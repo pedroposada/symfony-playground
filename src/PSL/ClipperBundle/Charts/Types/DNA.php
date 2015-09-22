@@ -47,6 +47,7 @@ class DNA extends ChartType {
         'detractors' => $this->comments[$brand]['det'],
         'promoters'  => $this->comments[$brand]['pro'],
       );
+      unset($this->comments[$brand]);
     }
 
     return $dataTable;
@@ -73,7 +74,7 @@ class DNA extends ChartType {
    *
    * @param  LimeSurveyResponse $response
    *
-   * @return [type]
+   * @return void
    */
   private function extractDetractors(LimeSurveyResponse $response) {
     //getting answers
