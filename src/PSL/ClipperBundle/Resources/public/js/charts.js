@@ -244,9 +244,13 @@ var ChartForm = React.createClass({
  */
 var GoogleChart = React.createClass({  
   drawChart: function() {
-    var chart = clipper.charts.factory(this.props.charttype, this.state.id, {
-      formatter: this.props.charttype
-    }, this.props.datatable)
+    try {
+      var chart = clipper.charts.factory(this.props.charttype, this.state.id, {
+        formatter: this.props.charttype
+      }, this.props.datatable);
+    } catch(e) {
+      console.log('Error:' + e);
+    }
   },
   getInitialState: function() {
     return {
