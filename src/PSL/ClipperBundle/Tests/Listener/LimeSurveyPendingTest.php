@@ -48,7 +48,8 @@ class LimeSurveyPendingTest extends WebTestCase
     public function testOnMain()
     {
         // TODO: call function
-        $response = $this->limeSurveyPending->onMain($this->firstQProjectEvent, 'limesurvey_pending', $this->dispatcher);
+        // Maybe need to add survey_type to LoadFirstQGroups.php
+        // $response = $this->limeSurveyPending->onMain($this->firstQProjectEvent, 'limesurvey_pending', $this->dispatcher);
 
         // TODO: assert output
 

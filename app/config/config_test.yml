@@ -33,6 +33,8 @@ parameters:
     clipper.brands: Tests/Resources/terms/test_brands.xml
     clipper.conditions: Tests/Resources/terms/test_conditions.xml
 
+    clipper_cache.config: -1
+
     fwsso_baseurl: http://alexysh.fwsso.pslgroup.com/ssoapi
     fwsso_api:
         url: http://alexysh.fwsso.pslgroup.com/ssoapi

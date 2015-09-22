@@ -63,16 +63,6 @@ class ClipperUserControllerTest extends WebTestCase
             'mail_' . $rand . '@example.com',
             $content['content']['user']['mail']
         );
-
-        $toRecord = $postData
-            . "\n"
-            . $content['content']['user']['uid']
-            . "\n"
-            . $content['content']['user']['uuid']
-            . "\n"
-            . $content['content']['user']['pass']
-            . "\n\n";
-        file_put_contents('test_user_data.txt', $toRecord, FILE_APPEND);
     }
 
     /**
@@ -186,12 +176,12 @@ class ClipperUserControllerTest extends WebTestCase
         $content = json_decode($content, true);
 
         $this->assertEquals(
-            'a firstname ',
+            'a firstname',
             $content['content']['user']['field_firstname']['und'][0]['value']
         );
 
         $this->assertEquals(
-            'a lastname ',
+            'a lastname',
             $content['content']['user']['field_lastname']['und'][0]['value']
         );
     }

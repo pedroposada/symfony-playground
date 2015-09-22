@@ -3,7 +3,6 @@
 namespace PSL\ClipperBundle\Tests;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
-use Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * WebTestCase partly taken from Acme Bundle and Liip.
@@ -45,10 +44,16 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     protected function setUp()
     {
+        // Add all your fixtures classes that implement
+        // Doctrine\Common\DataFixtures\FixtureInterface
         $this->loadFixtures(array(
             'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
             'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
         ));
+
+        // $this->fixtures = $this->loadFixtures([
+        //     'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
+        // ])->getReferenceRepository();
 
         $this->client = static::makeClient();
         $this->container = $this->client->getContainer();

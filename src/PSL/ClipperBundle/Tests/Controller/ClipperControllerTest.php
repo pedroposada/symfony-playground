@@ -435,7 +435,7 @@ class ClipperControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', $uri);
 
         $this->assertEquals(
-            'Redirecting to http://dev-limesurvey.pslgroup.com/index.php/survey/index/sid/123/token/123/lang/en?lstoken=123',
+            'Redirecting to http://dev-limesurvey.pslgroup.com/index.php/survey/index/sid/123/token/123/lang/en',
             $crawler->filter('title')->text()
         );
 
