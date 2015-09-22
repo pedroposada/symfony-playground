@@ -950,12 +950,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/migrations.git",
-                "reference": "4e85ba638acf62e1afe735f94b0c51aa971f8773"
+                "reference": "6c527d8ccbccec5257bb2c92bca973653b1e3976"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/4e85ba638acf62e1afe735f94b0c51aa971f8773",
-                "reference": "4e85ba638acf62e1afe735f94b0c51aa971f8773",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/6c527d8ccbccec5257bb2c92bca973653b1e3976",
+                "reference": "6c527d8ccbccec5257bb2c92bca973653b1e3976",
                 "shasum": ""
             },
             "require": {
@@ -985,8 +985,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Doctrine\\DBAL\\Migrations": "lib"
+                "psr-4": {
+                    "Doctrine\\DBAL\\Migrations\\": "lib/Doctrine/DBAL/Migrations"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1009,7 +1009,7 @@
                 "database",
                 "migrations"
             ],
-            "time": "2015-08-27 12:05:11"
+            "time": "2015-09-21 09:51:07"
         },
         {
             "name": "doctrine/orm",
@@ -1174,12 +1174,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "98079b1903971620c702d0aa2fe7aa28f9e57089"
+                "reference": "e94b30342810d028559dade3e4bac13520e93ba1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/98079b1903971620c702d0aa2fe7aa28f9e57089",
-                "reference": "98079b1903971620c702d0aa2fe7aa28f9e57089",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/e94b30342810d028559dade3e4bac13520e93ba1",
+                "reference": "e94b30342810d028559dade3e4bac13520e93ba1",
                 "shasum": ""
             },
             "require": {
@@ -1245,7 +1245,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2015-09-04 17:22:47"
+            "time": "2015-09-20 18:22:37"
         },
         {
             "name": "google/apiclient",
@@ -2816,12 +2816,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "622cdc7c8406faa5adfe6fa45d24434f7bb72fff"
+                "reference": "51e2f9d81003e5c60097282bb2fbb3676fd88893"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/622cdc7c8406faa5adfe6fa45d24434f7bb72fff",
-                "reference": "622cdc7c8406faa5adfe6fa45d24434f7bb72fff",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/51e2f9d81003e5c60097282bb2fbb3676fd88893",
+                "reference": "51e2f9d81003e5c60097282bb2fbb3676fd88893",
                 "shasum": ""
             },
             "require": {
@@ -2865,20 +2865,20 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-09-03 11:42:45"
+            "time": "2015-09-19 20:42:44"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.7.3",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "9310b5f9a87ec2ea75d20fec0b0017c77c66dac3"
+                "reference": "b58c916f1db03a611b72dd702564f30ad8fe83fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/9310b5f9a87ec2ea75d20fec0b0017c77c66dac3",
-                "reference": "9310b5f9a87ec2ea75d20fec0b0017c77c66dac3",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/b58c916f1db03a611b72dd702564f30ad8fe83fa",
+                "reference": "b58c916f1db03a611b72dd702564f30ad8fe83fa",
                 "shasum": ""
             },
             "require": {
@@ -2923,20 +2923,20 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2015-06-18 19:21:56"
+            "time": "2015-08-24 07:13:45"
         },
         {
             "name": "symfony/finder",
-            "version": "v2.7.3",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Finder.git",
-                "reference": "ae0f363277485094edc04c9f3cbe595b183b78e4"
+                "reference": "fff4b0c362640a0ab7355e2647b3d461608e9065"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Finder/zipball/ae0f363277485094edc04c9f3cbe595b183b78e4",
-                "reference": "ae0f363277485094edc04c9f3cbe595b183b78e4",
+                "url": "https://api.github.com/repos/symfony/Finder/zipball/fff4b0c362640a0ab7355e2647b3d461608e9065",
+                "reference": "fff4b0c362640a0ab7355e2647b3d461608e9065",
                 "shasum": ""
             },
             "require": {
@@ -2972,7 +2972,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-09 16:07:40"
+            "time": "2015-08-26 17:56:37"
         },
         {
             "name": "symfony/monolog-bundle",
@@ -3035,16 +3035,16 @@
         },
         {
             "name": "symfony/serializer",
-            "version": "v2.7.3",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Serializer.git",
-                "reference": "143d318457ecc298a846506acc8e80dea30d2548"
+                "reference": "baf24f86a8656eea9c80988f332e51461bfcb67f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Serializer/zipball/143d318457ecc298a846506acc8e80dea30d2548",
-                "reference": "143d318457ecc298a846506acc8e80dea30d2548",
+                "url": "https://api.github.com/repos/symfony/Serializer/zipball/baf24f86a8656eea9c80988f332e51461bfcb67f",
+                "reference": "baf24f86a8656eea9c80988f332e51461bfcb67f",
                 "shasum": ""
             },
             "require": {
@@ -3056,7 +3056,7 @@
                 "symfony/config": "~2.2",
                 "symfony/phpunit-bridge": "~2.7",
                 "symfony/property-access": "~2.3",
-                "symfony/yaml": "~2.0"
+                "symfony/yaml": "~2.0,>=2.0.5"
             },
             "suggest": {
                 "doctrine/annotations": "For using the annotation mapping. You will also need doctrine/cache.",
@@ -3092,7 +3092,7 @@
             ],
             "description": "Symfony Serializer Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-22 19:42:44"
+            "time": "2015-08-31 16:44:53"
         },
         {
             "name": "symfony/swiftmailer-bundle",
@@ -3270,16 +3270,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v2.7.3",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "e8903ebba5eb019f5886ffce739ea9e3b7519579"
+                "reference": "b39221998ff5fc26ba63f96d2b833dfddc233d57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/e8903ebba5eb019f5886ffce739ea9e3b7519579",
-                "reference": "e8903ebba5eb019f5886ffce739ea9e3b7519579",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/b39221998ff5fc26ba63f96d2b833dfddc233d57",
+                "reference": "b39221998ff5fc26ba63f96d2b833dfddc233d57",
                 "shasum": ""
             },
             "require": {
@@ -3325,7 +3325,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2015-07-28 15:18:12"
+            "time": "2015-08-31 12:28:11"
         },
         {
             "name": "twig/extensions",
@@ -3381,16 +3381,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.21.1",
+            "version": "v1.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "ca8d3aa90b6a01c82e07909fe815d6b443e75a23"
+                "reference": "b7fc2469fa009897871fb95b68237286fc54a5ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ca8d3aa90b6a01c82e07909fe815d6b443e75a23",
-                "reference": "ca8d3aa90b6a01c82e07909fe815d6b443e75a23",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/b7fc2469fa009897871fb95b68237286fc54a5ad",
+                "reference": "b7fc2469fa009897871fb95b68237286fc54a5ad",
                 "shasum": ""
             },
             "require": {
@@ -3403,7 +3403,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.21-dev"
+                    "dev-master": "1.22-dev"
                 }
             },
             "autoload": {
@@ -3438,7 +3438,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2015-08-26 08:58:31"
+            "time": "2015-09-15 06:50:16"
         },
         {
             "name": "weberhofer/jsonrpcphp",
