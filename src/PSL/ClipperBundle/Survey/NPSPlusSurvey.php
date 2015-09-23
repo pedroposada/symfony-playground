@@ -210,14 +210,25 @@ $(document).ready(function(){
       'autoload_url' => 0,
       'quota_id' => $quota_0_id,
       'code' => 'N',
-      'quotals_id' => $quota_0_id,
-      'quotals_quota_id' => $quota_0_id,
-      'quotals_language' => 'en',
-      'quotals_name' => $quota_0_name,
-      'quotals_message' => 'Terminate message.',
-      'quotals_url' => '',
-      'quotals_urldescrip' => '',
     );
+
+    // Integrate multiple language
+    $quotals = array();
+    $quotals_id = $quota_0_id;
+    foreach ($languages as $key => $language) {
+      $quotals_id += 10;
+      $quotals[] = array(
+        'quotals_id' => $quotals_id,
+        'quotals_quota_id' => $quota_0_id,
+        'quotals_language' => $language,
+        'quotals_name' => $quota_0_name,
+        'quotals_message' => $language . ' - Terminate message.',
+        'quotals_url' => '',
+        'quotals_urldescrip' => '',
+      );
+    }
+    
+    $quota['quotals'] = $quotals;
     $this->addQuota($quota);
     
 // ---------------------------------------------------------------------------------------------------------------------------

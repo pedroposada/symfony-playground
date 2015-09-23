@@ -236,15 +236,17 @@
   </fields>
   <rows>
 {% for quota in quotas %}
-  <row>
-    <quotals_id><![CDATA[{{ quota.quotals_id }}]]></quotals_id>
-    <quotals_quota_id><![CDATA[{{ quota.quotals_quota_id }}]]></quotals_quota_id>
-    <quotals_language><![CDATA[{{ quota.quotals_language }}]]></quotals_language>
-    <quotals_name><![CDATA[{{ quota.quotals_name }}]]></quotals_name>
-    <quotals_message><![CDATA[{{ quota.quotals_message }}]]></quotals_message>
-    <quotals_url><![CDATA[{{ quota.quotals_url }}]]></quotals_url>
-    <quotals_urldescrip><![CDATA[{{ quota.quotals_urldescrip }}]]></quotals_urldescrip>
-  </row>
+  {% for quotal in quota.quotals %}
+    <row>
+      <quotals_id><![CDATA[{{ quotal.quotals_id }}]]></quotals_id>
+      <quotals_quota_id><![CDATA[{{ quotal.quotals_quota_id }}]]></quotals_quota_id>
+      <quotals_language><![CDATA[{{ quotal.quotals_language }}]]></quotals_language>
+      <quotals_name><![CDATA[{{ quotal.quotals_name }}]]></quotals_name>
+      <quotals_message><![CDATA[{{ quotal.quotals_message }}]]></quotals_message>
+      <quotals_url><![CDATA[{{ quotal.quotals_url }}]]></quotals_url>
+      <quotals_urldescrip><![CDATA[{{ quotal.quotals_urldescrip }}]]></quotals_urldescrip>
+    </row>
+  {% endfor %}
 {% endfor %}
   </rows>
  </quota_languagesettings>
