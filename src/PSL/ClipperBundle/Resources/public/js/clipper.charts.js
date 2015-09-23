@@ -1320,16 +1320,11 @@ clipper.charts.factory = function(type, id, settings, data) {
 				minValue = this.getMin(this._data[idx]);
 			itm = this._data[idx];
 			Pv = ((itm.promoters * 0.25) / maxValue) * 100;
-			Pv = (isNaN(Pv) ? 0 : Pv);
 			Dv = ((itm.detractors * 0.25) / maxValue) * 100;
-			Dv = (isNaN(Dv) ? 0 : Dv);
 			// Px = ((itm.promoters * 40) / maxValue) + 10;
 			// Dx = ((itm.detractors * -40) / maxValue) + 90;
 			Px = 25;
 			Dx = 75;
-			itm.promoters = Math.ceil((itm.promoters * 100));
-			itm.detractors = Math.ceil((itm.detractors * 100));
-			itm.diff = Math.ceil((itm.diff * 100));
 			svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;width:' + this.settings.brandContainer.width + ';height:' + this.settings.brandContainer.height + ';float:left;border: ' + this.settings.brandContainer.border + ';margin:' + this.settings.brandContainer.margin + '">';
 			svg += '	<h2 style="position:absolute;right: 10px;font-size:13px;font-family:' + this.settings.textFont + ';text-align:right">' + itm.brand + '</h2>';
 			svg += '	<svg width="100%" height="100%">';
@@ -1338,9 +1333,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 			svg += '			<circle cx="' + Dx + '%" cy="45%" r="' + Dv + '%" fill="' + this.settings.detractorsBubble.fill + '" />';
 			svg += '		</g>';
 			svg += '		<g>';
-			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.promotersBubble.textColor + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + itm.promoters + '%</text>';
-			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.detractorsBubble.textColor + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + itm.detractors + '%</text>';
-			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + itm.diff + '%</text>';
+			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.promotersBubble.textColor + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + (itm.promoters*100) + '%</text>';
+			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.detractorsBubble.textColor + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + (itm.detractors*100) + '%</text>';
+			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + (itm.diff*100) + '%</text>';
 			svg += '		</g>';
 			svg += '	</svg>';
 			svg += '</div>';
@@ -1769,11 +1764,6 @@ clipper.charts.formatters = {
 	},
 
 	PromVsDetrPromote_Chart: function(data) {
-		for (var i = 0; i < data.length; i++) {
-			data[i].promoters = parseFloat(data[i].promoters) / 100;
-			data[i].detractors = parseFloat(data[i].detractors) / 100;
-			data[i].diff = parseFloat(data[i].diff) / 100;
-		}
 		return data;
 	},
 
