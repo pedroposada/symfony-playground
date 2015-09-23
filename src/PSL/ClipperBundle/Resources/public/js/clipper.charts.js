@@ -748,6 +748,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		clipper.charts.Chart.call(this, id, settings, data);
 
 		var defaultSettings = {
+			valueType: 'relative',
 			heatmap: {
 				lowerColor: [255, 255, 255], // R, G, B
 				higherColor: [0, 0, 0] // R, G, B
@@ -1261,10 +1262,6 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		var defaultSettings = {
 			brandContainer: {
-				width: 220,
-				height: 200,
-				border: '1px solid #ccc',
-				margin: '0px',
 				className: 'clipper-charts-promvsdetrpromotechart-brand'
 			},
 			bubbles: {
@@ -1342,7 +1339,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			Px = 25;
 			Dx = 75;
 			itm.diff = Math.ceil((itm.diff * 100));
-			var svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;width:' + this.settings.brandContainer.width + ';height:' + this.settings.brandContainer.height + ';float:left;border: ' + this.settings.brandContainer.border + ';margin:' + this.settings.brandContainer.margin + '">';
+			var svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;">';
 			svg += '	<h2 style="position:absolute;right: 10px;font-size:13px;font-family:' + this.settings.textFont + ';text-align:right">' + itm.brand + '</h2>';
 			svg += '	<svg width="100%" height="100%">';
 			svg += '		<g>';
