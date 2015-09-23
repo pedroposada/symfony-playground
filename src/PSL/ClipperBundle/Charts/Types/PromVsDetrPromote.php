@@ -70,9 +70,9 @@ class PromVsDetrPromote extends ChartType {
     foreach ($this->brands_scores_results as $brand => $result) {
       $dataTable[] = array(
         'brand'      => $brand,
-        'promoters'  => $this->brands_scores[$brand]['pro']['c'],
-        'detractors' => $this->brands_scores[$brand]['det']['c'],
-        'diff'       => $this->brands_scores[$brand]['cal']['res'],
+        'promoters'  => $this->roundingUpValue($this->brands_scores[$brand]['cal']['pro']),
+        'detractors' => $this->roundingUpValue($this->brands_scores[$brand]['cal']['det']),
+        'diff'       => $this->roundingUpValue($this->brands_scores[$brand]['cal']['res']),
       );
     }
 
@@ -162,20 +162,18 @@ class PromVsDetrPromote extends ChartType {
   private function calculateBrandScore($brand) {
     $pro = $det = 0;
     foreach (array('pro', 'det') as $type) {
-      if ($this->brands_scores[$brand][$type]['t'] == 0) {
-        $$type = $this->brands_scores[$brand]['cal'][$type] = 0;
+      if (!empty($this->brands_scores[$brand][$type]['c'])) {
+        $$type = $this->brands_scores[$brand]['cal'][$type] = $this->brands_scores[$brand][$type]['t'] / $this->brands_scores[$brand][$type]['c'];
       }
       else {
-        $base = ($this->brands_scores[$brand][$type]['c'] * 100);
-        $$type = $this->brands_scores[$brand]['cal'][$type] = (($this->brands_scores[$brand][$type]['t'] / $base) * 100);
+        $$type = $this->brands_scores[$brand]['cal'][$type] = $this->brands_scores[$brand][$type]['t'];
       }
     }
     $result = ($pro - $det);
     if (!empty($det)) {
       $result = ($result / $det);
+      $result *= 100;
     }
-    $result *= 0.1;
-    $result *= 0.1;
     $this->brands_scores[$brand]['cal']['res'] = $this->brands_scores_results[$brand] = $result;
   }
 }

@@ -167,29 +167,22 @@ class PPDBrandMessages extends ChartType {
    * @return float
    */
   private function calculateConfidenceInterval($promoter_perc, $go = 'down', $count = 0) {
+    $pow = sqrt($promoter_perc);
     switch ($go) {
       case 'up':
-        $promoter_perc = (1 + $promoter_perc);
+        $promoter_go = ($pow + $promoter_perc);
         break;
 
       case 'down':
       default:
-        $promoter_perc = (1 - $promoter_perc);
+        $promoter_go = ($pow - $promoter_perc);
         break;
     }
-
-    $promoter_perc = sqrt($promoter_perc * $promoter_perc);
-
-    if (empty($promoter_perc) || is_nan($promoter_perc)) {
-      $promoter_perc = 0;
-    }
-    else {
-      if (!empty($count)) {
-        $promoter_perc = ($promoter_perc / $count);
-      }
-      $promoter_perc = (1.96 * $promoter_perc);
-    }
-
-    return $promoter_perc;
+    $count = max(1, $count);
+    $cal = (($promoter_perc * $promoter_go) / $count);
+    $cal = abs($cal);
+    $cal = sqrt($cal);
+    $promoter_perc = $pow + (1.96 * $cal);       
+    return $this->roundingUpValue($promoter_perc);
   }
 }
