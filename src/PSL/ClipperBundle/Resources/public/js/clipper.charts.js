@@ -474,12 +474,12 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 	clipper.charts.Loyalty_Chart.prototype.getMean = function() {
 		if (this._data.hasOwnProperty('mean')) return this._data.mean;
-		if (this._data.length < 1) return 0;
+		if (this._data.brands.length < 1) return 0;
 		var total = 0;
-		for (var i = 0; i < this._data.length; i++) {
-			total += this._data[i].loyalty;
+		for (var i = 0; i < this._data.brands.length; i++) {
+			total += this._data.brands[i].loyalty;
 		}
-		return total / this._data.length;
+		return total / this._data.brands.length;
 	};
 
 	clipper.charts.Loyalty_Chart.prototype.draw = function() {
@@ -748,7 +748,6 @@ clipper.charts.factory = function(type, id, settings, data) {
 		clipper.charts.Chart.call(this, id, settings, data);
 
 		var defaultSettings = {
-			valueType: 'relative',
 			heatmap: {
 				lowerColor: [255, 255, 255], // R, G, B
 				higherColor: [0, 0, 0] // R, G, B
@@ -840,6 +839,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 	clipper.charts.PromotersPromote_Chart.prototype.draw_note = function(brand, value, x, y) {
 		var note = document.createElement('div');
+		if (this.settings.valueType === 'absolute') {
+			value = (value * 100) + '%';
+		}
 		note.id = this.id + '-note';
 		note.style.position = 'absolute';
 		note.style.left = x - 65 + 'px';
@@ -851,7 +853,7 @@ clipper.charts.factory = function(type, id, settings, data) {
     	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '   <g>';
-		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '%</text>';
+		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
 		noteSVG += '   </g>';
 		noteSVG += '  </g>';
 		noteSVG += ' </g>';
@@ -1142,6 +1144,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 	clipper.charts.DetractorsPromote_Chart.prototype.draw_note = function(brand, value, x, y) {
 		var note = document.createElement('div');
+		if (this.settings.valueType === 'absolute') {
+			value = (value * 100) + '%';
+		}
 		note.id = this.id + '-note';
 		note.style.position = 'absolute';
 		note.style.left = x - 65 + 'px';
@@ -1153,7 +1158,7 @@ clipper.charts.factory = function(type, id, settings, data) {
     	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '   <g>';
-		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '%</text>';
+		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
 		noteSVG += '   </g>';
 		noteSVG += '  </g>';
 		noteSVG += ' </g>';
@@ -1311,12 +1316,30 @@ clipper.charts.factory = function(type, id, settings, data) {
 		return (prom < det) ? prom : det;
 	};
 
+	clipper.charts.PromVsDetrPromote_Chart.prototype.getContainerRect = function() {
+		var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
+		var dummy = document.createElement('div');
+		dummy.className = this.settings.brandContainer.className;
+		dummy.style.position = 'relative';
+		wrapper.appendChild(dummy);
+		var rect = {
+			width: dummy.clientWidth,
+			height: dummy.clientHeight
+		};
+		wrapper.removeChild(dummy);
+		return rect;
+	};
+
 	clipper.charts.PromVsDetrPromote_Chart.prototype.draw = function() {
 		document.getElementById(this.id).innerHTML = '';
 		var wrapper = document.createElement('div');
 		wrapper.style.position = 'relative';
 		wrapper.style.width = '100%';
 		document.getElementById(this.id).appendChild(wrapper);
+
+		var containerRect = this.getContainerRect();
+		var minPercent = (containerRect.width == 0) ? 0 : (13 * 100) / containerRect.width;
+
 		var fHtml = '<div style="font-family:' + this.settings.textFont + ';font-size:13px;margin-bottom:10px;color:' + this.settings.textColor + '">';
 		fHtml += '	<div style="background-color:' + this.settings.detractorsBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Detractors';
 		fHtml += '	<div style="background-color:' + this.settings.promotersBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Promoters';
@@ -1330,15 +1353,13 @@ clipper.charts.factory = function(type, id, settings, data) {
 			var maxValue = this.getMax(this._data[idx]),
 				minValue = this.getMin(this._data[idx]);
 			itm = this._data[idx];
-			Pv = ((itm.promoters * 0.25) / maxValue) * 100;
-			Pv = (isNaN(Pv) ? 0 : Pv);
-			Dv = ((itm.detractors * 0.25) / maxValue) * 100;
-			Dv = (isNaN(Dv) ? 0 : Dv);
+			// If maxValue is zero, we assume the value is zero and prevent div by zero.
+			Pv = (maxValue != 0) ? ((itm.promoters * 0.25) / maxValue) * 100 : 0;
+			Dv = (maxValue != 0) ? ((itm.detractors * 0.25) / maxValue) * 100 : 0;
 			// Px = ((itm.promoters * 40) / maxValue) + 10;
 			// Dx = ((itm.detractors * -40) / maxValue) + 90;
 			Px = 25;
 			Dx = 75;
-			itm.diff = Math.ceil((itm.diff * 100));
 			var svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;">';
 			svg += '	<h2 style="position:absolute;right: 10px;font-size:13px;font-family:' + this.settings.textFont + ';text-align:right">' + itm.brand + '</h2>';
 			svg += '	<svg width="100%" height="100%">';
@@ -1347,10 +1368,12 @@ clipper.charts.factory = function(type, id, settings, data) {
 			svg += '			<circle cx="' + Dx + '%" cy="45%" r="' + Dv + '%" fill="' + this.settings.detractorsBubble.fill + '" />';
 			svg += '		</g>';
 			svg += '		<g>';
-			var color = (itm.promoters < 0.02) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
-			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + Math.floor((itm.promoters * 100)) + '%</text>';
-			var color = (itm.detractors < 0.02) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
-			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + Math.floor((itm.detractors * 100)) + '%</text>';
+			var color = (Pv < minPercent) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
+			var shadow = (Pv < minPercent) ? 'none' : this.settings.bubbles.textShadow;
+			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.promoters * 100)) + '%</text>';
+			var color = (Dv < minPercent) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
+			var shadow = (Dv < minPercent) ? 'none' : this.settings.bubbles.textShadow;
+			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.detractors * 100)) + '%</text>';
 			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + Math.floor(itm.diff) + '%</text>';
 			svg += '		</g>';
 			svg += '	</svg>';
