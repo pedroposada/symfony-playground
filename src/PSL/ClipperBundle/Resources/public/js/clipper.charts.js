@@ -1374,7 +1374,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			var color = (Dv < minPercent) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
 			var shadow = (Dv < minPercent) ? 'none' : this.settings.bubbles.textShadow;
 			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.detractors * 100)) + '%</text>';
-			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + Math.floor(itm.diff) + '%</text>';
+			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + Math.floor((itm.diff * 100)) + '%</text>';
 			svg += '		</g>';
 			svg += '	</svg>';
 			svg += '</div>';
