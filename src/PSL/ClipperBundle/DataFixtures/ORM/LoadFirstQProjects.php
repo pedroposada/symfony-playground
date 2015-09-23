@@ -26,16 +26,15 @@ class LoadFirstQProjects extends AbstractFixture implements OrderedFixtureInterf
     $fq2->setState("LIMESURVEY_PENDING");
     $fq2->setFirstqgroup($this->getReference('firstqgroup'));
     $manager->persist($fq2);
-
+    
     $manager->flush();
   }
-  
+
   /**
-   * {@inheritDoc}
-   */
+  * {@inheritDoc}
+  */
   public function getOrder()
   {
       return 2; // the order in which fixtures will be loaded
   }
-
 }
