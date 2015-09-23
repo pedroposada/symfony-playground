@@ -55,7 +55,7 @@ class DetractorsPromote extends ChartType {
     foreach ($this->brands as $brand) {
       $dataTable[] = array(
         'brand'       => $brand,
-        'competitors' => $this->competitors[$brand]
+        'competitors' => (empty($this->competitors[$brand]) ? new \stdClass() : $this->competitors[$brand]),
       );
     }
     return $dataTable;
