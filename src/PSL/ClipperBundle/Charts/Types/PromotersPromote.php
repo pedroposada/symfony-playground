@@ -63,7 +63,7 @@ class PromotersPromote extends ChartType {
       $dataTable[] = array(
         'brand'       => $brand,
         'base'        => $this->base[$brand],
-        'competitors' => $this->competitors[$brand]
+        'competitors' => (empty($this->competitors[$brand]) ? new \stdClass() : $this->competitors[$brand]),
       );
     }
     return $dataTable;
