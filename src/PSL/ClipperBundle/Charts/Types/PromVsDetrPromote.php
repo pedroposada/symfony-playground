@@ -70,9 +70,9 @@ class PromVsDetrPromote extends ChartType {
     foreach ($this->brands_scores_results as $brand => $result) {
       $dataTable[] = array(
         'brand'      => $brand,
-        'promoters'  => $this->brands_scores[$brand]['pro']['c'],
-        'detractors' => $this->brands_scores[$brand]['det']['c'],
-        'diff'       => $this->brands_scores[$brand]['cal']['res'],
+        'promoters'  => $this->roundingUpValue($this->brands_scores[$brand]['cal']['pro']),
+        'detractors' => $this->roundingUpValue($this->brands_scores[$brand]['cal']['det']),
+        'diff'       => $this->roundingUpValue($this->brands_scores[$brand]['cal']['res']),
       );
     }
 
@@ -174,7 +174,6 @@ class PromVsDetrPromote extends ChartType {
     if (!empty($det)) {
       $result = ($result / $det);
     }
-    $result *= 0.1;
     $result *= 0.1;
     $this->brands_scores[$brand]['cal']['res'] = $this->brands_scores_results[$brand] = $result;
   }
