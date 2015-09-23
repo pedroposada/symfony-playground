@@ -12,7 +12,8 @@ use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DNA extends ChartType {
-  private $comments = array();
+  private $comments   = array();
+  private $answer_set = array();
 
   private static $enclosure      = '';
   private static $maxComments    = 15;
@@ -30,8 +31,26 @@ class DNA extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep comments structure
-    $this->comments = array_combine($this->brands, array_fill(0, count($this->brands), array('det' => array(), 'pro' => array())));
-
+    $this->comments = array_combine(
+      array_keys(parent::$net_promoters_cat_range), 
+      array_fill(0, count(parent::$net_promoters_cat_range), array(
+        'calc'     => array(
+          'base' => 0, // number of respondent who are aware of the brand; $answer > 0
+          'perc' => 0, // specific respondent percentage of category
+        ),
+        'comments' => array(),
+      ))
+    );
+    $this->comments = array_combine(
+      $this->brands, 
+      array_fill(0, count($this->brands), $this->comments)
+    );
+    $this->answer_set = array_combine(array_keys(parent::$net_promoters_cat_range), 
+      array_fill(0, count(array_keys(parent::$net_promoters_cat_range)), 0)
+    );
+    //prep other attributes
+    parent::$decimal_point = 1;
+    
     //extract comments from respondent
     foreach ($event->getData() as $response) {
       //update @var $this->comments
@@ -42,12 +61,16 @@ class DNA extends ChartType {
     $dataTable = array();
 
     foreach ($this->brands as $brand) {
-      $dataTable[] = array(
-        'brand'      => $brand,
-        'detractors' => $this->comments[$brand]['det'],
-        'promoters'  => $this->comments[$brand]['pro'],
+      $data = array(
+        'brand' => $brand
       );
+      foreach (parent::$net_promoters_cat_range as $type => $set) {
+        $comments = array_values($this->comments[$brand][$type]['comments']);
+        $data[$type . 's'] = $comments;
+        $data[$type . 's_calc'] = $this->comments[$brand][$type]['calc'];
+      }
       unset($this->comments[$brand]);
+      $dataTable[] = $data;
     }
 
     return $dataTable;
@@ -65,11 +88,24 @@ class DNA extends ChartType {
    * Post-format:
    *   $this->comments
    *     BRAND =>
-   *       pro =>
-   *         COMMENT
-   *         COMMENT
-   *       det =>
-   *         COMMENT
+   *       detractor =>
+   *         calc     =>
+   *           count => TOTAL-COUNT
+   *           perc  => no-changes
+   *         comments =>
+   *           COMMENT
+   *           COMMENT
+   *       passive  =>
+   *         calc     =>
+   *           count => TOTAL-COUNT
+   *           perc  => no-changes
+   *         comments =>
+   *       promoter =>
+   *         calc     =>
+   *           count => TOTAL-COUNT
+   *           perc  => no-changes
+   *         comments =>
+   *           COMMENT
    *     ...
    *
    * @param  LimeSurveyResponse $response
@@ -85,18 +121,103 @@ class DNA extends ChartType {
 
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
-
+    
+    $total = $this->answer_set;
     foreach ($this->brands as $brand) {
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      $type = array_search($type, array('detractor', 'promoter'), TRUE);
-      if ($type === FALSE) {
-        //ignore passive
-        continue; //foreach
-      }
-      $type = (empty($type) ? 'det' : 'pro');
-      if ((!empty($answers_que[$brand])) && (count($this->comments[$brand][$type]) <= self::$maxComments)) {
-        $this->comments[$brand][$type][] = self::$enclosure . $answers_que[$brand] . self::$enclosure;
-      }
+      $total[$type] += $answers_type[$brand];
     }
+    
+    foreach ($this->brands as $brand) {
+      $type = $this->identifyRespondentCategory($answers_type[$brand]);
+      if (!empty($answers_type[$brand])) {
+        $this->comments[$brand][$type]['calc']['base']++;
+      }
+      $totalType = max(1, $total[$type]);
+      $totalType = (($answers_type[$brand] / $totalType) * 100);
+      $this->comments[$brand][$type]['calc']['perc'] = $this->roundingUpValue($totalType);
+      $this->addComment($brand, $type, $answers_que[$brand]);
+    }
+  }
+  
+  /**
+   * Method to register comment.
+   * @method addComment
+   *
+   * @param  string $brand
+   *    Brand name.
+   *    
+   * @param  string $type
+   *    Category name.
+   *    
+   * @param  string $comment
+   */
+  private function addComment($brand, $type, $comment = '') {
+    //reject if empty
+    if (empty($comment)) {
+      return;
+    }
+    //reject if max-up
+    if (count($this->comments[$brand][$type]['comments']) > self::$maxComments) {
+      return;
+    }
+    
+    //identify
+    $key = $this->sanitiveComment($comment);
+    
+    //reject if same/almost comment entered before    
+    if (isset($this->comments[$brand][$type]['comments'][$key])) {
+      return;
+    }
+    
+    //OK
+    $this->comments[$brand][$type]['comments'][$key] = self::$enclosure . $comment . self::$enclosure;
+  }
+  
+  /**
+   * Sanitizes a title, replacing whitespace and a few other characters with dashes.
+   * @method sanitiveComment
+   * 
+   * Limits the output to alphanumeric characters, underscore (_) and dash (-).
+   * Whitespace becomes a dash.
+   * 
+   * Adopted from WordPress sanitize_title_with_dashes()
+   *
+   * @param  string $title
+   *
+   * @return string
+   */
+  private function sanitiveComment($title) {
+    $title = strip_tags($title);
+    $title = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '---$1---', $title);
+    $title = str_replace('%', '', $title);
+    $title = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $title);
+    // if (seems_utf8($title)) {
+    //   if (function_exists('mb_strtolower')) {
+    //     $title = mb_strtolower($title, 'UTF-8');
+    //   }
+    //   $title = utf8_uri_encode($title, 200);
+    // }
+    $title = strtolower($title);
+    $title = preg_replace('/&.+?;/', '', $title);
+    $title = str_replace('.', '-', $title);
+    // if ( 'save' == $context ) {
+      $title = str_replace( array( '%c2%a0', '%e2%80%93', '%e2%80%94' ), '-', $title );
+      $title = str_replace( array(
+        '%c2%a1', '%c2%bf',
+        '%c2%ab', '%c2%bb', '%e2%80%b9', '%e2%80%ba',
+        '%e2%80%98', '%e2%80%99', '%e2%80%9c', '%e2%80%9d',
+        '%e2%80%9a', '%e2%80%9b', '%e2%80%9e', '%e2%80%9f',
+        '%c2%a9', '%c2%ae', '%c2%b0', '%e2%80%a6', '%e2%84%a2',
+        '%c2%b4', '%cb%8a', '%cc%81', '%cd%81',
+        '%cc%80', '%cc%84', '%cc%8c',
+      ), '', $title );
+      $title = str_replace( '%c3%97', 'x', $title );
+    // }
+    $title = preg_replace('/[^%a-z0-9 _-]/', '', $title);
+    $title = preg_replace('/\s+/', '-', $title);
+    $title = preg_replace('|-+|', '-', $title);
+    $title = trim($title, '-');
+    return $title;
   }
 }
