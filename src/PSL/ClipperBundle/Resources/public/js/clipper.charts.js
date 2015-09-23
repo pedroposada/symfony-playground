@@ -3,6 +3,8 @@
  * @author Alexys Hegmann <alexys.hegmann@pslgroup.com>
  */
 
+'use strict'
+
 // Namespace
 var clipper = clipper || {};
 clipper.charts = clipper.charts || {};
@@ -112,6 +114,14 @@ clipper.charts.factory = function(type, id, settings, data) {
 	if (settings != null && settings.hasOwnProperty('formatter')) {
 		if (!clipper.charts.formatters.hasOwnProperty(settings.formatter)) throw 'Chart data formatter "' + setting.formatter + '" does not exist.';
 		data = clipper.charts.formatters[settings.formatter](data);
+	}
+
+	// Add class to the wrapper
+	var wrapper = document.getElementById(id);
+	if (wrapper) {
+		var machineName = type.replace('_', '');
+		machineName = machineName.toLowerCase();
+		clipper._injectClass('clipper-charts-' + machineName, wrapper);
 	}
 
 	return new clipper.charts[type](id, settings, data);
@@ -284,7 +294,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		var overlay_bar = null;
 		var overlay_text = document.createTextNode('Score');
 
-		overlay_style = overlay.style;
+		var overlay_style = overlay.style;
 		overlay_style.left = (chartArea.left + chartArea.width) + 'px';
 		overlay_style.top = chartArea.top - 20 + "px";
 		overlay_style.position = 'absolute';
@@ -455,8 +465,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 		}
 
 		return {
-			min: min,
-			max: max
+			// min: min,
+			// max: max
+			min: 1,
+			max: 5
 		};
 	};	
 
@@ -564,14 +576,14 @@ clipper.charts.factory = function(type, id, settings, data) {
 		this._gchart.draw(dt, options);
 
 		// Create Score labels.
-		 cli = this._gchart.getChartLayoutInterface();
+		var cli = this._gchart.getChartLayoutInterface();
 	    var chartArea = cli.getChartAreaBoundingBox();
 		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
 		var overlay = null;
 		var overlay_values = null;
 		for (var idx = 0; idx < data.length; idx++) {
-			overlay = document.createElement('div');
-			overlay_style = overlay.style;
+			var overlay = document.createElement('div');
+			var overlay_style = overlay.style;
 			overlay_style.textAlign = 'right';
 			overlay_style.width = (chartArea.left - 15) + "px";
 			overlay_style.left = "10px";
@@ -581,7 +593,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			overlay_style.fontFamily = this.settings.textFont;
 			overlay_style.fontSize = '13px';
 			overlay_style.fontWeight = this.settings.textWeight;
-			overlay_text = document.createTextNode(data[idx].brand);
+			var overlay_text = document.createTextNode(data[idx].brand);
 			overlay.appendChild(overlay_text);
 			wrapper.appendChild(overlay);
 
@@ -593,7 +605,17 @@ clipper.charts.factory = function(type, id, settings, data) {
 			overlay_values.style.fontWeight = this.settings.textWeight;
 			overlay_values.style.left = chartArea.width + chartArea.left + 10 + 'px';
 			overlay_values.style.top = cli.getBoundingBox('vAxis#0#gridline#' + (data.length - idx)).top - 9 + 'px';
-			overlay_text = document.createTextNode(data[idx].loyalty);
+			var txt = data[idx].loyalty.toString();
+			if (txt.indexOf('.') > txt.length - 3) {
+				for (var i = 0; i < txt.indexOf('.') - (txt.length-3); i++) {
+					txt += '0';
+				}
+			} else if (txt.indexOf('.') < txt.length - 3) {
+				txt = txt.substring(0, txt.indexOf('.') + 3);
+			} else if (txt.indexOf('.') == -1) {
+				txt += '.00';
+			}
+			overlay_text = document.createTextNode(txt);
 			overlay_values.appendChild(overlay_text);
 			wrapper.appendChild(overlay_values);
 		}
@@ -773,8 +795,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 	clipper.charts.PromotersPromote_Chart.prototype.getPercent = function(value, max, min) {
 		min = min || 0;
-		v = value - min;
-		M = max - min;
+		var v = value - min;
+		var M = max - min;
 		return (v / M);
 	};
 
@@ -823,20 +845,16 @@ clipper.charts.factory = function(type, id, settings, data) {
 		note.style.top = y - 70 + 'px';
 		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
  		noteSVG += '<g>';
- 		noteSVG += '  <g>';
- 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m2.999998,48.000004a1,1 0 0 1 -0.999999,-1l0,-44.000005a1,1 0 0 1 0.999999,-0.999999l109.000025,0a1,1 0 0 1 1,0.999999l0,44.000005a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000025,0z"/>';
- 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.999999,47.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
- 		noteSVG += '   <path fill="#ffffff" stroke="#cccccc" d="m0.999999,46.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
- 		noteSVG += '   <g>';
- 		noteSVG += '    <text id="' + this.id + '-note-brands" class="clipper-charts-promoterspromotechart-note-brands" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + brand + '</text>';
- 		noteSVG += '   </g>';
- 		noteSVG += '   <g>';
- 		noteSVG += '    <text fill="#000000" stroke-width="0" font-size="13" font-family="Arial" y="35.55" x="7.500001" text-anchor="start">Brands:</text>';
- 		noteSVG += '    <text class="clipper-charts-promoterspromotechart-note-value" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="35.55" x="55" text-anchor="start">' + value + '</text>';
- 		noteSVG += '   </g>';
- 		noteSVG += '  </g>';
- 		noteSVG += ' </g>';
- 		noteSVG += '</svg>';
+		noteSVG += '  <g>';
+		noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
+    	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+		noteSVG += '   <g>';
+		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '%</text>';
+		noteSVG += '   </g>';
+		noteSVG += '  </g>';
+		noteSVG += ' </g>';
+		noteSVG += '</svg>';
 		note.innerHTML = noteSVG;
 		return note;
 	}
@@ -925,7 +943,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			html += '<th style="font-weight: normal; text-align:right; padding-right: 5px" title="' + this._data[i].brand + '">' + this._data[i].brand + '</th>';
 			for (var j = 0; j < this._data.length; j++) {
 				value = (this._data[i].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[i].competitors[this._brand_index[j]] : 0;
-				percent = this.getPercent(value, boundaries.max, boundaries.min);
+				var percent = this.getPercent(value, boundaries.max, boundaries.min);
 				color = this.getColor(percent);
 				html += '<td style="width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '" class="clipper-charts-promoterspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">&nbsp;</td>';
 			}
@@ -1033,8 +1051,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 	clipper.charts.DetractorsPromote_Chart.prototype.getPercent = function(value, max, min) {
 		min = min || 0;
-		v = value - min;
-		M = max - min;
+		var v = value - min;
+		var M = max - min;
 		return (v / M);
 	};
 
@@ -1129,20 +1147,16 @@ clipper.charts.factory = function(type, id, settings, data) {
 		note.style.top = y - 70 + 'px';
 		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
  		noteSVG += '<g>';
- 		noteSVG += '  <g>';
- 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m2.999998,48.000004a1,1 0 0 1 -0.999999,-1l0,-44.000005a1,1 0 0 1 0.999999,-0.999999l109.000025,0a1,1 0 0 1 1,0.999999l0,44.000005a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000025,0z"/>';
- 		noteSVG += '   <path fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.999999,47.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
- 		noteSVG += '   <path fill="#ffffff" stroke="#cccccc" d="m0.999999,46.000004a1,1 0 0 1 -0.999999,-1l0,-44.000004a1,1 0 0 1 0.999999,-1l109.000024,0a1,1 0 0 1 1,1l0,44.000004a1,1 0 0 1 -1,1l-55,0l13,13l-26,-13l-41.000024,0z"/>';
- 		noteSVG += '   <g>';
- 		noteSVG += '    <text id="' + this.id + '-note-brands" class="clipper-charts-detractorspromotechart-note-brands" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + brand + '</text>';
- 		noteSVG += '   </g>';
- 		noteSVG += '   <g>';
- 		noteSVG += '    <text fill="#000000" stroke-width="0" font-size="13" font-family="Arial" y="35.55" x="7.500001" text-anchor="start">Brands:</text>';
- 		noteSVG += '    <text class="clipper-charts-detractorspromotechart-note-value" fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="35.55" x="55" text-anchor="start">' + value + '</text>';
- 		noteSVG += '   </g>';
- 		noteSVG += '  </g>';
- 		noteSVG += ' </g>';
- 		noteSVG += '</svg>';
+		noteSVG += '  <g>';
+		noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
+    	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+		noteSVG += '   <g>';
+		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '%</text>';
+		noteSVG += '   </g>';
+		noteSVG += '  </g>';
+		noteSVG += ' </g>';
+		noteSVG += '</svg>';
 		note.innerHTML = noteSVG;
 		return note;
 	}
@@ -1186,9 +1200,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 			html += '<th style="font-weight: normal; text-align:right; padding-right: 5px" title="' + this._data[i].brand + '">' + this._data[i].brand + '</th>';
 			for (var j = 0; j < this._data.length; j++) {
 				value = (this._data[i].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[i].competitors[this._brand_index[j]] : 0;
-				percent = this.getPercent(value, boundaries.max, boundaries.min);
-				color = (i == j) ? '#ffffff' : this.getColor(percent);
-				label = (i == j) ? 'X' : '&nbsp;';
+				var percent = this.getPercent(value, boundaries.max, boundaries.min);
+				var color = (i == j) ? '#ffffff' : this.getColor(percent);
+				var label = (i == j) ? 'X' : '&nbsp;';
 				html += '<td style="width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '; color: ' + this.settings.labelTextColor + '" class="clipper-charts-detractorspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">' + label + '</td>';
 			}
 			html += '</tr>';
@@ -1307,8 +1321,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 		wrapper.style.width = '100%';
 		document.getElementById(this.id).appendChild(wrapper);
 		var fHtml = '<div style="font-family:' + this.settings.textFont + ';font-size:13px;margin-bottom:10px;color:' + this.settings.textColor + '">';
-		fHtml += '	<div style="background-color:' + this.settings.promotersBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Promoters';
 		fHtml += '	<div style="background-color:' + this.settings.detractorsBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Detractors';
+		fHtml += '	<div style="background-color:' + this.settings.promotersBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Promoters';
 		fHtml += '</div>';
 		var itm = null,
 			Pv = 0,
@@ -1327,10 +1341,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 			// Dx = ((itm.detractors * -40) / maxValue) + 90;
 			Px = 25;
 			Dx = 75;
-			itm.promoters = Math.ceil((itm.promoters * 100));
-			itm.detractors = Math.ceil((itm.detractors * 100));
 			itm.diff = Math.ceil((itm.diff * 100));
-			svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;width:' + this.settings.brandContainer.width + ';height:' + this.settings.brandContainer.height + ';float:left;border: ' + this.settings.brandContainer.border + ';margin:' + this.settings.brandContainer.margin + '">';
+			var svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;width:' + this.settings.brandContainer.width + ';height:' + this.settings.brandContainer.height + ';float:left;border: ' + this.settings.brandContainer.border + ';margin:' + this.settings.brandContainer.margin + '">';
 			svg += '	<h2 style="position:absolute;right: 10px;font-size:13px;font-family:' + this.settings.textFont + ';text-align:right">' + itm.brand + '</h2>';
 			svg += '	<svg width="100%" height="100%">';
 			svg += '		<g>';
@@ -1338,9 +1350,11 @@ clipper.charts.factory = function(type, id, settings, data) {
 			svg += '			<circle cx="' + Dx + '%" cy="45%" r="' + Dv + '%" fill="' + this.settings.detractorsBubble.fill + '" />';
 			svg += '		</g>';
 			svg += '		<g>';
-			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.promotersBubble.textColor + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + itm.promoters + '%</text>';
-			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.detractorsBubble.textColor + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + itm.detractors + '%</text>';
-			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + itm.diff + '%</text>';
+			var color = (itm.promoters < 0.02) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
+			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + Math.floor((itm.promoters * 100)) + '%</text>';
+			var color = (itm.detractors < 0.02) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
+			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + this.settings.bubbles.textShadow + '">' + Math.floor((itm.detractors * 100)) + '%</text>';
+			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + Math.floor(itm.diff) + '%</text>';
 			svg += '		</g>';
 			svg += '	</svg>';
 			svg += '</div>';
@@ -1452,7 +1466,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			Awidth = (Bleft >= Aleft) ? Bleft - Aleft : Aleft - Bleft;
 			// Create horizontal line overlay
 			overlay = document.createElement('div');
-			overlay_style = overlay.style;
+			var overlay_style = overlay.style;
 			overlay_style.position = 'absolute';
 			overlay_style.left = ((Bleft >= Aleft) ? Aleft : Bleft) + 5 + "px";
 			overlay_style.top = Atop + 6 + "px";
@@ -1580,7 +1594,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 	}
 
 	clipper.charts.DNA_Chart.prototype.getCSS = function() {
-		css = '.clipper-charts-dnachart-wrapper {' +
+		var css = '.clipper-charts-dnachart-wrapper {' +
 			'	font-family: sans-serif;' +
 			'	width: 100%;' + 
 			'}' + 
@@ -1819,6 +1833,18 @@ clipper._merge = function(obj, defaults) {
 	return obj;
 }
 
+clipper._injectClass = function(className, object) {
+	if (object.className.indexOf(className) > -1) return;
+	if (object.className == '') {
+		object.className = className;
+	} else {
+		object.className += ' ' + className;
+	}
+}
+
+/**
+ * Returns a unique id
+ */
 clipper.uid = function() {
 	var now = Date.now();
 	var rnd = (Math.random().toString(36)+'00000000000000000').slice(2,18);
