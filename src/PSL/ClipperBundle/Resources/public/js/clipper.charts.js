@@ -1338,7 +1338,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 		document.getElementById(this.id).appendChild(wrapper);
 
 		var containerRect = this.getContainerRect();
-		var minPercent = (containerRect.width == 0) ? 0 : (13 * 100) / containerRect.width;
+		// 8px * 100% / 2 (is radius)
+		var minPercent = (containerRect.width == 0) ? 0 : ((8 * 100) / 2) / containerRect.width;
 
 		var fHtml = '<div style="font-family:' + this.settings.textFont + ';font-size:13px;margin-bottom:10px;color:' + this.settings.textColor + '">';
 		fHtml += '	<div style="background-color:' + this.settings.detractorsBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Detractors';
@@ -1368,11 +1369,11 @@ clipper.charts.factory = function(type, id, settings, data) {
 			svg += '			<circle cx="' + Dx + '%" cy="45%" r="' + Dv + '%" fill="' + this.settings.detractorsBubble.fill + '" />';
 			svg += '		</g>';
 			svg += '		<g>';
-			var color = (Pv < minPercent) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
-			var shadow = (Pv < minPercent) ? 'none' : this.settings.bubbles.textShadow;
+			var color = (Pv <= minPercent) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
+			var shadow = (Pv <= minPercent) ? 'none' : this.settings.bubbles.textShadow;
 			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.promoters * 100)) + '%</text>';
-			var color = (Dv < minPercent) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
-			var shadow = (Dv < minPercent) ? 'none' : this.settings.bubbles.textShadow;
+			var color = (Dv <= minPercent) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
+			var shadow = (Dv <= minPercent) ? 'none' : this.settings.bubbles.textShadow;
 			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.detractors * 100)) + '%</text>';
 			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + Math.floor((itm.diff * 100)) + '%</text>';
 			svg += '		</g>';
