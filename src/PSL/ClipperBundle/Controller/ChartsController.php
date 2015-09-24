@@ -102,6 +102,7 @@ class ChartsController extends FOSRestController
    *  description="json to render all charts",
    *  filters={
    *    {"name"="order_id", "dataType"="string"},
+   *    {"name"="chartmachinename", "dataType"="string"},
    *    {"name"="country", "dataType"="string"},
    *    {"name"="region", "dataType"="string"},
    *    {"name"="specialty", "dataType"="string"},
@@ -121,7 +122,8 @@ class ChartsController extends FOSRestController
     
     try {
       $order_id = $request->request->get('order_id');
-      $drilldown = array(
+      $chartmachinename = $request->request->get('chartmachinename', '');
+      $filters = array(
         'country'   => $request->request->get('country', ''),
         'region'    => $request->request->get('region', ''),
         'specialty' => $request->request->get('specialty', ''),
@@ -139,6 +141,7 @@ class ChartsController extends FOSRestController
       $assembler = $this->container->get('chart_assembler');
       
       foreach ($map['machine_names'] as $index => $machine_name) {
+        $drilldown = $chartmachinename == $machine_name ? $filters : array();
         $chEvent = $assembler->getChartEvent($order_id, $machine_name, $survey_type, $drilldown);
         $chart = array(
           'chartmachinename' => $machine_name,
@@ -154,7 +157,7 @@ class ChartsController extends FOSRestController
       $content = $charts;
     }
     catch(Exception $e) {
-      $content = $e->getMessage();
+      $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
       $code = 204;
     }
     
