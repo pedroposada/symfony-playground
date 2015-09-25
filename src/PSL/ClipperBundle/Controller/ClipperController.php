@@ -422,7 +422,7 @@ class ClipperController extends FOSRestController
    *
    * @param ParamFetcher $paramFetcher Paramfetcher
    *
-   * @requestparam(name="stripeToken", default="", description="The Stripe token.")
+   * @requestparam(name="payment_method_nonce", default="", description="The Braintree payment nonce.")
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="amount", default="", description="Amount of the project.")
    * @requestparam(name="email", default="", description="Email of the client.")
@@ -436,13 +436,16 @@ class ClipperController extends FOSRestController
     
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
-    $stripe_token = $paramFetcher->get('stripeToken');
-    $amount = (int)$paramFetcher->get('amount') * 100; // in cents
+    
+    // payment_method_nonce
+    $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
+    
+    $amount = '100.00'; // string ex: 100.00 
     $email = $paramFetcher->get('email'); // not necessary
     $method = $paramFetcher->get('method'); // not necessary
     
     // return error if empty
-    if (empty($firstq_group_uuid) || empty($stripe_token)) {
+    if (empty($firstq_group_uuid) || empty($payment_method_nonce)) {
       $message = 'Invalid request - missing parameters';
       return new Response($message, 400); // invalid request
     }
@@ -481,27 +484,29 @@ class ClipperController extends FOSRestController
       
       $parameters_clipper = $this->container->getParameter('clipper');
       
-      // initiate the Stripe  and charge
-      \Stripe\Stripe::setApiKey($parameters_clipper['stripe']['private_key']);
-      $charge = \Stripe\Charge::create(array(
-        "amount" => $amount, // amount in cents, again
-        "currency" => "usd",
-        "source" => $stripe_token,
-        "description" => $email
-        )
+      \Braintree_Configuration::environment('sandbox');
+      \Braintree_Configuration::merchantId('56pc8bpms5mqfdsz');
+      \Braintree_Configuration::publicKey('7pys8m43bxfp56k9');
+      \Braintree_Configuration::privateKey('414b76ed3e23cca45dbacfb78da0ddf6');
+      
+      $sale_params = array(
+        'amount' => $amount,
+        'paymentMethodNonce' => $payment_method_nonce
       );
       
+      $result = \Braintree_Transaction::sale($sale_params);
+      
       // Check that it was paid:
-      if ($charge->paid == true) {
+      if ($result->success == true) {
         
         // change status to order complete and return ok for redirect
         $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
-        $firstq_group->setOrderId($stripe_token);
+        $firstq_group->setOrderId($result->transaction->id);
         $em->persist($firstq_group);
         $em->flush();
         
         $firsq['fquuid'] = $firstq_group_uuid;
-        return new Response($message, 200);
+        return new Response($firsq, 200);
       } 
       else {
         // failed
@@ -510,45 +515,12 @@ class ClipperController extends FOSRestController
         $message = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
         return new Response($message, 400); // no content
       }
-    } 
-    catch (\Stripe\Error\Card $e) {
-      // Card was declined.
-      $e_json = $e->getJsonBody();
-      $err = $e_json['error'];
-      $errors['stripe'] = $err['message'];
-      
-      $this->logger->debug("Stripe/Card exception: {$e}");
-      
-      $message = 'Card was declined.';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\ApiConnection $e) {
-      // Network problem, perhaps try again.
-      $this->logger->debug("Stripe/ApiConnection exception: {$e}");
-      
-      $message = 'Network problem, perhaps try again.';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\InvalidRequest $e) {
-      // You screwed up in your programming. Shouldn't happen!
-      $this->logger->debug("Stripe/InvalidRequest exception: {$e}");
-      
-      $message = 'Invalid request';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\Api $e) {
-      // Stripe's servers are down!
-      $this->logger->debug("Stripe/Api exception: {$e}");
-      
-      $message = 'Network problem, perhaps try again.';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\Base $e) {
-      // Something else that's not the customer's fault.
-      $this->logger->debug("Stripe/Base exception: {$e}");
-      
-      $message = 'Error - Please try again.';
-      return new Response($message, 400); // no content
+    }
+    catch (\Exception $e) {
+      // Something messed up
+      $this->logger->debug("exception: {$e}");
+      $message = "Error - Please try again. {$e}";
+      return new Response($message, 400); // Error
     }
   }
   
@@ -642,6 +614,42 @@ class ClipperController extends FOSRestController
       return new Response($message, 400); // Error
     }
     
+  }
+
+
+    /**
+   * Get a Client Token for Braintree.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param Request $request the request object
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getClientTokenAction(Request $request)
+  {
+    // Set Braintree configuration
+    \Braintree_Configuration::environment('sandbox');
+    \Braintree_Configuration::merchantId('56pc8bpms5mqfdsz');
+    \Braintree_Configuration::publicKey('7pys8m43bxfp56k9');
+    \Braintree_Configuration::privateKey('414b76ed3e23cca45dbacfb78da0ddf6');
+    
+    // get user_id from request
+    //$firstq_uuid = $request->query->get('firstq_uuid');
+    
+    $client_token['clientToken'] = \Braintree_ClientToken::generate();
+    
+    if (!$client_token) {
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // Error
+    }
+    return new Response($client_token, 200);
   }
 
   /**
