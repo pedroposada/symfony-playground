@@ -30,13 +30,12 @@ var Loader = React.createClass({
  */
 var ChartForm = React.createClass({  
   _handleChange: function(e) {
-    this._handleSubmit(e);
-  },
-  _handleSubmit: function(e) {
     e.preventDefault();
-    var region = this.refs.region ? React.findDOMNode(this.refs.region).value.trim() : '';
-    var country = this.refs.country ? React.findDOMNode(this.refs.country).value.trim() : '';
-    var specialty = this.refs.specialty ? React.findDOMNode(this.refs.specialty).value.trim() : '';
+    
+    var region = this.refs.region ? React.findDOMNode(this.refs.region).value : '';
+    var country = this.refs.country ? React.findDOMNode(this.refs.country).value : '';
+    var specialty = this.refs.specialty ? React.findDOMNode(this.refs.specialty).value : '';
+    
     this.props.loadCharts({
       chartmachinename: this.props.chartmachinename, 
       country: country, 
@@ -46,31 +45,28 @@ var ChartForm = React.createClass({
   },
   render: function() {
     return (
-      <form className="chart-form" onSubmit={this.handleSubmit}>
-        { this.props.regions.length ?
+      <form className="chart-form" onChange={this._handleChange}>
+        { this.props.regions.length > 1 ?
           <ChartFilter
             items         = {this.props.regions} 
             ref           = "region" 
-            handleChange  = {this._handleChange}
             text          = 'All regions' 
-          /> : null
-        }
-        { this.props.countries.length ?
+          /> 
+        : null }
+        { this.props.countries.length > 1 ?
           <ChartFilter
             items         = {this.props.countries} 
             ref           = "country" 
-            handleChange  = {this._handleChange}
             text          = 'All countries' 
-          /> : null
-        }
-        { this.props.specialties.length ?
+          /> 
+        : null }
+        { this.props.specialties.length > 1 ?
           <ChartFilter
             items         = {this.props.specialties }
             ref           = "specialty" 
-            handleChange  = {this._handleChange}
             text          = 'All specialties' 
-          /> : null
-        }
+          /> 
+        : null }
       </form>
     );
   }
@@ -88,8 +84,7 @@ var ChartFilter = React.createClass({
     });
     return (
         <select 
-          ref = {this.props.ref}
-          onChange = {this.props.handleChange}
+          ref={this.props.ref}
         >
           <option key="" value="">{this.props.text}</option>
           {children}
@@ -165,6 +160,7 @@ var Chart = React.createClass({
   _hasForm: function() {
     return this.props.countries.length || this.props.regions.length || this.props.specialties.length;
   },
+  // This method is not called for the initial render or when forceUpdate is used.
   shouldComponentUpdate: function(nextProps, nextState) {
     return nextProps.needsRender;
   },
@@ -194,18 +190,16 @@ var Chart = React.createClass({
             { this.props.isLoadingChart == this.props.chartmachinename ?
               <Loader 
                 style = {{ minHeight: "310px", width: "305px" }} 
-              /> : null
-            }
-            {  this._hideChart() ? 
-              <GoogleChart 
-                style = {{ minHeight: "500px", width: "700px" }}
-                chartmachinename = {this.props.chartmachinename}
-                charttype = {this.props.charttype}
-                datatable = {this.props.datatable}
-                id = {this.props.id}
-                isLoadingChart = {(this.props.isLoadingChart == this.props.chartmachinename ? true : false)}
-              /> : null 
-            }        
+              /> 
+            : null }
+            <GoogleChart 
+              style = {{ minHeight: "500px", width: "700px" }}
+              chartmachinename = {this.props.chartmachinename}
+              charttype = {this.props.charttype}
+              datatable = {this.props.datatable}
+              id = {this.props.id}
+              isLoadingChart = {(this.props.isLoadingChart == this.props.chartmachinename ? true : false)}
+            /> 
             { this._hasForm() ? 
               <ChartForm 
                 chartmachinename={this.props.chartmachinename} 
@@ -214,8 +208,8 @@ var Chart = React.createClass({
                 regions={this.props.regions}
                 loadCharts={this.props.loadCharts}
                 filters={this.props.filters}
-              /> : null 
-            }
+              />  
+            : null }
           </div>
       </div>
     );
@@ -240,7 +234,7 @@ var ChartList = React.createClass({
     var request = request || {};
     
     // optimistic update
-    this._needsRender = request.chartmachinename;
+    this._needsRender = request.chartmachinename; // used in Chart.shouldComponentUpdate
     this.setState({
       data: this.state.data,
       isLoadingChart: request.chartmachinename || this.state.isLoadingChart
