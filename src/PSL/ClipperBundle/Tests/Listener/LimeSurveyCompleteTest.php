@@ -1,57 +1,58 @@
 <?php
 
-// phpunit -c app src/PSL/ClipperBundle/Tests/Listener/LimeSurveyCompleteTest.php
+// src/PSL/ClipperBundle/Tests/Listener/LimeSurveyCompleteTest.php
 
 namespace PSL\ClipperBundle\Tests\Listener;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
+use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\LimeSurveyComplete;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 
 class LimeSurveyCompleteTest extends WebTestCase
 {
-  protected $client;
-  protected $container;
-  protected $params;
-  protected $em;
-  protected $dispatcher;
+    /**
+     * @var PSL\ClipperBundle\Event\FirstQProjectEvent
+     */
+    protected $firstQProjectEvent;
 
-  public function __construct()
-  {
-    $this->client = static::createClient();
-    $this->container = $this->client->getContainer();
-    $this->params = $this->container->getParameter('clipper');
-    $this->em = $this->container->get('doctrine')->getManager();
-    $this->dispatcher = $this->container->get('event_dispatcher');
-  }
+    /**
+     * @var PSL\ClipperBundle\Listener\LimeSurveyResponses
+     */
+    protected $limeSurveyComplete;
 
-  public function testOnMain()
-  {
-    // TODO: prepare input
-    $fqgs = $this->em->getRepository('PSLClipperBundle:FirstQGroup')->findByState($this->params['state_codes']['order_complete']);
-    $fqg = $fqgs->first();
-    $fqps = $this->em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
-    $fqps = new ArrayCollection($fqps);
-    $fqp = $fqps->first();
-    $fqp->setState($this->params['state_codes']['limesurvey_complete']);
-    $event = new FirstQProjectEvent($fqg, $fqp);
-    $lsc = new LimeSurveyComplete($this->container, 'limesurvey_complete');
-    
-    // TODO: call function
-    $lsc->onMain($event, 'limesurvey_complete', $this->dispatcher);
-    
-    // TODO: assert output
-    
-    // TODO: assert values in db (integration tests)
-    
-  }
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        parent::setUp();
 
-  /**
-   * @expectedException Exception
-   */
-  // public function testExcetptions()
-  // {
-  // }
+        $firstQGroups = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
+            ->findByState($this->params['state_codes']['order_complete']);
+        $firstQGroup = $firstQGroups->first();
 
+        $firstQProjects = $this
+            ->getObjectManager()
+            ->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
+            ->findByFirstqgroupAndNotState($firstQGroup, $this->params['state_codes']['order_complete']);
+        $firstQProject = $firstQProjects->first();
+        $firstQProject->setState($this->params['state_codes']['limesurvey_complete']);
+
+        $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
+        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete');
+    }
+
+    public function testOnMain()
+    {
+        // TODO: call function
+        // Fatal error: Call to protected method PSL\ClipperBundle\Listener\LimeSurveyComplete::main()
+        // $response = $this->limeSurveyComplete->main($this->$firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
+
+        // TODO: assert output
+
+        // TODO: assert values in db (integration tests)
+
+    }
 }

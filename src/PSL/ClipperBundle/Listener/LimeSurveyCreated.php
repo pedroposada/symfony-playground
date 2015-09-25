@@ -69,7 +69,14 @@ class LimeSurveyCreated extends FqProcess
     $rps = $this->container->get('rpanel');
     // connect db
     $config = new \Doctrine\DBAL\Configuration();
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['translateapi'], $config);
+    $dbconfig = array(
+      'dbname' => $this->container->getParameter('rpanel.databases.translateapi.dbname'),
+      'user' => $this->container->getParameter('rpanel.databases.translateapi.user'),
+      'password' => $this->container->getParameter('rpanel.databases.translateapi.password'),
+      'host' => $this->container->getParameter('rpanel.databases.translateapi.host'),
+      'driver' => $this->container->getParameter('rpanel.databases.translateapi.driver'),
+    );
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
  
@@ -101,7 +108,14 @@ class LimeSurveyCreated extends FqProcess
  
     // connect db
     $config = new \Doctrine\DBAL\Configuration();
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['rpanel'], $config);
+    $dbconfig = array(
+      'dbname' => $this->container->getParameter('rpanel.databases.rpanel.dbname'),
+      'user' => $this->container->getParameter('rpanel.databases.rpanel.user'),
+      'password' => $this->container->getParameter('rpanel.databases.rpanel.password'),
+      'host' => $this->container->getParameter('rpanel.databases.rpanel.host'),
+      'driver' => $this->container->getParameter('rpanel.databases.rpanel.driver'),
+    );
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
 

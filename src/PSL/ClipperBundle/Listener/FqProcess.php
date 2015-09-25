@@ -12,6 +12,7 @@ abstract class FqProcess
 {
   protected $container;
   protected $logger;
+  protected $serializer;
   protected $current_state;
   protected $state;
   protected $dispatcher;
@@ -23,6 +24,7 @@ abstract class FqProcess
     // this is @service_container
     $this->container = $container;
     $this->logger = $this->container->get('monolog.logger.clipper');
+    $this->serializer = $container->get('clipper_serializer');
     $params = $this->container->getParameter('clipper');
     
     // find next state

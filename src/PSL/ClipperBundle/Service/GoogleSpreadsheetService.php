@@ -13,6 +13,7 @@
 namespace PSL\ClipperBundle\Service;
 
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Entity\FeasibilityRequest;
 use PSL\ClipperBundle\Utils\GoogleSheets;
@@ -24,6 +25,8 @@ use \DateInterval;
 
 class GoogleSpreadsheetService
 {
+
+  protected $container;
 
   protected $client_id;
 
@@ -46,17 +49,23 @@ class GoogleSpreadsheetService
    *
    * @param array $params - the array of parameters for the Google Spreadsheet connection
    */
-  public function __construct($params)
-  {
-    $this->client_id = $params['client_id'];
-    $this->service_account_name = $params['service_account_name'];
-    $this->p12_file_name = $params['p12_file_name'];
-    $this->spreadsheet_name = $params['spreadsheet_name'];
-    $this->worksheet_name = $params['worksheet_name'];
-    $this->p12_file_path = $params['p12_file_path'];
+  public function __construct(
+  ContainerInterface $container,
+  $client_id,
+  $service_account_name,
+  $p12_file_name,
+  $spreadsheet_name,
+  $worksheet_name,
+  $p12_file_path
+  ) {
+    $this->client_id = $client_id;
+    $this->service_account_name = $service_account_name;
+    $this->p12_file_name = $p12_file_name;
+    $this->spreadsheet_name = $spreadsheet_name;
+    $this->worksheet_name = $worksheet_name;
+    $this->p12_file_path = $p12_file_path;
 
-    global $kernel;
-    $this->container = $kernel->getContainer();
+    $this->container = $container;
   }
 
   /**

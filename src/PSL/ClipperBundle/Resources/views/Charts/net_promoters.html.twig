@@ -6,18 +6,9 @@
     <script type="text/javascript">
       google.setOnLoadCallback(drawChart);
       function drawChart() {
-        var data = new google.visualization.DataTable({{ dataTable|json_encode() }});
+        var data = clipper.charts.formatters.NPS_Chart({{ dataTable|json_encode() }});
 
-        var options = {
-          isStacked: 'percent',
-          legend : {
-            position : 'top',
-            maxLines : 3
-          },
-        };
-
-        var chart = new google.visualization.BarChart(document.getElementById('{{ chartDivId }}'));
-        chart.draw(data, options);
+        var c = new clipper.charts.NPS_Chart('{{ chartDivId }}', null, data);
       }
     </script>
     <!--Div that will hold the chart-->

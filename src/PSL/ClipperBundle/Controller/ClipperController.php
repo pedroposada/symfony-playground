@@ -832,10 +832,8 @@ class ClipperController extends FOSRestController
   {
     $response = null;
 
-    // config connection to LS
-    $params_ls = $this->container->getParameter('limesurvey');
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // get LS
+    $ls = $this->container->get('limesurvey');
     $response = $ls->get_survey_properties(array(
       'iSurveyID' => $sid,
       'aSurveySettings' => array('expires'),

@@ -1,6 +1,6 @@
 PSL\ClipperBundle\Entity\FirstQProcessAction:
   type: entity
-  table: null
+  table: firstq_process_action
   id:
     id:
       type: integer
