@@ -1,7 +1,7 @@
 # /app/config/parameters.yml.dist
 
-  ################################################
- # infrastructure-related configuration options #
+################################################
+# infrastructure-related configuration options #
 ################################################
 
 parameters:
@@ -37,4 +37,3 @@ parameters:
   google_spreadsheets.spreadsheet_name:       "[*google_spreadsheets.spreadsheet_name*]"
   google_spreadsheets.worksheet_name:         "[*google_spreadsheets.worksheet_name*]"
   google_spreadsheets.p12_file_path:          "[*google_spreadsheets.p12_file_path*]"
-  
