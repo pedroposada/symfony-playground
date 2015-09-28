@@ -13,7 +13,6 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DNA extends ChartType {
   private $comments   = array();
-  private $answer_set = array();
 
   private static $enclosure      = '';
   private static $maxComments    = 15;
@@ -33,20 +32,13 @@ class DNA extends ChartType {
     //prep comments structure
     $this->comments = array_combine(
       array_keys(parent::$net_promoters_cat_range), 
-      array_fill(0, count(parent::$net_promoters_cat_range), array(
-        'calc'     => array(
-          'base' => 0, // number of respondent who are aware of the brand; $answer > 0
-          'perc' => 0, // specific respondent percentage of category
-        ),
+      array_fill(0, count(parent::$net_promoters_cat_range), array(        
         'comments' => array(),
       ))
     );
     $this->comments = array_combine(
       $this->brands, 
       array_fill(0, count($this->brands), $this->comments)
-    );
-    $this->answer_set = array_combine(array_keys(parent::$net_promoters_cat_range), 
-      array_fill(0, count(array_keys(parent::$net_promoters_cat_range)), 0)
     );
     //prep other attributes
     parent::$decimal_point = 1;
@@ -67,7 +59,6 @@ class DNA extends ChartType {
       foreach (parent::$net_promoters_cat_range as $type => $set) {
         $comments = array_values($this->comments[$brand][$type]['comments']);
         $data[$type . 's'] = $comments;
-        $data[$type . 's_calc'] = $this->comments[$brand][$type]['calc'];
       }
       unset($this->comments[$brand]);
       $dataTable[] = $data;
@@ -89,21 +80,12 @@ class DNA extends ChartType {
    *   $this->comments
    *     BRAND =>
    *       detractor =>
-   *         calc     =>
-   *           count => TOTAL-COUNT
-   *           perc  => no-changes
    *         comments =>
    *           COMMENT
    *           COMMENT
    *       passive  =>
-   *         calc     =>
-   *           count => TOTAL-COUNT
-   *           perc  => no-changes
    *         comments =>
    *       promoter =>
-   *         calc     =>
-   *           count => TOTAL-COUNT
-   *           perc  => no-changes
    *         comments =>
    *           COMMENT
    *     ...
@@ -122,20 +104,8 @@ class DNA extends ChartType {
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
     
-    $total = $this->answer_set;
     foreach ($this->brands as $brand) {
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      $total[$type] += $answers_type[$brand];
-    }
-    
-    foreach ($this->brands as $brand) {
-      $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      if (!empty($answers_type[$brand])) {
-        $this->comments[$brand][$type]['calc']['base']++;
-      }
-      $totalType = max(1, $total[$type]);
-      $totalType = (($answers_type[$brand] / $totalType) * 100);
-      $this->comments[$brand][$type]['calc']['perc'] = $this->roundingUpValue($totalType);
       $this->addComment($brand, $type, $answers_que[$brand]);
     }
   }
