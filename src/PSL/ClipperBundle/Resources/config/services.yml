@@ -149,3 +149,16 @@ services:
     arguments: ["@service_container", "DNA"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  #Extra for export
+  #Table 4
+  clipper.chart.promoterspromotemean:
+    class: PSL\ClipperBundle\Charts\Types\PromotersPromoteMean
+    arguments: ["@service_container", "PromotersPromoteMean"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  #Table 9-16
+  clipper.chart.ppdbrandmessagesbybrands:
+    class: PSL\ClipperBundle\Charts\Types\PPDBrandMessagesByBrands
+    arguments: ["@service_container", "PPDBrandMessagesByBrands"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
