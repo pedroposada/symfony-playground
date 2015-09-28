@@ -48,10 +48,23 @@ class NPSPlusSurvey extends LimeSurvey
    * Function to create think time analysis question.
    * 
    */
-  public function createTimerQuestion($sid, $group_id, $question_id, $question_title)
+  public function createTimerQuestion($data)
   {
+
+    $sid = 0;
+    $group_id = 0;
+    $question_id = 0;
+    $question_title = '';
     $language = '';
-    
+    $relevance = 0;
+
+    $params = array('sid', 'group_id', 'question_id', 'question_title', 'relevance');
+    foreach ($params as $param) {
+      if (isset($data['sid'])) {
+        ${$param} = $data[$param];
+      }  
+    }
+        
     $question = 'Time Thinking Analysis (hidden)';
     $help = '<script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
@@ -76,7 +89,7 @@ $(document).ready(function(){
       'question_order' => 8,
       'scale_id' => 0,
       'same_default' => 0,
-      'relevance' => 1,
+      'relevance' => $relevance,
       'language' => $language,
     );
     $this->addQuestion($question_row);
@@ -116,13 +129,13 @@ $(document).ready(function(){
       'adminemail' => 'simon.rainville@pslgroup.com',
       'faxto' => '5149999999',
       'bounce_email' => 'simon.rainville@pslgroup.com',
-      'surveytemplate' => 'LS_responsive_template',
+      'surveytemplate' => 'ls_material_design_2',
       'language' => $main_language,
       'additional_languages' => $additional_languages,
     );
     $this->addSurvey($survey_row);
     
-    // Language settings 
+    //Language settings 
     foreach ($languages as $language) {
       $file_name = 'PSLClipperBundle:limesurvey:NPSSurveyAssets/npsSurveyLanguageSettings.' . $language . '.xml.twig';
       $templating = $this->getContainer()->get('templating');
@@ -134,7 +147,7 @@ $(document).ready(function(){
       $this->addSurveysLanguagesetting($survey_language_settings_row);
     }
     
-    // url parameters 
+    //url parameters 
     $survey_url_parameters_row = array('id' => '100',
       'sid' => $sid,
       'parameter' => 'lstoken',
@@ -465,7 +478,7 @@ $(document).ready(function(){
     $question_0_2 = 'Brand awareness (hidden)';
     $question_0_2_help = '<script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
-  $("#question{QID}").hide();
+  //$("#question{QID}").hide();
   $(".question .subquestions-list input:radio").change(function(){  
     var name = $(this).attr("name");
     var n = name.indexOf("SQ");
@@ -634,7 +647,16 @@ $(document).ready(function(){
     // hidden
     // ------------------------------------------------------------------------------
     $qid_0_5 = 30500;
-    $this->createTimerQuestion($sid, $gid_0, $qid_0_5, 'G001Q006');
+
+    $timer_data = array(
+      'sid' => $sid,
+      'group_id' => $gid_0,
+      'question_id' => $qid_0_5,
+      'question_title' => 'G001Q006',
+      'relevance' => '1',
+    );
+    
+    $this->createTimerQuestion($timer_data);
 
 
 // ---------------------------------------------------------------------------------------------------------------------------
@@ -788,7 +810,14 @@ $(document).ready(function(){
     // ------------------------------------------------------------------------------
 
     $qid_1_2 = 30700;
-    $this->createTimerQuestion($sid, $gid_1, $qid_1_2, 'G002Q002');
+    $timer_data = array(
+      'sid' => $sid,
+      'group_id' => $gid_1,
+      'question_id' => $qid_1_2,
+      'question_title' => 'G002Q002',
+      'relevance' => '1',
+    );
+    $this->createTimerQuestion($timer_data);
 
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 2
@@ -889,7 +918,14 @@ $(document).ready(function(){
     // ------------------------------------------------------------------------------
 
     $qid_2_1 = 30900;
-    $this->createTimerQuestion($sid, $gid_2, $qid_2_1, 'G003Q002');
+    $timer_data = array(
+      'sid' => $sid,
+      'group_id' => $gid_2,
+      'question_id' => $qid_2_1,
+      'question_title' => 'G003Q002',
+      'relevance' => '1',
+    );
+    $this->createTimerQuestion($timer_data);
 
 // ---------------------------------------------------------------------------------------------------------------------------
 // group 3
@@ -976,7 +1012,15 @@ $(document).ready(function(){
       // ------------------------------------------------------------------------------
 
       $qid_3_1 = 31100;
-      $this->createTimerQuestion($sid, $gid_3 + $index, $qid_3_1 + $index, 'G00' . $group_order . 'Q002');
+      
+      $timer_data = array(
+        'sid' => $sid,
+        'group_id' => $gid_3 + $index,
+        'question_id' => $qid_3_1 + $index,
+        'question_title' => 'G00' . $group_order . 'Q002',
+        'relevance' => '((' . $sgq . '.NAOK == "A1"))',
+      );
+      $this->createTimerQuestion($timer_data);
 
     }
     
@@ -1038,7 +1082,14 @@ $(document).ready(function(){
     // hidden
     // ------------------------------------------------------------------------------
     $qid_4_1 = 31300;
-    $this->createTimerQuestion($sid, $gid_4, $qid_4_1, 'G00' . $group_order . 'Q002');
+    $timer_data = array(
+      'sid' => $sid,
+      'group_id' => $gid_4,
+      'question_id' => $qid_4_1,
+      'question_title' => 'G00' . $group_order . 'Q002',
+      'relevance' => '1',
+    );
+    $this->createTimerQuestion($timer_data);
 
     // ------------------------------------------------------------------------------
     // Subquestion
