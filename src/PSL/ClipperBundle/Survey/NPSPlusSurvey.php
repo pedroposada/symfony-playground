@@ -381,26 +381,27 @@ $(document).ready(function(){
     $question_0_1_help = '<script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
   $("#question{QID}").hide();
-  $(".question .subquestions-list input:radio").change(function(){  
-    var name = $(this).attr("name");
+  $(document).on("click", "div .radio label", function (evt) {
+    var input = $(this).find("input[type=\"radio\"]");
+    var name = $(input).attr("name");
     var n = name.indexOf("SQ");
     var subQuestion = name.substring(n);
-    var answer = $(this).attr("value");
+    var answer = $(input).attr("value");
     if (answer == "A01") {
       $("#java{SGQ}" + subQuestion).val("A1");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", "checked");
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", false);
       //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").addClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").removeClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").addClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .noanswer-item").removeClass("checked");
     }
     else {
       $("#java{SGQ}" + subQuestion).val("");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", false);
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", "checked");
       //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").removeClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").addClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").removeClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .noanswer-item").addClass("checked");
     }
   });
 });
@@ -478,27 +479,28 @@ $(document).ready(function(){
     $question_0_2 = 'Brand awareness (hidden)';
     $question_0_2_help = '<script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
-  //$("#question{QID}").hide();
-  $(".question .subquestions-list input:radio").change(function(){  
-    var name = $(this).attr("name");
-    var n = name.indexOf("SQ");
-    var subQuestion = name.substring(n);
-    var answer = $(this).attr("value");
-    if (answer != "A06") {
+  $("#question{QID}").hide();
+  $(document).on("click", "div .radio label", function (evt) {
+   var input = $(this).find("input[type=\"radio\"]");
+   var name = $(input).attr("name");
+   var n = name.indexOf("SQ");
+   var subQuestion = name.substring(n);
+   var answer = $(input).attr("value");
+   if (answer != "A06") {
       $("#java{SGQ}" + subQuestion).val("A1");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", "checked");
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", false);
       //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").addClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").removeClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").addClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .noanswer-item").removeClass("checked");
     }
     else {
       $("#java{SGQ}" + subQuestion).val("");
       $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", false);
       $("#answer{SGQ}" + subQuestion + "-").attr("checked", "checked");
       //added for troubleshooting
-      $("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").removeClass("checked");
-      $("#javatbd{SGQ}" + subQuestion + " .noanswer-item").addClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .answer_cell_00A1").removeClass("checked");
+      //$("#javatbd{SGQ}" + subQuestion + " .noanswer-item").addClass("checked");
     }
   });
 });
