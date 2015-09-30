@@ -12,10 +12,10 @@ final class ClipperEvents
      */
     // refresh responses from LimeSurvey
     const LS_REFRESH_RESPONSES          = 'ls_refresh_responses';
-    
+
     // main event
     const FQ_PROCESS                    = 'fq_process';
-    
+
     // sub events
     const BEFORE_ORDER_COMPLETE         = 'before_limesurvey_pending';
     const AFTER_ORDER_COMPLETE          = 'after_limesurvey_pending';
@@ -28,14 +28,21 @@ final class ClipperEvents
 
     const BEFORE_LIMESURVEY_COMPLETE    = 'before_limesurvey_complete';
     const AFTER_LIMESURVEY_COMPLETE     = 'after_limesurvey_complete';
-    
-    
+
+
     /**
      * The event listeners receive an instance of
      * PSL\ClipperBundle\Event\ChartEvent
      *
      * @var string
      */
-    const CHART_PROCESS                 = 'chart_process'; 
-     
+    const CHART_PROCESS                 = 'chart_process';
+
+    /**
+     * The event listeners receive an instance of
+     * PSL\ClipperBundle\Event\DownloadEvent
+     *
+     * @var string
+     */
+    const DOWNLOAD_PROCESS              = 'download_process';
 }

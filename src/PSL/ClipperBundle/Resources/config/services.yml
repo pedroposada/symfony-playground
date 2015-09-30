@@ -5,7 +5,7 @@ services:
 
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
-    arguments: 
+    arguments:
       - @service_container
       - %google_spreadsheets.client_id%
       - %google_spreadsheets.service_account_name%
@@ -38,6 +38,10 @@ services:
 
   chart_assembler:
     class: PSL\ClipperBundle\Charts\Assembler
+    arguments: [@service_container]
+
+  download_assembler:
+    class: PSL\ClipperBundle\Downloads\Assembler
     arguments: [@service_container]
 
   clipper_serializer:
@@ -162,3 +166,20 @@ services:
     arguments: ["@service_container", "PPDBrandMessagesByBrands"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+
+  # --------------------------- #
+  #   Clipper event listeners   #
+  # --------------------------- #
+
+  #@todo: remove this
+  clipper.download.nps_plus_dev:
+    class: PSL\ClipperBundle\Downloads\Types\NPSPlusDev
+    arguments: ["@service_container", "NPSPlusDev"]
+    tags:
+       - { name: kernel.event_listener, event: download_process_nps_plus_dev, method: onDownload, priority: 0 }
+
+  clipper.download.nps_plus_excel:
+    class: PSL\ClipperBundle\Downloads\Types\NPSPlusExcel
+    arguments: ["@service_container", "NPSPlusExcel"]
+    tags:
+       - { name: kernel.event_listener, event: download_process_nps_plus_excel, method: onDownload, priority: 0 }

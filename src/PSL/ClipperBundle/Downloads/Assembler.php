@@ -1,0 +1,72 @@
+<?php
+
+namespace PSL\ClipperBundle\Downloads;
+
+use PSL\ClipperBundle\ClipperEvents;
+use PSL\ClipperBundle\Event\DownloadEvent;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+class Assembler
+{
+  protected $container;
+  protected $logger;
+  protected $dispatcher;
+
+  private static $type_map = array(
+    'dev' => 'dev', // @todo: remove this
+    'xls' => 'excel',
+  );
+
+  public function __construct(ContainerInterface $container)
+  {
+    $this->container  = $container;
+    $this->logger     = $this->container->get('monolog.logger.clipper');
+    $this->dispatcher = $this->container->get('event_dispatcher');
+  }
+
+  /**
+   * Set DownloadEvent
+   *
+   * @param string  $order_id
+   *    UUID of the FirstQGroup.
+   *
+   * @param string  $survey_type
+   *    Unique identifier for the survey type.
+   *
+   * @param string  $download_type
+   *    Download format; @see self::$type_map.
+   *
+   * @param array   $raw_data string
+   *    Associated array data needed for the download processor.
+   *
+   * @return $event \PSL\ClipperBundle\Event\DownloadEvent
+   */
+  private function setDownloadEvent($order_id, $survey_type, $download_type, $raw_data)
+  {
+    if (!isset(self::$type_map[$download_type])) {
+      throw new \Exception("Unknown Download type '{$download_type}'.");
+    }
+
+    $event = new DownloadEvent();
+
+    $event->setOrderId($order_id);
+    $event->setSurveyType($survey_type);
+    $event->setDownloadType(self::$type_map[$download_type]);
+    $event->setRawData($raw_data);
+
+    $event_name = $event->getDispatcherEventName();
+    $this->dispatcher->dispatch($event_name, $event);
+
+    return $event;
+  }
+
+  /**
+   * Get data table to render response, and return it.
+   *
+   * @see setDownloadEvent()
+   */
+  public function getDownloadFile($order_id, $survey_type, $download_type, $raw_data)
+  {
+    return $this->setDownloadEvent($order_id, $survey_type, $download_type, $raw_data)->getFile();
+  }
+}
