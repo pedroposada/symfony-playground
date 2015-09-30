@@ -107,7 +107,7 @@ var GoogleChart = React.createClass({
     }
   },
   componentDidMount: function(){
-    google.setOnLoadCallback(this.drawChart());
+    clipper.charts.initialize(this.drawChart);
   },
   componentDidUpdate: function(){
     this.drawChart();

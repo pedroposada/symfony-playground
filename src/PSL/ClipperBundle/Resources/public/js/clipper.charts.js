@@ -3,18 +3,67 @@
  * @author Alexys Hegmann <alexys.hegmann@pslgroup.com>
  */
 
-'use strict'
-
 // Namespace
 var clipper = clipper || {};
 clipper.charts = clipper.charts || {};
+
+/**
+ * Initialize the Google Visualization API. You DO can call this function multiple
+ * times. It will check the previous states of initialization and just wait for the
+ * resources to be available before calling the callback.
+ * 
+ * @param function callback
+ */
+	clipper.charts.initialize = function(callback) {
+		// Look for a G JSAPI script tag.
+		var allScripts = document.getElementsByTagName('script');
+		var gapiScriptTagExists = false;
+		for (var i = 0; i < allScripts.length; i++) {
+			if (allScripts[i].src == 'https://www.google.com/jsapi') {
+				gapiScriptTagExists = true;
+			}
+		}
+		// If G JSAPI exists, wait for visualization API and charts modules
+		// to be available.
+		if (gapiScriptTagExists) {
+			var tmr = setInterval(function() {
+				try {
+					if (!google.hasOwnProperty('visualization')) throw 'visualization api not loaded';
+					if (!google.hasOwnProperty('charts')) throw 'charts module not loaded';
+					clearInterval(tmr);
+					callback();
+				} catch(e) {}
+			}, 50);
+			return;
+		}
+		// If G JSAPI doesn't exist, create one.
+		var head = document.getElementsByTagName('head')[0];
+		var s = document.createElement('script');
+		s.type = "text/javascript";
+		s.async = true;
+		s.src = 'https://www.google.com/jsapi';
+		s.onreadystatechange = s.onload = function() {
+			var state = s.readyState;
+			if (!state || /loaded|complete/.test(state)) {
+				google.load('visualization', '1', {
+					packages: ['corechart', 'bar', 'orgchart'],
+					callback: function() {
+						callback();
+					}
+				});
+			}
+		};
+
+		head.appendChild(s);
+	};
+// END Initialization
 
 /**
  * Chart Base object
  */
 	clipper.charts.Chart = function(id, settings, data) {
 		// Check dependencies
-		if (typeof google.visualization == 'undefined') {
+		if (typeof google == 'undefined' && typeof google.visualization == 'undefined') {
 			throw 'Google Visualization API must be loaded before creating charts.';
 		}
 
@@ -288,7 +337,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		// Create Score labels.
 		var cli = this._gchart.getChartLayoutInterface();
-	    var chartArea = cli.getChartAreaBoundingBox();
+		var chartArea = cli.getChartAreaBoundingBox();
 		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
 		var overlay = document.createElement('div');
 		var overlay_bar = null;
@@ -577,7 +626,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		// Create Score labels.
 		var cli = this._gchart.getChartLayoutInterface();
-	    var chartArea = cli.getChartAreaBoundingBox();
+		var chartArea = cli.getChartAreaBoundingBox();
 		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
 		var overlay = null;
 		var overlay_values = null;
@@ -748,6 +797,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		clipper.charts.Chart.call(this, id, settings, data);
 
 		var defaultSettings = {
+			valueType: 'absolute',
 			heatmap: {
 				lowerColor: [255, 255, 255], // R, G, B
 				higherColor: [0, 0, 0] // R, G, B
@@ -847,10 +897,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 		note.style.left = x - 65 + 'px';
 		note.style.top = y - 70 + 'px';
 		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
- 		noteSVG += '<g>';
+		noteSVG += '<g>';
 		noteSVG += '  <g>';
 		noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
-    	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+		noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '   <g>';
 		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
@@ -936,7 +986,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		html += '<tr><td>&nbsp;</td>';
 		for (var i = 0; i < this._data.length; i++) {
-			html += '<th><div style="font-weight: normal; text-overflow: ellipsis; white-space: nowrap; overflow:hidden; max-width: 85px; text-align: left; position:absolute; transform: rotate(-90deg) translateX(5%) translateY(125%); transform-origin: 0% 0%" title="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
+			html += '<th><div style="font-weight: normal; text-overflow: ellipsis; white-space: nowrap; overflow:hidden; max-width: 85px; text-align: left; position:absolute; transform: rotate(-90deg) translateX(5%) translateY(0%); transform-origin: 0% 0%" title="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
 			this._brand_index.push(this._data[i].brand);
 		}
 		html += '</tr>';
@@ -1005,7 +1055,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 		clipper.charts.Chart.call(this, id, settings, data);
 
 		var defaultSettings = {
-			valueType: 'relative',
+			valueType: 'absolute',
 			heatmap: {
 				lowerColor: [255, 255, 255], // R, G, B		
 				higherColor: [0, 0, 0] // R, G, B		
@@ -1152,10 +1202,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 		note.style.left = x - 65 + 'px';
 		note.style.top = y - 70 + 'px';
 		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
- 		noteSVG += '<g>';
+		noteSVG += '<g>';
 		noteSVG += '  <g>';
 		noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
-    	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+		noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
 		noteSVG += '   <g>';
 		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
@@ -1196,7 +1246,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		html += '<tr><td>&nbsp;</td>';
 		for (var i = 0; i < this._data.length; i++) {
-			html += '<th><div style="font-weight: normal; text-overflow: ellipsis; white-space: nowrap; overflow:hidden; max-width: 85px; text-align: left; position:absolute; transform: rotate(-90deg) translateX(5%) translateY(125%); transform-origin: 0% 0%" title="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
+			html += '<th><div style="font-weight: normal; text-overflow: ellipsis; white-space: nowrap; overflow:hidden; max-width: 85px; text-align: left; position:absolute; transform: rotate(-90deg) translateX(5%) translateY(0%); transform-origin: 0% 0%" title="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
 			this._brand_index.push(this._data[i].brand);
 		}
 		html += '</tr>';
@@ -1271,7 +1321,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			},
 			bubbles: {
 				fontWeight: '700',
-				textShadow: '1px 1px 2px rgba(0,0,0,1), -1px 0px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,0.7)'
+				textShadow: '1px 1px 2px rgba(0,0,0,1), -1px -1px 2px rgba(0,0,0,1)'
 			},
 			detractorsBubble: {
 				fill: '#dc7629',
@@ -1362,7 +1412,7 @@ clipper.charts.factory = function(type, id, settings, data) {
 			Px = 25;
 			Dx = 75;
 			var svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;">';
-			svg += '	<h2 style="position:absolute;right: 10px;font-size:13px;font-family:' + this.settings.textFont + ';text-align:right">' + itm.brand + '</h2>';
+			svg += '	<h2 style="font-size:13px;font-family:' + this.settings.textFont + ';">' + itm.brand + '</h2>';
 			svg += '	<svg width="100%" height="100%">';
 			svg += '		<g>';
 			svg += '			<circle cx="' + Px + '%" cy="45%" r="' + Pv + '%" fill="' + this.settings.promotersBubble.fill + '" />';
