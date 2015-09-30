@@ -1436,6 +1436,27 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		wrapper.innerHTML = fHtml;
 
+		// Adjust height.
+		var containers = wrapper.getElementsByClassName(this.settings.brandContainer.className);
+		var svg = null;
+		var containerWidth = 0,
+			containerHeight = 0,
+			containerRatio = 0;
+		for (var i = 0; i < containers.length; i++) {
+			containerWidth = containers[i].clientWidth;
+			containerHeight = containers[i].clientHeight;
+			containerRatio = containerHeight / containerWidth;
+			// Our ratio must be 85% max. If it's above, scale it down.
+			if (containerRatio > 0.85) {
+				svg = containers[i].getElementsByTagName('svg');
+				svg = svg[0] || null;
+				if (svg) {
+					svg.setAttribute('height', Math.floor(containerWidth * 0.85) + 'px');
+					//containers[i].style.height = Math.floor(containerWidth * 0.85) + 'px';
+				}
+			}
+		}
+
 		// Logo
 		if (this.settings.logo.image !== 'none') {
 			var logo = this.getLogo();
