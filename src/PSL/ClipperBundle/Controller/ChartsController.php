@@ -212,18 +212,17 @@ class ChartsController extends FOSRestController
           'data-count' => count($charts),
           'data'       => $data,
         );
-        goto break_try_complete;
       }
-
-      //prep for export
-      //@todo: align the needs for GET[type] to supported download types
-      return $this->exportExcelOrder($order_id, $data);
+      else {
+        //prep for export
+        //@todo: align the needs for GET[type] to supported download types
+        return $this->exportExcelOrder($order_id, $data);
+      }
     }
     catch(Exception $e) {
       $content = "Message: [{$e->getMessage()}] - Line: {[$e->getLine()]}";
       $code = 204;
     }
-    break_try_complete:
 
     return new Response($content, $code);
   }
