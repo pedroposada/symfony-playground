@@ -13,7 +13,7 @@ pre-group-000.question-000 : "Do you personally play an active prescribing role 
 group-000.question-000: "Thinking about the following drugs used to treat patients with @patient_type, which of these statements applies to each of them? Please select one response for each drug."
 
 # I currently use this drug : I currently use this drug
-group-000.question-000.answer-000 : "I currently use this drug : I currently use this drug"
+group-000.question-000.answer-000 : "I currently use this drug"
 
 # I have used this drug previously and would consider using it again
 group-000.question-000.answer-001 : "I have used this drug previously and would consider using it again"

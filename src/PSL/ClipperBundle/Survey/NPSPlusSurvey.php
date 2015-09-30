@@ -129,7 +129,7 @@ $(document).ready(function(){
       'adminemail' => 'simon.rainville@pslgroup.com',
       'faxto' => '5149999999',
       'bounce_email' => 'simon.rainville@pslgroup.com',
-      'surveytemplate' => 'ls_material_design_2',
+      'surveytemplate' => 'ls_google_mat',
       'language' => $main_language,
       'additional_languages' => $additional_languages,
     );
