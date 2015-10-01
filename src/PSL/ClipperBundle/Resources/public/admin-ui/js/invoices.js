@@ -38,6 +38,8 @@ function getInvoiceList(status) {
     },
     success: function(data) {
       
+      // @TODO: check if data is valid, not just a status 200
+      
       $('#loading-spinner').fadeOut(400, function(){
         $('#dataTable-invoices').fadeIn(400);
         displayTable(data, status);
@@ -60,8 +62,6 @@ function invoiceAction(fquuid, action) {
   var url = config.apiBaseUrl + "/orders/adminprocesses";
   var data = "task=" + action + "&firstq_uuid=" + fquuid;
   
-  
-  
   // AJAX call to Clipper backend
   $.ajax({
     url: url,
@@ -72,8 +72,6 @@ function invoiceAction(fquuid, action) {
       'Authorization': "Bearer " + tokenValue
     },
     success: function(data) {
-      
-      console.log(data);
       
       // @TODO: check if data is valid, not just a status 200
       

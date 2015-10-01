@@ -318,9 +318,8 @@ class ClipperController extends FOSRestController
         foreach ($firstq_groups as $key => $firstq_group) {
 
           // User info retrieval from the FW SSO
-          $fwsso_config = $this->container->getParameter('fwsso_api');
-          $settings['fwsso_baseurl'] = $fwsso_config['url'];
-          $settings['fwsso_app_token'] = $fwsso_config['app_token'];
+          $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+          $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
 
           $fwsso_ws = $this->container->get('fw_sso_webservice');
           $fwsso_ws->configure($settings);
