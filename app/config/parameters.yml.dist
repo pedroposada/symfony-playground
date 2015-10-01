@@ -42,4 +42,5 @@ parameters:
   confirmation_emails.invoice.complete:        "[*confirmation_emails.invoice.complete*]"
   confirmation_emails.points.pending:          "[*confirmation_emails.points.pending*]"
   confirmation_emails.points.complete:         "[*confirmation_emails.points.complete*]"
-  
+  fwsso_api.url:                               "[*fwsso_api_url*]"
+  fwsso_api.app_token:                         "[*fwsso_api_url*]"
