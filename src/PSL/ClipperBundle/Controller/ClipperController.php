@@ -437,11 +437,11 @@ class ClipperController extends FOSRestController
 
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
-    
+
     // payment_method_nonce
     $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
-    
-    $amount = '100.00'; // string ex: 100.00 
+
+    $amount = '100.00'; // string ex: 100.00
     $email = $paramFetcher->get('email'); // not necessary
     $method = $paramFetcher->get('method'); // not necessary
 
@@ -483,25 +483,25 @@ class ClipperController extends FOSRestController
     // this will charge the user's card
     try {
       $parameters_clipper = $this->container->getParameter('clipper');
-      
-      
+
+
       // @TODO: Use proper config according to country
-      
+
       \Braintree_Configuration::environment('sandbox');
       \Braintree_Configuration::merchantId('56pc8bpms5mqfdsz');
       \Braintree_Configuration::publicKey('7pys8m43bxfp56k9');
       \Braintree_Configuration::privateKey('414b76ed3e23cca45dbacfb78da0ddf6');
-      
+
       $sale_params = array(
         'amount' => $amount,
         'paymentMethodNonce' => $payment_method_nonce
       );
-      
+
       $result = \Braintree_Transaction::sale($sale_params);
-      
+
       // Check that it was paid:
       if ($result->success == true) {
-        
+
       // TODO: CLIP-30.
       // # Credit card
       // 1. send email to client with sale’s info.
@@ -525,7 +525,7 @@ class ClipperController extends FOSRestController
 
         $firsq['fquuid'] = $firstq_group_uuid;
         return new Response($firsq, 200);
-      } 
+      }
       else {
         // failed
         $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
@@ -540,7 +540,7 @@ class ClipperController extends FOSRestController
       $message = "Error - Please try again. {$e}";
       return new Response($message, 400); // Error
     }
-    
+
   }
 
   /**
@@ -604,8 +604,16 @@ class ClipperController extends FOSRestController
         $firstq_group->setState($order_status);
         $em->persist($firstq_group);
 
-        // TODO: CLIP-30. send email to client with sale’s info and message
-        // saying it was approved.
+        // Send email to client with sale’s info and message saying it was
+        // approved.
+        // TODO: CLIP-30. Find out how to get email addresses.
+        $this->sendConfirmationEmail(
+          'Confirmation email subject',
+          'send@example.com',
+          'receipient@example.com',
+          'order_approved.client_copy',
+          array()
+        );
       }
       else {
         $order_status = $parameters_clipper['state_codes']['order_declined'];
@@ -661,12 +669,12 @@ class ClipperController extends FOSRestController
     \Braintree_Configuration::merchantId('56pc8bpms5mqfdsz');
     \Braintree_Configuration::publicKey('7pys8m43bxfp56k9');
     \Braintree_Configuration::privateKey('414b76ed3e23cca45dbacfb78da0ddf6');
-    
+
     // get user_id from request
     //$firstq_uuid = $request->query->get('firstq_uuid');
-    
+
     $client_token['clientToken'] = \Braintree_ClientToken::generate();
-    
+
     if (!$client_token) {
       $message = 'Error - Please try again.';
       return new Response($message, 400); // Error
@@ -849,23 +857,31 @@ class ClipperController extends FOSRestController
   }
 
   /**
-   * TODO: CLIP-30. A helper function to send email.
+   * A helper function to send confirmation email.
+   *
+   * @param string  $subject  Email subject
+   * @param string  $from     Email address from
+   * @param string  $to       Email address to
+   * @param string  $type     Confirmation type
+   * @param array   $vars     Variables to be passed into twig template
    */
-  private function sendConfirmationEmail() {
+  private function sendConfirmationEmail($subject = 'Hello', $from = 'send@example.com', $to = 'recipient@example.com', $type = 'order_approved.client_copy', $vars = array())
+  {
     // 1. Email template with Twig files.
     // 2. Sale’s info template to be re-used everywhere with Twig files.
-    $message = \Swift_MessageSwift_Message::newInstance()
-      ->setSubject('Hello Email')
-      ->setFrom('send@example.com')
-      ->setTo('recipient@example.com')
+
+    $message = \Swift_Message::newInstance()
+      ->setSubject($subject)
+      ->setFrom($from)
+      ->setTo($to)
       ->setBody(
         $this->renderView(
-          // app/Resources/views/Emails/confirmation.{order_type}.{user_type}.html.twig
-          'Emails/confirmation.{order_type}.{user_type}.html.twig',
+          // src/PSL/ClipperBundle/Resources/views/Emails/confirmation.{order_type}.{user_type}.html.twig
+          'PSLClipperBundle:Emails:confirmation.' . $type . '.html.twig',
           array(
-            'foo' => $foo,
-            'bar' => $bar,
-          )
+            'vars' => $vars,
+          ),
+          'text/html'
         )
       )
     ;
