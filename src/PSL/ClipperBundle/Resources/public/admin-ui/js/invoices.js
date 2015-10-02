@@ -38,13 +38,13 @@ function getInvoiceList(status) {
     },
     success: function(data) {
       
-      $('#loading-spinner').fadeOut(400, function() {
-        $('#dataTable-invoices').fadeIn(400);
+      $('#loading-spinner').fadeOut(200, function() {
+        $('#dataTable-invoices').fadeIn(200);
         displayTable(data, status);
       });
     },
     error: function() {
-      $('#loading-spinner').fadeOut(400, function() {
+      $('#loading-spinner').fadeOut(200, function() {
         displayError('Server side error retrieving list of orders.');
       });
     },
@@ -172,7 +172,7 @@ function displayTable(data, status) {
   }
   catch(err) {
     // display error
-    $('#loading-spinner').fadeOut(400, function() {
+    $('#loading-spinner').fadeOut(200, function() {
       displayError('Server side error retrieving list of orders. <br/><br/>' + err);
     });
   }
