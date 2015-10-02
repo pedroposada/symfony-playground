@@ -43,9 +43,3 @@ monolog:
 
 assetic:
     use_controller: true
-
-parameters:
-    fwsso_baseurl: http://alexysh.fwsso.pslgroup.com/ssoapi
-    fwsso_api:
-        url: http://alexysh.fwsso.pslgroup.com/ssoapi
-        app_token: ac1e9d98889fb2955c74ba4a03e47d45874d21e729c07133815bff259ac74510

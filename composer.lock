@@ -1167,12 +1167,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "e04bd1752c0d004d0db099ff6ec1d8e6772b7fb5"
+                "reference": "c9566ce5e7d568248c8be41e3502c9b9a1e84e79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/e04bd1752c0d004d0db099ff6ec1d8e6772b7fb5",
-                "reference": "e04bd1752c0d004d0db099ff6ec1d8e6772b7fb5",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/c9566ce5e7d568248c8be41e3502c9b9a1e84e79",
+                "reference": "c9566ce5e7d568248c8be41e3502c9b9a1e84e79",
                 "shasum": ""
             },
             "require": {
@@ -1238,7 +1238,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2015-09-30 19:24:44"
+            "time": "2015-10-01 14:27:21"
         },
         {
             "name": "google/apiclient",
@@ -2754,12 +2754,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "f50aafa4a665efeda92b07779d8a6b09af50ca89"
+                "reference": "b44dcb71e14cec5484c7224a104976b7d541336e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/f50aafa4a665efeda92b07779d8a6b09af50ca89",
-                "reference": "f50aafa4a665efeda92b07779d8a6b09af50ca89",
+                "url": "https://api.github.com/repos/symfony/console/zipball/b44dcb71e14cec5484c7224a104976b7d541336e",
+                "reference": "b44dcb71e14cec5484c7224a104976b7d541336e",
                 "shasum": ""
             },
             "require": {
@@ -2803,7 +2803,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-09-30 20:26:55"
+            "time": "2015-10-01 15:32:55"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -3469,16 +3469,16 @@
         },
         {
             "name": "willdurand/negotiation",
-            "version": "1.4.0",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/Negotiation.git",
-                "reference": "8a84c5956e765f432542fc52a8c6e9aff4508eb3"
+                "reference": "2a59f2376557303e3fa91465ab691abb82945edf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/Negotiation/zipball/8a84c5956e765f432542fc52a8c6e9aff4508eb3",
-                "reference": "8a84c5956e765f432542fc52a8c6e9aff4508eb3",
+                "url": "https://api.github.com/repos/willdurand/Negotiation/zipball/2a59f2376557303e3fa91465ab691abb82945edf",
+                "reference": "2a59f2376557303e3fa91465ab691abb82945edf",
                 "shasum": ""
             },
             "require": {
@@ -3487,7 +3487,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4-dev"
+                    "dev-master": "1.5-dev"
                 }
             },
             "autoload": {
@@ -3514,7 +3514,7 @@
                 "header",
                 "negotiation"
             ],
-            "time": "2015-07-28 13:10:50"
+            "time": "2015-10-01 07:42:40"
         }
     ],
     "packages-dev": [

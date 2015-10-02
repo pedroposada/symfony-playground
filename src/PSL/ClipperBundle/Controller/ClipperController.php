@@ -607,8 +607,6 @@ class ClipperController extends FOSRestController
         // approved.
         // TODO: CLIP-30. Find out how to get email addresses.
         $this->sendConfirmationEmail(
-          'Confirmation email subject',
-          'send@example.com',
           'receipient@example.com',
           'order_approved.client_copy',
           array()
@@ -858,18 +856,40 @@ class ClipperController extends FOSRestController
   /**
    * A helper function to send confirmation email.
    *
-   * @param string  $subject  Email subject
-   * @param string  $from     Email address from
-   * @param string  $to       Email address to
-   * @param string  $type     Confirmation type
-   * @param array   $vars     Variables to be passed into twig template
+   * @param string  $to           Email address to
+   * @param string  $type         Confirmation type
+   * @param array   $sales_info   Passing variables to salesinfo twig template
    */
-  private function sendConfirmationEmail($subject = 'Hello', $from = 'send@example.com', $to = 'recipient@example.com', $type = 'order_approved.client_copy', $vars = array())
+  private function sendConfirmationEmail($to = 'recipient@example.com', $type = 'order_approved.client_copy', $sales_info = array())
   {
-    // 1. Email template with Twig files.
-    // 2. Sale’s info template to be re-used everywhere with Twig files.
+    // @TODO: Update the text/content when it's ready.
+    $subject = '';
+    $from = 'send@example.com';
+
+    switch ($type) {
+      case 'order_approved.client_copy':
+        $subject = 'Your order has been approved.';
+        break;
+
+      case 'order_approved.admin_copy':
+        $subject = 'An order is created.';
+        break;
+
+      case 'order_complete.client_copy':
+        $subject = 'Your order is completed.';
+        break;
+
+      case 'order_complete.admin_copy':
+        $subject = 'An order is completed.';
+        break;
+
+      case 'order_pending.client_copy':
+        $subject = 'Your order is pending.';
+        break;
+    }
 
     $message = \Swift_Message::newInstance()
+      ->setContentType('text/html')
       ->setSubject($subject)
       ->setFrom($from)
       ->setTo($to)
@@ -878,7 +898,7 @@ class ClipperController extends FOSRestController
           // src/PSL/ClipperBundle/Resources/views/Emails/confirmation.{order_type}.{user_type}.html.twig
           'PSLClipperBundle:Emails:confirmation.' . $type . '.html.twig',
           array(
-            'vars' => $vars,
+            'sales_info' => $sales_info,
           ),
           'text/html'
         )

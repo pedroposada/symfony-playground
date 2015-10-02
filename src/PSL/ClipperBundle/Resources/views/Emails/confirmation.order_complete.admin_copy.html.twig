@@ -1,10 +1,10 @@
-{# Email to send to Admins when order is approved #}
-
+{# src/PSL/ClipperBundle/Resources/views/Emails/confirmation.order_complete.admin_copy.html.twig #}
+{# Email to send to client when order is approved #}
+{% extends 'confirmation.base.html.twig' %}
 
 {# Message to admins #}
-
-
-{# order info #}
-
-
-{# Link to Admin UI #}
+{% block message %}
+    <div class="message">
+        <span>Message to admin saying the order is completed and approved.</span>
+    </div>
+{% endblock %}
