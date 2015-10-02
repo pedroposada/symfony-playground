@@ -105,8 +105,13 @@ class LimeSurveyTranslator
     // NO translation needed but languages need to be inserted
     $question_attributes = array();
     foreach ($elements['question_attributes'] as $key => $question_attribute) {
-      foreach ($languages as $language) {
-        $question_attribute['language'] = $language;
+      // only add language if language is specified
+      if (isset($question_attribute['language']) && !empty($question_attribute['language'])) {
+        foreach ($languages as $language) {
+          $question_attribute['language'] = $language;
+          $question_attributes[] = $question_attribute;
+        }
+      } else {
         $question_attributes[] = $question_attribute;
       }
     }

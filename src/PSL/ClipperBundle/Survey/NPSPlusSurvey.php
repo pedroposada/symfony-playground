@@ -363,7 +363,6 @@ $(document).ready(function(){
     $question_attribute_0_0_row_1 = array('qid' => $qid_0_0,
       'attribute' => 'random_order',
       'value' => 1,
-      'language' => $language,
     );
     $this->addQuestionAttribute($question_attribute_0_0_row_1);
     
@@ -711,6 +710,12 @@ $(document).ready(function(){
       });
       total_percentage.find("input.readonly").val(percentage);
   });
+  $("#movenextbtn").click(function(evt){
+    if ($("#total-percentage").find("input").val() < 100) {
+      alert("At least 100% for the total percentage");
+      event.preventDefault();
+    }  
+  });
 });
 </script>';
      
@@ -784,14 +789,12 @@ $(document).ready(function(){
     $attributes_1_0_row_0 = array('qid' => $qid_1_0,
       'attribute' => 'array_filter',
       'value' => 'G001Q002',
-      'language' => $language,
     );
     $this->addQuestionAttribute($attributes_1_0_row_0);
       
     $attributes_1_0_row_1 = array('qid' => $qid_1_0,
       'attribute' => 'input_boxes',
       'value' => 1,
-      'language' => $language,
     );
     $this->addQuestionAttribute($attributes_1_0_row_1);
        
@@ -801,6 +804,12 @@ $(document).ready(function(){
       'language' => $language,
     );      
     $this->addQuestionAttribute($attributes_1_0_row_2);
+
+    $attributes_1_0_row_3 = array('qid' => $qid_1_0,
+      'attribute' => 'random_order',
+      'value' => 1,
+    );      
+    $this->addQuestionAttribute($attributes_1_0_row_3);
     
 // ---------------------------------------------------------------------------------------------------------------------------
 
@@ -906,7 +915,6 @@ $(document).ready(function(){
     $attributes_2_0_row = array('qid' => $qid_2_0,
       'attribute' => 'array_filter',
       'value' => 'G001Q003',
-      'language' => $language,
     );
     $this->addQuestionAttribute($attributes_2_0_row);
     
@@ -1152,7 +1160,6 @@ $(document).ready(function(){
     $question_attribute_4_0_row = array('qid' => $qid_4_0,
       'attribute' => 'random_order',
       'value' => 1,
-      'language' => $language,
     );
     $this->addQuestionAttribute($question_attribute_4_0_row);
     

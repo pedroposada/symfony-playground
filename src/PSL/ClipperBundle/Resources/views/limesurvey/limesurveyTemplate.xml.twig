@@ -175,7 +175,9 @@
     <qid><![CDATA[{{ question_attribute.qid }}]]></qid>
     <attribute><![CDATA[{{ question_attribute.attribute }}]]></attribute>
     <value><![CDATA[{{ question_attribute.value }}]]></value>
+    {% if question_attribute.language is defined %}
     <language><![CDATA[{{ question_attribute.language }}]]></language>
+    {% endif %}
   </row>
 {% endfor %}
   </rows>
