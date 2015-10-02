@@ -157,6 +157,7 @@ parameters:
       #firstq_group
       order_pending: ORDER_PENDING
       order_invoice: ORDER_INVOICE
+      order_points: ORDER_POINTS
       order_declined: ORDER_DECLINED
       order_complete: ORDER_COMPLETE
       order_closed: ORDER_CLOSED

@@ -40,3 +40,6 @@ span.decline-button:hover {
   margin-left: 10px;
 }
 
+#close-message {
+  cursor:pointer;
+}

@@ -333,12 +333,18 @@ class ClipperController extends FOSRestController
             if (json_last_error() != JSON_ERROR_NONE) {
               throw new Exception('JSON decode error: ' . json_last_error());
             }
-
+            
+            $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
+            $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
+            $company = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+            $phone = (isset($content['field_phone']['und'][0]['value'])) ? $content['field_phone']['und'][0]['value'] : '';
+            $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+            
             // User info
-            $user_info['username'] = $content['field_firstname']['und'][0]['value'] . " " . $content['field_lastname']['und'][0]['value'];
-            $user_info['address'] = $content['name']; // email
-            $user_info['phone'] = $content['field_company']['und'][0]['value'] . '<br/>' . $content['field_phone']['und'][0]['value'];
-            $user_info['company_name'] = $content['field_company']['und'][0]['value'];
+            $user_info['username'] = $first_name . " " . $last_name;
+            $user_info['address'] = $content['mail'];
+            $user_info['phone'] = $company . '<br/>' . $phone;
+            $user_info['company_name'] = $company_name;
           }
 
           $processed_info = NULL;
@@ -351,7 +357,6 @@ class ClipperController extends FOSRestController
             if ($firstq_process) {
               $processed_info['username'] = $firstq_process->getUsername();
               $processed_info['updated'] = $firstq_process->getUpdated();
-
             }
             else {
               $processed_info['username'] = $firstq_group->getId();
@@ -574,7 +579,7 @@ class ClipperController extends FOSRestController
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
     $task = $paramFetcher->get('task');
-
+    
     // return error if empty
     if (empty($firstq_group_uuid) || empty($task)) {
       $message = 'Invalid request - missing parameters';
@@ -585,7 +590,7 @@ class ClipperController extends FOSRestController
     $em = $this->getDoctrine()->getManager();
     $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
 
-    if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_INVOICE') {
+    if (empty($firstq_group) || ($firstq_group->getState() != 'ORDER_INVOICE' && $firstq_group->getState() != 'ORDER_POINTS')) {
       $message = 'Error - FirstQ uuid is invalid';
       return new Response($message, 400);
     }
