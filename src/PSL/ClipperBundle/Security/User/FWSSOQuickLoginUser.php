@@ -60,4 +60,17 @@ class FWSSOQuickLoginUser implements UserInterface
 
         return true;
     }
+
+    public function getQuickLoginHash($key)
+    {        
+        $string_to_encrypt = array(
+          'id' => trim($this->username),
+        );
+        $string_to_encrypt = json_encode($string_to_encrypt);
+
+        $encrypted = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($key), $string_to_encrypt, MCRYPT_MODE_CBC, md5(md5($key))));
+        $encoded = strtr($encrypted, '+/=', '-_,');
+
+        return $encoded;
+    }
 }

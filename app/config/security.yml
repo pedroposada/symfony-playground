@@ -11,7 +11,6 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
-                                                                                              # ROLE_USER - regular users
         ROLE_INVOICE_WHITELISTED:   ROLE_USER
         ROLE_ADMIN:                 ROLE_USER                                                           # regular admins
         ROLE_ADMINUI_USER:          ROLE_USER                                                         # regular Admin UI users
@@ -128,7 +127,7 @@ security:
             anonymous: true
         # Rest of API
         api:
-            pattern:   ^/clipper/api
+            pattern:   ^/clipper/api(?!/user/forgotpassword)
             stateless: true
             lexik_jwt:
                 authorization_header:
