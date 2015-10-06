@@ -333,13 +333,13 @@ class ClipperController extends FOSRestController
             if (json_last_error() != JSON_ERROR_NONE) {
               throw new Exception('JSON decode error: ' . json_last_error());
             }
-            
+
             $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
             $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
             $company = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
             $phone = (isset($content['field_phone']['und'][0]['value'])) ? $content['field_phone']['und'][0]['value'] : '';
             $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
-            
+
             // User info
             $user_info['username'] = $first_name . " " . $last_name;
             $user_info['address'] = $content['mail'];
@@ -488,13 +488,8 @@ class ClipperController extends FOSRestController
     try {
       $parameters_clipper = $this->container->getParameter('clipper');
 
-
       // @TODO: Use proper config according to country
-
-      \Braintree_Configuration::environment('sandbox');
-      \Braintree_Configuration::merchantId('56pc8bpms5mqfdsz');
-      \Braintree_Configuration::publicKey('7pys8m43bxfp56k9');
-      \Braintree_Configuration::privateKey('414b76ed3e23cca45dbacfb78da0ddf6');
+      $this->initBrainTree('uk');
 
       $sale_params = array(
         'amount' => $amount,
@@ -579,7 +574,7 @@ class ClipperController extends FOSRestController
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
     $task = $paramFetcher->get('task');
-    
+
     // return error if empty
     if (empty($firstq_group_uuid) || empty($task)) {
       $message = 'Invalid request - missing parameters';
@@ -667,10 +662,7 @@ class ClipperController extends FOSRestController
   public function getClientTokenAction(Request $request)
   {
     // Set Braintree configuration
-    \Braintree_Configuration::environment('sandbox');
-    \Braintree_Configuration::merchantId('56pc8bpms5mqfdsz');
-    \Braintree_Configuration::publicKey('7pys8m43bxfp56k9');
-    \Braintree_Configuration::privateKey('414b76ed3e23cca45dbacfb78da0ddf6');
+    $this->initBrainTree('uk');
 
     // get user_id from request
     //$firstq_uuid = $request->query->get('firstq_uuid');
@@ -689,6 +681,34 @@ class ClipperController extends FOSRestController
    * HELPERS
    * ----------------------------------------------------------------------------------------
    */
+
+  /**
+   * Get BrainTree Object
+   */
+  private function initBrainTree($region_code = 'uk')
+  {
+    switch ($region_code) {
+      case 'eu':
+        $region_code = 'eu';
+        break;
+
+      case 'us':
+        $region_code = 'us';
+        break;
+
+      case 'uk':
+      default:
+        $region_code = 'uk';
+        break;
+    }
+
+    // Set Braintree configuration.
+    \Braintree_Configuration::environment($this->container->getParameter('braintree_' . $region_code . '.environment'));
+    \Braintree_Configuration::merchantId($this->container->getParameter('braintree_' . $region_code . '.merchant_id'));
+    \Braintree_Configuration::publicKey($this->container->getParameter('braintree_' . $region_code . '.public_key'));
+    \Braintree_Configuration::privateKey($this->container->getParameter('braintree_' . $region_code . '.private_key'));
+  }
+
 
   /**
    * Saves a new FirstQProject or update an existing one
