@@ -273,7 +273,13 @@ $(document).ready(function(){
       
     // $question_0_0 = 'Thinking about the following drugs used to treat @patient_type, which of these statements applies to 
     // each of them? Please select one response for each drug.';
-    $question_0_0 = 'group-000.question-000'; 
+    $question_0_0 = 'group-000.question-000';
+    $question_0_0_help ="<script>
+ $(document).ready(function(){
+  $('table.questions-list').addClass('array_widget');
+ });
+</script>";
+
     $question_0_0_row = array('qid' => $qid_0_0,
       'parent_qid' => 0,
       'sid' => $sid,
@@ -281,7 +287,7 @@ $(document).ready(function(){
       'type' => 'F',
       'title' => 'G001Q001',
       'question' => $question_0_0,
-      'help' => '',
+      'help' => $question_0_0_help,
       'preg' => '',
       'other' => 'N',
       'mandatory' => 'Y',
@@ -713,9 +719,10 @@ $(document).ready(function(){
   $("#movenextbtn").click(function(evt){
     if ($("#total-percentage").find("input").val() < 100) {
       alert("At least 100% for the total percentage");
-      event.preventDefault();
+      evt.preventDefault();
     }  
   });
+  $("input.text").attr("placeholder", "Fill up your percentage here");
 });
 </script>';
      
@@ -976,10 +983,15 @@ $(document).ready(function(){
       // $question_3_0 = 'Thinking about the treatment of your @patient_type. How would you summarise in a short phrase of no 
       // more than 10 words what @brand means to you? Please use no more than 10 words.';
       $question_3_0 = 'group-003.question-000';
-      
+      $question_3_0_help = '<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+ $("textarea").attr("placeholder", "Fill up your comment here")
+});
+</script>';
+
       $title = 'G00' .  $group_order  . 'Q001';
       $sgq = $sid . 'X' . $gid_0 . 'X' . $qid_0_2 . 'SQ00' . $index;
-      
+
       $question_3_0_row = array('qid' => $qid_3_0 + $index,
         'parent_qid' => 0,
         'sid' => $sid,
@@ -987,7 +999,7 @@ $(document).ready(function(){
         'type' => 'T',
         'title' => $title,
         'question' => $question_3_0,
-        'help' => '',
+        'help' => $question_3_0_help,
         'preg' => '',
         'other' => 'N',
         'mandatory' => 'N',
@@ -1064,6 +1076,11 @@ $(document).ready(function(){
     // $question_4_0 = 'Below are a series of statements. Please select "Yes" if you associate that statement 
     // with @brand or "No" if you do not.';
     $question_4_0 = 'group-004.question-000';
+    $question_4_0_help ="<script>
+ $(document).ready(function(){
+  $('table.questions-list').addClass('array_widget');
+ });
+</script>";
     $title = 'G00' . $group_order . 'Q001';
     $sgq = $sid . 'X' . $gid_0 . 'X' . $qid_0_2 . 'SQ001';
     
@@ -1074,7 +1091,7 @@ $(document).ready(function(){
       'type' => 'F',
       'title' => $title,
       'question' => $question_4_0,
-      'help' => '',
+      'help' => $question_4_0_help,
       'preg' => '',
       'other' => 'N',
       'mandatory' => 'Y',
