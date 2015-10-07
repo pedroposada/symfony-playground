@@ -138,6 +138,9 @@ nelmio_cors:
                 - OPTIONS
             expose_headers: {  }
             max_age: 3600
+        ^/clipper/charts:
+            allow_origin:
+                - '*'
             
 
 
