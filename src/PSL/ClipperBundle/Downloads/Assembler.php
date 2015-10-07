@@ -12,11 +12,6 @@ class Assembler
   protected $logger;
   protected $dispatcher;
 
-  private static $type_map = array(
-    'dev' => 'dev', // @todo: remove this
-    'xls' => 'excel',
-  );
-
   public function __construct(ContainerInterface $container)
   {
     $this->container  = $container;
@@ -43,19 +38,14 @@ class Assembler
    */
   private function setDownloadEvent($order_id, $survey_type, $download_type, $raw_data)
   {
-    if (!isset(self::$type_map[$download_type])) {
-      throw new \Exception("Unknown Download type '{$download_type}'.");
-    }
-
     $event = new DownloadEvent();
 
     $event->setOrderId($order_id);
     $event->setSurveyType($survey_type);
-    $event->setDownloadType(self::$type_map[$download_type]);
+    $event->setDownloadType($download_type);
+    $event->setDispatcherEventName();
     $event->setRawData($raw_data);
-
-    $event_name = $event->getDispatcherEventName();
-    $this->dispatcher->dispatch($event_name, $event);
+    $this->dispatcher->dispatch(ClipperEvents::DOWNLOAD_PROCESS, $event);
 
     return $event;
   }

@@ -508,7 +508,7 @@ class NPSPlusExcel extends DownloadType
 
         //content
         $this->activeWorkSheet->setCellValue("A{$row}", "Base");
-        $this->activeWorkSheet->setCellValue("B{$row}", "? (@todo)"); // @todo: verify this data
+        $this->activeWorkSheet->setCellValue("B{$row}", "? (@TODO)"); // @TODO: verify this data
         $row++;
 
         $this->activeWorkSheet->setCellValue("A{$row}", "Non Promoters \r\n(no brands promoted)");

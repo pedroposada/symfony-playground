@@ -17,6 +17,15 @@ class DownloadEvent extends Event
 
   //array pool of charts API data with other details
   protected $raw_data;
+  
+  private static $survey_type_map = array(
+    'nps_plus' => 'NPSPlus',
+  );
+  
+  private static $download_type_map = array(
+    'dev' => 'Dev', // @TODO: remove this
+    'xls' => 'Excel',
+  );
 
   public function setOrderId($order_id)
   {
@@ -60,13 +69,20 @@ class DownloadEvent extends Event
       'download_type' => 'Download type string'
     );
 
-    $dispatcherEventName = ClipperEvents::DOWNLOAD_PROCESS;
+    $dispatcherEventName = array();
     foreach ($vars as $var => $label) {
       if (empty($this->$var)) {
         throw new Exception("Missing {$label}.");
       }
-      $dispatcherEventName .= "_{$this->$var}";
+      $f = $var . '_map';
+      $f = self::$$f;
+      if (!isset($f[$this->$var])) {
+        throw new \Exception("Unknown Download type '{$download_type}'.");
+      }
+      $dispatcherEventName[] = $f[$this->$var];
     }
+    
+    $dispatcherEventName = implode('', $dispatcherEventName);
 
     return $dispatcherEventName;
   }

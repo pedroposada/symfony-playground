@@ -26,14 +26,17 @@ abstract class DownloadType
    * @method onDownload
    *
    * @param  DownloadEvent $event
-   * @param  string $eventName @see DownloadEvent->setDispatcherEventName()
+   * @param  string $eventName @uses ClipperEvents::DOWNLOAD_PROCESS
    * @param  EventDispatcherInterface $dispatcher
    *
    * @return void
    */
-  public function onDownload(DownloadEvent $event, $eventName, EventDispatcherInterface $dispatcher) {
-
-    $event->setFile($this->exportFile($event));
+  public function onDownload(DownloadEvent $event, $eventName, EventDispatcherInterface $dispatcher) {    
+    if ($event->getDispatcherEventName() == $this->survey_machine_name) {
+      $this->logger->debug("eventName: {$eventName}");
+      
+      $event->setFile($this->exportFile($event));      
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Clipper Controller
+ * Main Clipper Charts Controller
  */
 
 namespace PSL\ClipperBundle\Controller;
@@ -143,77 +143,6 @@ class ChartsController extends FOSRestController
   }
 
   /**
-   * Download CSV
-   * /clipper/charts/download
-   *
-   *
-   * @Route("/charts/download")
-   * @Method("GET")
-   *
-   * @param ParamFetcher $paramFetcher Paramfetcher
-   *
-   * @QueryParam(name="order_id", default="", nullable=false, description="FirstQGroup UUID")
-   * @QueryParam(name="type", default="xls", nullable=true, description="Export file type.")
-   *
-   * @return \Symfony\Component\BrowserKit\Response
-   */
-  public function downloadAction(ParamFetcher $paramFetcher)
-  {
-    $content = null;
-    $code    = 200;
-
-    try {
-      $order_id = $paramFetcher->get('order_id');
-      $type     = $paramFetcher->get('type');
-      $charts   = $this->getChartsByOrderId($order_id);
-
-      //TODO review cache strategies
-      //prep data structure
-      $data = array(
-        'complete'            => $charts,
-        'available-drilldown' => array(),
-        'available-brands'    => array(),
-        'available-charts'    => array(),
-        'charts-table-map'    => array(),
-        'filtered'            => array(),
-      );
-      $drillbits = array(
-        'countries'   => 'country',
-        'specialties' => 'specialty',
-        'regions'     => 'region',
-      );
-      foreach ($charts as $index => $chart_data) {
-        foreach (array('drilldown', 'brands') as $key) {
-          if (empty($data['available-' . $key])) {
-            $data['available-' . $key] = $charts[0][$key];
-          }
-        }
-        $data['available-charts'][$index] = $chart_data['chartmachinename'];
-      }
-      foreach ($drillbits as $drillType => $drillName) {
-        if (!empty($data['available-drilldown'][$drillType])) {
-          if (!isset($data['filtered'][$drillName])) {
-            $data['filtered'][$drillName] = array();
-          }
-          foreach ($data['available-drilldown'][$drillType] as $filter) {
-            $data['filtered'][$drillName][$filter] = array();
-            $filter_set = array($drillName => $filter);
-            $data['filtered'][$drillName][$filter] = $this->getChartsByOrderId($order_id, $filter_set);
-          }
-        }
-      }
-      $assembler = $this->container->get('download_assembler');
-      return $assembler->getDownloadFile($order_id, $this->survey_type, $type, $data);
-    }
-    catch(Exception $e) {
-      $content = "Message: [{$e->getMessage()}]}";
-      $code = 204;
-    }
-
-    return new Response($content, $code);
-  }
-
-  /**
    *
    *
    * @param $order_id
@@ -254,7 +183,6 @@ class ChartsController extends FOSRestController
         'filter'           => $chEvent->getFilters(),
         'countTotal'       => $chEvent->getCountTotal(),
         'countFiltered'    => $chEvent->getCountFiltered(),
-        'brands'           => $chEvent->getBrands(),
         'datatable'        => $chEvent->getDataTable(),
       );
       $charts->add($chart);
