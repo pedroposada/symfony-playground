@@ -1,274 +1,127 @@
-// @TODO: remove object from this file; #devDemoOnly
-function getParameterByName(name) {
-  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-      results = regex.exec(location.search);
-  return (results === null ? undefined : decodeURIComponent(results[1].replace(/\+/g, " ")));
-}
-var chartsdata = [
-  {
-    chartmachinename:"NPS",
-    charttype: "NPS_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
-  },
-  {
-    chartmachinename:"Loyalty",
-    charttype: "Loyalty_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: {"cols":[{"label":"","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Mean"},{"v":1.8},{"v":1.8},{"v":""}]},{"c":[{"v":"BB-456"},{"v":2.23},{"v":2.2},{"v":""}]},{"c":[{"v":"AA-123"},{"v":2.23},{"v":2.2},{"v":""}]},{"c":[{"v":"FF-789"},{"v":1.85},{"v":1.9},{"v":""}]},{"c":[{"v":"EE-456"},{"v":1.75},{"v":1.8},{"v":""}]},{"c":[{"v":"DD-123"},{"v":1.5},{"v":1.5},{"v":""}]},{"c":[{"v":"CC-789"},{"v":1.25},{"v":1.3},{"v":""}]}]}
-  },
-  {
-    chartmachinename:"DoctorsPromote",
-    charttype: "DoctorsPromote_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: {"ds":{"label":"Dissatisfied","append":"(0 brands promoted)","count":0,"perc":0,"show":"0%"},"sa":{"label":"Satisfied","append":"(>0 brands promoted)","count":4,"perc":100,"show":"100%"},"se":{"label":"Satisfied (Exclusive)","append":"(1 brand promoted)","count":0,"perc":0,"show":"0%"},"ss":{"label":"Satisfied (Shared)","append":"(>1 brands promoted)","count":4,"perc":100,"show":"100%"}}
-  },
-  {
-    chartmachinename:"PromotersPromote",
-    charttype: "PromotersPromote_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: {
-      "cols":[
-        {"label":"Brand","type":"string"},
-        {"label":"Average number of other brands promoted","type":"number"},
-        {"label":"Most commonly promoted competitor","type":"string"},
-        {"label":"%","type":"string"}
-      ],
-      "rows":[
-        {"c":[{"v":"AA-123"},{"v":4.5},{"v":"BB-456"},{"v":"50%"}]},
-        {"c":[{"v":"BB-456"},{"v":4.8},{"v":"AA-123"},{"v":"75%"}]},
-        {"c":[{"v":"CC-789"},{"v":4.8},{"v":"AA-123"},{"v":"75%"}]},
-        {"c":[{"v":"DD-123"},{"v":4.5},{"v":"AA-123"},{"v":"75%"}]},
-        {"c":[{"v":"EE-456"},{"v":4.5},{"v":"AA-123"},{"v":"75%"}]},
-        {"c":[{"v":"FF-789"},{"v":4.5},{"v":"AA-123"},{"v":"75%"}]}]}
-  },
-  {
-    chartmachinename:"DetractorsPromote",
-    charttype: "DetractorsPromote_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: [
-      {"title":"AA-123 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of AA-123 detractor","type":"string"}],"rows":[{"c":[{"v":"FF-789"},{"v":"0%"}]},{"c":[{"v":"EE-456"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"0%"}]}]},
-      {"title":"BB-456 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of BB-456 detractor","type":"string"}],"rows":[{"c":[{"v":"FF-789"},{"v":"0%"}]},{"c":[{"v":"EE-456"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"AA-123"},{"v":"0%"}]}]},
-      {"title":"CC-789 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of CC-789 detractor","type":"string"}],"rows":[{"c":[{"v":"FF-789"},{"v":"0%"}]},{"c":[{"v":"EE-456"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"50%"}]},{"c":[{"v":"AA-123"},{"v":"50%"}]}]},
-      {"title":"DD-123 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of DD-123 detractor","type":"string"}],"rows":[{"c":[{"v":"FF-789"},{"v":"0%"}]},{"c":[{"v":"EE-456"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"0%"}]},{"c":[{"v":"AA-123"},{"v":"0%"}]}]},
-      {"title":"EE-456 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of EE-456 detractor","type":"string"}],"rows":[{"c":[{"v":"FF-789"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"0%"}]},{"c":[{"v":"AA-123"},{"v":"0%"}]}]},
-      {"title":"FF-789 Detractors promote these brands...","cols":[{"label":"","type":"string"},{"label":"% of FF-789 detractor","type":"string"}],"rows":[{"c":[{"v":"EE-456"},{"v":"0%"}]},{"c":[{"v":"DD-123"},{"v":"0%"}]},{"c":[{"v":"CC-789"},{"v":"0%"}]},{"c":[{"v":"BB-456"},{"v":"50%"}]},{"c":[{"v":"AA-123"},{"v":"50%"}]}]}
-    ]
-  },
-  {
-    chartmachinename:"PromVsDetrPromote",
-    charttype: "PromVsDetrPromote_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: [{"title":"EE-456: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":2},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":1},{"v":"100.0%"},{"v":""}]}]},{"title":"AA-123: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":1},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":2},{"v":"90.0%"},{"v":""}]}]},{"title":"DD-123: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":2},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":1},{"v":"0.0%"},{"v":""}]}]},{"title":"CC-789: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":1},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":1},{"v":"0.0%"},{"v":""}]}]},{"title":"BB-456: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":2},{"v":"0.0%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":0},{"v":"0.0%"},{"v":""}]}]},{"title":"FF-789: How much more of my brand do Promoters prescribe versus Detractors?","cols":[{"label":"% of market share in each segment","type":"string"},{"label":"","type":"number"},{"type":"string","p":{"role":"annotation"}},{"type":"string","p":{"role":"style"}}],"rows":[{"c":[{"v":"Detractors"},{"v":3},{"v":"1.7%"},{"v":""}]},{"c":[{"v":"Promoters"},{"v":0},{"v":"0.0%"},{"v":""}]}]}]
-  },
-  {
-    chartmachinename:"PPDBrandMessages",
-    charttype: "PPDBrandMessages_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: {"cols":[{"label":"Brand association question","type":"string"},{"label":"Detractor","type":"number"},{"label":"Passive","type":"number"},{"label":"Promoter","type":"number"},{"label":"Lowest confidence level","type":"number","p":{"role":"interval"}},{"label":"Highest confidence level","type":"number","p":{"role":"interval"}},{"label":"Detractor","type":"number"},{"label":"Passive","type":"number"},{"label":"Promoter","type":"number"},{"label":"Lowest confidence level","type":"number","p":{"role":"interval"}},{"label":"Highest confidence level","type":"number","p":{"role":"interval"}},{"label":"Detractor","type":"number"},{"label":"Passive","type":"number"},{"label":"Promoter","type":"number"},{"label":"Lowest confidence level","type":"number","p":{"role":"interval"}},{"label":"Highest confidence level","type":"number","p":{"role":"interval"}},{"label":"Detractor","type":"number"},{"label":"Passive","type":"number"},{"label":"Promoter","type":"number"},{"label":"Lowest confidence level","type":"number","p":{"role":"interval"}},{"label":"Highest confidence level","type":"number","p":{"role":"interval"}},{"label":"Detractor","type":"number"},{"label":"Passive","type":"number"},{"label":"Promoter","type":"number"},{"label":"Lowest confidence level","type":"number","p":{"role":"interval"}},{"label":"Highest confidence level","type":"number","p":{"role":"interval"}},{"label":"Detractor","type":"number"},{"label":"Passive","type":"number"},{"label":"Promoter","type":"number"},{"label":"Lowest confidence level","type":"number","p":{"role":"interval"}},{"label":"Highest confidence level","type":"number","p":{"role":"interval"}}],"rows":[{"c":[{"v":"it just works"},{"v":50},{"v":28.6},{"v":40},{"v":15.288},{"v":16.072},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null}]},{"c":[{"v":"just painful"},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":41.7},{"v":85.7},{"v":60},{"v":23.128},{"v":23.912},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null}]},{"c":[{"v":"kind of cool"},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":33.3},{"v":100},{"v":80},{"v":30.968},{"v":31.752}]},{"c":[{"v":"mildly pointless"},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":66.7},{"v":28.6},{"v":60},{"v":23.128},{"v":23.912},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null}]},{"c":[{"v":"painfull side effects"},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":58.3},{"v":71.4},{"v":60},{"v":23.128},{"v":23.912},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null}]},{"c":[{"v":"risk of death"},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":41.7},{"v":71.4},{"v":40},{"v":15.288},{"v":16.072},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null},{"v":null}]}]}
-  },
-  {
-    chartmachinename:"DNA",
-    charttype: "DNA_Chart",
-    drilldown: {"countries":["USA"],"specialties":["Oncology","Cardiology"],"regions":[]},
-    filter: {"country":"","region":"","specialty":"","countries":[]},
-    countTotal: 2,
-    countFiltered: 2,
-    datatable: [
-      {
-        brand: 'What\x20is\x20AA\x2D123\x27s\x20brand\x20DNA\x3F',
-        detractors: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Edfgdf\x20fg\x20sg\x20sdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdgr\x20fsddfg\x20fg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ],
-        promoters: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Edfgs\x20sd\x20fsdf\x20gsdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Ef\x20sdfg\x20sfgsdf\x20gsdfgsdfsd\x20fg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ]
-      },
-            {
-        brand: 'What\x20is\x20BB\x2D456\x27s\x20brand\x20DNA\x3F',
-        detractors: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Es\x20dfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ],
-        promoters: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdfg\x20sdfg\x20sdf\x20gsdf\x20gsdf\x20gsdf\x20g\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Edsfg\x20df\x20dfg\x20sdfg\x20sdfg\x20fg\x20fg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ]
-      },
-            {
-        brand: 'What\x20is\x20CC\x2D789\x27s\x20brand\x20DNA\x3F',
-        detractors: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esd\x20fgsd\x20fgsdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ],
-        promoters: [
-                    ]
-      },
-            {
-        brand: 'What\x20is\x20DD\x2D123\x27s\x20brand\x20DNA\x3F',
-        detractors: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Es\x20dfgsd\x20fgsdf\x20gsdfg\x20sdfgsdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdfgsdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ],
-        promoters: [
-                    ]
-      },
-            {
-        brand: 'What\x20is\x20EE\x2D456\x27s\x20brand\x20DNA\x3F',
-        detractors: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdfgsdfgsdfgsdf\x20gsdf\x20gsdfg\x20sdfg\x20sdfg\x20sdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ],
-        promoters: [
-                    ]
-      },
-            {
-        brand: 'What\x20is\x20FF\x2D789\x27s\x20brand\x20DNA\x3F',
-        detractors: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Eddfdfgdfgdfg\x20\x20sdfgsd\x20fgsdf\x20gsdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdfgsdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfg\x20sdfgsdfg\x20sd\x20fgsdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ],
-        promoters: [
-                        "\x3Cspan\x3E\x22\x3C\x2Fspan\x3Esdfg\x20sdfg\x20dfgdfgdfgdfg\x20dfgsdfg\x20sdfg\x20sdfgsdfg\x3Cspan\x3E\x22\x3C\x2Fspan\x3E",
-                    ]
-      },
-    ]
-  }
-];
-// #devDemoOnly
 
 /**
  * logic starts here
  */
 
 /**
+ *  Loader
+ */
+var Loader = React.createClass({
+  render: function(){
+    return (
+      <div className="sk-cube-grid" style={this.props.style}>
+        <div className="sk-cube sk-cube1"></div>
+        <div className="sk-cube sk-cube2"></div>
+        <div className="sk-cube sk-cube3"></div>
+        <div className="sk-cube sk-cube4"></div>
+        <div className="sk-cube sk-cube5"></div>
+        <div className="sk-cube sk-cube6"></div>
+        <div className="sk-cube sk-cube7"></div>
+        <div className="sk-cube sk-cube8"></div>
+        <div className="sk-cube sk-cube9"></div>
+      </div>
+    );
+  }
+});
+
+
+/**
  *  ChartForm
  */
 var ChartForm = React.createClass({  
-  handleSubmit: function(e) {
+  _handleChange: function(e) {
     e.preventDefault();
-    var country = React.findDOMNode(this.refs.country).value.trim();
-    var specialty = React.findDOMNode(this.refs.specialty).value.trim();
-    var region = React.findDOMNode(this.refs.region).value.trim();
+    
+    var region = this.refs.region ? React.findDOMNode(this.refs.region).value : '';
+    var country = this.refs.country ? React.findDOMNode(this.refs.country).value : '';
+    var specialty = this.refs.specialty ? React.findDOMNode(this.refs.specialty).value : '';
+    
     this.props.loadCharts({
       chartmachinename: this.props.chartmachinename, 
       country: country, 
       specialty: specialty,
       region: region,
     });
-  },  
-  Countries: function(){
-    var output = this.props.countries.map(function(country, index){
-      return (
-        <option key={index} value={country}>{country}</option>
-      );
-    });
-    return (
-      <select 
-        ref="country"
-        style={{ display: (this.props.countries.length ? 'inline-block' : 'none') }}
-        >
-        <option key="" value="">Country</option>
-        {output}
-      </select>
-    );
   },
-  Regions: function(){
-    var output = this.props.regions.map(function(region, index){
-      return (
-        <option key={index} value={region}>{region}</option>
-      );
-    });
-    return (
-      <select 
-        ref="region"
-        style={{ display: (this.props.regions.length ? 'inline-block' : 'none') }}
-        >
-        <option key="" value="">Region</option>
-        {output}
-      </select>
-    );
-  },    
-  Specialties: function(){
-    var output = this.props.specialties.map(function(specialty, index){
-      return (
-        <option key={index} value={specialty}>{specialty}</option>
-      );
-    });
-    return (
-      <select 
-        ref="specialty"
-        style={{ display: (this.props.specialties.length ? 'inline-block' : 'none') }}
-        >
-        <option key="" value="">Specialty</option>
-        {output}
-      </select>
-    );
-  },  
   render: function() {
     return (
-      <form className="chart-form" onSubmit={this.handleSubmit}>
-        {this.Countries()}
-        {this.Regions()}
-        {this.Specialties()}
-        <input type="submit" value="Filter" />
+      <form className="chart-form" onChange={this._handleChange}>
+        { this.props.regions.length > 1 ?
+          <ChartFilter
+            items         = {this.props.regions} 
+            ref           = "region" 
+            text          = 'All regions' 
+          /> 
+        : null }
+        { this.props.countries.length > 1 ?
+          <ChartFilter
+            items         = {this.props.countries} 
+            ref           = "country" 
+            text          = 'All countries' 
+          /> 
+        : null }
+        { this.props.specialties.length > 1 ?
+          <ChartFilter
+            items         = {this.props.specialties }
+            ref           = "specialty" 
+            text          = 'All specialties' 
+          /> 
+        : null }
       </form>
     );
   }
-})
+});
+
+/**
+ * Filters
+ */
+var ChartFilter = React.createClass({
+  render: function() {
+    var children = this.props.items.map(function(item, index){
+      return (
+        <option key={index} value={item}>{item}</option>
+      );
+    });
+    return (
+        <select 
+          ref={this.props.ref}
+        >
+          <option key="" value="">{this.props.text}</option>
+          {children}
+        </select>
+    );
+  }
+});
 
 /**
  * GoogleChart
  */
-var GoogleChart = React.createClass({  
+var GoogleChart = React.createClass({ 
   drawChart: function() {
     try {
-      var chart = clipper.charts.factory(this.props.charttype, this.state.id, {
+      var chart = clipper.charts.factory(this.props.charttype, this.props.id, {
         formatter: this.props.charttype
       }, this.props.datatable);
     } catch(e) {
       console.log('Error:' + e);
     }
   },
-  getInitialState: function() {
-    return {
-      id: 'clipper-chart-' + clipper.uid()
-    }
-  },
   componentDidMount: function(){
-    google.setOnLoadCallback(this.drawChart());
+    clipper.charts.initialize(this.drawChart);
   },
   componentDidUpdate: function(){
     this.drawChart();
   },
   render: function(){
+    var classString = 'google-chart';
+    if(this.props.isLoadingChart) {
+      classString += ' hidden';
+    }
     return (
       <div 
-        className="google-chart" 
-        id={this.state.id}
-        style={{ minHeight: "500px", width: "700px"}} 
+        className = {classString} 
+        id = {this.props.id}
+        style = {this.props.style}
       />
     );
   },  
@@ -277,26 +130,19 @@ var GoogleChart = React.createClass({
 /**
  * Chart wrapper
  */
-//#devDemoOnly
-var slideSerialCount = 1;
 var ChartHeader = React.createClass({ 
-  getInitialState: function() {
-    return {
-      id: slideSerialCount++
-    }
-  },
   render: function() {
     var subs = this.props.subs;
     return (
       <div
         className="subheading"
-        >
+      >
         <h3>
-          {this.state.id}: {this.props.caption}        
+          {this.props.id + 1}: {this.props.caption}        
         </h3>
         <ul>
-          {subs.map(function(sub){
-            return <li>{sub}</li>;
+          {subs.map(function(sub, index){
+            return <li key={index}>{sub}</li>;
           })}
         </ul>
       </div>
@@ -304,45 +150,67 @@ var ChartHeader = React.createClass({
   }
 });
 
+/**
+ * Chart
+ */
 var Chart = React.createClass({
-  hasForm: function() {
-    //@TODO: Remove this #devDemoOnly
-    if (getParameterByName('dev') != undefined) {
-      console.info('DEV data enabled; Drilldown feature disabled.');
-      return false;
-    }
+  _hideChart: function() {
+    return this.props.countFiltered;
+  },
+  _hasForm: function() {
     return this.props.countries.length || this.props.regions.length || this.props.specialties.length;
+  },
+  // This method is not called for the initial render or when forceUpdate is used.
+  shouldComponentUpdate: function(nextProps, nextState) {
+    return nextProps.needsRender;
   },
   render: function() {
     var subHeadings = [];
     subHeadings[subHeadings.length] = 'Filtered: ' + this.props.countFiltered + ', Total: ' + this.props.countTotal;
-    subHeadings[subHeadings.length] = 'Selected Country: ' + (this.props.filters.country || '');
-    subHeadings[subHeadings.length] = 'Selected Region: ' + (this.props.filters.region || '');
-    subHeadings[subHeadings.length] = 'Selected Specialty: ' + (this.props.filters.specialty || '');
+    subHeadings[subHeadings.length] = 'Selected Country: ' + (this.props.filters.country || 'All');
+    subHeadings[subHeadings.length] = 'Selected Region: ' + (this.props.filters.region || 'All');
+    subHeadings[subHeadings.length] = 'Selected Specialty: ' + (this.props.filters.specialty || 'All');
     
+    var _toggleLoader = this._toggleLoader;
     return (
-      <div 
-        className="chart-container"
-        style={{ margin: '30px 20px 20px', border: '1px solid #DDD', padding: '10px' }} 
-        >
-        <ChartHeader 
-          caption = {this.props.chartmachinename || this.props.charttype}
-          subs    = {subHeadings}
-        />
-        { this.props.countFiltered ? 
-          <GoogleChart 
-            chartmachinename = {this.props.chartmachinename}
-            charttype = {this.props.charttype}
-            datatable = {this.props.datatable}
-          /> : null }        
-        {  this.hasForm() ? 
-          <ChartForm 
-            chartmachinename={this.props.chartmachinename} 
-            countries={this.props.countries} 
-            specialties={this.props.specialties}
-            regions={this.props.regions}
-            loadCharts={this.props.loadCharts}
-          /> : null }
+      <div>
+          <div 
+            className="chart-container"
+            style={{ 
+              margin: '30px 20px 20px', 
+              border: '1px solid #DDD', 
+              padding: '10px', 
+            }} 
+          >
+            <ChartHeader 
+              caption = {this.props.chartmachinename || this.props.charttype}
+              subs    = {subHeadings}
+              id      = {this.props.id}
+            />
+            { this.props.isLoadingChart == this.props.chartmachinename ?
+              <Loader 
+                style = {{ minHeight: "310px", width: "305px" }} 
+              /> 
+            : null }
+            <GoogleChart 
+              style = {{ minHeight: "500px", width: "700px" }}
+              chartmachinename = {this.props.chartmachinename}
+              charttype = {this.props.charttype}
+              datatable = {this.props.datatable}
+              id = {this.props.id}
+              isLoadingChart = {(this.props.isLoadingChart == this.props.chartmachinename ? true : false)}
+            /> 
+            { this._hasForm() ? 
+              <ChartForm 
+                chartmachinename={this.props.chartmachinename} 
+                countries={this.props.countries} 
+                specialties={this.props.specialties}
+                regions={this.props.regions}
+                loadCharts={this.props.loadCharts}
+                filters={this.props.filters}
+              />  
+            : null }
+          </div>
       </div>
     );
   }  
@@ -352,29 +220,29 @@ var Chart = React.createClass({
  * ChartList
  */
 var ChartList = React.createClass({  
-  loadCharts: function(drilldown) {
-    this._getChartsData(drilldown);
-  },  
   getInitialState: function() {
-    return {data: []};
+    return {
+      data: typeof samplechartsdata == 'undefined' ? [] : samplechartsdata,
+      isLoadingChart: false
+    };
   },  
   componentDidMount: function() {
     this._getChartsData();
-  },  
+  }, 
+  _needsRender: null, 
   _getChartsData: function(request){
+    var request = request || {};
+    
+    // optimistic update
+    this._needsRender = request.chartmachinename; // used in Chart.shouldComponentUpdate
+    this.setState({
+      data: this.state.data,
+      isLoadingChart: request.chartmachinename || this.state.isLoadingChart
+    });
+    
     var $element = $('#react-content');
     var url = $element.data('charts_data_url');
-    
-    // post
-    var request = request || {};
     request.order_id = $element.data('order_id');
-    
-    //@TODO: Remove this #devDemoOnly
-    if (getParameterByName('dev') != undefined) {
-      this.setState({data: chartsdata});
-      return;
-    }
-    
     $.ajax({
       url: url,
       dataType: 'json',
@@ -383,7 +251,11 @@ var ChartList = React.createClass({
       success: function(data) {
         switch(data.status){
           case 200:
-            this.setState({data: data.content || []});
+            this._needsRender = request.chartmachinename;
+            this.setState({
+              data: data.content || [],
+              isLoadingChart: false
+            });
           break;
           default:
             console.error(url, data.status, data.content.toString());
@@ -392,26 +264,31 @@ var ChartList = React.createClass({
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(url, status, err.toString());
-      }.bind(this)
+      }.bind(this),
     });    
   },  
   render: function() {
-    var loadCharts = this.loadCharts;
+    var needsRender = this._needsRender;
+    var isLoadingChart = this.state.isLoadingChart;
+    var loadCharts = this._getChartsData;
     var chartNodes = this.state.data.map(function(chart, index) {
       var drill = chart.drilldown || {};
       return (
         <Chart 
-          key={index} 
-          chartmachinename={chart.chartmachinename} 
-          charttype={chart.charttype} 
-          datatable={chart.datatable || {}} 
-          countries={drill.countries || []}
-          specialties={drill.specialties || []}
-          regions={drill.regions || []}
-          loadCharts={loadCharts}
-          filters={chart.filter}
-          countTotal={chart.countTotal}
-          countFiltered={chart.countFiltered}
+          key                   = {index} 
+          id                    = {index}
+          chartmachinename      = {chart.chartmachinename} 
+          charttype             = {chart.charttype} 
+          datatable             = {chart.datatable || {}} 
+          countries             = {drill.countries || []}
+          specialties           = {drill.specialties || []}
+          regions               = {drill.regions || []}
+          loadCharts            = {loadCharts}
+          filters               = {chart.filter}
+          countTotal            = {chart.countTotal}
+          countFiltered         = {chart.countFiltered}
+          isLoadingChart        = {isLoadingChart}
+          needsRender           = {(needsRender == chart.chartmachinename)}
         />
       );  
     });    

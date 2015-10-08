@@ -52,24 +52,24 @@ class FirstQGroup
     protected $updated;
 
     /**
-     * Projects 
+     * Projects
      * mapped one to many targetEntity="FirstQProject", mappedBy="group_uuid"
      */
     protected $projects;
-    
+
     /**
      * Project id for Rpanel DB
      * This field does not persists
      */
     protected $proj_id;
-    
+
     /**
      * Project sk for Rpanel DB
      * This field does not persists
      */
     protected $project_sk;
-    
-    
+
+
     /**
      * custom helper function
      * @param $raw string json encoded
@@ -77,14 +77,14 @@ class FirstQGroup
      */
     protected function decodeRaw($raw)
     {
-      $encoders = array(new XmlEncoder(), new JsonEncoder());
-      $normalizers = array(new ObjectNormalizer());
-      $serializer = new Serializer($normalizers, $encoders);
-      
-      return $serializer->decode($raw, 'json');
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return $serializer->decode($raw, 'json');
     }
-    
-    
+
+
     /**
      * Constructor
      */
@@ -97,15 +97,15 @@ class FirstQGroup
      * Translate the GUUID of the group into a string
      * for the FirstQ project
      */
-    public function __toString() 
+    public function __toString()
     {
         return $this->id;
     }
-    
+
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -128,7 +128,7 @@ class FirstQGroup
     /**
      * Get groupUuid
      *
-     * @return string 
+     * @return string
      */
     public function getGroupUuid()
     {
@@ -151,7 +151,7 @@ class FirstQGroup
     /**
      * Get userId
      *
-     * @return integer 
+     * @return integer
      */
     public function getUserId()
     {
@@ -160,7 +160,7 @@ class FirstQGroup
 
     /**
      * Set orderId
-     * 
+     *
      * This is to hold the order id which is
      * currently a stripeToken but can be anything
      *
@@ -177,7 +177,7 @@ class FirstQGroup
     /**
      * Get orderId
      *
-     * @return string 
+     * @return string
      */
     public function getOrderId()
     {
@@ -200,7 +200,7 @@ class FirstQGroup
     /**
      * Get formDataRaw
      *
-     * @return string 
+     * @return string
      */
     public function getFormDataRaw()
     {
@@ -223,7 +223,7 @@ class FirstQGroup
     /**
      * Get state
      *
-     * @return string 
+     * @return string
      */
     public function getState()
     {
@@ -246,7 +246,7 @@ class FirstQGroup
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreated()
     {
@@ -269,13 +269,13 @@ class FirstQGroup
     /**
      * Get updated
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getUpdated()
     {
         return $this->updated;
     }
-    
+
     /**
      * @ORM\PreUpdate
      */
@@ -283,7 +283,7 @@ class FirstQGroup
     {
         // Add your code here
     }
-    
+
     /**
      * Set proj_id
      *
@@ -300,13 +300,13 @@ class FirstQGroup
     /**
      * Get proj_id
      *
-     * @return string 
+     * @return string
      */
     public function getProjId()
     {
         return $this->proj_id;
     }
-    
+
     /**
      * Set project_sk
      *
@@ -323,88 +323,87 @@ class FirstQGroup
     /**
      * Get project_sk
      *
-     * @return string 
+     * @return string
      */
     public function getProjectSk()
     {
         return $this->project_sk;
     }
-    
+
     /**
      * Get specific value from FormDataRaw array
-     * 
+     *
      * @return mixed string|int|array
      */
-    public function getFormDataByField($field_name) 
+    public function getFormDataByField($field_name)
     {
-      $response = array();
-      
-      $raw = $this->getFormDataRaw();
-      $unserialized = $this->decodeRaw($raw);
-      if (isset($unserialized[$field_name])) {
-        $response = (array)$unserialized[$field_name];
-      }
-      
-      return $response;
+        $response = array();
+
+        $raw = $this->getFormDataRaw();
+        $unserialized = $this->decodeRaw($raw);
+        if (isset($unserialized[$field_name])) {
+            $response = (array)$unserialized[$field_name];
+        }
+
+        return $response;
     }
-    
+
     /**
      * Get the Form Data unserialized
-     * 
+     *
      * @return mixed string|int|array
      */
-    public function getFormDataUnserialized() 
+    public function getFormDataUnserialized()
     {
-      $raw = $this->getFormDataRaw();
-      
-      return $this->decodeRaw($raw);
+        $raw = $this->getFormDataRaw();
+
+        return $this->decodeRaw($raw);
     }
-    
+
     /**
      * formats a FirstQGroup as a simple object for the Front End
      *
-     * @return mixed firstq formated object 
+     * @return mixed firstq formated object
      */
-    public function getFormattedFirstQGroup($user_info = NULL, $processed_info = NULL) {
-      
-      $form_data = $this->getFormDataUnserialized();
-      
-      $firstq_formatted = array();
-      $firstq_formatted['id'] = $this->id;
-      $firstq_formatted['title'] = $form_data['title']; // user generated
-      $firstq_formatted['name'] = $form_data['name']; // folio type
-      $firstq_formatted['patient_type'] = $form_data['patient_type']; // user generated
-      $firstq_formatted['num_participants'] = $form_data['num_participants'];
-      $firstq_formatted['updated'] = $this->updated;
-      $firstq_formatted['markets'] = $form_data['markets'];
-      $firstq_formatted['specialties'] = $form_data['specialties'];
-      $firstq_formatted['brands'] = $form_data['brands'];
-      $firstq['attributes'] = $form_data['attributes'];
-      switch ($this->state) {
-        case 'ORDER_PENDING':
-          $firstq_formatted['state'] = 'pending';
-          break;
-        case 'ORDER_CLOSED':
-          $firstq_formatted['state'] = 'closed';
-          break;
-        default:
-          $firstq_formatted['state'] = 'active';
-          break;
-      }
-      $firstq_formatted['created'] = $this->created;
-      // $firstq_formatted['price'] = number_format(4995, 2, ',', ','); // Hardcoded for now
-      $firstq_formatted['price'] = 4995; // Hardcoded for now
-      $firstq_formatted['report_url'] = ''; // TBD
-      
-      if($user_info !== NULL) {
-        $firstq_formatted['user_info'] = $user_info;
-      }
-      
-      if($processed_info !== NULL) {
-        $firstq_formatted['processed_info'] = $processed_info;
-      }
-      
-      return $firstq_formatted;
+    public function getFormattedFirstQGroup($user_info = null, $processed_info = null)
+    {
+        $form_data = $this->getFormDataUnserialized();
+
+        $firstq_formatted = array();
+        $firstq_formatted['id'] = $this->id;
+        $firstq_formatted['title'] = $form_data['title']; // user generated
+        $firstq_formatted['name'] = $form_data['name']; // folio type
+        $firstq_formatted['patient_type'] = $form_data['patient_type']; // user generated
+        $firstq_formatted['num_participants'] = $form_data['num_participants'];
+        $firstq_formatted['updated'] = $this->updated;
+        $firstq_formatted['markets'] = $form_data['markets'];
+        $firstq_formatted['specialties'] = $form_data['specialties'];
+        $firstq_formatted['brands'] = $form_data['brands'];
+        $firstq['attributes'] = $form_data['attributes'];
+        switch ($this->state) {
+            case 'ORDER_PENDING':
+                $firstq_formatted['state'] = 'pending';
+                break;
+            case 'ORDER_CLOSED':
+                $firstq_formatted['state'] = 'closed';
+                break;
+            default:
+                $firstq_formatted['state'] = 'active';
+                break;
+        }
+        $firstq_formatted['created'] = $this->created;
+        // $firstq_formatted['price'] = number_format(4995, 2, ',', ','); // Hardcoded for now
+        $firstq_formatted['price'] = 4995; // Hardcoded for now
+        $firstq_formatted['report_url'] = ''; // TBD
+
+        if ($user_info !== null) {
+            $firstq_formatted['user_info'] = $user_info;
+        }
+
+        if ($processed_info !== null) {
+            $firstq_formatted['processed_info'] = $processed_info;
+        }
+
+        return $firstq_formatted;
     }
-    
 }

@@ -5,13 +5,8 @@
     <meta charset="UTF-8" />
     <title>Charts</title>
 
-    <script type="text/javascript" src="//www.google.com/jsapi"></script>
     <!--Load Clipper Charts-->
     <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/clipper.charts.js') }}"></script>
-    <script type="text/javascript">
-      // Load the Visualization API and the corechart and table packages.
-      google.load('visualization', '1', {'packages' : ['corechart', 'bar', 'sankey', 'orgchart', 'table']});
-    </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
@@ -24,10 +19,26 @@
     
     <!-- Optional theme -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <style type="text/css">
+      .clipper-charts-promvsdetrpromotechart-brand {
+        width: 46%;
+        height: 200px;
+        border: 1px solid #ccc;
+        margin: 1%;
+        float: left;
+      }
+    </style>
+    
+    <!-- Custom -->
+    <link rel="stylesheet" href="{{ asset('bundles/pslclipper/css/charts.css', null, true) }}">
     
   </head>
   <body>
     <div data-charts_data_url="{{ asset('clipper/charts/reacts', null, true) }}" data-order_id="{{ order_id }}" id="react-content"></div>
+    
+    <!-- @TODO: uncomment lines below for testing with static sample data / remove in PROD -->
+    <!-- <script type="text/jsx" src="{{ asset('bundles/pslclipper/js/charts.samplechartsdata.js', null, true) }}"></script> -->
     
     <script type="text/jsx" src="{{ asset('bundles/pslclipper/js/charts.js', null, true) }}"></script>
     

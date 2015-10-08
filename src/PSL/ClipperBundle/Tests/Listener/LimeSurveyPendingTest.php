@@ -1,14 +1,15 @@
 <?php
 
-// src/PSL/ClipperBundle/Tests/Listener/LimeSurveyCompleteTest.php
+// src/PSL/ClipperBundle/Tests/Listener/LimeSurveyPendingTest.php
 
 namespace PSL\ClipperBundle\Tests\Listener;
 
 use PSL\ClipperBundle\Tests\WebTestCase;
-use PSL\ClipperBundle\Listener\LimeSurveyComplete;
+use PSL\ClipperBundle\Listener\LimeSurveyPending;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
+use Doctrine\Common\Collections\ArrayCollection;
 
-class LimeSurveyCompleteTest extends WebTestCase
+class LimeSurveyPendingTest extends WebTestCase
 {
     /**
      * @var PSL\ClipperBundle\Event\FirstQProjectEvent
@@ -16,9 +17,9 @@ class LimeSurveyCompleteTest extends WebTestCase
     protected $firstQProjectEvent;
 
     /**
-     * @var PSL\ClipperBundle\Listener\LimeSurveyResponses
+     * @var PSL\ClipperBundle\Listener\LimeSurveyPending
      */
-    protected $limeSurveyComplete;
+    protected $limeSurveyPending;
 
     /**
      * {@inheritdoc}
@@ -38,17 +39,17 @@ class LimeSurveyCompleteTest extends WebTestCase
             ->getRepository('\PSL\ClipperBundle\Entity\FirstQProject')
             ->findByFirstqgroupAndNotState($firstQGroup, $this->params['state_codes']['order_complete']);
         $firstQProject = $firstQProjects->first();
-        $firstQProject->setState($this->params['state_codes']['limesurvey_complete']);
+        $firstQProject->setState($this->params['state_codes']['limesurvey_pending']);
 
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
-        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete');
+        $this->limeSurveyPending= new LimeSurveyPending($this->container, 'limesurvey_pending');
     }
 
     public function testOnMain()
     {
         // TODO: call function
-        // Fatal error: Call to protected method PSL\ClipperBundle\Listener\LimeSurveyComplete::main()
-        // $response = $this->limeSurveyComplete->main($this->$firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
+        // Maybe need to add survey_type to LoadFirstQGroups.php
+        // $response = $this->limeSurveyPending->onMain($this->firstQProjectEvent, 'limesurvey_pending', $this->dispatcher);
 
         // TODO: assert output
 

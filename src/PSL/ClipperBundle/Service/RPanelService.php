@@ -121,7 +121,7 @@ class RPanelService
   {
     $conn = $this->conn;
     $conn->insert('PROJECT', array('project_code' => $rp->getProjId(),       // feasibility_project.projid
-                                  'client_id' => $rp->getCreatedBy(),        // [ClientID provided by Guohui]
+                                  'client_id' => $rp->getClientId(),        // [ClientID provided by Guohui]
                                   'status_id' => $rp->getStatusId(),         // 1
                                   'pm_details' => $rp->getProjName(),        // feasibility_project.proj_name
                                   'brand_id' => $rp->getBrandId(),           // 1

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<resultset>
+  <row>
+    <field name="name">A-Brand-1</field>
+  </row>
+  <row>
+    <field name="name">A-Brand-2</field>
+  </row>
+  <row>
+    <field name="name">A-Brand-3</field>
+  </row>
+  <row>
+    <field name="name">B-Brand-1</field>
+  </row>
+  <row>
+    <field name="name">B-Brand-2</field>
+  </row>
+  <row>
+    <field name="name">B-Brand-3</field>
+  </row>
+</resultset>

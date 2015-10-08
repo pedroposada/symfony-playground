@@ -107,7 +107,7 @@ class PromotersPromote extends ChartType {
     arsort($answers);
     
     $answers_keys = array_keys($answers);
-    if ($this->identifyRespondentCategory($answers[$answers_keys[0]], 'promoter')) {
+    if (isset($answers_keys[0]) && $this->identifyRespondentCategory($answers[$answers_keys[0]], 'promoter')) {
       unset($answers[$answers_keys[0]]);
       foreach ($answers as $answer_brand => $answers_value) {
         if ($this->identifyRespondentCategory($answers_value, 'promoter')) {

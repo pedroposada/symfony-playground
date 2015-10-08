@@ -108,6 +108,7 @@ class ChartsController extends FOSRestController
    *  description="json to render all charts",
    *  filters={
    *    {"name"="order_id", "dataType"="string"},
+   *    {"name"="chartmachinename", "dataType"="string"},
    *    {"name"="country", "dataType"="string"},
    *    {"name"="region", "dataType"="string"},
    *    {"name"="specialty", "dataType"="string"},
@@ -127,67 +128,46 @@ class ChartsController extends FOSRestController
 
     try {
       $order_id = $request->request->get('order_id');
-      $drilldown = array(
+      $chartmachinename = $request->request->get('chartmachinename', '');
+      $filters = array(
         'country'   => $request->request->get('country', ''),
         'region'    => $request->request->get('region', ''),
         'specialty' => $request->request->get('specialty', ''),
+        'countries' => array(),
       );
-      $content = $this->getChartsByOrderId($order_id, $drilldown);
+      $charts = new ArrayCollection();
+      $em = $this->container->get('doctrine')->getManager();
+      $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
+      if (!$fqg) {
+        throw new Exception("FQG with id [{$order_id}] not found");
+      }
+
+      $this->survey_type = $fqg->getFormDataByField('survey_type');
+      $this->survey_type = reset($this->survey_type);
+      $map = $this->container->get('survey_chart_map')->map($this->survey_type);
+      $assembler = $this->container->get('chart_assembler');
+
+      foreach ($map['machine_names'] as $index => $machine_name) {
+        $drilldown = (($chartmachinename == $machine_name) ? $filters : array());
+        $chEvent = $assembler->getChartEvent($order_id, $machine_name, $this->survey_type, $drilldown);
+        $chart = array(
+          'chartmachinename' => $machine_name,
+          'charttype'        => $machine_name . self::$js_charttype_postfix,
+          'drilldown'        => $chEvent->getDrillDown(),
+          'filter'           => $chEvent->getFilters(),
+          'countTotal'       => $chEvent->getCountTotal(),
+          'countFiltered'    => $chEvent->getCountFiltered(),
+          'datatable'        => $chEvent->getDataTable(),
+        );
+        $charts->add($chart);
+      }
+      $content = $charts;
     }
     catch(Exception $e) {
-      $content = "Message: [{$e->getMessage()}] - Line: {[$e->getLine()]}";
+      $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
       $code = 204;
     }
 
     return new Response($content, $code);
-  }
-
-  /**
-   *
-   *
-   * @param $order_id
-   * @return $charts ArrayCollection
-   */
-  private function getChartsByOrderId($order_id, $drilldown = array())
-  {
-    $charts = new ArrayCollection();
-    $em = $this->container->get('doctrine')->getManager();
-    $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
-
-    if (!$fqg) {
-      throw new Exception("FQG with id [{$order_id}] not found");
-    }
-
-    //sanitize drilldown
-    $drilldown = array_merge(
-      array(
-        'country'   => array(),
-        'countries' => array(),
-        'region'    => array(),
-        'specialty' => array(),
-      ),
-      $drilldown
-    );
-
-    $this->survey_type = $fqg->getFormDataByField('survey_type');
-    $this->survey_type = reset($this->survey_type);
-    $map = $this->container->get('survey_chart_map')->map($this->survey_type);
-    $assembler = $this->container->get('chart_assembler');
-
-    foreach ($map['machine_names'] as $index => $machine_name) {
-      $chEvent = $assembler->getChartEvent($order_id, $machine_name, $this->survey_type, $drilldown);
-      $chart = array(
-        'chartmachinename' => $machine_name,
-        'charttype'        => $machine_name . self::$js_charttype_postfix,
-        'drilldown'        => $chEvent->getDrillDown(),
-        'filter'           => $chEvent->getFilters(),
-        'countTotal'       => $chEvent->getCountTotal(),
-        'countFiltered'    => $chEvent->getCountFiltered(),
-        'datatable'        => $chEvent->getDataTable(),
-      );
-      $charts->add($chart);
-    }
-
-    return $charts;
   }
 }
