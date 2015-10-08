@@ -716,13 +716,21 @@ $(document).ready(function(){
       });
       total_percentage.find("input.readonly").val(percentage);
   });
+  
+  // load default value
+  var total_percentage_val = 0;
+  $("input").not(".readonly, input[type=\"hidden\"]").each(function(){
+    total_percentage_val += parseInt($(this).val(), 10) || 0;
+  });
+  $("#total-percentage").find("input").val(total_percentage_val);
+
   $("#movenextbtn").click(function(evt){
     if ($("#total-percentage").find("input").val() < 100) {
       alert("At least 100% for the total percentage");
       evt.preventDefault();
     }  
   });
-  $("input.text").attr("placeholder", "Fill up your percentage here");
+  $("input.text").attr("placeholder", "Enter a percentage");
 });
 </script>';
      
@@ -867,6 +875,11 @@ $(document).ready(function(){
     // following drugs for the treatment of @patient_type. Please select a response for each drug.<br/>0= not at all 
     // likely, 10 = extremely likely';
     $question_2_0 = 'group-002.question-000';
+    $question_2_0_help = "<script>
+$(document).ready(function(){
+ $('table.question').addClass('num-rating');
+});
+</script>";
     $question_2_0_row = array('qid' => $qid_2_0,
       'parent_qid' => 0,
       'sid' => $sid,
@@ -874,7 +887,7 @@ $(document).ready(function(){
       'type' => 'B',
       'title' => 'G003Q001',
       'question' => $question_2_0,
-      'help' => '',
+      'help' => $question_2_0_help,
       'preg' => '',
       'other' => 'N',
       'mandatory' => 'Y',
@@ -985,7 +998,7 @@ $(document).ready(function(){
       $question_3_0 = 'group-003.question-000';
       $question_3_0_help = '<script type="text/javascript" charset="utf-8">
 $(document).ready(function(){
- $("textarea").attr("placeholder", "Fill up your comment here")
+ $("textarea").attr("placeholder", "Enter comments")
 });
 </script>';
 
@@ -1002,7 +1015,7 @@ $(document).ready(function(){
         'help' => $question_3_0_help,
         'preg' => '',
         'other' => 'N',
-        'mandatory' => 'N',
+        'mandatory' => 'Y',
         'question_order' => 1,
         'scale_id' => 0,
         'same_default' => 0,
