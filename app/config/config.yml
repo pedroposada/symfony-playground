@@ -186,8 +186,8 @@ parameters:
       
   #rpanel
   rpanel:
-    user_id: 7777
-    client_id: 8888
+    user_id: %rpanel.user_id%
+    client_id: %rpanel.client_id%
     default_table_values:
       proj_status: 1
       proj_type: 1
