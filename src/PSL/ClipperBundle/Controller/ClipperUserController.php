@@ -153,6 +153,13 @@ class ClipperUserController extends FOSRestController
     $returnObject = array();
     $responseStatus = 200;
 
+
+    // Load user from JSON Web Token
+    $usr = $this->get('security.context')->getToken()->getUser();
+    // get user ID
+    $userId = $usr->getUserId();
+    $uid = $userId;
+    
     // POST params
     $params = $this->getUserFields();
     $this->prepareParamFetcher($paramFetcher, $params);
@@ -337,7 +344,8 @@ class ClipperUserController extends FOSRestController
         'fwsso_name' => 'mail'
       ),
       'pass' => array(
-        'fwsso_name' => 'pass'
+        'fwsso_name' => 'pass',
+        'nullable' => TRUE
       ),
       'firstname' => array(
         'fwsso_name' => 'field_firstname'
@@ -362,7 +370,7 @@ class ClipperUserController extends FOSRestController
         'nullable' => TRUE
       ),
       'telephone' => array(
-        'fwsso_name' => 'field_telephone',
+        'fwsso_name' => 'field_phone',
         'nullable' => TRUE
       ),
     );

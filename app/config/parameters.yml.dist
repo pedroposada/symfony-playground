@@ -57,3 +57,6 @@ parameters:
   braintree_us.merchant_id:                   "[*braintree_us.merchant_id*]"
   braintree_us.public_key:                    "[*braintree_us.public_key*]"
   braintree_us.private_key:                   "[*braintree_us.private_key*]"
+  # FW SSO
+  fwsso_api.url: '[*fwsso_api.url*]'
+  fwsso_api.app_token: [*fwsso_api.app_token*]
