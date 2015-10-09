@@ -106,8 +106,6 @@ class DownloadsController extends Controller
       'filter',
       'brands',
       'datatable',
-      'countFiltered',
-      'countTotal',
     ));
     if (empty($this->survey_type)) {
       $this->survey_type = $charts_helper->getSurveyType();;

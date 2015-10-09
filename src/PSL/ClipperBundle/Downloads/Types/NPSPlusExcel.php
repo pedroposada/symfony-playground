@@ -182,7 +182,7 @@ class NPSPlusExcel extends DownloadType
 
     //stops all output:
     //notice errors / whitespace & etc which render filename bug
-    ob_end_clean();
+    //ob_end_clean();
     $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
     //output
