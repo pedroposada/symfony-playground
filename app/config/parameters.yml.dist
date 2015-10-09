@@ -57,3 +57,10 @@ parameters:
   braintree_us.merchant_id:                   "[*braintree_us.merchant_id*]"
   braintree_us.public_key:                    "[*braintree_us.public_key*]"
   braintree_us.private_key:                   "[*braintree_us.private_key*]"
+  # currency exchange rates
+  currency.conversion.usd-gbp:                "[*currency.conversion.usd-gbp*]"
+  currency.conversion.gbp-usd:                "[*currency.conversion.gbp-usd*]"
+  currency.conversion.usd-eur:                "[*currency.conversion.usd-eur*]"
+  currency.conversion.eur-usd:                "[*currency.conversion.eur-usd*]"
+  currency.conversion.gbp-eur:                "[*currency.conversion.gbp-eur*]"
+  currency.conversion.eur-gbp:                "[*currency.conversion.eur-gbp*]"

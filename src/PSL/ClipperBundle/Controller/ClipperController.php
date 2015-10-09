@@ -198,11 +198,14 @@ class ClipperController extends FOSRestController
         }
       }
 
+      // Conversion function and return converted price with currency sign
+      $gs_result_total = $this->formatPrice($gs_result_total);
+
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
-      
+
       // build product response
-      $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
+      $returnObject['product']['price'] = $gs_result_total;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
 
       // calculate estimated time of completion
@@ -681,6 +684,90 @@ class ClipperController extends FOSRestController
    * HELPERS
    * ----------------------------------------------------------------------------------------
    */
+
+  /**
+   * Convert the amount according to country, with proper currency sign and
+   * format it nicely, e.g. £4995.95
+   *
+   * @param   float   $amout    The price.
+   * @param   string  $country  Country name.
+   *
+   * @return  string
+   */
+  private function formatPrice($amount = 0, $country = 'Canada')
+  {
+    $user = $this->get('security.context')->getToken()->getUser();
+
+    // This shouldn't be happen, user should be logged in.
+    if (is_string($user) && $user == 'anon.') {
+      return '$' . number_format($amount, 2, '.', ',');
+    }
+
+    // Assuming we can get the user country with $user->getUserCountry().
+    // TODO. Follow up the lack of method in user object. Hardcoded for now.
+    if (empty($country)) {
+      // $country = $user->getUserCountry;
+      $country = 'Canada';
+    }
+
+    // TODO. Refactor this switch control stucture, put it somewhere else.
+    switch ($country) {
+      case 'UK':
+        $currency = 'GBP';
+        break;
+
+      case 'France':
+      case 'Germany':
+      case 'Italy':
+      case 'Spain':
+      // European Union countries. Country list taken from Wikipedia /wiki/Euro.
+      // Country spelling taken from DG sites (DocPass).
+      case 'Austria':
+      case 'Belgium':
+      case 'Cyprus':
+      case 'Estonia':
+      case 'Finland':
+      case 'Greece':
+      case 'Ireland':
+      case 'Latvia':
+      case 'Lithuania':
+      case 'Luxembourg':
+      case 'Malta':
+      case 'Netherlands':
+      case 'Portugal':
+      case 'Slovakia':
+      case 'Slovenia':
+        $currency = 'EUR';
+        break;
+
+      case 'USA':
+      default:
+        $currency = 'USD';
+        break;
+    }
+
+    // After we decide the curreny unit, let's do conversion to exchange rate.
+    // TODO. Refactor this with DRY.
+    switch ($currency) {
+      case 'GBP':
+        $rate = $this->container->getParameter('currency.conversion.usd-gbp');
+        $amount = $amount * $rate;
+        $amount = '£' . number_format($amount, 2, '.', ',');
+        break;
+
+      case 'EUR':
+        $rate = $this->container->getParameter('currency.conversion.usd-eur');
+        $amount = $amount * $rate;
+        $amount = '€' . number_format($amount, 2, '.', ',');
+        break;
+
+      default:
+        $amount = '$' . number_format($amount, 2, '.', ',');
+        break;
+    }
+
+    return $amount;
+  }
 
   /**
    * Get BrainTree Object
