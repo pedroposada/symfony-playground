@@ -44,9 +44,9 @@ class DownloadsController extends Controller
     try {
       $order_id = $paramFetcher->get('order_id');
       $type     = $paramFetcher->get('type');
-      
+
       //@TODO review cache strategies
-      $charts   = $this->getChartsByOrderId($order_id);
+      $charts = $this->getChartsByOrderId($order_id);
 
       //prep data structure
       $data = array(
@@ -63,9 +63,11 @@ class DownloadsController extends Controller
         'regions'     => 'region',
       );
       foreach ($charts as $index => $chart_data) {
-        foreach (array('drilldown', 'brands') as $key) {
-          if (empty($data['available-' . $key])) {
-            $data['available-' . $key] = $charts[0][$key];
+        if ($index == 0) {
+          foreach (array('drilldown', 'brands') as $key) {
+            if (empty($data['available-' . $key])) {
+              $data['available-' . $key] = $chart_data[$key];
+            }
           }
         }
         $data['available-charts'][$index] = $chart_data['chartmachinename'];
@@ -86,7 +88,7 @@ class DownloadsController extends Controller
       return $assembler->getDownloadFile($order_id, $this->survey_type, $type, $data);
     }
     catch(Exception $e) {
-      $content = "Message: [{$e->getMessage()}]";
+      $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
       $code = 204;
     }
 
@@ -95,42 +97,22 @@ class DownloadsController extends Controller
 
   private function getChartsByOrderId($order_id, $drilldown = array())
   {
-    $charts = new ArrayCollection();
-    $em = $this->container->get('doctrine')->getManager();
-    $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
-
-    if (!$fqg) {
-      throw new Exception("FQG with id [{$order_id}] not found");
+    $charts_helper = $this->container->get('chart_helper');
+    $charts_helper->setOrderID($order_id);
+    $charts_helper->setDrillDown($drilldown);
+    $charts_helper->setReturnChartExtras(array(
+      'chartmachinename',
+      'drilldown',
+      'filter',
+      'brands',
+      'datatable',
+      'countFiltered',
+      'countTotal',
+    ));
+    if (empty($this->survey_type)) {
+      $this->survey_type = $charts_helper->getSurveyType();;
     }
-
-    //sanitize drilldown
-    $drilldown = array_merge(
-      array(
-        'country'   => array(),
-        'countries' => array(),
-        'region'    => array(),
-        'specialty' => array(),
-      ),
-      $drilldown
-    );
-
-    $this->survey_type = $fqg->getFormDataByField('survey_type');
-    $this->survey_type = reset($this->survey_type);
-    $map = $this->container->get('survey_chart_map')->map($this->survey_type);
-    $assembler = $this->container->get('chart_assembler');
-
-    foreach ($map['machine_names'] as $index => $machine_name) {
-      $chEvent = $assembler->getChartEvent($order_id, $machine_name, $this->survey_type, $drilldown);
-      $chart = array(
-        'chartmachinename' => $machine_name,
-        'drilldown'        => $chEvent->getDrillDown(),
-        'filter'           => $chEvent->getFilters(),
-        'brands'           => $chEvent->getBrands(),
-        'datatable'        => $chEvent->getDataTable(),
-      );
-      $charts->add($chart);
-    }
-
-    return $charts;
+    $charts_data = $charts_helper->getCharts();
+    return $charts_data['charts'];
   }
 }

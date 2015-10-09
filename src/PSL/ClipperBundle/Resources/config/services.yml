@@ -40,6 +40,10 @@ services:
     class: PSL\ClipperBundle\Charts\Assembler
     arguments: [@service_container]
 
+  chart_helper:
+    class: PSL\ClipperBundle\Service\ClipperChartsService
+    arguments: [@service_container]
+
   download_assembler:
     class: PSL\ClipperBundle\Downloads\Assembler
     arguments: [@service_container]
