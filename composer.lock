@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0ff7d717d91589285b4685485e408718",
+    "hash": "defeb918dbb696620c80d77bbb84d62c",
     "content-hash": "b7fd5427520a21fe3effbd83b5b7330d",
     "packages": [
         {
@@ -2754,12 +2754,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "56a25c6892b86e88a909c79daad56469b9c3378a"
+                "reference": "e7e8b85e1018eda3a0dab51d8dc37fd112f90ddb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/56a25c6892b86e88a909c79daad56469b9c3378a",
-                "reference": "56a25c6892b86e88a909c79daad56469b9c3378a",
+                "url": "https://api.github.com/repos/symfony/console/zipball/e7e8b85e1018eda3a0dab51d8dc37fd112f90ddb",
+                "reference": "e7e8b85e1018eda3a0dab51d8dc37fd112f90ddb",
                 "shasum": ""
             },
             "require": {
@@ -2803,7 +2803,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-10-06 15:25:39"
+            "time": "2015-10-06 17:12:59"
         },
         {
             "name": "symfony/event-dispatcher",
