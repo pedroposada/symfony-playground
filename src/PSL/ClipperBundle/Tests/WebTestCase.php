@@ -44,22 +44,24 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     protected function setUp()
     {
-        // Add all your fixtures classes that implement
-        // Doctrine\Common\DataFixtures\FixtureInterface
-        $this->loadFixtures(array(
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
-        ));
-
-        // $this->fixtures = $this->loadFixtures([
-        //     'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
-        // ])->getReferenceRepository();
+        $this->reloadFixture();
 
         $this->client = static::makeClient();
         $this->container = $this->client->getContainer();
         $this->params = $this->container->getParameter('clipper');
         $this->dispatcher = $this->container->get('event_dispatcher');
         $this->authenticatedClient = static::createAuthenticatedClient('uuser', 'userpass');
+    }
+    
+    protected function reloadFixture()
+    {
+        // Add all your fixtures classes that implement
+        // Doctrine\Common\DataFixtures\FixtureInterface
+        $this->loadFixtures(array(
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadLimeSurveyResponse',
+        ));   
     }
 
     /**
@@ -177,5 +179,18 @@ abstract class WebTestCase extends BaseWebTestCase
             ),
             $content
         );
+    }
+    
+    public function getLatestFirstQGroupOrderId() {
+      static $order_id;
+      
+      if (isset($order_id)) {
+          return $order_id;
+      }
+      
+      $em = $this->container->get('doctrine')->getManager();
+      $group = $em->getRepository('PSLClipperBundle:FirstQGroup')->findOneBy(array('state' => 'ORDER_COMPLETE'));
+      
+      return $group->getId();
     }
 }

@@ -337,6 +337,7 @@ class ClipperControllerTest extends WebTestCase
                 ->getObjectManager()
                 ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
                 ->find($firstq_uuid);
+            $this->assertNotNull($record);
             $this->assertEquals($state, $record->getState());
         }
     }
@@ -344,10 +345,7 @@ class ClipperControllerTest extends WebTestCase
     public function postOrderAdminprocessActionDataProvider()
     {
         // Reset data.
-        $this->loadFixtures(array(
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
-        ));
+        $this->reloadFixture();
 
         $record = $this
             ->getObjectManager()
