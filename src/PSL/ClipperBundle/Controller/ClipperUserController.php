@@ -70,13 +70,14 @@ class ClipperUserController extends FOSRestController
    *   }
    * )
    * 
-   * /api/users
-   *
+   * /api/newuser
+   * This API is accessible anonymously
+   * 
    * @param ParamFetcher $paramFetcher Paramfetcher
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function postUsersAction(ParamFetcher $paramFetcher) 
+  public function postNewuserAction(ParamFetcher $paramFetcher) 
   {
     // Object to return to remote form
     $returnObject = array();
@@ -220,6 +221,13 @@ class ClipperUserController extends FOSRestController
     $returnObject = array();
     $responseStatus = 200;
     
+    // Load user from JSON Web Token
+    $usr = $this->get('security.context')->getToken()->getUser();
+    // get user ID
+    $userId = $usr->getUserId();
+    
+    $uid = $userId;
+    
     try {
       // FW SSO API - retrive info
       $fwsso_ws = $this->fwsso_ws();
@@ -255,7 +263,7 @@ class ClipperUserController extends FOSRestController
   
   
   /**
-   * Retrieve a User.
+   * Forgot password.
    *
    * @ApiDoc(
    *   resource=true,

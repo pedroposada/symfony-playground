@@ -40,13 +40,14 @@ class FWSSOUserProvider implements UserProviderInterface
       if (json_last_error() != JSON_ERROR_NONE) {
         throw new Exception('JSON decode error: ' . json_last_error());
       }
+      $userId = $content['uid'];
       $username = $content['name'];
       $password = $content['pass'];
       $salt = substr($content['pass'], 0, 12);
 
       $roles = $this->getRoles($username);
       
-      return new FWSSOUser($username, $password, $salt, $roles);
+      return new FWSSOUser($userId, $username, $password, $salt, $roles);
     }
     
     // Return error if no user with this username 

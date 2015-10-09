@@ -121,6 +121,11 @@ security:
             pattern:  ^/clipper/api/clipper/autocomplete
             stateless: true
             anonymous: true
+        # User create
+        api_post_users:
+            pattern:  ^/clipper/api/newusers
+            stateless: true
+            anonymous: true
         # Clipper REST endpoints test page
         api_doc:
             pattern:  ^/clipper/api/doc

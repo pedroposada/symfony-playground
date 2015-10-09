@@ -200,7 +200,7 @@ class ClipperController extends FOSRestController
 
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
-
+      
       // build product response
       $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;

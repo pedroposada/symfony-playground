@@ -39,12 +39,13 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
       if (json_last_error() != JSON_ERROR_NONE) {
         throw new Exception('JSON decode error: ' . json_last_error());
       }
+      $userId = $content['account']['uid'];
       $username = $content['account']['name'];
       $password = 'password';
 
       $roles = $this->getRoles($username);
       
-      $fwsso_user = new FWSSOQuickLoginUser($username, $password, $roles);
+      $fwsso_user = new FWSSOQuickLoginUser($userId, $username, $password, $roles);
 
       return $fwsso_user;
     }
