@@ -24,47 +24,48 @@ class DownloadsControllerTest extends WebTestCase
   /**
    * @depends testGetOrderId
    */
-  // @TODO: review multiple request tests
-  // @ISSUE: $this->client->request response gave same result for next test.
-  // - insulate(), cloning, separate test file
-  // - OK if execute test separately
-  // 
-  // public function testDownloadsActionNPSPlusDev($order_id)
-  // {
-  //   $download_uri = $this->getUrl('downloads');    
-  //   $this->client->request('GET', $download_uri, array(
-  //     'order_id' => $order_id,
-  //     'type'     => 'dev',
-  //   ));
-  //   $response = $this->client->getResponse();
+  // @TODO: remove
+  public function testDownloadsActionNPSPlusDev($order_id)
+  {
+    $client = static::createClient();
+    $client->insulate();
     
-  //   //Response code: 200
-  //   $this->assertTrue($response->isSuccessful());
+    $download_uri = $this->getUrl('downloads');
+    $client->request('GET', $download_uri, array(
+      'order_id' => $order_id,
+      'type'     => 'dev',
+      'time'     => time(),
+    ));
+    $response = $client->getResponse();    
+    $client->restart();
+    
+    //Response code: 200
+    $this->assertTrue($response->isSuccessful());
 
-  //   //Content type
-  //   $this->assertSame('application/json', $response->headers->get('Content-Type'));
+    //Content type
+    $this->assertSame('application/json', $response->headers->get('Content-Type'));
 
-  //   //Content extraction
-  //   $content = $response->getContent();
-  //   $content = json_decode($content, TRUE);
-  //   $this->assertInternalType('array', $content);
+    //Content extraction
+    $content = $response->getContent();
+    $content = json_decode($content, TRUE);
+    $this->assertInternalType('array', $content);
 
-  //   //Content validation
-  //   $this->assertArrayHasKey('survey_type', $content);
-  //   $this->assertArrayHasKey('machine_name', $content);
-  //   $this->assertArrayHasKey('complete', $content['data']);
-  //   $this->assertArrayHasKey('available-drilldown', $content['data']);
-  //   $this->assertArrayHasKey('available-brands', $content['data']);
-  //   $this->assertArrayHasKey('available-charts', $content['data']);
-  //   $this->assertArrayHasKey('available-charts', $content['data']);
-  //   $this->assertArrayHasKey('charts-table-map', $content['data']);
-  //   $this->assertArrayHasKey('filtered', $content['data']);
+    //Content validation
+    $this->assertArrayHasKey('survey_type', $content);
+    $this->assertArrayHasKey('machine_name', $content);
+    $this->assertArrayHasKey('complete', $content['data']);
+    $this->assertArrayHasKey('available-drilldown', $content['data']);
+    $this->assertArrayHasKey('available-brands', $content['data']);
+    $this->assertArrayHasKey('available-charts', $content['data']);
+    $this->assertArrayHasKey('available-charts', $content['data']);
+    $this->assertArrayHasKey('charts-table-map', $content['data']);
+    $this->assertArrayHasKey('filtered', $content['data']);
 
-  //   //Content specific validation
-  //   $this->assertSame($order_id, $content['order-id']);
-  //   $this->assertSame('nps_plus', $content['survey_type']);
-  //   $this->assertSame('NPSPlusDev', $content['machine_name']);
-  // }
+    //Content specific validation
+    $this->assertSame($order_id, $content['order-id']);
+    $this->assertSame('nps_plus', $content['survey_type']);
+    $this->assertSame('NPSPlusDev', $content['machine_name']);
+  }
   
   /**
    * @depends testGetOrderId
@@ -78,8 +79,10 @@ class DownloadsControllerTest extends WebTestCase
     $this->client->request('GET', $download_uri, array(
       'order_id' => $order_id,
       'type'     => 'xls',
+      'time'     => time(),
     ));
     $response = $this->client->getResponse();
+    $this->client->restart();
     
     //clean up
     ob_end_clean();
@@ -89,5 +92,26 @@ class DownloadsControllerTest extends WebTestCase
     
     //Content type
     $this->assertSame('application/vnd.ms-excel; charset=utf-8', $response->headers->get('Content-Type'));
+  }
+  
+  /**
+   * @depends testGetOrderId
+   */
+  public function testDownloadsActionNPSPlusError($order_id) 
+  {
+    $client = static::createClient();
+    $client->insulate();
+    
+    $download_uri = $this->getUrl('downloads');
+    $client->request('GET', $download_uri, array(
+      'order_id' => $order_id,
+      'type'     => 'make',
+      'time'     => time(),
+    ));
+    $response = $client->getResponse();    
+    $client->restart();
+    
+    //Response code: 200
+    $this->assertFalse($response->isSuccessful());
   }
 }

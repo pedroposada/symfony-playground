@@ -11,7 +11,7 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\RequestParam;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\BrowserKit\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Rest Controller for Clipper
@@ -27,12 +27,13 @@ class DownloadsController extends Controller
    * @QueryParam(name="order_id", default=false, strict=true, nullable=false, allowBlank=false, description="FirstQGroup UUID")
    * @QueryParam(name="type", default="xls", nullable=true, description="Export file type.")
    *
-   * @return \Symfony\Component\BrowserKit\Response
+   * @return Symfony\Component\HttpFoundation\Response;
    */
   public function downloadsAction(ParamFetcher $paramFetcher)
   {
     $content = null;
     $code    = 200;
+    $header  = array('Content-Type' => 'text/plain');
 
     $order_id = $paramFetcher->get('order_id');
     $type     = $paramFetcher->get('type');
@@ -42,9 +43,6 @@ class DownloadsController extends Controller
     }
 
     try {
-      $order_id = $paramFetcher->get('order_id');
-      $type     = $paramFetcher->get('type');
-
       //@TODO review cache strategies
       $charts = $this->getChartsByOrderId($order_id);
 
@@ -89,10 +87,10 @@ class DownloadsController extends Controller
     }
     catch(Exception $e) {
       $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
-      $code = 204;
+      $code = 400;
     }
 
-    return new Response($content, $code);
+    return new Response($content, $code, $header);
   }
 
   private function getChartsByOrderId($order_id, $drilldown = array())

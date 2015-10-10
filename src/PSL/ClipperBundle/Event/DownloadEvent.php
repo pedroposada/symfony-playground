@@ -49,7 +49,10 @@ class DownloadEvent extends Event
 
   public function setDownloadType($download_type)
   {
-    $this->download_type = $download_type;
+    if (!isset(self::$download_type_map[$download_type])) {
+      throw new \Exception("Unsupported download type: '{$download_type}'.");      
+    }
+    $this->download_type = $download_type;    
   }
 
   public function getDownloadType()
