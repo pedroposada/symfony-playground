@@ -98,15 +98,17 @@ class ClipperControllerTest extends WebTestCase
     public function testPostNeworderAction($postData)
     {
         $uri = $this->getUrl('post_neworder');
-        $this->client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
+        $client = $this->client;
+        $client->insulate(); //avoid using cached Google Sheet service
+        $client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
 
         // Assert that the response status code is 2xx.
-        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        $this->assertTrue($client->getResponse()->isSuccessful());
 
         // Assert a specific 200 status code.
         $this->assertEquals(
             200,
-            $this->client->getResponse()->getStatusCode()
+            $client->getResponse()->getStatusCode()
         );
 
         // Assert that the "Content-Type" header is "application/json".
@@ -116,7 +118,7 @@ class ClipperControllerTest extends WebTestCase
         );
 
         // Assert that the response content contains expected format.
-        $content = json_decode($this->client->getResponse()->getContent(), true);
+        $content = json_decode($client->getResponse()->getContent(), true);
         $content = $content['content'];
         $this->assertTrue(!empty($content['product']));
         $this->assertTrue(!empty($content['product']['price']));
