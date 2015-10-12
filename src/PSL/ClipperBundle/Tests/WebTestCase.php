@@ -3,6 +3,10 @@
 namespace PSL\ClipperBundle\Tests;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\StreamOutput;
 
 /**
  * WebTestCase partly taken from Acme Bundle and Liip.
@@ -218,5 +222,29 @@ abstract class WebTestCase extends BaseWebTestCase
         }
       }
       return $group;
+    }
+    
+    /**
+     * Runs a command and returns it output
+     */
+    public function runCommand(Client $client, $command)
+    {
+        $application = new Application($client->getKernel());
+        $application->setAutoExit(false);
+
+        $fp = tmpfile();
+        $input = new StringInput($command);
+        $output = new StreamOutput($fp);
+
+        $application->run($input, $output);
+
+        fseek($fp, 0);
+        $output = '';
+        while (!feof($fp)) {
+            $output = fread($fp, 4096);
+        }
+        fclose($fp);
+
+        return $output;
     }
 }
