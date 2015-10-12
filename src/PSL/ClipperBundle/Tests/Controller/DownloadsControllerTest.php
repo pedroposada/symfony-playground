@@ -1,17 +1,31 @@
 <?php
-// phpunit -c app src/PSL/ClipperBundle/Tests/Controller/DownloadsControllerTest.php
-
+/**
+ * PHPUnit Test
+ * Download Controller, Event & Output Component Tests
+ * 
+ * Download Controller
+ * src/PSL/ClipperBundle/Controller/DownloadsController.php
+ *
+ * Direct test command:
+ * phpunit -c app src/PSL/ClipperBundle/Tests/Controller/DownloadsControllerTest.php
+ */
 namespace PSL\ClipperBundle\Tests\Controller;
 
 use PSL\ClipperBundle\Tests\WebTestCase;
 use Symfony\Component\Routing\RequestContext;
 
 class DownloadsControllerTest extends WebTestCase
-{  
+{
+  /**
+   * Method to return latest completed NPS Plus Order ID.
+   * @method testGetOrderId
+   *
+   * @return string
+   */
   public function testGetOrderId()
   {
-    $order_id = $this->getLatestFirstQGroupOrderId();
-    
+    $order_id = $this->getLatestFirstQGroup('nps_plus', 'ORDER_COMPLETE', 'Id');
+
     //not empty
     $this->assertNotEmpty($order_id);
 
@@ -20,25 +34,29 @@ class DownloadsControllerTest extends WebTestCase
 
     return $order_id;
   }
-  
+
   /**
+   * Method to test Download controller for NPS Plus with 'dev' format.
+   * @method testDownloadsActionNPSPlusDev
+   *
+   * @TODO: remove, for development
+   *
    * @depends testGetOrderId
    */
-  // @TODO: remove
   public function testDownloadsActionNPSPlusDev($order_id)
   {
     $client = static::createClient();
     $client->insulate();
-    
+
     $download_uri = $this->getUrl('downloads');
     $client->request('GET', $download_uri, array(
       'order_id' => $order_id,
       'type'     => 'dev',
       'time'     => time(),
     ));
-    $response = $client->getResponse();    
+    $response = $client->getResponse();
     $client->restart();
-    
+
     //Response code: 200
     $this->assertTrue($response->isSuccessful());
 
@@ -55,7 +73,7 @@ class DownloadsControllerTest extends WebTestCase
     $this->assertArrayHasKey('machine_name', $content);
     $this->assertArrayHasKey('complete', $content['data']);
     $this->assertArrayHasKey('available-drilldown', $content['data']);
-    $this->assertArrayHasKey('available-brands', $content['data']);
+    $this->assertArrayHasKey('available-brands', $content['data'], 'Test survey group not have any respondent.');
     $this->assertArrayHasKey('available-charts', $content['data']);
     $this->assertArrayHasKey('available-charts', $content['data']);
     $this->assertArrayHasKey('charts-table-map', $content['data']);
@@ -66,15 +84,18 @@ class DownloadsControllerTest extends WebTestCase
     $this->assertSame('nps_plus', $content['survey_type']);
     $this->assertSame('NPSPlusDev', $content['machine_name']);
   }
-  
+
   /**
+   * Method to test Download controller for NPS Plus with 'xls' type.
+   * @method testDownloadsActionNPSPlusExcel
+   *
    * @depends testGetOrderId
    */
-  public function testDownloadsActionNPSPlusExcel($order_id) 
+  public function testDownloadsActionNPSPlusExcel($order_id)
   {
     //hold the file stream
     ob_start();
-    
+
     $download_uri = $this->getUrl('downloads');
     $this->client->request('GET', $download_uri, array(
       'order_id' => $order_id,
@@ -83,34 +104,37 @@ class DownloadsControllerTest extends WebTestCase
     ));
     $response = $this->client->getResponse();
     $this->client->restart();
-    
+
     //clean up
     ob_end_clean();
 
     //Response code: 200
     $this->assertTrue($response->isSuccessful());
-    
+
     //Content type
     $this->assertSame('application/vnd.ms-excel; charset=utf-8', $response->headers->get('Content-Type'));
   }
-  
+
   /**
+   * Method to test Download controller for NPS Plus with 'make' type.
+   * @method testDownloadsActionNPSPlusError
+   *
    * @depends testGetOrderId
    */
-  public function testDownloadsActionNPSPlusError($order_id) 
+  public function testDownloadsActionNPSPlusError($order_id)
   {
     $client = static::createClient();
     $client->insulate();
-    
+
     $download_uri = $this->getUrl('downloads');
     $client->request('GET', $download_uri, array(
       'order_id' => $order_id,
-      'type'     => 'make',
+      'type'     => 'csv',
       'time'     => time(),
     ));
-    $response = $client->getResponse();    
+    $response = $client->getResponse();
     $client->restart();
-    
+
     //Response code: 200
     $this->assertFalse($response->isSuccessful());
   }

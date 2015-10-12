@@ -181,16 +181,42 @@ abstract class WebTestCase extends BaseWebTestCase
         );
     }
     
-    public function getLatestFirstQGroupOrderId() {
-      static $order_id;
-      
-      if (isset($order_id)) {
-          return $order_id;
-      }
-      
+    /**
+     * Method to query 1 latest FirstQGroup entity.
+     * @method getLatestFirstQGroup
+     *
+     * @param  string $survey_type
+     *   Survey type; nps_plus
+     *   
+     * @param  string $order_status
+     *   Order state; ORDER_COMPLETE
+     *   
+     * @param  boolean|string $return_one
+     *   FALSE; will return the whole FirstQGroup
+     *   string; refer to function for "get" an attribute of entity
+     *
+     * @return mixed
+     */
+    public function getLatestFirstQGroup($survey_type, $order_status, $return_one = FALSE) {
       $em = $this->container->get('doctrine')->getManager();
-      $group = $em->getRepository('PSLClipperBundle:FirstQGroup')->findOneBy(array('state' => 'ORDER_COMPLETE'));
       
-      return $group->getId();
+      $group =  $em->getRepository("PSLClipperBundle:FirstQGroup")->createQueryBuilder('fqg')
+                   ->where('fqg.state = :state')
+                   ->andWhere('fqg.formDataRaw LIKE :raw_like')
+                   ->orderBy('fqg.updated', 'DESC')
+                   ->setParameter('state', $order_status)
+                   ->setParameter('raw_like', '%"survey_type":"' . $survey_type . '%')
+                   ->getQuery()
+                   ->getSingleResult();
+
+      if (!empty($return_one) && ($return_one !== FALSE)) {
+        try {
+          $return_one = "get{$return_one}";
+          return $group->$return_one();
+        } catch (Exception $e) {
+          //continue
+        }
+      }
+      return $group;
     }
 }

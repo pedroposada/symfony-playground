@@ -62,11 +62,6 @@ class DownloadEvent extends Event
 
   public function setDispatcherEventName()
   {
-    static $dispatcherEventName;
-    if (isset($dispatcherEventName)) {
-      return $dispatcherEventName;
-    }
-
     $vars = array(
       'survey_type'   => 'Survey type string',
       'download_type' => 'Download type string'
@@ -75,12 +70,12 @@ class DownloadEvent extends Event
     $dispatcherEventName = array();
     foreach ($vars as $var => $label) {
       if (empty($this->$var)) {
-        throw new Exception("Missing {$label}.");
+        throw new \Exception("Missing {$label}.");
       }
       $f = $var . '_map';
       $f = self::$$f;
       if (!isset($f[$this->$var])) {
-        throw new \Exception("Unknown Download type '{$download_type}'.");
+        throw new \Exception("Unknown {$label} '{$this->$var}'.");
       }
       $dispatcherEventName[] = $f[$this->$var];
     }
