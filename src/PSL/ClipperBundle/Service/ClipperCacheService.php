@@ -37,13 +37,12 @@ class ClipperCacheService {
    *
    * @param array $params - parameters defined with PSLclipper extension; clipper_cache.config
    */
-  public function __construct($params) {
+  public function __construct($params, $container) {
     $params           = (int) $params;
     $this->enabled    = ($params >= 0);
     $this->cache_life = ($params >= 1 ? $params : 0);
     if ($this->enabled) {
-      global $kernel;
-      $this->container = $kernel->getContainer();
+      $this->container = $container;
       $this->em = $this->container->get('doctrine')->getManager();
       $this->clipper_cache_rep = $this->em->getRepository('PSLClipperBundle:ClipperCache');
     }
