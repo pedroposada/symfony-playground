@@ -37,3 +37,9 @@ parameters:
   google_spreadsheets.spreadsheet_name:       "[*google_spreadsheets.spreadsheet_name*]"
   google_spreadsheets.worksheet_name:         "[*google_spreadsheets.worksheet_name*]"
   google_spreadsheets.p12_file_path:          "[*google_spreadsheets.p12_file_path*]"
+  # Security Alerts
+  security_alerts.order_request.counter:      "[*security_alerts.order_request.counter*]"
+  security_alerts.order_request.timeframe:    "[*security_alerts.order_request.timeframe*]"
+  security_alerts.email_to:                   "[*security_alerts.email_to*]"
+  security_alerts.email_from:                 "[*security_alerts.email_from*]"
+
