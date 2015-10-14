@@ -1,0 +1,45 @@
+/**
+ *
+ */
+
+/* invoice page */
+
+.project-detail {
+  
+}
+.project-detail h5 {
+  margin: 0 0 5px 0;
+}
+.project-detail ul {
+  padding-left: 5px;
+}
+.project-detail h5 {
+  
+}
+.project-detail ul li{
+  list-style: none;
+  font-size: 0.8em;
+}
+span.accept-button,
+span.decline-button {
+  color:#337ab7;
+  cursor: pointer;
+}
+span.accept-button:hover,
+span.decline-button:hover {
+  
+}
+.th-hide {
+  display: none;
+}
+/* data tables overwrite */
+.dataTables_filter {
+  text-align: right;
+}
+.dataTables_filter input {
+  margin-left: 10px;
+}
+
+#close-message {
+  cursor:pointer;
+}

@@ -6,20 +6,31 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class FWSSOQuickLoginUser implements UserInterface
 {
+    protected $userId;
     protected $username;
     protected $password;
     protected $roles;
 
-    public function __construct($username, $password, array $roles)
+    public function __construct($userId, $username, $password, array $roles)
     {
+        $this->userId = $userId;
         $this->username = $username;
         $this->password = $password;
         $this->roles = $roles;
     }
 
-    public function getRoles()
+    public function getSalt()
     {
-        return $this->roles;
+    }
+    
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+    
+    public function getUsername()
+    {
+        return $this->username;
     }
 
     public function getPassword()
@@ -27,13 +38,9 @@ class FWSSOQuickLoginUser implements UserInterface
         return $this->password;
     }
 
-    public function getSalt()
+    public function getRoles()
     {
-    }
-
-    public function getUsername()
-    {
-        return $this->username;
+        return $this->roles;
     }
 
     public function eraseCredentials()
@@ -46,15 +53,19 @@ class FWSSOQuickLoginUser implements UserInterface
             return false;
         }
 
+        if ($this->username !== $user->getUsername()) {
+            return false;
+        }
+
         if ($this->password !== $user->getPassword()) {
             return false;
         }
 
-        if ($this->getSalt() !== $user->getSalt()) {
+        if ($this->userId !== $user->getUserId()) {
             return false;
         }
 
-        if ($this->username !== $user->getUsername()) {
+        if ($this->getSalt() !== $user->getSalt()) {
             return false;
         }
 
