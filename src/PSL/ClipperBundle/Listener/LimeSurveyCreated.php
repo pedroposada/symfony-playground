@@ -36,6 +36,7 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setLaunchDate($form_data['launch_date']); // Y-m-d H:i:s
     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
     $rpanel_project->setCreatedBy($params_rp['user_id']);
+    $rpanel_project->setClientId($params_rp['client_id']);
     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incidence_rate']);
     $rpanel_project->setLength($params_rp['default_table_values']['length']);
     $rpanel_project->setTargetSize($params_rp['default_table_values']['target_size']);
