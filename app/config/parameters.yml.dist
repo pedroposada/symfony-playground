@@ -13,6 +13,7 @@ parameters:
   database_password:                          "[*database_password*]"
   # clipper:
   clipper.frontend.url:                       "[*clipper.frontend.url*]"
+  clipper.users.ql_encryptionkey:             "[*clipper.users.ql_encryptionkey*]"
   # limesurvey:
   limesurvey.api.ls_baseurl:                  "[*limesurvey.api.ls_baseurl*]"
   limesurvey.api.ls_user:                     "[*limesurvey.api.ls_user*]"

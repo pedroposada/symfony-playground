@@ -8,6 +8,7 @@ namespace PSL\ClipperBundle\Controller;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -27,6 +28,7 @@ use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
 
 use PSL\ClipperBundle\Utils\FWSSOWebservices as FWSSOWebservices;
+use PSL\ClipperBundle\Security\User\FWSSOQuickLoginUser as FWSSOQuickLoginUser;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
@@ -317,6 +319,46 @@ class ClipperUserController extends FOSRestController
     return new Response($returnObject, $responseStatus);
   }
   
+  /**
+   * Send user password retrieval link.
+   *
+   * /api/user/forgotpassword/{user}
+   *
+   * @param string $user The user to retrieve the password for.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   */
+  public function forgotpasswordAction($email)
+  {
+    $container = $this->container;
+    
+    $user = new FWSSOQuickLoginUser($email, '', array());
+    $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
+    $ql_hash = $user->getQuickLoginHash($encKey);
+
+    // @TODO Set the correct path
+    $fe = $container->getParameter('clipper.frontend.url');
+    $link = $fe . '/#forgotpassword/' . $ql_hash;
+
+    // @TODO Set the subject, from and body
+    $msg = \Swift_Message::newInstance()
+      ->setSubject('Recover password')
+      ->setFrom('noreply@clipper.com')
+      ->setTo($email)
+      ->setBody($this->renderView('PSLClipperBundle:Clipper:forgotpassword.html.twig', array(
+          'link' => $link
+        )), 'text/html');
+
+    $this->get('mailer')->send($msg);
+
+    $retObj = array(
+      'message' => 'Password recovery mail sent to "' . $email . '".'
+    );
+    $retHeaders = array( 'Content-Type' => 'application/json' );
+    $retCode = 200;
+    $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
+    return $response;
+  }
   
   /**
    * ----------------------------------------------------------------------------------------
