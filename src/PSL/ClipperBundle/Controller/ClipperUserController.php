@@ -46,9 +46,8 @@ class ClipperUserController extends FOSRestController
   
   private function fwsso_ws()
   {
-    $fwsso_config = $this->container->getParameter('fwsso_api');
-    $settings['fwsso_baseurl'] = $fwsso_config['url'];
-    $settings['fwsso_app_token'] = $fwsso_config['app_token'];
+    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
     return $fwsso_ws;
@@ -71,13 +70,14 @@ class ClipperUserController extends FOSRestController
    *   }
    * )
    * 
-   * /api/users
-   *
+   * /api/newuser
+   * This API is accessible anonymously
+   * 
    * @param ParamFetcher $paramFetcher Paramfetcher
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function postUsersAction(ParamFetcher $paramFetcher) 
+  public function postNewuserAction(ParamFetcher $paramFetcher) 
   {
     // Object to return to remote form
     $returnObject = array();
@@ -153,6 +153,13 @@ class ClipperUserController extends FOSRestController
     $returnObject = array();
     $responseStatus = 200;
 
+
+    // Load user from JSON Web Token
+    $usr = $this->get('security.context')->getToken()->getUser();
+    // get user ID
+    $userId = $usr->getUserId();
+    $uid = $userId;
+    
     // POST params
     $params = $this->getUserFields();
     $this->prepareParamFetcher($paramFetcher, $params);
@@ -221,6 +228,13 @@ class ClipperUserController extends FOSRestController
     $returnObject = array();
     $responseStatus = 200;
     
+    // Load user from JSON Web Token
+    $usr = $this->get('security.context')->getToken()->getUser();
+    // get user ID
+    $userId = $usr->getUserId();
+    
+    $uid = $userId;
+    
     try {
       // FW SSO API - retrive info
       $fwsso_ws = $this->fwsso_ws();
@@ -256,7 +270,7 @@ class ClipperUserController extends FOSRestController
   
   
   /**
-   * Retrieve a User.
+   * Forgot password.
    *
    * @ApiDoc(
    *   resource=true,
@@ -330,7 +344,8 @@ class ClipperUserController extends FOSRestController
         'fwsso_name' => 'mail'
       ),
       'pass' => array(
-        'fwsso_name' => 'pass'
+        'fwsso_name' => 'pass',
+        'nullable' => TRUE
       ),
       'firstname' => array(
         'fwsso_name' => 'field_firstname'
@@ -355,7 +370,7 @@ class ClipperUserController extends FOSRestController
         'nullable' => TRUE
       ),
       'telephone' => array(
-        'fwsso_name' => 'field_telephone',
+        'fwsso_name' => 'field_phone',
         'nullable' => TRUE
       ),
     );
