@@ -1,49 +1,41 @@
 
-
-
-// TODO: remove object from this file, dev demo only
-var chartsdata = [
-
-  //////////
-  {
-    // required
-    chartmachinename: "net_promoters",
-    // required
-    charttype: "BarChart",
-    // optional
-    drilldown: { 
-      countries: ['USA', 'Canada'],
-      specialties: ['Oncology', 'Diabetes'],
-      regions: ['Europe'],
-    },
-    // required 
-    datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
-  }
-  
-  ////////////
-  ,{
-    charttype: "BarChart", 
-    datatable: {"cols":[{"id":"b","label":"Brand","type":"string"},{"id":"P","label":"Promoters","type":"number"},{"id":"a","label":"Passives","type":"number"},{"id":"d","label":"Detractors","type":"number"},{"id":"s","label":"Score","type":"number"}],"rows":[{"c":[{"v":"AA-123"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"AA-123"}},{"c":[{"v":"BB-456"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"BB-456"}},{"c":[{"v":"CC-789"},{"v":0,"f":"0%"},{"v":0,"f":"0%"},{"v":100,"f":"100%"},{"v":-100,"f":"-100"}],"p":{"Brand":"CC-789"}},{"c":[{"v":"DD-123"},{"v":50,"f":"50%"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":0,"f":"0"}],"p":{"Brand":"DD-123"}},{"c":[{"v":"EE-456"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"EE-456"}},{"c":[{"v":"FF-789"},{"v":0,"f":"0%"},{"v":50,"f":"50%"},{"v":50,"f":"50%"},{"v":-50,"f":"-50"}],"p":{"Brand":"FF-789"}}]}, 
-  }
-];
-
-
-
 /**
  * logic starts here
  */
+
+/**
+ *  Loader
+ */
+var Loader = React.createClass({
+  render: function(){
+    return (
+      <div className="sk-cube-grid" style={this.props.style}>
+        <div className="sk-cube sk-cube1"></div>
+        <div className="sk-cube sk-cube2"></div>
+        <div className="sk-cube sk-cube3"></div>
+        <div className="sk-cube sk-cube4"></div>
+        <div className="sk-cube sk-cube5"></div>
+        <div className="sk-cube sk-cube6"></div>
+        <div className="sk-cube sk-cube7"></div>
+        <div className="sk-cube sk-cube8"></div>
+        <div className="sk-cube sk-cube9"></div>
+      </div>
+    );
+  }
+});
 
 
 /**
  *  ChartForm
  */
-var ChartForm = React.createClass({
-  
-  handleSubmit: function(e) {
+var ChartForm = React.createClass({  
+  _handleChange: function(e) {
     e.preventDefault();
-    var country = React.findDOMNode(this.refs.country).value.trim();
-    var specialty = React.findDOMNode(this.refs.specialty).value.trim();
-    var region = React.findDOMNode(this.refs.region).value.trim();
+    
+    var region = this.refs.region ? React.findDOMNode(this.refs.region).value : '';
+    var country = this.refs.country ? React.findDOMNode(this.refs.country).value : '';
+    var specialty = this.refs.specialty ? React.findDOMNode(this.refs.specialty).value : '';
+    
     this.props.loadCharts({
       chartmachinename: this.props.chartmachinename, 
       country: country, 
@@ -51,159 +43,206 @@ var ChartForm = React.createClass({
       region: region,
     });
   },
-  
-  Countries: function(){
-    var output = this.props.countries.map(function(country, index){
-      return (
-        <option key={index} value={country}>{country}</option>        
-      );
-    });
-    return (
-      <select ref="country">
-        {output}
-      </select>
-    );
-  },
-  
-  Specialties: function(){
-    var output = this.props.specialties.map(function(specialty, index){
-      return (
-        <option key={index} value={specialty}>{specialty}</option>        
-      );
-    });
-    return (
-      <select ref="specialty">
-        {output}
-      </select>
-    );
-  },
-  
-  Regions: function(){
-    var output = this.props.regions.map(function(region, index){
-      return (
-        <option key={index} value={region}>{region}</option>        
-      );
-    });
-    return (
-      <select ref="region">
-        {output}
-      </select>
-    );
-  },
-  
   render: function() {
     return (
-      <form className="chart-form" onSubmit={this.handleSubmit}>
-        {this.Countries()}
-        {this.Regions()}
-        {this.Specialties()}
-        <input type="submit" value="Filter" />
+      <form className="chart-form" onChange={this._handleChange}>
+        { this.props.regions.length > 1 ?
+          <ChartFilter
+            items         = {this.props.regions} 
+            ref           = "region" 
+            text          = 'All regions' 
+          /> 
+        : null }
+        { this.props.countries.length > 1 ?
+          <ChartFilter
+            items         = {this.props.countries} 
+            ref           = "country" 
+            text          = 'All countries' 
+          /> 
+        : null }
+        { this.props.specialties.length > 1 ?
+          <ChartFilter
+            items         = {this.props.specialties }
+            ref           = "specialty" 
+            text          = 'All specialties' 
+          /> 
+        : null }
       </form>
     );
   }
-})
+});
 
+/**
+ * Filters
+ */
+var ChartFilter = React.createClass({
+  render: function() {
+    var children = this.props.items.map(function(item, index){
+      return (
+        <option key={index} value={item}>{item}</option>
+      );
+    });
+    return (
+        <select 
+          ref={this.props.ref}
+        >
+          <option key="" value="">{this.props.text}</option>
+          {children}
+        </select>
+    );
+  }
+});
 
 /**
  * GoogleChart
  */
-var GoogleChart = React.createClass({
-  
-  drawChart: function(){
-    // TODO: integrate overlays
-    
-    var data = new google.visualization.DataTable(this.props.datatable);
-    var chart = new google.visualization[this.props.charttype](
-      React.findDOMNode(this)
-    );
-    
-    // TODO: remove hardcoded options object
-    var options = {
-      isStacked: 'percent',
-      legend : {
-        position : 'top',
-        maxLines : 3
-      },
-    };
-    
-    chart.draw(data, options);
+var GoogleChart = React.createClass({ 
+  drawChart: function() {
+    try {
+      var chart = clipper.charts.factory(this.props.charttype, this.props.id, {
+        formatter: this.props.charttype
+      }, this.props.datatable);
+    } catch(e) {
+      console.log('Error:' + e);
+    }
   },
   componentDidMount: function(){
-    google.setOnLoadCallback(this.drawChart());
+    clipper.charts.initialize(this.drawChart);
   },
   componentDidUpdate: function(){
     this.drawChart();
   },
   render: function(){
+    var classString = 'google-chart';
+    if(this.props.isLoadingChart) {
+      classString += ' hidden';
+    }
     return (
       <div 
-        className="google-chart" 
-        style={{ height: "500px", width: "500px"}} 
+        className = {classString} 
+        id = {this.props.id}
+        style = {this.props.style}
       />
     );
-  },
-  
+  },  
 });
-
 
 /**
  * Chart wrapper
  */
-var Chart = React.createClass({
-  
-  hasForm: function() {
-    return this.props.countries.length && this.props.regions.length && this.props.specialties.length;
-  },
-  
+var ChartHeader = React.createClass({ 
   render: function() {
+    var subs = this.props.subs;
     return (
-      <div className="chart-container">
-        <GoogleChart 
-          chartmachinename = {this.props.chartmachinename}
-          charttype = {this.props.charttype}
-          datatable = {this.props.datatable}
-        />  
-        
-        {  this.hasForm() ? 
-          <ChartForm 
-            chartmachinename={this.props.chartmachinename} 
-            countries={this.props.countries} 
-            specialties={this.props.specialties}
-            regions={this.props.regions}
-            loadCharts={this.props.loadCharts}
-          /> : null }
+      <div
+        className="subheading"
+      >
+        <h3>
+          {this.props.id + 1}: {this.props.caption}        
+        </h3>
+        <ul>
+          {subs.map(function(sub, index){
+            return <li key={index}>{sub}</li>;
+          })}
+        </ul>
       </div>
     );
   }
-  
 });
 
+/**
+ * Chart
+ */
+var Chart = React.createClass({
+  _hideChart: function() {
+    return this.props.countFiltered;
+  },
+  _hasForm: function() {
+    return this.props.countries.length || this.props.regions.length || this.props.specialties.length;
+  },
+  // This method is not called for the initial render or when forceUpdate is used.
+  shouldComponentUpdate: function(nextProps, nextState) {
+    return nextProps.needsRender;
+  },
+  render: function() {
+    var subHeadings = [];
+    subHeadings[subHeadings.length] = 'Filtered: ' + this.props.countFiltered + ', Total: ' + this.props.countTotal;
+    subHeadings[subHeadings.length] = 'Selected Country: ' + (this.props.filters.country || 'All');
+    subHeadings[subHeadings.length] = 'Selected Region: ' + (this.props.filters.region || 'All');
+    subHeadings[subHeadings.length] = 'Selected Specialty: ' + (this.props.filters.specialty || 'All');
+    
+    var _toggleLoader = this._toggleLoader;
+    return (
+      <div>
+          <div 
+            className="chart-container"
+            style={{ 
+              margin: '30px 20px 20px', 
+              border: '1px solid #DDD', 
+              padding: '10px', 
+            }} 
+          >
+            <ChartHeader 
+              caption = {this.props.chartmachinename || this.props.charttype}
+              subs    = {subHeadings}
+              id      = {this.props.id}
+            />
+            { this.props.isLoadingChart == this.props.chartmachinename ?
+              <Loader 
+                style = {{ minHeight: "310px", width: "305px" }} 
+              /> 
+            : null }
+            <GoogleChart 
+              style = {{ minHeight: "500px", width: "700px" }}
+              chartmachinename = {this.props.chartmachinename}
+              charttype = {this.props.charttype}
+              datatable = {this.props.datatable}
+              id = {this.props.id}
+              isLoadingChart = {(this.props.isLoadingChart == this.props.chartmachinename ? true : false)}
+            /> 
+            { this._hasForm() ? 
+              <ChartForm 
+                chartmachinename={this.props.chartmachinename} 
+                countries={this.props.countries} 
+                specialties={this.props.specialties}
+                regions={this.props.regions}
+                loadCharts={this.props.loadCharts}
+                filters={this.props.filters}
+              />  
+            : null }
+          </div>
+      </div>
+    );
+  }  
+});
 
 /**
  * ChartList
  */
-var ChartList = React.createClass({
-  
-  loadCharts: function(drilldown) {
-    this._getChartsData(drilldown);
-  },
-  
+var ChartList = React.createClass({  
   getInitialState: function() {
-    return {data: []};
-  },
-  
+    return {
+      data: typeof samplechartsdata == 'undefined' ? [] : samplechartsdata,
+      isLoadingChart: false
+    };
+  },  
   componentDidMount: function() {
     this._getChartsData();
-  },
-  
+  }, 
+  _needsRender: null, 
   _getChartsData: function(request){
+    var request = request || {};
+    
+    // optimistic update
+    this._needsRender = request.chartmachinename; // used in Chart.shouldComponentUpdate
+    this.setState({
+      data: this.state.data,
+      isLoadingChart: request.chartmachinename || this.state.isLoadingChart
+    });
+    
     var $element = $('#react-content');
     var url = $element.data('charts_data_url');
-    
-    // post
-    var request = request || {};
     request.order_id = $element.data('order_id');
-    
     $.ajax({
       url: url,
       dataType: 'json',
@@ -212,7 +251,11 @@ var ChartList = React.createClass({
       success: function(data) {
         switch(data.status){
           case 200:
-            this.setState({data: data.content || []});
+            this._needsRender = request.chartmachinename;
+            this.setState({
+              data: data.content || [],
+              isLoadingChart: false
+            });
           break;
           default:
             console.error(url, data.status, data.content.toString());
@@ -221,46 +264,46 @@ var ChartList = React.createClass({
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(url, status, err.toString());
-      }.bind(this)
-    });
-    
-  },
-  
+      }.bind(this),
+    });    
+  },  
   render: function() {
-    var loadCharts = this.loadCharts;
+    var needsRender = this._needsRender;
+    var isLoadingChart = this.state.isLoadingChart;
+    var loadCharts = this._getChartsData;
     var chartNodes = this.state.data.map(function(chart, index) {
       var drill = chart.drilldown || {};
       return (
         <Chart 
-          key={index} 
-          chartmachinename={chart.chartmachinename} 
-          charttype={chart.charttype} 
-          datatable={chart.datatable || {}} 
-          countries={drill.countries || []}
-          specialties={drill.specialties || []}
-          regions={drill.regions || []}
-          loadCharts={loadCharts}
+          key                   = {index} 
+          id                    = {index}
+          chartmachinename      = {chart.chartmachinename} 
+          charttype             = {chart.charttype} 
+          datatable             = {chart.datatable || {}} 
+          countries             = {drill.countries || []}
+          specialties           = {drill.specialties || []}
+          regions               = {drill.regions || []}
+          loadCharts            = {loadCharts}
+          filters               = {chart.filter}
+          countTotal            = {chart.countTotal}
+          countFiltered         = {chart.countFiltered}
+          isLoadingChart        = {isLoadingChart}
+          needsRender           = {(needsRender == chart.chartmachinename)}
         />
       );  
-    });
-    
+    });    
     return (
       <div className="charts-list">
         {chartNodes}
       </div>
     );
-  }
-  
+  }  
 });
-
 
 /**
  * output to page
  */
-
 React.render(
-  <ChartList />
-  ,document.getElementById('react-content')
+  <ChartList />,
+  document.getElementById('react-content')
 );
-
-
