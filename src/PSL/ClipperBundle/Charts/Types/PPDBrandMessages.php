@@ -1,11 +1,9 @@
 <?php
 /**
- * Machine Name      = AssociateCategoriesImportance
- * Slide             = NPS:008
- * Service Name      = clipper.chart.associate_categories_importance
+ * Machine Name      = PPDBrandMessages
+ * Slide             = NPS:007
+ * Service Name      = clipper.chart.ppdbrandmessages
  * Targeted Question = G0010Q001, G0011Q001, G0012Q001, G0013Q001, G0014Q001, G0015Q001
- *                     !!- this however is based on number of brands
- * Targeted Template = ./src/PSL/ClipperBundle/Resources/views/Charts/associate_categories_importance.html.twig
  */
 namespace PSL\ClipperBundle\Charts\Types;
 
@@ -13,7 +11,7 @@ use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
-class AssociateCategoriesImportance extends ChartType {
+class PPDBrandMessages extends ChartType {
 
   private $result = array();
   private $counts = array();
@@ -31,6 +29,14 @@ class AssociateCategoriesImportance extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep result structure
+    $dataTable = array();
+    
+    //stop if no responses
+    if (empty($event->getCountFiltered())) {
+      return $dataTable;
+    }
+    
+    //prep calculation structure
     $set = array_keys(parent::$net_promoters_cat_range);
     $set = array_flip($set);
     array_walk($set, function(&$value, $key) {
@@ -39,9 +45,10 @@ class AssociateCategoriesImportance extends ChartType {
     $this->result = array_combine($this->qcode, array_fill(0, count($this->qcode), $set));
     //prep counts structure
     $this->counts = array_combine(array_keys(parent::$net_promoters_cat_range), $set);
+    
 
     //get set of question
-    $questions = $event->getParams();
+    $questions = $event->getAttributes();
 
     //extract respondent
     foreach ($event->getData() as $response) {
@@ -67,86 +74,31 @@ class AssociateCategoriesImportance extends ChartType {
         'high' => $this->calculateConfidenceInterval($this->result[$qcode]['promoter']['perc'], 'up', $this->counts['promoter']['count']),
       );
     }
-
-    //sort & data formation
-    $data = array(
-      'cols' => array(
-        array(
-          'label' => 'Brand association question',
-          'type'  => 'string',
-        ),
-        //per-series
-      ),
-      'rows' => array(),
-    );
-
-    //per-series
-    $series = array(
-      array(
-        'label' => 'Detractor',
-        'type'  => 'number',
-      ),
-      array(
-        'label' => 'Passive',
-        'type'  => 'number',
-      ),
-      array(
-        'label' => 'Promoter',
-        'type'  => 'number',
-      ),
-      array(
-        'label' => 'Lowest confidence level',
-        'type'  => 'number',
-        'p'     => array('role' => 'interval'),
-      ),
-      array(
-        'label' => 'Highest confidence level',
-        'type'  => 'number',
-        'p'     => array('role' => 'interval'),
-      ),
-    );
-    $series_count = count($series);
-    $qcode_count  = count($this->qcode);
-    $ques_count   = count($questions);
-    for ($i = 0; $i < $qcode_count; $i++) {
-      $data['cols'] = array_merge($data['cols'], $series);
-    }
-
+    
+    //formatting
     foreach ($this->qcode as $qindex => $qcode) {
-      //for sorting
+      //for sorting; abstract key
       $key = $this->result[$qcode]['diff'];
-      while (isset($data['rows'][$key])) {
+      while (isset($dataTable[$key])) {
         $key += 1;
       }
-
-      //prep
-      $data['rows'][$key] = array(
-        'c' => array(
-          array('v' => $questions[$qindex]),
-        ),
+      $dataTable[$key] = array(
+        'message'    => $questions[$qindex],
+        'detractors' => $this->result[$qcode]['detractor']['perc'],
+        'passives'   => $this->result[$qcode]['passive']['perc'],
+        'promoters'  => $this->result[$qcode]['promoter']['perc'],
+        'lcl'        => $this->result[$qcode]['confidence']['low'],
+        'hcl'        => $this->result[$qcode]['confidence']['high'],
       );
-      //this-series
-      $siri = array(
-        array('v' => $this->result[$qcode]['detractor']['perc']),
-        array('v' => $this->result[$qcode]['passive']['perc']),
-        array('v' => $this->result[$qcode]['promoter']['perc']),
-        array('v' => $this->result[$qcode]['confidence']['low']),
-        array('v' => $this->result[$qcode]['confidence']['high']),
-      );
-      //merge
-      $empty   = array('v' => NULL);
-      $postfix = $prefix = array();
-      if ($qindex > 0) {
-        $prefix  = array_fill(0, ($series_count * $qindex), $empty);
-      }
-      if ($qcode_count > $qindex)  {
-        $postfix = array_fill(0, ($series_count * $qcode_count) - ($series_count * ($qindex + 1)), $empty);
-      }
-      $data['rows'][$key]['c'] = array_merge($data['rows'][$key]['c'], $prefix, $siri, $postfix);
+      unset($questions[$qindex]);
+      unset($this->result[$qcode]);
     }
-    asort($data['rows']);
-    $data['rows'] = array_values($data['rows']);
-    return $data;
+    
+    //sort by abstract key
+    asort($dataTable);
+    $dataTable = array_values($dataTable);
+    
+    return $dataTable;
   }
 
   /**
@@ -212,29 +164,22 @@ class AssociateCategoriesImportance extends ChartType {
    * @return float
    */
   private function calculateConfidenceInterval($promoter_perc, $go = 'down', $count = 0) {
+    $pow = sqrt($promoter_perc);
     switch ($go) {
       case 'up':
-        $promoter_perc = (1 + $promoter_perc);
+        $promoter_go = ($pow + $promoter_perc);
         break;
 
       case 'down':
       default:
-        $promoter_perc = (1 - $promoter_perc);
+        $promoter_go = ($pow - $promoter_perc);
         break;
     }
-
-    $promoter_perc = sqrt($promoter_perc * $promoter_perc);
-
-    if (empty($promoter_perc) || is_nan($promoter_perc)) {
-      $promoter_perc = 0;
-    }
-    else {
-      if (!empty($count)) {
-        $promoter_perc = ($promoter_perc / $count);
-      }
-      $promoter_perc = (1.96 * $promoter_perc);
-    }
-
-    return $promoter_perc;
+    $count = max(1, $count);
+    $cal = (($promoter_perc * $promoter_go) / $count);
+    $cal = abs($cal);
+    $cal = sqrt($cal);
+    $promoter_perc = $pow + (1.96 * $cal);       
+    return $this->roundingUpValue($promoter_perc);
   }
 }

@@ -20,6 +20,8 @@ parameters:
   limesurvey.url_destination_base:            "[*limesurvey.url_destination_base*]"
   limesurvey.url_redirect_base:               "[*limesurvey.url_redirect_base*]"
   # rpanel:
+  rpanel.user_id:                             "[*rpanel.user_id*]"
+  rpanel.client_id:                           "[*rpanel.client_id*]" 
   rpanel.databases.rpanel.dbname:             "[*rpanel.databases.rpanel.dbname*]"
   rpanel.databases.rpanel.user:               "[*rpanel.databases.rpanel.user*]"
   rpanel.databases.rpanel.password:           "[*rpanel.databases.rpanel.password*]"
