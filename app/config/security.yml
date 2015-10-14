@@ -125,6 +125,11 @@ security:
             pattern:  ^/clipper/api/newusers
             stateless: true
             anonymous: true
+        # Post Forgot Password
+        api_forgotpasswords:
+            pattern:  ^/clipper/api/forgotpasswords
+            stateless: true
+            anonymous: true
         # Clipper REST endpoints test page
         api_doc:
             pattern:  ^/clipper/api/doc

@@ -322,20 +322,28 @@ class ClipperUserController extends FOSRestController
   /**
    * Send user password retrieval link.
    *
-   * /api/user/forgotpassword/{user}
-   *
-   * @param string $user The user to retrieve the password for.
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *  
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   * 
+   * @requestparam(name="email", default="", description="Email of the client.")
    */
-  public function forgotpasswordAction($email)
+  public function postForgotpasswordAction(ParamFetcher $paramFetcher)
   {
     $container = $this->container;
     
-    $user = new FWSSOQuickLoginUser($email, '', array());
+    $email = $paramFetcher->get('email');
+    
+    $user = new FWSSOQuickLoginUser('', $email, '', array());
     $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
     $ql_hash = $user->getQuickLoginHash($encKey);
-
+    
     // @TODO Set the correct path
     $fe = $container->getParameter('clipper.frontend.url');
     $link = $fe . '/#forgotpassword/' . $ql_hash;
