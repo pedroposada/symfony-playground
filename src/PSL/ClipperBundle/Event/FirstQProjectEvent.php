@@ -19,11 +19,17 @@ class FirstQProjectEvent extends Event
     $this->fqp = $fqp;
   }
 
+  /**
+   * @return \PSL\ClipperBundle\Entity\FirstQGroup
+   */
   public function getFirstQProjectGroup()
   {
     return $this->fqg;
   }
-
+  
+  /**
+   * @return \PSL\ClipperBundle\Entity\FirstQProject
+   */
   public function getFirstQProject()
   {
     return $this->fqp;
