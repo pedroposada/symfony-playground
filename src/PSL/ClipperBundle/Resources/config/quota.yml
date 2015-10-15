@@ -35,122 +35,122 @@
 
 
 77: # France
-  12: 1 # Anaesthesiology
-  18: 1 # Cardiology
-  45: 1 # Endocrinology
-  53: 1 # Gastroenterology
-  56: 1 # General Surger
-  55: 1 # GPs / PCPs
-  78: 1 # IMs
-  76: 1 # Infectious Disease
-  94: 1 # Neurology
-  224: 1 # Nurse Practitioner
-  106: 1 # Obstetrics/Gynaecology
-  108: 1 # Oncology
-  109: 1 # Ophthalmology
-  115: 1 # Orthopaedics
-  152: 1 # Paediatrics
-  205: 1 # Physician Assistant
-  159: 1 # Psychiatry
-  168: 1 # Rheumatology
-  181: 1 # Urology
+  12: 50 # Anaesthesiology
+  18: 50 # Cardiology
+  45: 50 # Endocrinology
+  53: 50 # Gastroenterology
+  56: 50 # General Surger
+  55: 50 # GPs / PCPs
+  78: 50 # IMs
+  76: 50 # Infectious Disease
+  94: 50 # Neurology
+  224: 50 # Nurse Practitioner
+  106: 50 # Obstetrics/Gynaecology
+  108: 50 # Oncology
+  109: 50 # Ophthalmology
+  115: 50 # Orthopaedics
+  152: 50 # Paediatrics
+  205: 50 # Physician Assistant
+  159: 50 # Psychiatry
+  168: 50 # Rheumatology
+  181: 50 # Urology
 84: # Germany
-  12: 1 # Anaesthesiology
-  18: 1 # Cardiology
-  45: 1 # Endocrinology
-  53: 1 # Gastroenterology
-  56: 1 # General Surger
-  55: 1 # GPs / PCPs
-  78: 1 # IMs
-  76: 1 # Infectious Disease
-  94: 1 # Neurology
-  224: 1 # Nurse Practitioner
-  106: 1 # Obstetrics/Gynaecology
-  108: 1 # Oncology
-  109: 1 # Ophthalmology
-  115: 1 # Orthopaedics
-  152: 1 # Paediatrics
-  205: 1 # Physician Assistant
-  159: 1 # Psychiatry
-  168: 1 # Rheumatology
-  181: 1 # Urology
+  12: 50 # Anaesthesiology
+  18: 50 # Cardiology
+  45: 50 # Endocrinology
+  53: 50 # Gastroenterology
+  56: 50 # General Surger
+  55: 50 # GPs / PCPs
+  78: 50 # IMs
+  76: 50 # Infectious Disease
+  94: 50 # Neurology
+  224: 50 # Nurse Practitioner
+  106: 50 # Obstetrics/Gynaecology
+  108: 50 # Oncology
+  109: 50 # Ophthalmology
+  115: 50 # Orthopaedics
+  152: 50 # Paediatrics
+  205: 50 # Physician Assistant
+  159: 50 # Psychiatry
+  168: 50 # Rheumatology
+  181: 50 # Urology
 110: # Italy
-  12: 1 # Anaesthesiology
-  18: 1 # Cardiology
-  45: 1 # Endocrinology
-  53: 1 # Gastroenterology
-  56: 1 # General Surger
-  55: 1 # GPs / PCPs
-  78: 1 # IMs
-  76: 1 # Infectious Disease
-  94: 1 # Neurology
-  224: 1 # Nurse Practitioner
-  106: 1 # Obstetrics/Gynaecology
-  108: 1 # Oncology
-  109: 1 # Ophthalmology
-  115: 1 # Orthopaedics
-  152: 1 # Paediatrics
-  205: 1 # Physician Assistant
-  159: 1 # Psychiatry
-  168: 1 # Rheumatology
-  181: 1 # Urology
+  12: 50 # Anaesthesiology
+  18: 50 # Cardiology
+  45: 50 # Endocrinology
+  53: 50 # Gastroenterology
+  56: 50 # General Surger
+  55: 50 # GPs / PCPs
+  78: 50 # IMs
+  76: 50 # Infectious Disease
+  94: 50 # Neurology
+  224: 50 # Nurse Practitioner
+  106: 50 # Obstetrics/Gynaecology
+  108: 50 # Oncology
+  109: 50 # Ophthalmology
+  115: 50 # Orthopaedics
+  152: 50 # Paediatrics
+  205: 50 # Physician Assistant
+  159: 50 # Psychiatry
+  168: 50 # Rheumatology
+  181: 50 # Urology
 210: # Spain
-  12: 1 # Anaesthesiology
-  18: 1 # Cardiology
-  45: 1 # Endocrinology
-  53: 1 # Gastroenterology
-  56: 1 # General Surger
-  55: 1 # GPs / PCPs
-  78: 1 # IMs
-  76: 1 # Infectious Disease
-  94: 1 # Neurology
-  224: 1 # Nurse Practitioner
-  106: 1 # Obstetrics/Gynaecology
-  108: 1 # Oncology
-  109: 1 # Ophthalmology
-  115: 1 # Orthopaedics
-  152: 1 # Paediatrics
-  205: 1 # Physician Assistant
-  159: 1 # Psychiatry
-  168: 1 # Rheumatology
-  181: 1 # Urology
+  12: 50 # Anaesthesiology
+  18: 50 # Cardiology
+  45: 50 # Endocrinology
+  53: 50 # Gastroenterology
+  56: 50 # General Surger
+  55: 50 # GPs / PCPs
+  78: 50 # IMs
+  76: 50 # Infectious Disease
+  94: 50 # Neurology
+  224: 50 # Nurse Practitioner
+  106: 50 # Obstetrics/Gynaecology
+  108: 50 # Oncology
+  109: 50 # Ophthalmology
+  115: 50 # Orthopaedics
+  152: 50 # Paediatrics
+  205: 50 # Physician Assistant
+  159: 50 # Psychiatry
+  168: 50 # Rheumatology
+  181: 50 # Urology
 235: # UK
-  12: 1 # Anaesthesiology
-  18: 1 # Cardiology
-  45: 1 # Endocrinology
-  53: 1 # Gastroenterology
-  56: 1 # General Surger
-  55: 1 # GPs / PCPs
-  78: 1 # IMs
-  76: 1 # Infectious Disease
-  94: 1 # Neurology
-  224: 1 # Nurse Practitioner
-  106: 1 # Obstetrics/Gynaecology
-  108: 1 # Oncology
-  109: 1 # Ophthalmology
-  115: 1 # Orthopaedics
-  152: 1 # Paediatrics
-  205: 1 # Physician Assistant
-  159: 1 # Psychiatry
-  168: 1 # Rheumatology
-  181: 1 # Urology
+  12: 50 # Anaesthesiology
+  18: 50 # Cardiology
+  45: 50 # Endocrinology
+  53: 50 # Gastroenterology
+  56: 50 # General Surger
+  55: 50 # GPs / PCPs
+  78: 50 # IMs
+  76: 50 # Infectious Disease
+  94: 50 # Neurology
+  224: 50 # Nurse Practitioner
+  106: 50 # Obstetrics/Gynaecology
+  108: 50 # Oncology
+  109: 50 # Ophthalmology
+  115: 50 # Orthopaedics
+  152: 50 # Paediatrics
+  205: 50 # Physician Assistant
+  159: 50 # Psychiatry
+  168: 50 # Rheumatology
+  181: 50 # Urology
 240: # USA
-  12: 1 # Anaesthesiology
-  18: 1 # Cardiology
-  45: 1 # Endocrinology
-  53: 1 # Gastroenterology
-  56: 1 # General Surger
-  55: 1 # GPs / PCPs
-  78: 1 # IMs
-  76: 1 # Infectious Disease
-  94: 1 # Neurology
-  224: 1 # Nurse Practitioner
-  106: 1 # Obstetrics/Gynaecology
-  108: 1 # Oncology
-  109: 1 # Ophthalmology
-  115: 1 # Orthopaedics
-  152: 1 # Paediatrics
-  205: 1 # Physician Assistant
-  159: 1 # Psychiatry
-  168: 1 # Rheumatology
-  181: 1 # Urology
+  12: 100 # Anaesthesiology
+  18: 100 # Cardiology
+  45: 100 # Endocrinology
+  53: 100 # Gastroenterology
+  56: 100 # General Surger
+  55: 100 # GPs / PCPs
+  78: 100 # IMs
+  76: 100 # Infectious Disease
+  94: 100 # Neurology
+  224: 100 # Nurse Practitioner
+  106: 100 # Obstetrics/Gynaecology
+  108: 100 # Oncology
+  109: 100 # Ophthalmology
+  115: 100 # Orthopaedics
+  152: 100 # Paediatrics
+  205: 100 # Physician Assistant
+  159: 100 # Psychiatry
+  168: 100 # Rheumatology
+  181: 100 # Urology
