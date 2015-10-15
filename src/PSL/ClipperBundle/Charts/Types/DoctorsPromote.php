@@ -62,6 +62,9 @@ class DoctorsPromote extends ChartType {
       }
     } // if getCountFiltered()
 
+    // "How satisfied is the market?"
+    $event->setTitleLong("How satisfied is the market?");
+
     return array(
       'satisfied'    => array(
         'amount' => $this->promoting['sa']['perc'],

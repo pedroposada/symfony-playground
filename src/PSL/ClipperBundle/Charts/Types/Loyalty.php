@@ -70,6 +70,9 @@ class Loyalty extends ChartType {
         'loyalty' => $this->roundingUpValue($loyalty, TRUE),
       );
     }
+
+    // "How loyal are doctors to my brand?"
+    $event->setTitleLong("How loyal are doctors to my brand?");
     
     return $dataTable;
   }

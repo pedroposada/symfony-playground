@@ -23,7 +23,7 @@ class LoadFirstQGroups extends AbstractFixture implements OrderedFixtureInterfac
         $this->setReference('firstqgroup', $group);
 
         $group = new FirstQGroup();
-        $group->setFormDataRaw('{"loi":10,"ir":10,"title":"a title","name":"a name","name_full":"a name full","patient_type":"sick","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["AA-123","BB-456","CC-789","DD-123","EE-456","FF-789"],"attributes":["it just works","painfull side effects","risk of death","just painful","mildly pointless","kind of cool","not effective","gives headaches"],"launch_date":"2015-07-22 11:10:33","timezone_client":"Europe\/London"}');
+        $group->setFormDataRaw('{"loi":10,"ir":10,"title":"NPS+","name":"name of the survey here","name_full":"NPS+ Multiple Sclerosis","patient_type":"Multiple Sclerosis","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["AA-123","BB-456","CC-789","DD-123","EE-456","FF-789"],"attributes":["it just works","painfull side effects","risk of death","just painful","mildly pointless","kind of cool","not effective","gives headaches"],"launch_date":"2015-07-22 11:10:33","timezone_client":"Europe\/London"}');
         $group->setState('ORDER_COMPLETE');
         $group->setOrderId('test-order-complete');
         $group->setUserId('test-user-id-2');

@@ -135,8 +135,7 @@ class ChartsController extends FOSRestController
         throw new Exception("FQG with id [{$order_id}] not found");
       }
       
-      $survey_type = $fqg->getFormDataByField('survey_type');
-      $survey_type = reset($survey_type);
+      $survey_type = current($fqg->getFormDataByField('survey_type'));
       $map = $this->container->get('survey_chart_map')->map($survey_type);
       $assembler = $this->container->get('chart_assembler');
       
@@ -151,10 +150,23 @@ class ChartsController extends FOSRestController
           'countTotal'       => $chEvent->getCountTotal(),
           'countFiltered'    => $chEvent->getCountFiltered(),
           'datatable'        => $chEvent->getDataTable(),
+          'header'           => 'Maecenas faucibus mollis interdum.',
+          'footer'           => 'Cras mattis consectetur purus sit amet fermentum.',
+          'titleLong'        => $chEvent->getTitleLong();
         );
         $charts->add($chart);
       }
-      $content = $charts;
+      $first = $charts->first();
+      $content['meta'] = array(
+        "projectTitle": current($fqg->getFormDataByField('name_full')), 
+        "totalResponses": $first['countTotal'],
+        "quota":10,
+        "finalReportReady": "2015-10-13 9:00pm EST",
+        "introduction":"Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.",
+        "introImage": "/images/nps-calculation.png",
+        "conclusion":"Sed posuere consectetur est at lobortis."
+      );  
+      $content['charts'] = $charts;
     }
     catch(Exception $e) {
       $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";

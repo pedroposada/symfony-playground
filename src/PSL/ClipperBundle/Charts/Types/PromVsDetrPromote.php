@@ -76,6 +76,9 @@ class PromVsDetrPromote extends ChartType {
       );
     }
 
+    // "How much more of my brand do Promoters use compared to Detractors?"
+    $event->setTitleLong("How much more of my brand do Promoters use compared to Detractors?");
+
     return $dataTable;
   }
 

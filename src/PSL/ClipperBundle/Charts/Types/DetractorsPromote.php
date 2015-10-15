@@ -58,6 +58,9 @@ class DetractorsPromote extends ChartType {
         'competitors' => (empty($this->competitors[$brand]) ? new \stdClass() : $this->competitors[$brand]),
       );
     }
+
+    $event->setTitleLong('Amongst my Detractors, which other brands do they promote?');
+
     return $dataTable;
   }
 
