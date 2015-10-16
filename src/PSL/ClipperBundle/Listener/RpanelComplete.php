@@ -10,8 +10,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Utils\LimeSurvey;
-use PSL\ClipperBundle\Utils\MDMMapping;
 
 class RpanelComplete extends FqProcess
 {
@@ -34,20 +32,17 @@ class RpanelComplete extends FqProcess
       'sStatName' => 'completed_responses', 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [get_summary]");
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [get_summary]", 2);
     }
     
-    // quota lookup for specialty and country
-    $country = MDMMapping::map('countries', current($fqp->getSheetDataByField('market')));
-    $specialty = MDMMapping::map('specialties', current($fqp->getSheetDataByField('specialty')));
-    $yaml = new \Symfony\Component\Yaml\Parser();
-    $lookup = $yaml->parse(file_get_contents(__DIR__ . '/../Resources/config/quota.yml'));
-    $quota = isset($lookup[$country][$specialty]) ? $lookup[$country][$specialty] : $this->container->getParameter('clipper.quota.universal');
+    $country = current($fqp->getSheetDataByField('market'));
+    $specialty = current($fqp->getSheetDataByField('specialty'));
+    $quota = $this->container->get('quota_map')->lookupOne($country, $specialty);
     $this->logger->debug("Lookup for country code: [{$country}] and specialty code: [{$specialty}]. Quota: [{$quota}]", array('rpanel_complete'));
     
     // if completed is less than quota, then exit
     if ($quota > $response) {
-      throw new Exception("Quota has not been reached yet for fqp->id: [{$fqp->getId()}]", 2);
+      throw new Exception("Quota ({$quota}) has not been reached yet for fqp->id: [{$fqp->getId()}]", 2);
     }
     $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
     
@@ -61,7 +56,7 @@ class RpanelComplete extends FqProcess
     
     if (is_array($response) && isset($response['status'])) {
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [set_survey_properties]");
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [set_survey_properties]", 2);
     }
 
   }

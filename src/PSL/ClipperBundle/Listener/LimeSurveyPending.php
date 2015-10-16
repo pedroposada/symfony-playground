@@ -59,7 +59,7 @@ class LimeSurveyPending extends FqProcess
     ));
     $this->logger->debug("form_data[title] {$form_data['title']}", array('LimeSurveyPending', 'import_survey'));
     if (!is_int($iSurveyID)) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [import_survey]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [import_survey]", 2);
     }
     
     // activate S
@@ -68,7 +68,7 @@ class LimeSurveyPending extends FqProcess
     ));
     $this->logger->debug("iSurveyID [{$iSurveyID}]", array('LimeSurveyPending', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_survey]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_survey]", 2);
     }
     
     // activate tokens
@@ -76,7 +76,7 @@ class LimeSurveyPending extends FqProcess
       'iSurveyID' => $iSurveyID, 
     ));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_tokens]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_tokens]", 2);
     }
     
     // get amount of participants to be added for this survey
@@ -87,7 +87,7 @@ class LimeSurveyPending extends FqProcess
     }
     
     if (empty($participants_sample)) {
-      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]");
+      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]", 2);
     }
     
     $participants = array();
@@ -103,7 +103,7 @@ class LimeSurveyPending extends FqProcess
       'participantData' => $participants, 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [add_participants]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [add_participants]", 2);
     }
     
     // save limesurvey raw data
