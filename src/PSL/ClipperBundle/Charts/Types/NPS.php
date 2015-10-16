@@ -61,6 +61,9 @@ class NPS extends ChartType
     //remove keys
     $dataTable = array_values($dataTable);
 
+    // "Net Promoter Score"
+    $event->setTitleLong("Net Promoter Score");
+
     return $dataTable;
   }
 
