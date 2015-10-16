@@ -336,36 +336,46 @@ class ClipperUserController extends FOSRestController
    */
   public function postForgotpasswordAction(ParamFetcher $paramFetcher)
   {
-    $container = $this->container;
+    // Object to return to remote form
+    $returnObject = array();
+    $responseStatus = 200;
     
-    $email = $paramFetcher->get('email');
+    try {
+      $container = $this->container;
+      
+      $email = $paramFetcher->get('email');
+      
+      $user = new FWSSOQuickLoginUser('', $email, '', array());
+      $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
+      $ql_hash = $user->getQuickLoginHash($encKey);
+      
+      // @TODO Set the correct path
+      $fe = $container->getParameter('clipper.frontend.url');
+      $link = $fe . '/#fpr?ql=' . $ql_hash;
+  
+      // @TODO Set the subject, from and body
+      $msg = \Swift_Message::newInstance()
+        ->setSubject('Recover password')
+        ->setFrom('noreply@clipper.com')
+        ->setTo($email)
+        ->setBody($this->renderView('PSLClipperBundle:Clipper:forgotpassword.html.twig', array(
+            'link' => $link
+          )), 'text/html');
+  
+      $this->get('mailer')->send($msg);
+      
+      // return message
+      $returnObject['message'] = 'Password recovery mail sent to "' . $email . '".';
+    }
+    catch (\Exception $e) {
+      $this->logger = $this->container->get('monolog.logger.clipper');
+      // Return operation specific error
+      $returnObject['error_message'] =  $e->getMessage();
+      $responseStatus = 400;
+      $this->logger->debug("General exception: {$e}");
+    }
     
-    $user = new FWSSOQuickLoginUser('', $email, '', array());
-    $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
-    $ql_hash = $user->getQuickLoginHash($encKey);
-    
-    // @TODO Set the correct path
-    $fe = $container->getParameter('clipper.frontend.url');
-    $link = $fe . '/#forgotpassword/' . $ql_hash;
-
-    // @TODO Set the subject, from and body
-    $msg = \Swift_Message::newInstance()
-      ->setSubject('Recover password')
-      ->setFrom('noreply@clipper.com')
-      ->setTo($email)
-      ->setBody($this->renderView('PSLClipperBundle:Clipper:forgotpassword.html.twig', array(
-          'link' => $link
-        )), 'text/html');
-
-    $this->get('mailer')->send($msg);
-
-    $retObj = array(
-      'message' => 'Password recovery mail sent to "' . $email . '".'
-    );
-    $retHeaders = array( 'Content-Type' => 'application/json' );
-    $retCode = 200;
-    $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
-    return $response;
+    return new Response($returnObject, $responseStatus);
   }
   
   /**
