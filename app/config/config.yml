@@ -138,6 +138,9 @@ nelmio_cors:
                 - OPTIONS
             expose_headers: {  }
             max_age: 3600
+        ^/clipper/charts:
+            allow_origin:
+                - '*'
             
 
 
@@ -157,6 +160,7 @@ parameters:
       #firstq_group
       order_pending: ORDER_PENDING
       order_invoice: ORDER_INVOICE
+      order_points: ORDER_POINTS
       order_declined: ORDER_DECLINED
       order_complete: ORDER_COMPLETE
       order_closed: ORDER_CLOSED
@@ -183,7 +187,8 @@ parameters:
       
   #rpanel
   rpanel:
-    user_id: 7777
+    user_id: %rpanel.user_id%
+    client_id: %rpanel.client_id%
     default_table_values:
       proj_status: 1
       proj_type: 1

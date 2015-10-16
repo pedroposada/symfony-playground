@@ -128,6 +128,16 @@ class FWSSOWebservice
       'qlhash' => $param_arr['qlhash']
     ));
   }
+
+  /**
+   * Change password
+   */
+  public function changePassword($param_arr = array())
+  {
+    $action = '/users/changepassword';
+
+    return $this->postCall($action, $param_arr);
+  }
   
   /**
    * Forgot password

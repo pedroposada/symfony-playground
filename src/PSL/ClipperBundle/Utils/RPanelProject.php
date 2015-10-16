@@ -586,4 +586,22 @@ class RPanelProject
       return $this->created_date;
   }
   
+  /**
+   * Set client_id
+   */
+  public function setClientId($client_id)
+  {
+      $this->client_id = $client_id;
+  }
+
+  /**
+   * Get client_id
+   *
+   * @return $client_id
+   */
+  public function getClientId()
+  {
+      return $this->client_id;
+  }
+  
 }

@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\SurveyChartMap;
+use PSL\ClipperBundle\Utils\GeoMapper;
 
 abstract class ChartType
 {
@@ -16,9 +17,10 @@ abstract class ChartType
   protected $em; // entity manager
   protected $params;
   protected $responses;
-  protected $chart_type;
+  protected $machine_name;
   protected $survey_chart_map;
   protected $explode_tree;
+  protected $geoMapper;
   public $data_table;
 
   /**
@@ -27,7 +29,8 @@ abstract class ChartType
   protected $brands;
   protected $map;
   protected $qcode;
-  protected static $net_promoters           = 'net_promoters';
+  protected $drill_down;
+  protected static $net_promoters           = 'NPS';
   protected static $decimal_point           = 2;
   protected static $net_promoters_cat_range = array(
     'detractor' => array(0, 1, 2, 3, 4, 5, 6),
@@ -35,34 +38,119 @@ abstract class ChartType
     'promoter'  => array(9, 10),
   );
 
-  public function __construct(ContainerInterface $container, $chart_type)
-  {
+  public function __construct(ContainerInterface $container, $machine_name) {
     $this->container        = $container;
     $this->em               = $container->get('doctrine')->getManager();
     $this->logger           = $container->get('monolog.logger.clipper');
     $this->params           = $container->getParameter('clipper');
-    $this->chart_type       = $chart_type;
+    $this->machine_name     = $machine_name;
     $this->survey_chart_map = $container->get('survey_chart_map');
     $this->explode_tree     = $container->get('explode_tree');
+    $this->geoMapper        = new GeoMapper();
   }
 
-  // TODO: new method to return distinct list of countries
-  // TODO: new method to return distinct list of regions
-  // TODO: new method to return distinct list of specialties
-
-  public function onDataTable(ChartEvent $event, $eventName, EventDispatcherInterface $dispatcher)
-  {
-    if ($event->getChartType() === $this->chart_type) {
+  public function onDataTable(ChartEvent $event, $eventName, EventDispatcherInterface $dispatcher) {
+    if ($event->getChartMachineName() === $this->machine_name) {
       $this->logger->debug("eventName: {$eventName}");
 
       //prep generals details
       $this->brands = $event->getBrands();
       $this->map    = $this->survey_chart_map->map($event->getSurveyType());
-      $this->qcode  = $this->map[$event->getChartType()];
-
-      $event->setDataTable($this->dataTable($event));
+      $this->qcode  = $this->map[$event->getChartMachineName()];
       
-      // TODO: set drilldown and charttype into event object
+      $responses = $event->getData();
+      //get available drilldown filters
+      $drilldown = $this->extractAvailableFilters($responses);
+      $event->setDrillDown($drilldown);
+      
+      //filter down      
+      $drilldown = $event->getFilters();
+      if (!empty($drilldown)) {
+        $this->filterResponsesDrillDown($responses, $drilldown);
+        $event->setFilters($drilldown);
+        $event->setCountFiltered($responses->count());
+      }
+      
+      // @todo: review the needs for validate
+      // if (empty($event->getCountFiltered())) {        
+      //   throw error of filter down render no result
+      // }
+      
+      $event->setDataTable($this->dataTable($event));
+    }
+  }
+  
+  private function extractAvailableFilters($responses) {
+    $a_reponse = $responses->first();    
+    $markets = $regions = $specialties = array();
+    
+    //get markets & specialties from a response
+    foreach (array('markets', 'specialties') as $type) {
+      $$type = $a_reponse->getFirstqgroup()->getFormDataByField($type);
+    }
+    
+    //identify markets region & countries
+    //end result: markets will only holds countries & countries out of region(s)
+    if (!empty($markets)) {
+      $map_regions = $this->geoMapper->getRegions();
+      foreach ($markets as $key => $market) {
+        if (in_array($market, $map_regions)) {
+          unset($markets[$key]);
+          $regions[] = $market;
+          $reg_countries = $this->geoMapper->getCountries($market);
+          $markets = array_merge($markets, $reg_countries);
+        }
+      }
+    }
+    
+    //reorganize in drilldown format
+    $drilldown = array();
+    foreach (array('markets' => 'countries', 'specialties' => 'specialties', 'regions' => 'regions') as $type => $ddType) {
+      $drilldown[$ddType] = $$type;
+    }
+    
+    return $drilldown;
+  }
+  
+  /**
+   * Method to filter down responses.
+   * @method filterResponsesDrillDown
+   *
+   * @todo : review case-sensitive/strict comparison
+   * @todo : a country filter within selected region
+   * 
+   * @param  array PSL\ClipperBundle\LimeSurveyResponse ArrayCollection &$responses
+   * @param  array &$drilldown
+   *
+   * @return array
+   *    Filter used
+   */
+  private function filterResponsesDrillDown(&$responses, &$drilldown) {
+    $drilldown['countries'] = array();
+    
+    if (!empty($drilldown['region'])) {
+      $drilldown['countries'] = $this->geoMapper->getCountries($drilldown['region']);
+    }
+    $drilldown['countries'] = array_merge($drilldown['countries'], array($drilldown['country']));
+    $drilldown['countries'] = array_unique($drilldown['countries']);
+    $drilldown['countries'] = array_filter($drilldown['countries']);
+    
+    foreach ($responses as $index => $response) {
+      $sheet_data = $response->getFirstqproject()->getSheetDataUnserialized();
+      if ((!empty($drilldown['region'])) && ($drilldown['region'] == $sheet_data['market'])) {
+        //selected the same region
+      }
+      elseif ((!empty($drilldown['countries'])) && (in_array($sheet_data['market'], $drilldown['countries']) == FALSE)) {
+        $responses->remove($index);
+        continue;
+      }      
+      
+      if ( //@todo: review if empty sheet_data
+          (empty($sheet_data['specialty'])) || 
+          ((!empty($drilldown['specialty'])) && (strtolower($drilldown['specialty']) != strtolower($sheet_data['specialty'])))
+        ) {
+        $responses->remove($index);
+      }
     }
   }
 
@@ -113,7 +201,7 @@ abstract class ChartType
       return ($method($key, $qcode) !== FALSE);
     }, ARRAY_FILTER_USE_KEY);
 
-    //if given array but need to get using strpos; use by AssociateCategoriesImportance
+    //if given array but need to get using strpos; use by DNA slide
     //see @var $multi_structure
     if (empty($answers)) {
       $answers = array();
