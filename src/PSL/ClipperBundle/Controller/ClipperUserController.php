@@ -320,6 +320,86 @@ class ClipperUserController extends FOSRestController
   }
   
   /**
+   * Change user password.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @requestparam(name="username", default="", description="Username of the client.") 
+   * @requestparam(name="password", default="", description="Password of the client.") 
+   */
+  public function postChangepasswordsAction(ParamFetcher $paramFetcher)
+  {
+    
+    $container = $this->container;
+
+    $username = $paramFetcher->get('username');
+    $password = $paramFetcher->get('password');
+
+    $retHeaders = array( 'Content-Type' => 'application/json' );
+
+    // Get the user object, we need uid for change password
+    $fwsso_ws = $this->fwsso_ws();
+    $response = $fwsso_ws->getUser(array('uid'=>$username));
+    if ($response->isOk()) {
+      $user = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        // Return operation specific error
+        $retObj = array(
+          'error_message' => 'User - JSON decode error: ' . json_last_error(),
+        );
+        $retCode = 500;
+        $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
+        return $response;
+      }
+    } else {
+      throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
+    }
+
+    // Change Password 
+    if (isset($user['uid']) && !empty($user['uid'])) {
+      $update_pass = array(
+        'uid' => $user['uid'],
+        'pass' => $password,
+        'signature' => time(),
+      );
+    }
+
+    $response = $fwsso_ws->changePassword($update_pass);
+    if ($response->isOk()) {
+      $content = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        // Return operation specific error
+        $retObj = array(
+          'error_message' => 'Content - JSON decode error: ' . json_last_error(),
+        );
+        $retCode = 500;
+        $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
+        return $response;
+      }
+    } else {
+      throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
+    }
+
+    $retObj = array(
+      'message' => $content,
+      'status' => 200,
+    );
+    $retHeaders = array( 'Content-Type' => 'application/json' );
+    $retCode = 200;
+    $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
+    return $response;
+
+  }
+
+  /**
    * Send user password retrieval link.
    *
    * @ApiDoc(

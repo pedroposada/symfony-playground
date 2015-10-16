@@ -130,6 +130,11 @@ security:
             pattern:  ^/clipper/api/forgotpasswords
             stateless: true
             anonymous: true
+        # Post Change Password
+        api_changepasswords:
+            pattern: ^/clipper/api/changepasswords
+            stateless: true
+            anonymous: true
         # Clipper REST endpoints test page
         api_doc:
             pattern:  ^/clipper/api/doc
