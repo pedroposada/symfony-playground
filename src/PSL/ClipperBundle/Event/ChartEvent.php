@@ -23,6 +23,8 @@ class ChartEvent extends Event
   protected $data;
   //array output for graph
   protected $data_table = array();
+  // srting long title
+  protected $titleLong;
   
   //available "drilldown" option by survey_type
   protected static $drilldown_keys = array('countries', 'specialties', 'regions');
@@ -185,5 +187,15 @@ class ChartEvent extends Event
   public function getCountFiltered()
   {    
     return (int) $this->count_filtered;
+  }
+
+  public function setTitleLong($titleLong)
+  {
+    $this->titleLong = $titleLong;
+  }
+
+  public function getTitleLong()
+  {
+    return $this->titleLong;
   }
 }

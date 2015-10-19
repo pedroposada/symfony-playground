@@ -33,6 +33,9 @@ services:
   explode_tree:
     class: PSL\ClipperBundle\Utils\ExplodeTree
 
+  quota_map:
+    class: PSL\ClipperBundle\Utils\Quota
+
   survey_chart_map:
     class: PSL\ClipperBundle\Charts\SurveyChartMap
 
