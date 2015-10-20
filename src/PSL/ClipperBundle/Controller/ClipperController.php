@@ -35,6 +35,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
+use PSL\ClipperBundle\Utils\Quota as Quota;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
@@ -163,7 +164,7 @@ class ClipperController extends FOSRestController
       $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
       $form_data->survey_type = $paramFetcher->get('survey_type');
       $form_data->patient_type = $paramFetcher->get('patient_type');
-      $form_data->num_participants = 35; // hard coded for now
+      $form_data->num_participants = 35; // @TODO: change for quota
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
@@ -187,6 +188,8 @@ class ClipperController extends FOSRestController
           $form_data_object->ir = 10; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
+          // $quota = new Quota();
+          // $form_data_object->num_participants = $quota->lookupOne($market_value, $specialty_value, $default = 1);
 
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
@@ -199,14 +202,16 @@ class ClipperController extends FOSRestController
       }
 
       // Conversion function and return converted price with currency sign
-      $gs_result_total = $this->formatPrice($gs_result_total);
+      $gs_result_total_label = $this->formatPrice($gs_result_total);
 
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
 
       // build product response
       $returnObject['product']['price'] = $gs_result_total;
+      $returnObject['product']['price_label'] = $gs_result_total_label;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
+      $returnObject['product']['num_participants'] = $form_data->num_participants;
 
       // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
@@ -432,108 +437,148 @@ class ClipperController extends FOSRestController
    *
    * @requestparam(name="payment_method_nonce", default="", description="The Braintree payment nonce.")
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
-   * @requestparam(name="amount", default="", description="Amount of the project.")
+   * @requestparam(name="price", default="", description="price of the project.")
    * @requestparam(name="email", default="", description="Email of the client.")
    * @requestparam(name="method", default="", description="Payment method.")
+   * @requestparam(name="project_number", default="", description="Project number for paying with points.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
   public function postOrderProcessAction(ParamFetcher $paramFetcher)
   {
     $this->logger = $this->container->get('monolog.logger.clipper');
-
+    
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
 
-    // payment_method_nonce
+    // payment_method_nonce, not necessary
     $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
-
-    $amount = '100.00'; // string ex: 100.00
-    $email = $paramFetcher->get('email'); // not necessary
-    $method = $paramFetcher->get('method'); // not necessary
-
+    
+    $amount = $paramFetcher->get('price');
+    $method = $paramFetcher->get('method');
+    
+    // Get user id
+    $usr = $this->get('security.context')->getToken()->getUser();
+    $userid = $usr->getUserId();
+    
     // return error if empty
-    if (empty($firstq_group_uuid) || empty($payment_method_nonce)) {
+    if (empty($firstq_group_uuid)) {
       $message = 'Invalid request - missing parameters';
       return new Response($message, 400); // invalid request
     }
-
-    // Validate if firstq exists and is not processed yet
-    $em = $this->getDoctrine()->getManager();
-    $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
-    if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
-      $message = 'Error - FirstQ uuid is invalid';
-      return new Response($message, 400);
-    }
-
+        
     $parameters_clipper = $this->container->getParameter('clipper');
-
-    if ($method == 'INVOICE') {
-      if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
-        $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
-        $em->persist($firstq_group);
-        $em->flush();
-
-        $message = 'Order complete. Your payment will be via invoice.';
-        return new Response($message, 200);
-      } else {
-        $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
-        $em->persist($firstq_group);
-        $em->flush();
-
-        $message = 'Order pending. The order will be activated after payment.';
-        return new Response($message, 200);
-      }
-    }
-
-    // create the charge on Stripe's servers
-    // this will charge the user's card
+    
     try {
-      $parameters_clipper = $this->container->getParameter('clipper');
-
-      // @TODO: Use proper config according to country
-      $this->initBrainTree('uk');
-
-      $sale_params = array(
-        'amount' => $amount,
-        'paymentMethodNonce' => $payment_method_nonce
-      );
-
-      $result = \Braintree_Transaction::sale($sale_params);
-
-      // Check that it was paid:
-      if ($result->success == true) {
-
-      // TODO: CLIP-30.
-      // # Credit card
-      // 1. send email to client with sale’s info.
-      // 2. send email to FW Finance about the new sale with sale’s info.
-      //
-      // # Invoice and Points
-      // 1. send email to client with sale’s info and a message that the order
-      //    will be aproved.
-      // 2. send email to FW Finance about the new sale with sale’s info AND
-      //    also a link to the Admin UI for approval.
-      //
-      // # Redirect
-      // Redirect to Dashboard Active.
-
-      // Check that it was paid:
-        // change status to order complete and return ok for redirect
-        $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
-        $firstq_group->setOrderId($result->transaction->id);
+      
+      // Validate if firstq exists and is not processed yet
+      $em = $this->getDoctrine()->getManager();
+      $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
+      if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
+        $returnObject['message'] = 'Error - FirstQ uuid is invalid';
+        return new Response($returnObject, 400);
+      }
+      
+      // Invoice ------------------------------------------------------------------------------------
+      if ($method == 'INVOICE') {
+        
+        if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
+          $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+          $firstq_group->setUserId($userid);
+          $returnObject['message'] = 'Order complete. Your payment will be via invoice.';
+        } 
+        else {
+          $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
+          $firstq_group->setUserId($userid);
+          $returnObject['message'] = 'Order pending. The order will be activated after payment.';
+        }
+        
         $em->persist($firstq_group);
         $em->flush();
-
-        $firsq['fquuid'] = $firstq_group_uuid;
-        return new Response($firsq, 200);
+        return new Response($returnObject, 200);
       }
-      else {
-        // failed
-        $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
+      
+      // Points ------------------------------------------------------------------------------------
+      if ($method == 'POINTS') {
+        
+        // Validate the project number
+        $project_number = $paramFetcher->get('project_number');
+        $project_sub_number = substr($project_number, 0, 3);
+        if ($project_sub_number != $this->container->getParameter('payment.points.projectnumber')) {
+          $returnObject['message'] = 'Invalid project number';
+          return new Response($returnObject, 400); // invalid request
+        }
 
-        $message = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
-        return new Response($message, 400); // no content
+        $form_raw_data = $firstq_group->getFormDataRaw();
+        $form_raw_data = json_decode($form_raw_data, true);
+        $form_raw_data["project_number"] = $project_number;
+        
+        $firstq_group->setState($parameters_clipper['state_codes']['order_points']);
+        $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data, 'json'));
+        $em->persist($firstq_group);
+        $em->flush();
+        
+        $returnObject['message'] = 'Order pending. The order will be activated after payment.';
+        return new Response($returnObject, 200);
+      }
+      
+      // Credit ------------------------------------------------------------------------------------
+      if ($method == 'CREDIT') {
+        if (empty($payment_method_nonce)) {
+          $returnObject['message'] = 'Invalid request - missing parameters';
+          return new Response($returnObject, 400); // invalid request
+        }
+      
+        // create the charge on Braintree's servers
+        // this will charge the user's card
+        $parameters_clipper = $this->container->getParameter('clipper');
+  
+        // @TODO: Use proper config according to country
+        $this->initBrainTree('uk');
+  
+        $sale_params = array(
+          'amount' => $amount,
+          'paymentMethodNonce' => $payment_method_nonce
+        );
+  
+        $result = \Braintree_Transaction::sale($sale_params);
+  
+        // Check that it was paid:
+        if ($result->success == true) {
+  
+          // TODO: CLIP-30.
+          // # Credit card
+          // 1. send email to client with sale’s info.
+          // 2. send email to FW Finance about the new sale with sale’s info.
+          //
+          // # Invoice and Points
+          // 1. send email to client with sale’s info and a message that the order
+          //    will be aproved.
+          // 2. send email to FW Finance about the new sale with sale’s info AND
+          //    also a link to the Admin UI for approval.
+          //
+          // # Redirect
+          // Redirect to Dashboard Active.
+    
+          // Check that it was paid:
+          // change status to order complete and return ok for redirect
+          $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+          $firstq_group->setOrderId($result->transaction->id);
+          $firstq_group->setUserId($userid);
+          $em->persist($firstq_group);
+          $em->flush();
+  
+          $returnObject['fquuid'] = $firstq_group_uuid;
+          $returnObject['message'] = "";
+          return new Response($returnObject, 200);
+        }
+        else {
+          // failed
+          $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
+  
+          $returnObject['message'] = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
+          return new Response($message, 400); // no content
+        }
       }
     }
     catch (\Exception $e) {

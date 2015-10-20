@@ -70,3 +70,5 @@ parameters:
   # FW SSO
   fwsso_api.url:                              "[*fwsso_api.url*]"
   fwsso_api.app_token:                        "[*fwsso_api.app_token*]"
+  # Project number payment by points
+  payment.points.projectnumber:               "[*payment.points.projectnumber*]"
