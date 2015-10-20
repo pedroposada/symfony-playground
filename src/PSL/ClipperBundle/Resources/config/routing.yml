@@ -13,6 +13,12 @@ psl_clipper_exit:
   path:     /limesurvey/exit
   defaults: { _controller: PSLClipperBundle:Clipper:exit }
 
+# User Forgot Password route
+clipper_user_forgotpassword:
+  path:     /api/user/forgotpassword/{email}
+  defaults: { _controller: PSLClipperBundle:ClipperUser:forgotpassword }
+  methods: [GET]
+
 # Automatic routes
 clipper:
   type:     rest
@@ -22,7 +28,6 @@ clipper_user:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ClipperUserController
   prefix:   /api
-
 
 # FW SSO users
 api_login_check:

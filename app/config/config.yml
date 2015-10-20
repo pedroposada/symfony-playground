@@ -160,6 +160,7 @@ parameters:
       #firstq_group
       order_pending: ORDER_PENDING
       order_invoice: ORDER_INVOICE
+      order_points: ORDER_POINTS
       order_declined: ORDER_DECLINED
       order_complete: ORDER_COMPLETE
       order_closed: ORDER_CLOSED
@@ -178,6 +179,7 @@ parameters:
   clipper.conditions: Resources/terms/conditions.xml
   clipper.quota.universal: "1"
   
+  
   #limeSurvey
   limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]'
   limesurvey.url_exit: '%limesurvey.url_redirect_base%/clipper/limesurvey/exit'
@@ -186,8 +188,8 @@ parameters:
       
   #rpanel
   rpanel:
-    user_id: 7777
-    client_id: 8888
+    user_id: %rpanel.user_id%
+    client_id: %rpanel.client_id%
     default_table_values:
       proj_status: 1
       proj_type: 1

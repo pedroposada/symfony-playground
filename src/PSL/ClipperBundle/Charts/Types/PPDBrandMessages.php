@@ -100,6 +100,9 @@ class PPDBrandMessages extends ChartType {
     //sort by abstract key
     asort($dataTable);
     $dataTable = array_values($dataTable);
+
+    // "What does my brand represent to Promoters as compared to Detractors?"
+    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
     
     return $dataTable;
   }

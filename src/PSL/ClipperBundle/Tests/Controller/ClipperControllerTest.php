@@ -283,7 +283,7 @@ class ClipperControllerTest extends WebTestCase
         );
 
         // Assert invalid FirstQ uuid.
-        $postData = array('firstq_uuid' => 123, 'stripeToken' => 123, 'amount' => 123, 'email' => 'a@b.c');
+        $postData = array('firstq_uuid' => 123, 'payment_method_nonce' => 123, 'amount' => 123, 'email' => 'a@b.c');
         $postData = json_encode($postData);
 
         $this->authenticatedClient->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);

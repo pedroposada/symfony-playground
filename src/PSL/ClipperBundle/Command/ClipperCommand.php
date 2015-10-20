@@ -80,7 +80,14 @@ class ClipperCommand extends ContainerAwareCommand
         }
         catch (Exception $e) {
           $this->logger->debug("File: {$e->getFile()} - Line: {$e->getLine()}");
-          $this->logger->error($e->getMessage());
+          switch ($e->getCode()) {
+            case 2:
+              $this->logger->warning($e->getMessage());
+              break;
+            default:
+              $this->logger->error($e->getMessage());
+              break;
+          }
         }
         
       }

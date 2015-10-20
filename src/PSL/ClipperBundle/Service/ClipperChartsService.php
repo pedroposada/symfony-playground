@@ -2,8 +2,11 @@
 /**
  * PSL/ClipperBundle/Utils/ClipperChartsService.php
  *
- * Clipper Chart Class
+ * Clipper Chart Helper Class
  * This is the class is a General helper to Clipper Chart.
+ * 
+ * @uses  PSL/ClipperBundle/Controller/ChartsController.php
+ * @uses  PSL/ClipperBundle/Controller/DownloadsController.php
  *
  * @version 1.0
  * @date 2015-10-09
@@ -53,14 +56,17 @@ class ClipperChartsService {
     'datatable'     => 'getDataTable',
     'drilldown'     => 'getDrillDown',
     'filter'        => 'getFilters',
+    'titleLong'     => 'getTitleLong',
   );
 
-  public function __construct(ContainerInterface $container) {
+  public function __construct(ContainerInterface $container) 
+  {
     $this->container = $container;
     $this->em = $this->container->get('doctrine')->getManager();
   }
   
-  public function setOrderID($order_id) {
+  public function setOrderID($order_id) 
+  {
     $fqg = $this->em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
     if (empty($fqg)) {
       throw new Exception("FQG with id [{$order_id}] not found");
@@ -76,7 +82,8 @@ class ClipperChartsService {
     $this->survey_type = $survey_type;
   }
   
-  public function setDrillDown($drilldown = array(), $apply_to_specific_chart = array()) {
+  public function setDrillDown($drilldown = array(), $apply_to_specific_chart = array()) 
+  {
     //sanitize drilldown
     $drilldown = array_merge(
       array(
@@ -107,7 +114,8 @@ class ClipperChartsService {
     $this->return_charts_custom = (array) $return_charts_custom;
   }
   
-  public function getSurveyType() {
+  public function getSurveyType() 
+  {
     if (empty($this->order_id)) {
       throw new Exception("FQG id is undefined");
     }
@@ -158,7 +166,7 @@ class ClipperChartsService {
               $chart[$key] = $data;
             }
             else {
-              $chart[$key] = FALSE;
+              $chart[$key] = $mod;
             }
           }
         }
@@ -172,7 +180,16 @@ class ClipperChartsService {
     );
   }
   
-  private function prepProperties() {
+  public function getQuotas()
+  {
+    $markets     = $this->fqg->getFormDataByField('markets');
+    $specialties = $this->fqg->getFormDataByField('specialties');
+    // calculate "Estimated responses at completion" or global quota
+    return $this->container->get('quota_map')->lookupMultiple($markets, $specialties);
+  }
+  
+  private function prepProperties() 
+  {
     //defaulting fields
     if (empty($this->return_survey_fields)) {
       $this->return_survey_fields = array(

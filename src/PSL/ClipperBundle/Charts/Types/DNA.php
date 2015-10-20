@@ -64,6 +64,8 @@ class DNA extends ChartType {
       $dataTable[] = $data;
     }
 
+    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
+
     return $dataTable;
   }
 

@@ -66,6 +66,10 @@ class PromotersPromote extends ChartType {
         'competitors' => (empty($this->competitors[$brand]) ? new \stdClass() : $this->competitors[$brand]),
       );
     }
+
+    // "Amongst my promoters which is the most commonly promoted competitor?"
+    $event->setTitleLong("Amongst my promoters which is the most commonly promoted competitor?");
+
     return $dataTable;
   }
 

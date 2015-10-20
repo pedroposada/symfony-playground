@@ -14,3 +14,4 @@ app/config/parameters.ymlsrc/PSL/ClipperBundle/Resources/public/images/fwreports
 src/PSL/ClipperBundle/Resources/public/images/fwreports-second.xcf
 src/PSL/ClipperBundle/Resources/public/js/ls.js
 src/PSL/ClipperBundle/Resources/public/images/fwreports-second-orig.png
+src/PSL/ClipperBundle/Resources/public/admin-ui/js/app-config.js
