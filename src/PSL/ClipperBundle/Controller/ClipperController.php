@@ -455,6 +455,7 @@ class ClipperController extends FOSRestController
     $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
     
     $amount = $paramFetcher->get('price');
+    $amount = 100; //temp 
     $method = $paramFetcher->get('method');
     
     // Get user id
@@ -540,9 +541,9 @@ class ClipperController extends FOSRestController
           'amount' => $amount,
           'paymentMethodNonce' => $payment_method_nonce
         );
-  
+
         $result = \Braintree_Transaction::sale($sale_params);
-  
+
         // Check that it was paid:
         if ($result->success == true) {
   
@@ -574,10 +575,10 @@ class ClipperController extends FOSRestController
         }
         else {
           // failed
-          $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
-  
-          $returnObject['message'] = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
-          return new Response($message, 400); // no content
+          $this->logger->debug("Payment System Error : " . var_export($result->errors, true));
+          $returnObject['message'] = $result->message;
+          // $returnObject['message'] = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
+          return new Response($returnObject, 400);
         }
       }
     }
