@@ -515,6 +515,7 @@ class ClipperController extends FOSRestController
         
         $firstq_group->setState($parameters_clipper['state_codes']['order_points']);
         $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data, 'json'));
+        $firstq_group->setUserId($userid);
         $em->persist($firstq_group);
         $em->flush();
         

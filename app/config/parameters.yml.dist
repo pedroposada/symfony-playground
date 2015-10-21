@@ -7,7 +7,7 @@
 parameters:
   database_driver:                            "[*database_driver*]"
   database_host:                              "[*database_host*]"
-  database_port:                              "[database_port]"
+  database_port:                              "[*database_port*]"
   database_name:                              "[*database_name*]"
   database_user:                              "[*database_user*]"
   database_password:                          "[*database_password*]"
@@ -45,8 +45,6 @@ parameters:
   confirmation_emails.invoice.complete:       "[*confirmation_emails.invoice.complete*]"
   confirmation_emails.points.pending:         "[*confirmation_emails.points.pending*]"
   confirmation_emails.points.complete:        "[*confirmation_emails.points.complete*]"
-  fwsso_api.url:                              "[*fwsso_api_url*]"
-  fwsso_api.app_token:                        "[*fwsso_api_url*]"
   # braintree:
   braintree_uk.environment:                   "[*braintree_uk.environment*]"
   braintree_uk.merchant_id:                   "[*braintree_uk.merchant_id*]"

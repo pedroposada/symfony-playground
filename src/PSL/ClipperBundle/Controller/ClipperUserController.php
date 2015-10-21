@@ -431,7 +431,7 @@ class ClipperUserController extends FOSRestController
       
       // @TODO Set the correct path
       $fe = $container->getParameter('clipper.frontend.url');
-      $link = $fe . '/#fpr?ql=' . $ql_hash;
+      $link = $fe . '#fpr?ql=' . $ql_hash;
   
       // @TODO Set the subject, from and body
       $msg = \Swift_Message::newInstance()
