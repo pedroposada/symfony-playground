@@ -120,9 +120,24 @@ security:
             pattern:  ^/clipper/api/clipper/autocomplete
             stateless: true
             anonymous: true
+        # Clipper get braintree token
+        api_clienttoken:
+            pattern:  ^/clipper/api/client/token
+            stateless: true
+            anonymous: true
         # User create
         api_post_users:
             pattern:  ^/clipper/api/newusers
+            stateless: true
+            anonymous: true
+        # Post Forgot Password
+        api_forgotpasswords:
+            pattern:  ^/clipper/api/forgotpasswords
+            stateless: true
+            anonymous: true
+        # Post Change Password
+        api_changepasswords:
+            pattern: ^/clipper/api/changepasswords
             stateless: true
             anonymous: true
         # Clipper REST endpoints test page

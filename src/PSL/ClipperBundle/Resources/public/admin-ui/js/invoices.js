@@ -37,7 +37,6 @@ function getInvoiceList(status) {
       $('#loading-spinner').show();
     },
     success: function(data) {
-      
       $('#loading-spinner').fadeOut(200, function() {
         $('#dataTable-invoices').fadeIn(200);
         displayTable(data, status);
@@ -131,6 +130,7 @@ function displayTable(data, status) {
       var row = $(row_template);
       row.attr('id', value.id);
       row.find('.client-info').html(userInfo);
+      row.find('.project-number').html(value.project_number);
       row.find('.project-type').html(value.name);
       row.find('.project-title').html(value.title);
       row.find('.project-details').html(detailTemplate);

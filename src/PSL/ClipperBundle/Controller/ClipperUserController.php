@@ -320,44 +320,142 @@ class ClipperUserController extends FOSRestController
   }
   
   /**
-   * Send user password retrieval link.
+   * Change user password.
    *
-   * /api/user/forgotpassword/{user}
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
    *
-   * @param string $user The user to retrieve the password for.
+   * @param ParamFetcher $paramFetcher Paramfetcher
    *
-   * @return \Symfony\Component\HttpFoundation\Response
+   * @requestparam(name="username", default="", description="Username of the client.") 
+   * @requestparam(name="password", default="", description="Password of the client.") 
    */
-  public function forgotpasswordAction($email)
+  public function postChangepasswordsAction(ParamFetcher $paramFetcher)
   {
-    $container = $this->container;
     
-    $user = new FWSSOQuickLoginUser($email, '', array());
-    $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
-    $ql_hash = $user->getQuickLoginHash($encKey);
+    $container = $this->container;
 
-    // @TODO Set the correct path
-    $fe = $container->getParameter('clipper.frontend.url');
-    $link = $fe . '/#forgotpassword/' . $ql_hash;
+    $username = $paramFetcher->get('username');
+    $password = $paramFetcher->get('password');
 
-    // @TODO Set the subject, from and body
-    $msg = \Swift_Message::newInstance()
-      ->setSubject('Recover password')
-      ->setFrom('noreply@clipper.com')
-      ->setTo($email)
-      ->setBody($this->renderView('PSLClipperBundle:Clipper:forgotpassword.html.twig', array(
-          'link' => $link
-        )), 'text/html');
+    $retHeaders = array( 'Content-Type' => 'application/json' );
 
-    $this->get('mailer')->send($msg);
+    // Get the user object, we need uid for change password
+    $fwsso_ws = $this->fwsso_ws();
+    $response = $fwsso_ws->getUser(array('uid'=>$username));
+    if ($response->isOk()) {
+      $user = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        // Return operation specific error
+        $retObj = array(
+          'error_message' => 'User - JSON decode error: ' . json_last_error(),
+        );
+        $retCode = 500;
+        $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
+        return $response;
+      }
+    } else {
+      throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
+    }
+
+    // Change Password 
+    if (isset($user['uid']) && !empty($user['uid'])) {
+      $update_pass = array(
+        'uid' => $user['uid'],
+        'pass' => $password,
+        'signature' => time(),
+      );
+    }
+
+    $response = $fwsso_ws->changePassword($update_pass);
+    if ($response->isOk()) {
+      $content = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        // Return operation specific error
+        $retObj = array(
+          'error_message' => 'Content - JSON decode error: ' . json_last_error(),
+        );
+        $retCode = 500;
+        $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
+        return $response;
+      }
+    } else {
+      throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
+    }
 
     $retObj = array(
-      'message' => 'Password recovery mail sent to "' . $email . '".'
+      'message' => $content,
+      'status' => 200,
     );
     $retHeaders = array( 'Content-Type' => 'application/json' );
     $retCode = 200;
     $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
     return $response;
+
+  }
+
+  /**
+   * Send user password retrieval link.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *  
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   * 
+   * @requestparam(name="email", default="", description="Email of the client.")
+   */
+  public function postForgotpasswordAction(ParamFetcher $paramFetcher)
+  {
+    // Object to return to remote form
+    $returnObject = array();
+    $responseStatus = 200;
+    
+    try {
+      $container = $this->container;
+      
+      $email = $paramFetcher->get('email');
+      
+      $user = new FWSSOQuickLoginUser('', $email, '', array());
+      $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
+      $ql_hash = $user->getQuickLoginHash($encKey);
+      
+      // @TODO Set the correct path
+      $fe = $container->getParameter('clipper.frontend.url');
+      $link = $fe . '#fpr?ql=' . $ql_hash;
+  
+      // @TODO Set the subject, from and body
+      $msg = \Swift_Message::newInstance()
+        ->setSubject('Recover password')
+        ->setFrom('noreply@clipper.com')
+        ->setTo($email)
+        ->setBody($this->renderView('PSLClipperBundle:Clipper:forgotpassword.html.twig', array(
+            'link' => $link
+          )), 'text/html');
+  
+      $this->get('mailer')->send($msg);
+      
+      // return message
+      $returnObject['message'] = 'Password recovery mail sent to "' . $email . '".';
+    }
+    catch (\Exception $e) {
+      $this->logger = $this->container->get('monolog.logger.clipper');
+      // Return operation specific error
+      $returnObject['error_message'] =  $e->getMessage();
+      $responseStatus = 400;
+      $this->logger->debug("General exception: {$e}");
+    }
+    
+    return new Response($returnObject, $responseStatus);
   }
   
   /**
