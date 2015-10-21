@@ -43,7 +43,7 @@ class Assembler
     $event->setChartMachineName($machine_name);
     $event->setFilters($drilldown);
     $fqg = $this->em->getReference('PSLClipperBundle:FirstQGroup', $order_id);
-    $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg);
+    $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg, array('updated' => 'DESC'));
     $responses = new ArrayCollection($responses);
     $event->setCountTotal($responses->count());
     

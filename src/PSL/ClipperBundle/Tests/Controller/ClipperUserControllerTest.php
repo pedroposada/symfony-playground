@@ -76,6 +76,8 @@ class ClipperUserControllerTest extends WebTestCase
         $content = $this->authenticatedClient->getResponse()->getContent();
         $content = json_decode($content, true);
 
+        $this->assertArrayHasKey('user', $content['content']);
+
         $this->assertEquals(
             $result['firstname'],
             $content['content']['user']['field_firstname']['und'][0]['value']
