@@ -16,3 +16,4 @@ src/PSL/ClipperBundle/Resources/public/js/ls.js
 src/PSL/ClipperBundle/Resources/public/images/fwreports-second-orig.png
 src/PSL/ClipperBundle/Resources/public/admin-ui/js/app-config.js
 app/Resources/users.yml
+app/Resources/invoice_whitelist.yml
