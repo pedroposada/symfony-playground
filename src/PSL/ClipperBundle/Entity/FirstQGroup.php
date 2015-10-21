@@ -372,6 +372,7 @@ class FirstQGroup
         $firstq_formatted = array();
         $firstq_formatted['id'] = $this->id;
         $firstq_formatted['title'] = $form_data['title']; // user generated
+        $firstq_formatted['project_number'] = isset($form_data['project_number']) ? $form_data['project_number'] : 'project_number';
         $firstq_formatted['name'] = $form_data['name']; // folio type
         $firstq_formatted['patient_type'] = $form_data['patient_type']; // user generated
         $firstq_formatted['num_participants'] = $form_data['num_participants'];

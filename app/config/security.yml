@@ -120,6 +120,11 @@ security:
             pattern:  ^/clipper/api/clipper/autocomplete
             stateless: true
             anonymous: true
+        # Clipper get braintree token
+        api_clienttoken:
+            pattern:  ^/clipper/api/client/token
+            stateless: true
+            anonymous: true
         # User create
         api_post_users:
             pattern:  ^/clipper/api/newusers
