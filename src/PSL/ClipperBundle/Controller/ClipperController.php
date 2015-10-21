@@ -585,8 +585,8 @@ class ClipperController extends FOSRestController
     catch (\Exception $e) {
       // Something messed up
       $this->logger->debug("exception: {$e}");
-      $message = "Error - Please try again. {$e}";
-      return new Response($message, 400); // Error
+      $returnObject['message'] = "Error - Please try again. {$e}";
+      return new Response($returnObject, 400); // Error
     }
 
   }

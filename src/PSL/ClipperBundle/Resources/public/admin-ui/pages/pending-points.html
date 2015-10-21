@@ -37,11 +37,12 @@
 <script id="invoice-row-template" type="text/template">
   <tr class="tr-row">
     <td><div class="client-info"></div></td>
+    <td><div class="project-number"></div></td>
     <td><div class="project-type"></div></td>
     <td><div class="project-title"></div></td>
     <td><div class="project-details"></div></td>
     <td><div class="project-price"></div></td>
-    <td><div class="project-user"></div></td>
+    <td class="th-hide"><div class="project-user"></div></td>
     <td><div class="project-time"></div></td>
     <td><div class="table-actions"><span data-fquuid="" class="accept-button">Accept</span> | <span data-fquuid="" class="decline-button">Decline</span></div></td>
   </tr>
@@ -142,6 +143,7 @@
                   <thead>
                     <tr>
                       <th>Client info</th>
+                      <th>Project number</th>
                       <th>Project type</th>
                       <th>Project title</th>
                       <th>Details</th>
