@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Clipper Controller
+ * Main Clipper Charts Controller
  */
 
 namespace PSL\ClipperBundle\Controller;
@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\VarDumper;
 use Symfony\Component\Config\FileLocator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -40,12 +41,21 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class ChartsController extends FOSRestController
 {
+  private $survey_type;
+
   private static $js_charttype_postfix = '_Chart';
-  
+
   /**
+   * This endpoint renders charts in its template.
    * /clipper/charts
    *
    * @param ParamFetcher $paramFetcher
+   *
+   * @deprecated This endpoint no longer viable on new presentation layer. 
+   * - @see chartsReactAction() 
+   * - @uses postReactAction()
+   * - @uses \ClipperChartsService
+   * @TODO: Remove this
    *
    * @QueryParam(name="order_id", default="(empty)", description="FirstQGroup UUID")
    * @QueryParam(name="params", default="(empty)", description="Array of optional filters")
@@ -58,8 +68,8 @@ class ChartsController extends FOSRestController
     $survey_type = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id)->getFormDataByField('survey_type');
     $survey_type = reset($survey_type);
     $map = $this->container->get('survey_chart_map')->map($survey_type);
-    $assembler = $this->container->get('chart_assembler');    
-    
+    $assembler = $this->container->get('chart_assembler');
+
     foreach ($map['machine_names'] as $machine_name) {
       try {
         $placeholders = array(
@@ -71,7 +81,7 @@ class ChartsController extends FOSRestController
         // Do something, maybe?
       }
     }
-    
+
     return $this->render("PSLClipperBundle:Charts:charts.html.twig", array('charts' => $charts));
   }
 
@@ -86,12 +96,12 @@ class ChartsController extends FOSRestController
   public function chartsReactAction(ParamFetcher $paramFetcher)
   {
     $order_id = $paramFetcher->get('order_id');
-    
+
     return $this->render("PSLClipperBundle:Charts:charts-react.html.twig", array(
       'order_id' => $order_id,
     ));
   }
-  
+
   /**
    * @ApiDoc(
    *   resource=true,
@@ -108,7 +118,7 @@ class ChartsController extends FOSRestController
    *    {"name"="specialty", "dataType"="string"},
    *  }
    * )
-   * 
+   *
    * /clipper/charts/reacts
    *
    * @param Request $request the request object
@@ -119,7 +129,7 @@ class ChartsController extends FOSRestController
   {
     $content = null;
     $code = 200;
-    
+
     try {
       $order_id = $request->request->get('order_id');
       $chartmachinename = $request->request->get('chartmachinename', '');
@@ -128,41 +138,38 @@ class ChartsController extends FOSRestController
         'region'    => $request->request->get('region', ''),
         'specialty' => $request->request->get('specialty', ''),
       );
-      $charts = new ArrayCollection();
-      $em = $this->container->get('doctrine')->getManager();
-      $fqg = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
-      if (!$fqg) {
-        throw new Exception("FQG with id [{$order_id}] not found");
-      }
-      
-      $survey_type = current($fqg->getFormDataByField('survey_type'));
-      $map = $this->container->get('survey_chart_map')->map($survey_type);
-      $assembler = $this->container->get('chart_assembler');
-
-      foreach ($map['machine_names'] as $index => $machine_name) {
-        $drilldown = $chartmachinename == $machine_name ? $filters : array();
-        $chEvent = $assembler->getChartEvent($order_id, $machine_name, $survey_type, $drilldown);
-        $chart = array(
-          'chartmachinename' => $machine_name,
-          'charttype'        => $machine_name . self::$js_charttype_postfix,
-          'drilldown'        => $chEvent->getDrillDown(),
-          'filter'           => $chEvent->getFilters(),
-          'countTotal'       => $chEvent->getCountTotal(),
-          'countFiltered'    => $chEvent->getCountFiltered(),
-          'datatable'        => $chEvent->getDataTable(),
-          'header'           => 'Maecenas faucibus mollis interdum.',
-          'footer'           => 'Cras mattis consectetur purus sit amet fermentum.',
-          'titleLong'        => $chEvent->getTitleLong(),
-        );
-        $charts->add($chart);
-      }
-
+      // getting chart
+      $charts_helper = $this->container->get('chart_helper');
+      $charts_helper->setOrderID($order_id);
+      $charts_helper->setDrillDown($filters, $chartmachinename);
+      $charts_helper->setReturnFields(array(
+        'survey_type',
+        'name_full',
+      ));
+      $charts_helper->setReturnChartExtras(array(
+        'chartmachinename',
+        'drilldown',
+        'filter',
+        'countTotal',
+        'countFiltered',
+        'datatable',
+        'titleLong',
+      ));
+      $charts_helper->setReturnChartCustoms(array(
+        'charttype' => '%%machine_name%%' . self::$js_charttype_postfix,
+        // TODO: [static] this should be within chart helper
+        'header'    => 'Maecenas faucibus mollis interdum.',
+        'footer'    => 'Cras mattis consectetur purus sit amet fermentum.',
+      ));
+      // process charts & field required
+      $content = $charts_helper->getCharts();
+      $this->survey_type = $content['fields']['survey_type'];
       // calculate "Estimated responses at completion" or global quota
-      $quotas = $this->container->get('quota_map')->lookupMultiple($fqg->getFormDataByField('markets'), $fqg->getFormDataByField('specialties'));
-
-      $first = $charts->first();
+      $quotas = $charts_helper->getQuotas();
+      // TODO: [static] this should be within chart helper
+      $first = $content['charts']->first();
       $content['meta'] = array(
-        "projectTitle"      => current($fqg->getFormDataByField('name_full')), 
+        "projectTitle"      => $content['fields']['name_full'], 
         "totalResponses"    => $first['countTotal'],
         "quota"             => array_sum($quotas),
         "finalReportReady"  => "2015-10-13 9:00pm EST",
@@ -178,13 +185,13 @@ class ChartsController extends FOSRestController
           ),
         ),
       );  
-      $content['charts'] = $charts;
+      unset($content['fields']);
     }
     catch(Exception $e) {
       $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
       $code = 204;
     }
-    
+
     return new Response($content, $code);
   }
 }

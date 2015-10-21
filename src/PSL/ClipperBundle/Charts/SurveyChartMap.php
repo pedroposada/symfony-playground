@@ -51,6 +51,18 @@ final class SurveyChartMap
           'G008Q001',
           'G009Q001'
         ),
+        //Extra for export
+        //-> Chart 4 / Table 4
+        'PromotersPromoteMean'     => 'G003Q001',
+        //-> Chart X / Table 9-16
+        'PPDBrandMessagesByBrands' => array(
+          'G0010Q001',
+          'G0011Q001',
+          'G0012Q001',
+          'G0013Q001',
+          'G0014Q001',
+          'G0015Q001',
+        ),
       ), //nps_plus
     );
 

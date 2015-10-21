@@ -31,6 +31,7 @@ class NPS extends ChartType
     //prep structure
     $dataTable = array_combine($this->brands, array_fill(0, count($this->brands), array(
       'brand'      => '',
+      'base'       => 0,
       'detractors' => 0,
       'passives'   => 0,
       'promoters'  => 0,
@@ -40,12 +41,24 @@ class NPS extends ChartType
     array_walk($dataTable, function(&$set, $brand) use (&$rows) {
       $set['brand'] = $brand;
       if (!empty($rows[$brand])) {
+        //identify not-aware count
+        //All responses who are aware of the brands; $answer > 0
+        $not_aware = 0;
+        if (!empty($rows[$brand]['detractor'])) {
+          $base = array_values($rows[$brand]['detractor']);
+          $base = array_filter($base);
+          $not_aware = (count($rows[$brand]['detractor']) - count($base));
+        }
+
         //calculation
         $detractor = $passive = $promoter = 0;
         foreach (array('detractor', 'passive', 'promoter') as $type) {
           $$type  = (isset($rows[$brand][$type]) ? count($rows[$brand][$type]) : 0);
         }
         $total = array_sum(array($promoter, $passive, $detractor));
+
+        //update base
+        $set['base'] = ($total - $not_aware);
 
         //formating
         foreach (array('detractor', 'passive', 'promoter') as $type) {
@@ -57,7 +70,6 @@ class NPS extends ChartType
         unset($rows[$brand]);
       }
     });
-
     //remove keys
     $dataTable = array_values($dataTable);
 
@@ -91,7 +103,7 @@ class NPS extends ChartType
       $category = $this->identifyRespondentCategory($answers[$brand]);
       // set values in rows
       $lstoken = $response->getLsToken();
-      $rows["{$brand}/{$category}/{$lstoken}"] = $lstoken;
+      $rows["{$brand}/{$category}/{$lstoken}"] = $answers[$brand];
     }
   }
 }

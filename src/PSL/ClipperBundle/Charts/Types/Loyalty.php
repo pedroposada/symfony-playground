@@ -13,6 +13,9 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class Loyalty extends ChartType {
   private $respondent = array();
+  //All responses who are aware of the brands
+  // $answer > 0
+  private $base       = array();
   private $brands_results;
 
   /**
@@ -33,8 +36,11 @@ class Loyalty extends ChartType {
     //prep brands_results structure
     $this->brands_results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
     
+    //prep base structure
+    $this->base = array_combine($this->brands, array_fill(0, count($this->brands), 0));
+    
     //prep structure
-    $dataTable = array('mean' => 0, 'brands' => array());
+    $dataTable = array('mean' => 0, 'base' => 0, 'brands' => array());
     
     //stop if no responses
     if (empty($event->getCountFiltered())) {
@@ -60,13 +66,17 @@ class Loyalty extends ChartType {
       $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
     }
 
+    $this->respondent = array();
+    
     //sorting
     arsort($this->brands_results);
      
     $dataTable['mean'] = $this->roundingUpValue($overall_avg, TRUE);
+    $dataTable['base'] = array_sum($this->base);
     foreach ($this->brands_results as $brand => $loyalty) {
       $dataTable['brands'][] = array(
         'brand'   => $brand,
+        'base'    => $this->base[$brand],
         'loyalty' => $this->roundingUpValue($loyalty, TRUE),
       );
     }
@@ -134,6 +144,10 @@ class Loyalty extends ChartType {
         $this->respondent[$lstoken] = array();
       }
       $this->respondent[$lstoken][$brand] = $answers[$brand];
+      //capture base
+      if (!empty($answers[$brand])) {
+        $this->base[$brand]++;
+      }
     }
 
     //convert brand into score by each respondent

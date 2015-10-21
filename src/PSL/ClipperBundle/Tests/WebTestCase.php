@@ -3,6 +3,10 @@
 namespace PSL\ClipperBundle\Tests;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\StreamOutput;
 
 /**
  * WebTestCase partly taken from Acme Bundle and Liip.
@@ -44,22 +48,24 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     protected function setUp()
     {
-        // Add all your fixtures classes that implement
-        // Doctrine\Common\DataFixtures\FixtureInterface
-        $this->loadFixtures(array(
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
-        ));
-
-        // $this->fixtures = $this->loadFixtures([
-        //     'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
-        // ])->getReferenceRepository();
+        $this->reloadFixture();
 
         $this->client = static::makeClient();
         $this->container = $this->client->getContainer();
         $this->params = $this->container->getParameter('clipper');
         $this->dispatcher = $this->container->get('event_dispatcher');
         $this->authenticatedClient = static::createAuthenticatedClient('uuser', 'userpass');
+    }
+    
+    protected function reloadFixture()
+    {
+        // Add all your fixtures classes that implement
+        // Doctrine\Common\DataFixtures\FixtureInterface
+        $this->loadFixtures(array(
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
+            'PSL\ClipperBundle\DataFixtures\ORM\LoadLimeSurveyResponse',
+        ));   
     }
 
     /**
@@ -177,5 +183,68 @@ abstract class WebTestCase extends BaseWebTestCase
             ),
             $content
         );
+    }
+    
+    /**
+     * Method to query 1 latest FirstQGroup entity.
+     * @method getLatestFirstQGroup
+     *
+     * @param  string $survey_type
+     *   Survey type; nps_plus
+     *   
+     * @param  string $order_status
+     *   Order state; ORDER_COMPLETE
+     *   
+     * @param  boolean|string $return_one
+     *   FALSE; will return the whole FirstQGroup
+     *   string; refer to function for "get" an attribute of entity
+     *
+     * @return mixed
+     */
+    public function getLatestFirstQGroup($survey_type, $order_status, $return_one = FALSE) {
+      $em = $this->container->get('doctrine')->getManager();
+      
+      $group =  $em->getRepository("PSLClipperBundle:FirstQGroup")->createQueryBuilder('fqg')
+                   ->where('fqg.state = :state')
+                   ->andWhere('fqg.formDataRaw LIKE :raw_like')
+                   ->orderBy('fqg.updated', 'DESC')
+                   ->setParameter('state', $order_status)
+                   ->setParameter('raw_like', '%"survey_type":"' . $survey_type . '%')
+                   ->getQuery()
+                   ->getSingleResult();
+
+      if (!empty($return_one) && ($return_one !== FALSE)) {
+        try {
+          $return_one = "get{$return_one}";
+          return $group->$return_one();
+        } catch (Exception $e) {
+          //continue
+        }
+      }
+      return $group;
+    }
+    
+    /**
+     * Runs a command and returns it output
+     */
+    public function runCommand(Client $client, $command)
+    {
+        $application = new Application($client->getKernel());
+        $application->setAutoExit(false);
+
+        $fp = tmpfile();
+        $input = new StringInput($command);
+        $output = new StreamOutput($fp);
+
+        $application->run($input, $output);
+
+        fseek($fp, 0);
+        $output = '';
+        while (!feof($fp)) {
+            $output = fread($fp, 4096);
+        }
+        fclose($fp);
+
+        return $output;
     }
 }
