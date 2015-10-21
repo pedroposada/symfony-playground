@@ -106,7 +106,7 @@ class DownloadsController extends Controller
       'datatable',
     ));
     if (empty($this->survey_type)) {
-      $this->survey_type = $charts_helper->getSurveyType();;
+      $this->survey_type = $charts_helper->getSurveyType();
     }
     $charts_data = $charts_helper->getCharts();
     return $charts_data['charts'];

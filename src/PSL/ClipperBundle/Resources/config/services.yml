@@ -183,12 +183,12 @@ services:
   #@TODO: remove this
   clipper.download.nps_plus_dev:
     class: PSL\ClipperBundle\Downloads\Types\NPSPlusDev
-    arguments: ["@service_container", "NPSPlusDev"]
+    arguments: ["@service_container", "nps_plus", "dev"]
     tags:
        - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }
 
   clipper.download.nps_plus_excel:
     class: PSL\ClipperBundle\Downloads\Types\NPSPlusExcel
-    arguments: ["@service_container", "NPSPlusExcel"]
+    arguments: ["@service_container", "nps_plus", "xls"]
     tags:
        - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }

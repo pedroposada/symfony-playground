@@ -18,81 +18,94 @@ use PSL\ClipperBundle\Tests\WebTestCase;
 class DownloadProcessOnDownloadTest extends WebTestCase
 {
   /**
-   * Test Download Event Dispatcher Name.
-   * @method  testGetDispatcherEventName
+   * Test Download Event Type & Download to not throw errors.
+   * @method  testDownloadEventThrow
    *
-   * @dataProvider dataGetDispatcherEventName
+   * @dataProvider dataDownloadEventThrow
    */
-  public function testGetDispatcherEventName($data, $result)
+  public function testDownloadEventThrow($data)
   {
+    $default = array(
+      'survey_type'   => '',
+      'download_type' => '',
+    );
+    $data = array_merge($default, $data);
+
     $event = new DownloadEvent();
-    $event->setSurveyType($data['survey_type']);
-    $event->setDownloadType($data['download_type']);
-    $event->setDispatcherEventName();
-    $dispatcherEventName = $event->getDispatcherEventName();
-    $this->assertNotEmpty($dispatcherEventName);
-    $this->assertEquals($result['dispatcher-event-name'], $dispatcherEventName);
+    $error = '';
+    try {
+      $event->setSurveyType($data['survey_type']);
+      $event->setDownloadType($data['download_type']);
+    }
+    catch (\Exception $e) {
+      $error = $e->getMessage();
+      $this->fail("Download event render fail and throw: '{$error}' with args: '{$data}'.");
+      return;
+    }
+    $this->assertEmpty($error);
   }
 
   /**
-   * Provider for testGetDispatcherEventName
-   * @method dataGetDispatcherEventName
+   * Provider for testDownloadEventThrow
+   * @method dataDownloadEventThrow
    *
-   * @TODO: remove dev download_type
    * @return array
    */
-  public function dataGetDispatcherEventName()
+  public function dataDownloadEventThrow()
   {
     return array(
-      'Event with NPS Plus for JSON.'        => array(
+      'Event with support arg 001.' => array(  // TODO: remove
         array(
           'survey_type'   => 'nps_plus',
           'download_type' => 'dev',
-        ),
-        array(
-          'dispatcher-event-name' => 'NPSPlusDev',
-        ),
+        )
       ),
-      'Event with NPS Plus for Excel.'        => array(
+      'Event with support arg 002.' => array(
         array(
           'survey_type'   => 'nps_plus',
           'download_type' => 'xls',
-        ),
-        array(
-          'dispatcher-event-name' => 'NPSPlusExcel',
-        ),
+        )
       ),
     );
   }
 
   /**
-   * Test Download Event Dispatcher Name Triggering Errors.
-   * @method  testGetDispatcherEventNameError
-   * @dataProvider dataGetDispatcherEventNameError
-   * @expectedException Exception
+   * Test Download Event Type & Download to throw errors.
+   * @method  testDownloadEventThrowError
+   *
+   * @dataProvider dataDownloadEventThrowError
    */
-  public function testGetDispatcherEventNameError($data)
+  public function testDownloadEventThrowError($data)
   {
+    $default = array(
+      'survey_type'   => '',
+      'download_type' => '',
+    );
+    $data = array_merge($default, $data);
+
     $event = new DownloadEvent();
-    if (isset($data['survey_type'])) {
+    $error = '';
+    try {
       $event->setSurveyType($data['survey_type']);
-    }
-    if (isset($data['download_type'])) {
       $event->setDownloadType($data['download_type']);
     }
-    $event->setDispatcherEventName();
+    catch (\Exception $e) {
+      $error = $e->getMessage();
+      $this->assertContains('Unsupported ', $error);
+      return;
+    }
 
-    $dispatcherEventName = $event->getDispatcherEventName();
-    $this->assertEmpty($dispatcherEventName);
+    $data = json_encode($data);
+    $this->fail("Download event fails to throw error for: '{$data}'.");
   }
 
   /**
-   * Provider for testGetDispatcherEventNameError
-   * @method dataGetDispatcherEventNameError
+   * Provider for testDownloadEventThrowError
+   * @method dataDownloadEventThrowError
    *
    * @return array
    */
-  public function dataGetDispatcherEventNameError()
+  public function dataDownloadEventThrowError()
   {
     return array(
       'Event with no required attributes.'        => array(
@@ -106,8 +119,8 @@ class DownloadProcessOnDownloadTest extends WebTestCase
       ),
       'Event with non-supported Download type.'   => array(
         array(
-          'survey_type'   => 'other_survey_type',
-          'download_type' => 'csv',
+          'survey_type'   => 'nps_plus',
+          'download_type' => 'doc',
         )
       ),
     );

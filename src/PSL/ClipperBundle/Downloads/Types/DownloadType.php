@@ -14,12 +14,14 @@ abstract class DownloadType
   protected $logger;
 
   //Event variables
-  protected $survey_machine_name;
+  protected $survey_type;
+  protected $download_type;
 
-  public function __construct(ContainerInterface $container, $survey_machine_name) {
+  public function __construct(ContainerInterface $container, $survey_type, $download_type) {
     $this->container           = $container;
     $this->logger              = $container->get('monolog.logger.clipper');
-    $this->survey_machine_name = $survey_machine_name;
+    $this->survey_type   = $survey_type;
+    $this->download_type = $download_type;
   }
 
   /**
@@ -32,9 +34,9 @@ abstract class DownloadType
    * @return void
    */
   public function onDownload(DownloadEvent $event, $eventName, EventDispatcherInterface $dispatcher) {    
-    if ($event->getDispatcherEventName() == $this->survey_machine_name) {
+    if (($event->getSurveyType() == $this->survey_type) && ($event->getDownloadType() == $this->download_type)) {
       $this->logger->debug("eventName: {$eventName}");
-      
+            
       $event->setFile($this->exportFile($event));      
     }
   }

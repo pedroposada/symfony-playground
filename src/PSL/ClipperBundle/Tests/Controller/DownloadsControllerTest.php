@@ -2,7 +2,7 @@
 /**
  * PHPUnit Test
  * Download Controller, Event & Output Component Tests
- * 
+ *
  * Download Controller
  * src/PSL/ClipperBundle/Controller/DownloadsController.php
  *
@@ -52,7 +52,6 @@ class DownloadsControllerTest extends WebTestCase
     $client->request('GET', $download_uri, array(
       'order_id' => $order_id,
       'type'     => 'dev',
-      'time'     => time(),
     ));
     $response = $client->getResponse();
     $client->restart();
@@ -70,11 +69,9 @@ class DownloadsControllerTest extends WebTestCase
 
     //Content validation
     $this->assertArrayHasKey('survey_type', $content);
-    $this->assertArrayHasKey('machine_name', $content);
     $this->assertArrayHasKey('complete', $content['data']);
     $this->assertArrayHasKey('available-drilldown', $content['data']);
     $this->assertArrayHasKey('available-brands', $content['data'], 'Test survey group not have any respondent.');
-    $this->assertArrayHasKey('available-charts', $content['data']);
     $this->assertArrayHasKey('available-charts', $content['data']);
     $this->assertArrayHasKey('charts-table-map', $content['data']);
     $this->assertArrayHasKey('filtered', $content['data']);
@@ -82,7 +79,6 @@ class DownloadsControllerTest extends WebTestCase
     //Content specific validation
     $this->assertSame($order_id, $content['order-id']);
     $this->assertSame('nps_plus', $content['survey_type']);
-    $this->assertSame('NPSPlusDev', $content['machine_name']);
   }
 
   /**
@@ -100,7 +96,6 @@ class DownloadsControllerTest extends WebTestCase
     $this->client->request('GET', $download_uri, array(
       'order_id' => $order_id,
       'type'     => 'xls',
-      'time'     => time(),
     ));
     $response = $this->client->getResponse();
     $this->client->restart();
@@ -130,7 +125,6 @@ class DownloadsControllerTest extends WebTestCase
     $client->request('GET', $download_uri, array(
       'order_id' => $order_id,
       'type'     => 'csv',
-      'time'     => time(),
     ));
     $response = $client->getResponse();
     $client->restart();

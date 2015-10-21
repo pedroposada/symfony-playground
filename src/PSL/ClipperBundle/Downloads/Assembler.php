@@ -43,7 +43,6 @@ class Assembler
     $event->setOrderId($order_id);
     $event->setSurveyType($survey_type);
     $event->setDownloadType($download_type);
-    $event->setDispatcherEventName();
     $event->setRawData($raw_data);
     $this->dispatcher->dispatch(ClipperEvents::DOWNLOAD_PROCESS, $event);
 

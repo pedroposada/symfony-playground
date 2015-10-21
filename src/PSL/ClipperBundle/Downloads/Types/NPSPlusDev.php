@@ -36,7 +36,6 @@ class NPSPlusDev extends DownloadType
     return array(
       'order-id'     => $order_id,
       'survey_type'  => $survey_type,
-      'machine_name' => $this->survey_machine_name,
       'data'         => $this->data,
     );
   }

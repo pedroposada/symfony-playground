@@ -18,13 +18,15 @@ class DownloadEvent extends Event
   //array pool of charts API data with other details
   protected $raw_data;
   
+  // for validation: add this reference as more SurveyType added
   private static $survey_type_map = array(
-    'nps_plus' => 'NPSPlus',
+    'nps_plus',
   );
   
+  // for validation: add this reference as more DownloadType supported
   private static $download_type_map = array(
-    'dev' => 'Dev', // @TODO: remove this
-    'xls' => 'Excel',
+    'dev', // @TODO: remove this
+    'xls',
   );
 
   public function setOrderId($order_id)
@@ -39,6 +41,9 @@ class DownloadEvent extends Event
 
   public function setSurveyType($survey_type)
   {
+    if (!in_array($survey_type, self::$survey_type_map)) {
+      throw new \Exception("Unsupported survey type: '{$survey_type}'.");      
+    }
     $this->survey_type = $survey_type;
   }
 
@@ -49,7 +54,7 @@ class DownloadEvent extends Event
 
   public function setDownloadType($download_type)
   {
-    if (!isset(self::$download_type_map[$download_type])) {
+    if (!in_array($download_type, self::$download_type_map)) {
       throw new \Exception("Unsupported download type: '{$download_type}'.");      
     }
     $this->download_type = $download_type;    
@@ -58,36 +63,6 @@ class DownloadEvent extends Event
   public function getDownloadType()
   {
     return $this->download_type;
-  }
-
-  public function setDispatcherEventName()
-  {
-    $vars = array(
-      'survey_type'   => 'Survey type string',
-      'download_type' => 'Download type string'
-    );
-
-    $dispatcherEventName = array();
-    foreach ($vars as $var => $label) {
-      if (empty($this->$var)) {
-        throw new \Exception("Missing {$label}.");
-      }
-      $f = $var . '_map';
-      $f = self::$$f;
-      if (!isset($f[$this->$var])) {
-        throw new \Exception("Unknown {$label} '{$this->$var}'.");
-      }
-      $dispatcherEventName[] = $f[$this->$var];
-    }
-    
-    $dispatcherEventName = implode('', $dispatcherEventName);
-
-    return $dispatcherEventName;
-  }
-
-  public function getDispatcherEventName()
-  {
-    return $this->setDispatcherEventName();
   }
 
   public function setRawData($raw_data)
