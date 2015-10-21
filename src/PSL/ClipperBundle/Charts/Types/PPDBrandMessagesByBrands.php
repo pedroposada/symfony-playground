@@ -26,6 +26,9 @@ class PPDBrandMessagesByBrands extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
+    // copy of PPDBrandMessages for Download: much details data needed.
+    $event->setTitleLong('Download: What does my brand represent to Promoters as compared to Detractors by brands?');
+
     //prep result
     $questions = $event->getAttributes();
     $cats = array_combine(array_keys(parent::$net_promoters_cat_range), array_fill(0, count(parent::$net_promoters_cat_range), array(

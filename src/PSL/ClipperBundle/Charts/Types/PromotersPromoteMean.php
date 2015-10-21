@@ -29,6 +29,9 @@ class PromotersPromoteMean extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
+    // copy of PromotersPromote for Download: much details data needed.
+    $event->setTitleLong("Download: Amongst my promoters which is the most commonly promoted competitor?");
+
     //prep other attributes
     parent::$decimal_point = 1;
     

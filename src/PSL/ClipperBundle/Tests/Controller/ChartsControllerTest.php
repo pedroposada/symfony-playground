@@ -140,17 +140,8 @@ class ChartsControllerTest extends WebTestCase
       'footer',
     );
     foreach ($content['charts'] as $index => $chart) {
-      $for_chart = $for_download = FALSE;
-      $for_chart    = (isset($chart['titleLong']));
-      $for_download = (!isset($chart['titleLong']));
-
       foreach ($set as $st) {
-        if ($for_chart && (in_array($st, array('titleLong')))) {
-          $this->assertArrayHasKey($st, $chart);
-        }
-        elseif ($for_download && (in_array($st, array('titleLong')))) {
-          continue;
-        }
+        $this->assertArrayHasKey($st, $chart);
 
         if (($filtered === TRUE) && in_array($st, array('filter'))) {
           // drilldown all @depreciated
