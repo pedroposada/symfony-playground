@@ -285,6 +285,15 @@ class FirstQGroup
     }
 
     /**
+     * Get Projects
+     * 
+     * @return \FirstQProject
+     */
+    public function getProjects() {
+      return $this->projects;
+    }
+
+    /**
      * Set proj_id
      *
      * @param string $proj_id
