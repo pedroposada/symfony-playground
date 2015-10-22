@@ -173,7 +173,7 @@ class ClipperController extends FOSRestController
       $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
       $form_data->timezone_client = $paramFetcher->get('timezone_client');
       $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
-
+      
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
       $gsc->setupFeasibilitySheet();
@@ -196,7 +196,7 @@ class ClipperController extends FOSRestController
           // add results
           if( $gs_result ) {
             $gs_result_array[] = $gs_result;
-            $gs_result_total += str_replace(',', '', $gs_result->price);
+            $gs_result_total += (int)str_replace(',', '', $gs_result->price);
           }
         }
       }
@@ -216,7 +216,7 @@ class ClipperController extends FOSRestController
       // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
       $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
-
+      
       $returnObject['product']['end_date'] = $completion_date;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
     }
@@ -441,6 +441,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="email", default="", description="Email of the client.")
    * @requestparam(name="method", default="", description="Payment method.")
    * @requestparam(name="project_number", default="", description="Project number for paying with points.")
+   * @requestparam(name="vat_number", default="", description="VAT number for paying with credit card.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -454,8 +455,7 @@ class ClipperController extends FOSRestController
     // payment_method_nonce, not necessary
     $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
     
-    $amount = $paramFetcher->get('price');
-    $amount = 100; //temp 
+    $amount = (int)str_replace(',', '', $paramFetcher->get('price'));
     $method = $paramFetcher->get('method');
     
     // Get user id
@@ -511,7 +511,7 @@ class ClipperController extends FOSRestController
         }
 
         $form_raw_data = $firstq_group->getFormDataRaw();
-        $form_raw_data = json_decode($form_raw_data, true);
+        $form_raw_data = json_decode($form_raw_data, TRUE);
         $form_raw_data["project_number"] = $project_number;
         
         $firstq_group->setState($parameters_clipper['state_codes']['order_points']);
@@ -530,7 +530,16 @@ class ClipperController extends FOSRestController
           $returnObject['message'] = 'Invalid request - missing parameters';
           return new Response($returnObject, 400); // invalid request
         }
-      
+        
+        // VAT number
+        $vat_number = $paramFetcher->get('vat_number');
+        $form_raw_data_new = FALSE;
+        if (!empty($vat_number)) {
+          $form_raw_data_new = $firstq_group->getFormDataRaw();
+          $form_raw_data_new = json_decode($form_raw_data_new, TRUE);
+          $form_raw_data_new['vat_number'] = $vat_number;
+        }
+        
         // create the charge on Braintree's servers
         // this will charge the user's card
         $parameters_clipper = $this->container->getParameter('clipper');
@@ -546,7 +555,7 @@ class ClipperController extends FOSRestController
         $result = \Braintree_Transaction::sale($sale_params);
 
         // Check that it was paid:
-        if ($result->success == true) {
+        if ($result->success == TRUE) {
   
           // TODO: CLIP-30.
           // # Credit card
@@ -565,6 +574,9 @@ class ClipperController extends FOSRestController
           // Check that it was paid:
           // change status to order complete and return ok for redirect
           $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+          if ($form_raw_data_new) {
+            $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data_new, 'json'));
+          }
           $firstq_group->setOrderId($result->transaction->id);
           $firstq_group->setUserId($userid);
           $em->persist($firstq_group);
@@ -867,9 +879,10 @@ class ClipperController extends FOSRestController
       }
       else {
         // delete all projects associated to it
-        $query = $em->createQuery('delete from PSLClipperBundle:FirstQProject fg where fg.group_uuid = :group_uuid')
-          ->setParameter('group_uuid', $firstq_group->getId());
-        $query->execute();
+        $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($firstq_group->getId());
+        foreach ($fqps as $fqp) {
+          $em->remove($fqp);
+        }
       }
     }
     else {
