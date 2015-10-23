@@ -98,15 +98,17 @@ class ClipperControllerTest extends WebTestCase
     public function testPostNeworderAction($postData)
     {
         $uri = $this->getUrl('post_neworder');
-        $this->client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
+        $client = $this->client;
+        $client->insulate(); //avoid using cached Google Sheet service
+        $client->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
 
         // Assert that the response status code is 2xx.
-        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        $this->assertTrue($client->getResponse()->isSuccessful());
 
         // Assert a specific 200 status code.
         $this->assertEquals(
             200,
-            $this->client->getResponse()->getStatusCode()
+            $client->getResponse()->getStatusCode()
         );
 
         // Assert that the "Content-Type" header is "application/json".
@@ -116,7 +118,7 @@ class ClipperControllerTest extends WebTestCase
         );
 
         // Assert that the response content contains expected format.
-        $content = json_decode($this->client->getResponse()->getContent(), true);
+        $content = json_decode($client->getResponse()->getContent(), true);
         $content = $content['content'];
         $this->assertTrue(!empty($content['product']));
         $this->assertTrue(!empty($content['product']['price']));
@@ -281,7 +283,7 @@ class ClipperControllerTest extends WebTestCase
         );
 
         // Assert invalid FirstQ uuid.
-        $postData = array('firstq_uuid' => 123, 'stripeToken' => 123, 'amount' => 123, 'email' => 'a@b.c');
+        $postData = array('firstq_uuid' => 123, 'payment_method_nonce' => 123, 'amount' => 123, 'email' => 'a@b.c');
         $postData = json_encode($postData);
 
         $this->authenticatedClient->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
@@ -337,6 +339,7 @@ class ClipperControllerTest extends WebTestCase
                 ->getObjectManager()
                 ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
                 ->find($firstq_uuid);
+            $this->assertNotNull($record);
             $this->assertEquals($state, $record->getState());
         }
     }
@@ -344,10 +347,7 @@ class ClipperControllerTest extends WebTestCase
     public function postOrderAdminprocessActionDataProvider()
     {
         // Reset data.
-        $this->loadFixtures(array(
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
-            'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
-        ));
+        $this->reloadFixture();
 
         $record = $this
             ->getObjectManager()

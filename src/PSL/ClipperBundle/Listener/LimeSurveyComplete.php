@@ -21,7 +21,7 @@ class LimeSurveyComplete extends FqProcess
     $fqp = $event->getFirstQProject();
 
     // @TODO: Support multi market/specialty combo
-    $iSurveyID = reset($fqp->getLimesurveyDataByField('sid'));
+    $iSurveyID = current($fqp->getLimesurveyDataByField('sid'));
 
     // get LS
     $ls = $this->container->get('limesurvey');
@@ -33,7 +33,7 @@ class LimeSurveyComplete extends FqProcess
     ));
     if( is_array($responses) ) {
       $responses = implode(', ', $responses);
-      throw new Exception("LS export_responses error: [{$responses}] for fq->id: [{$fqp->getId()}] - limesurvey_complete");
+      throw new Exception("LS export_responses error: [{$responses}] for fq->id: [{$fqp->getId()}] - limesurvey_complete", 2);
     }
 
   }

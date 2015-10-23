@@ -12,7 +12,13 @@ psl_clipper_debug:
 psl_clipper_exit:
   path:     /limesurvey/exit
   defaults: { _controller: PSLClipperBundle:Clipper:exit }
-  
+
+# User Forgot Password route
+clipper_user_forgotpassword:
+  path:     /api/user/forgotpassword/{email}
+  defaults: { _controller: PSLClipperBundle:ClipperUser:forgotpassword }
+  methods: [GET]
+
 # Automatic routes
 clipper:
   type:     rest
@@ -22,7 +28,6 @@ clipper_user:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ClipperUserController
   prefix:   /api
-
 
 # FW SSO users
 api_login_check:
@@ -41,7 +46,7 @@ api_login_admin_check:
 psl_clipper_charts:
   path:     /charts
   defaults: { _controller: PSLClipperBundle:Charts:charts }
-  
+
 psl_clipper_charts_static:
   path:     /charts/static
   defaults:
@@ -56,6 +61,11 @@ psl_clipper_charts_rest:
   type:     rest
   resource: PSL\ClipperBundle\Controller\ChartsController
   prefix:   /charts
+
+# Downloads
+psl_clipper_downloads_rest:
+  type:     rest
+  resource: PSL\ClipperBundle\Controller\DownloadsController
 
 
 # Automatic routes

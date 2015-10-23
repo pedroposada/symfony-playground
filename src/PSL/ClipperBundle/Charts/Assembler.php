@@ -30,27 +30,28 @@ class Assembler
    * Set ChartEvent
    * 
    * @param $order_id UUID of the FirstQGroup
-   * @param $chart_type string, unique identifier for the chart type
+   * @param $machine_name string, unique identifier for the chart type
    * @param $survey_type string, unique identifier for the survey type
    * @param $drilldown array of additional filters
    *
    * @return $event \PSL\ClipperBundle\Event\ChartEvent
    */
-  private function setChartEvent($order_id, $chart_type, $survey_type, $drilldown = array())
+  private function setChartEvent($order_id, $machine_name, $survey_type, $drilldown = array())
   {
     $event = new ChartEvent();
     $event->setOrderId($order_id);
-    $event->setParams($drilldown);
-    $event->setChartType($chart_type);
+    $event->setChartMachineName($machine_name);
+    $event->setFilters($drilldown);
     $fqg = $this->em->getReference('PSLClipperBundle:FirstQGroup', $order_id);
-    $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg);
+    $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg, array('updated' => 'DESC'));
     $responses = new ArrayCollection($responses);
+    $event->setCountTotal($responses->count());
     
     if ($first = $responses->first()) {
-      $event->setBrands($first->getFirstqgroup()->getFormDataByField('brands'));
-      $event->setParams($first->getFirstqgroup()->getFormDataByField('attributes'));
       $event->setData($responses);
       $event->setSurveyType($survey_type);
+      $event->setBrands($first->getFirstqgroup()->getFormDataByField('brands'));
+      $event->setAttributes($first->getFirstqgroup()->getFormDataByField('attributes'));
       $this->dispatcher->dispatch(ClipperEvents::CHART_PROCESS, $event);
     }
     
@@ -62,9 +63,9 @@ class Assembler
    * 
    * @see setChartEvent()
    */
-  public function getChartEvent($order_id, $chart_type, $survey_type, $drilldown = array())
+  public function getChartEvent($order_id, $machine_name, $survey_type, $drilldown = array())
   {
-    return $this->setChartEvent($order_id, $chart_type, $survey_type, $drilldown);
+    return $this->setChartEvent($order_id, $machine_name, $survey_type, $drilldown);
   }
 
   /**
@@ -72,9 +73,8 @@ class Assembler
    * 
    * @see setChartEvent()
    */
-  public function getChartDataTable($order_id, $chart_type, $survey_type, $drilldown = array())
+  public function getChartDataTable($order_id, $machine_name, $survey_type, $drilldown = array())
   {
-    return $this->setChartEvent($order_id, $chart_type, $survey_type, $drilldown)->getDataTable();
+    return $this->setChartEvent($order_id, $machine_name, $survey_type, $drilldown)->getDataTable();
   }
-
 }
