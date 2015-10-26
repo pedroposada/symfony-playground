@@ -392,6 +392,8 @@ class FirstQGroup
         $firstq['attributes'] = $form_data['attributes'];
         switch ($this->state) {
             case 'ORDER_PENDING':
+            case 'ORDER_INVOICE':
+            case 'ORDER_POINTS':
                 $firstq_formatted['state'] = 'pending';
                 break;
             case 'ORDER_CLOSED':
