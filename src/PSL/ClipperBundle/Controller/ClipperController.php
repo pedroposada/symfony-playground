@@ -35,7 +35,6 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 // custom
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
-use PSL\ClipperBundle\Utils\Quota as Quota;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
@@ -164,7 +163,6 @@ class ClipperController extends FOSRestController
       $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
       $form_data->survey_type = $paramFetcher->get('survey_type');
       $form_data->patient_type = $paramFetcher->get('patient_type');
-      $form_data->num_participants = 35; // @TODO: change for quota
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
@@ -180,7 +178,8 @@ class ClipperController extends FOSRestController
 
       $gs_result_array = array();
       $gs_result_total = 0;
-
+      $num_participants_total = 0;
+      
       foreach ( $form_data->markets as $market_key => $market_value ) {
         foreach ( $form_data->specialties as $specialty_key => $specialty_value ) {
           $form_data_object = new stdClass();
@@ -188,9 +187,9 @@ class ClipperController extends FOSRestController
           $form_data_object->ir = 10; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
-          // $quota = new Quota();
-          // $form_data_object->num_participants = $quota->lookupOne($market_value, $specialty_value, $default = 1);
-
+          $form_data_object->num_participants = $this->container->get('quota_map')->lookupOne($market_value, $specialty_value);
+          $num_participants_total += $form_data_object->num_participants;
+          
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
           // add results
@@ -200,7 +199,7 @@ class ClipperController extends FOSRestController
           }
         }
       }
-
+      $form_data->num_participants = $num_participants_total;
       // Conversion function and return converted price with currency sign
       $gs_result_total_label = $this->formatPrice($gs_result_total);
 
@@ -211,7 +210,7 @@ class ClipperController extends FOSRestController
       $returnObject['product']['price'] = $gs_result_total;
       $returnObject['product']['price_label'] = $gs_result_total_label;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
-      $returnObject['product']['num_participants'] = $form_data->num_participants;
+      $returnObject['product']['num_participants'] = $num_participants_total;
 
       // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);

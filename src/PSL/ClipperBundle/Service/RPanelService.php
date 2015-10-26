@@ -34,6 +34,8 @@ class RPanelService
   /**
    * Create a feasibility project and return it.
    * 
+   * Database Translateapi
+   * 
    * @param RPanelProject $rp - a RPanel project object
    * 
    * @return A string representation of the last inserted ID. (feasibility_project.projid)
@@ -53,6 +55,8 @@ class RPanelService
   
   /**
    * Creates a Feasibility project quota
+   * 
+   * Database Translateapi
    * 
    * @param RPanelProject $rp - a RPanel project object
    * @param Object $gs - a Google Sheet object
@@ -101,6 +105,8 @@ class RPanelService
   /**
    * update a Feasibility project
    * 
+   * Database Translateapi
+   * 
    * @param RPanelProject $rp - a RPanel project object
    */
   public function updateFeasibilityProject(RPanelProject $rp)
@@ -113,6 +119,8 @@ class RPanelService
   
   /**
    * Creates a Feasibility project quota
+   * 
+   * Database RPanel
    * 
    * @param RPanelProject $rp - a RPanel project object
    * @return A string representation of the last inserted ID. (PROJECT.project_sk)
@@ -135,6 +143,8 @@ class RPanelService
   /**
    * Creates a Feasibility project detail
    * 
+   * Database RPanel
+   * 
    * @param RPanelProject $rp - a RPanel project object
    */
   public function createProjectDetail(RPanelProject $rp, $gs)
@@ -155,6 +165,8 @@ class RPanelService
   /**
    * Creates a Feasibility Link type
    * 
+   * Database RPanel
+   * 
    * @param RPanelProject $rp - a RPanel project object
    * 
    * @return A string representation of the last inserted ID. (feasibility_link_type.ltid)
@@ -174,6 +186,8 @@ class RPanelService
   
   /**
    * Creates a Feasibility link full url
+   * 
+   * Database RPanel
    * 
    * @param RPanelProject $rp - a RPanel project object
    */
