@@ -758,17 +758,24 @@ class ClipperController extends FOSRestController
 
     // This shouldn't be happen, user should be logged in.
     if (is_string($user) && $user == 'anon.') {
-      return '$' . number_format($amount, 2, '.', ',');
+      return '$' . number_format($amount);
     }
 
-    // Assuming we can get the user country with $user->getUserCountry().
-    // TODO. Follow up the lack of method in user object. Hardcoded for now.
-    if (empty($country)) {
-      // $country = $user->getUserCountry;
-      $country = 'Canada';
-    }
+    $fwsso_ws = $this->container->get('fw_sso_webservice');
+    $fwsso_ws->configure($settings);
+    $response = $fwsso_ws->getUser(array('uid' => $user->getUserId()));
+    $country = 'USA';
+    if ($response->isOk()) {
 
-    // TODO. Refactor this switch control stucture, put it somewhere else.
+      $content = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        throw new Exception('JSON decode error: ' . json_last_error());
+      }
+      $country = (isset($content['field_country']['und'][0]['value'])) ? $content['field_country']['und'][0]['value'] : '';
+    }
+    
+    // TODO. Refactor this switch control stucture, put it somewhere else. Use country IDs and not names. 
+    
     switch ($country) {
       case 'UK':
         $currency = 'GBP';
@@ -810,17 +817,17 @@ class ClipperController extends FOSRestController
       case 'GBP':
         $rate = $this->container->getParameter('currency.conversion.usd-gbp');
         $amount = $amount * $rate;
-        $amount = '£' . number_format($amount, 2, '.', ',');
+        $amount = '£' . number_format($amount);        
         break;
 
       case 'EUR':
         $rate = $this->container->getParameter('currency.conversion.usd-eur');
         $amount = $amount * $rate;
-        $amount = '€' . number_format($amount, 2, '.', ',');
+        $amount = '€' . number_format($amount);
         break;
 
       default:
-        $amount = '$' . number_format($amount, 2, '.', ',');
+        $amount = '$' . number_format($amount);
         break;
     }
 
