@@ -253,6 +253,8 @@ class ClipperUserController extends FOSRestController
           $responseStatus = 500;
         }
         $returnObject['user'] = $content;
+        // Is this user invoice whitelisted?
+        $returnObject['user']['whitelisted'] = $this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED');
       } else {
         throw new Exception('Error retrieving the user. ' . $response->getReasonPhrase());
       }
