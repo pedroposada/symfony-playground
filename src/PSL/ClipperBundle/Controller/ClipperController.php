@@ -171,7 +171,7 @@ class ClipperController extends FOSRestController
       $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
       $form_data->timezone_client = $paramFetcher->get('timezone_client');
       $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
-      
+
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
       $gsc->setupFeasibilitySheet();
@@ -179,7 +179,7 @@ class ClipperController extends FOSRestController
       $gs_result_array = array();
       $gs_result_total = 0;
       $num_participants_total = 0;
-      
+
       foreach ( $form_data->markets as $market_key => $market_value ) {
         foreach ( $form_data->specialties as $specialty_key => $specialty_value ) {
           $form_data_object = new stdClass();
@@ -189,7 +189,7 @@ class ClipperController extends FOSRestController
           $form_data_object->specialty = $specialty_value;
           $form_data_object->num_participants = $this->container->get('quota_map')->lookupOne($market_value, $specialty_value);
           $num_participants_total += $form_data_object->num_participants;
-          
+
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
           // add results
@@ -215,7 +215,7 @@ class ClipperController extends FOSRestController
       // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
       $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
-      
+
       $returnObject['product']['end_date'] = $completion_date;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
     }
@@ -447,30 +447,30 @@ class ClipperController extends FOSRestController
   public function postOrderProcessAction(ParamFetcher $paramFetcher)
   {
     $this->logger = $this->container->get('monolog.logger.clipper');
-    
+
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
 
     // payment_method_nonce, not necessary
     $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
-    
+
     $amount = (int)str_replace(',', '', $paramFetcher->get('price'));
     $method = $paramFetcher->get('method');
-    
+
     // Get user id
     $usr = $this->get('security.context')->getToken()->getUser();
     $userid = $usr->getUserId();
-    
+
     // return error if empty
     if (empty($firstq_group_uuid)) {
       $message = 'Invalid request - missing parameters';
       return new Response($message, 400); // invalid request
     }
-        
+
     $parameters_clipper = $this->container->getParameter('clipper');
-    
+
     try {
-      
+
       // Validate if firstq exists and is not processed yet
       $em = $this->getDoctrine()->getManager();
       $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
@@ -478,29 +478,46 @@ class ClipperController extends FOSRestController
         $returnObject['message'] = 'Error - FirstQ uuid is invalid';
         return new Response($returnObject, 400);
       }
-      
+
       // Invoice ------------------------------------------------------------------------------------
       if ($method == 'INVOICE') {
-        
+
         if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
           $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
           $firstq_group->setUserId($userid);
           $returnObject['message'] = 'Order complete. Your payment will be via invoice.';
-        } 
+        }
         else {
           $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
           $firstq_group->setUserId($userid);
           $returnObject['message'] = 'Order pending. The order will be activated after payment.';
         }
-        
+
         $em->persist($firstq_group);
         $em->flush();
+
+        // Send confirmation emails.
+        // - Email to client with order/confirmation #, and order details.
+        // - Email to FW Finance and others (multi email field) order/confirmation #, and order details.
+        $order_state = strtolower($method . '.' . $firstq_group->getState());
+        $sales_info = array();
+        $this->sendConfirmationEmail(
+          $usr->getUsername(),
+          $order_state . '.client_copy', // e.g. 'invoice.order_complete.client_copy'
+          $sales_info
+        );
+        $this->sendConfirmationEmail(
+          $this->container->getParameter('confirmation_emails.' . $order_state),
+          $order_state . '.admin_copy',
+          $sales_info
+        );
+
         return new Response($returnObject, 200);
       }
-      
+
       // Points ------------------------------------------------------------------------------------
       if ($method == 'POINTS') {
-        
+
         // Validate the project number
         $project_number = $paramFetcher->get('project_number');
         $project_sub_number = substr($project_number, 0, 3);
@@ -512,24 +529,43 @@ class ClipperController extends FOSRestController
         $form_raw_data = $firstq_group->getFormDataRaw();
         $form_raw_data = json_decode($form_raw_data, TRUE);
         $form_raw_data["project_number"] = $project_number;
-        
+
         $firstq_group->setState($parameters_clipper['state_codes']['order_points']);
         $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data, 'json'));
         $firstq_group->setUserId($userid);
         $em->persist($firstq_group);
         $em->flush();
-        
+
         $returnObject['message'] = 'Order pending. The order will be activated after payment.';
+
+
+        // Send confirmation emails.
+        // Email to client with order/confirmation #, and order details
+        // Email to FW Finance and others (multi email field) order/confirmation #,
+        // and order details and include link to Clipper Admin UI
+        $order_state = strtolower($method . '.' . $firstq_group->getState());
+        $sales_info = array();
+        $this->sendConfirmationEmail(
+          $usr->getUsername(),
+          $order_state . '.client_copy', // e.g. 'points.order_complete.client_copy'
+          $sales_info
+        );
+        $this->sendConfirmationEmail(
+          $this->container->getParameter('confirmation_emails.' . $order_state),
+          $order_state . 'admin_copy',
+          $sales_info
+        );
+
         return new Response($returnObject, 200);
       }
-      
+
       // Credit ------------------------------------------------------------------------------------
       if ($method == 'CREDIT') {
         if (empty($payment_method_nonce)) {
           $returnObject['message'] = 'Invalid request - missing parameters';
           return new Response($returnObject, 400); // invalid request
         }
-        
+
         // VAT number
         $vat_number = $paramFetcher->get('vat_number');
         $form_raw_data_new = FALSE;
@@ -538,14 +574,14 @@ class ClipperController extends FOSRestController
           $form_raw_data_new = json_decode($form_raw_data_new, TRUE);
           $form_raw_data_new['vat_number'] = $vat_number;
         }
-        
+
         // create the charge on Braintree's servers
         // this will charge the user's card
         $parameters_clipper = $this->container->getParameter('clipper');
-  
+
         // @TODO: Use proper config according to country
         $this->initBrainTree('uk');
-  
+
         $sale_params = array(
           'amount' => $amount,
           'paymentMethodNonce' => $payment_method_nonce
@@ -555,21 +591,7 @@ class ClipperController extends FOSRestController
 
         // Check that it was paid:
         if ($result->success == TRUE) {
-  
-          // TODO: CLIP-30.
-          // # Credit card
-          // 1. send email to client with sale’s info.
-          // 2. send email to FW Finance about the new sale with sale’s info.
-          //
-          // # Invoice and Points
-          // 1. send email to client with sale’s info and a message that the order
-          //    will be aproved.
-          // 2. send email to FW Finance about the new sale with sale’s info AND
-          //    also a link to the Admin UI for approval.
-          //
-          // # Redirect
-          // Redirect to Dashboard Active.
-    
+
           // Check that it was paid:
           // change status to order complete and return ok for redirect
           $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
@@ -580,9 +602,26 @@ class ClipperController extends FOSRestController
           $firstq_group->setUserId($userid);
           $em->persist($firstq_group);
           $em->flush();
-  
+
           $returnObject['fquuid'] = $firstq_group_uuid;
           $returnObject['message'] = "";
+
+          // Send confirmation emails.
+          // Email to client with order/confirmation #, and order details
+          // Email to FW Finance and others (multi email field)
+          $order_state = strtolower($method . '.' . $firstq_group->getState());
+          $sales_info = array();
+          $this->sendConfirmationEmail(
+            $usr->getUsername(),
+            $order_state . '.client_copy', // e.g. 'credit.order_complete.client_copy'
+            $sales_info
+          );
+          $this->sendConfirmationEmail(
+            $this->container->getParameter('confirmation_emails.' . $order_state),
+            $order_state . 'admin_copy',
+            $sales_info
+          );
+
           return new Response($returnObject, 200);
         }
         else {
@@ -773,9 +812,9 @@ class ClipperController extends FOSRestController
       }
       $country = (isset($content['field_country']['und'][0]['value'])) ? $content['field_country']['und'][0]['value'] : '';
     }
-    
-    // TODO. Refactor this switch control stucture, put it somewhere else. Use country IDs and not names. 
-    
+
+    // TODO. Refactor this switch control stucture, put it somewhere else. Use country IDs and not names.
+
     switch ($country) {
       case 'UK':
         $currency = 'GBP';
@@ -817,7 +856,7 @@ class ClipperController extends FOSRestController
       case 'GBP':
         $rate = $this->container->getParameter('currency.conversion.usd-gbp');
         $amount = $amount * $rate;
-        $amount = '£' . number_format($amount);        
+        $amount = '£' . number_format($amount);
         break;
 
       case 'EUR':
@@ -1034,36 +1073,63 @@ class ClipperController extends FOSRestController
   /**
    * A helper function to send confirmation email.
    *
-   * @param string  $to           Email address to
-   * @param string  $type         Confirmation type
+   * @param mixed   $to           String of emails separated by comma or array of email addresses
+   * @param string  $type         Confirmation type, format as
    * @param array   $sales_info   Passing variables to salesinfo twig template
    */
-  private function sendConfirmationEmail($to = 'recipient@example.com', $type = 'order_approved.client_copy', $sales_info = array())
+  private function sendConfirmationEmail($to = array('recipient@example.com'), $type = '', $sales_info = array())
   {
     // @TODO: Update the text/content when it's ready.
     $subject = '';
-    $from = 'send@example.com';
+    $from = array('send@example.com' => 'A name');
+
+    // Become smart to break emails into array.
+    if (is_string($to)) {
+      if (strpos($to, ',')) {
+        $to = explode(',', $to);
+      }
+      else {
+        $to = array($to);
+      }
+    }
 
     switch ($type) {
-      case 'order_approved.client_copy':
-        $subject = 'Your order has been approved.';
+      // Invoice
+      case 'invoice.order_pending.client_copy':
+        $subject = 'Your order is pending.';
         break;
 
-      case 'order_approved.admin_copy':
-        $subject = 'An order is created.';
+      case 'invoice.order_pending.admin_copy':
+        $subject = 'A pending order is created.';
         break;
 
-      case 'order_complete.client_copy':
+      case 'invoice.order_complete.client_copy':
         $subject = 'Your order is completed.';
         break;
 
-      case 'order_complete.admin_copy':
+      case 'invoice.order_complete.admin_copy':
         $subject = 'An order is completed.';
         break;
 
-      case 'order_pending.client_copy':
-        $subject = 'Your order is pending.';
+      // Points
+      case 'points.order_points.client_copy':
+        $subject = 'Your order is completed.';
         break;
+
+      case 'points.order_points.admin_copy':
+        $subject = 'An order is completed.';
+        break;
+
+      // Credit card
+      case 'credit.order_complete.client_copy':
+        $subject = 'Your order is completed.';
+        break;
+
+      case 'credit.order_complete.admin_copy':
+        $subject = 'An order is completed.';
+        break;
+
+      // Project completed
     }
 
     $message = \Swift_Message::newInstance()
