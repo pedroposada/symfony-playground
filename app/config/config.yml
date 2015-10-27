@@ -1,3 +1,5 @@
+# /app/config/config.yml
+
 imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
@@ -47,50 +49,33 @@ assetic:
         #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
 
 # Doctrine Configuration
-doctrine:
-    # dbal:
-        # driver:   "%database_driver%"
-        # host:     "%database_host%"
-        # port:     "%database_port%"
-        # dbname:   "%database_name%"
-        # user:     "%database_user%"
-        # password: "%database_password%"
-        # charset:  UTF8
-        # if using pdo_sqlite as your database driver:
-        #   1. add the path in parameters.yml
-        #     e.g. database_path: "%kernel.root_dir%/data/data.db3"
-        #   2. Uncomment database_path in parameters.yml.dist
-        #   3. Uncomment next line:
-        #     path:     "%database_path%"
+monolog:
+    channels:
+        - clipper
 
+# swiftmailer
+swiftmailer:
+    transport: mail
+    antiflood:
+        threshold: 99
+        sleep: 0
+    disable_delivery: false
+    logging: '%kernel.debug%'
+
+# doctrine
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+            default:
+                dbname: %database_name%
+                user: %database_user%
+                password: %database_password%
+                host: %database_host%
+                driver: %database_driver%
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         auto_mapping: true
-        # mappings:
-          # translatable:
-              # type: annotation
-              # alias: Gedmo
-              # prefix: Gedmo\Translatable\Entity
-              # # make sure vendor library location is correct
-              # dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
-          # loggable:
-              # type: annotation
-              # alias: Gedmo
-              # prefix: Gedmo\Loggable\Entity
-              # dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Loggable/Entity"
-          # tree:
-              # type: annotation
-              # alias: Gedmo
-              # prefix: Gedmo\Tree\Entity
-              # dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
-
-# Swiftmailer Configuration
-# swiftmailer:
-    # transport: "%mailer_transport%"
-    # host:      "%mailer_host%"
-    # username:  "%mailer_user%"
-    # password:  "%mailer_password%"
-    # spool:     { type: memory }
 
 # FOSRest Configuration
 fos_rest:
@@ -115,3 +100,124 @@ fos_rest:
 
 #Nelmio
 nelmio_api_doc: ~
+
+# Lexik JSON web token
+lexik_jwt_authentication:
+    private_key_path: '%kernel.root_dir%/var/jwt/private.pem'
+    public_key_path:  '%kernel.root_dir%/var/jwt/public.pem'
+    pass_phrase:      'Clipper'
+    token_ttl:        86400
+
+# GremoBuzzBundle Configuration
+gremo_buzz:
+    client: "curl" # allowed "curl", "multi_curl" or "native"
+    options:
+        ignore_errors: true
+        max_redirects: 5
+        timeout: 5
+        verify_peer: true
+
+# Nelmio CORS
+nelmio_cors:
+    paths:
+        ^/clipper/api:
+            allow_credentials: true
+            allow_origin:
+                - '*'
+            allow_headers:
+                - Origin
+                - X-Requested-With
+                - Content-Type
+                - Accept
+                - Authorization
+            allow_methods:
+                - POST
+                - GET
+                - DELETE
+                - PUT
+                - OPTIONS
+            expose_headers: {  }
+            max_age: 3600
+        ^/clipper/charts:
+            allow_credentials: true
+            allow_origin:
+              - '*'
+            allow_headers:
+              - Origin
+              - X-Requested-With
+              - Content-Type
+              - Accept
+              - Authorization
+            allow_methods:
+              - POST
+              - GET
+              - DELETE
+              - PUT
+              - OPTIONS
+            expose_headers: { }
+            max_age: 3600
+
+
+
+
+  ######################################
+ ## Applications specific parameters ##
+######################################
+            
+parameters:
+  
+  locale: en
+  secret: ee6b4573702f917e364633184e3dd4f6bcaf327c
+  
+  # clipper
+  clipper:
+    state_codes:
+      #firstq_group
+      order_pending: ORDER_PENDING
+      order_invoice: ORDER_INVOICE
+      order_points: ORDER_POINTS
+      order_declined: ORDER_DECLINED
+      order_complete: ORDER_COMPLETE
+      order_closed: ORDER_CLOSED
+      #firstq_project
+      limesurvey_pending: LIMESURVEY_PENDING
+      limesurvey_created: LIMESURVEY_CREATED
+      rpanel_complete: RPANEL_COMPLETE
+      limesurvey_complete: LIMESURVEY_COMPLETE
+      limesurvey_exported: LIMESURVEY_EXPORTED
+  clipper_cache.config: 1
+    # clipper_cache.config : min -1, max 24
+    # >= 1 / integer : service enable, and set expiry for X hour(s).
+    # == 0           : service enable, but expiry sets immediately.
+    # == -1          : service disable.
+  clipper.brands: Resources/terms/brands.xml
+  clipper.conditions: Resources/terms/conditions.xml
+  clipper.quota.universal: "1"
+  
+  
+  #limeSurvey
+  limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]'
+  limesurvey.url_exit: '%limesurvey.url_redirect_base%/clipper/limesurvey/exit'
+  limesurvey.url_destination: '%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]'
+  limesurvey.url_destination_base_sid: '%limesurvey.url_destination_base%/sid/[SID]'
+      
+  #rpanel
+  rpanel:
+    user_id: %rpanel.user_id%
+    client_id: %rpanel.client_id%
+    default_table_values:
+      proj_status: 1
+      proj_type: 1
+      incidence_rate: 100
+      length: 5
+      field_duration: 1
+      project_type: jit
+      link_type: full
+      target_size: 0
+      target_list: 0
+      feasibility_file: 0
+      respondent: 0
+      duration: 0
+      status_id: 1
+      brand_id: 1
+      email_template_id: 0

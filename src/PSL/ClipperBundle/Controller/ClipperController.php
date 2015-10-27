@@ -38,6 +38,7 @@ use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
 use PSL\ClipperBundle\Entity\Repository\FirstQProjectRepository;
 use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
 use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
+use PSL\ClipperBundle\Entity\FirstQProcessAction as FirstQProcessAction;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
 
@@ -51,15 +52,15 @@ use \DateTimeZone as DateTimeZone;
  */
 class ClipperController extends FOSRestController
 {
-  
+
   protected function getSerializer()
   {
     $encoders = array(new XmlEncoder(), new JsonEncoder());
     $normalizers = array(new ObjectNormalizer());
-    
+
     return new Serializer($normalizers, $encoders);
   }
-  
+
   /**
    * ----------------------------------------------------------------------------------------
    * API
@@ -82,7 +83,7 @@ class ClipperController extends FOSRestController
    *
    * @QueryParam(name="group", default="brands", description="Name of group of keywords, used in file name")
    * @QueryParam(name="keyword", default="", description="User input text in autocomplete field")
-   * 
+   *
    * @return \Symfony\Component\BrowserKit\Response
    */
   public function getClipperAutocompleteAction(ParamFetcher $paramFetcher)
@@ -93,13 +94,13 @@ class ClipperController extends FOSRestController
     $kernel = $this->container->get('kernel');
     $path = $kernel->locateResource("@PSLClipperBundle/{$file}");
     $input = $paramFetcher->get('keyword');
-    
+
     if (!empty($input)) {
       $doc = new \DOMDocument();
       $doc->preserveWhiteSpace = false;
       $doc->Load($path);
       $xpath = new \DOMXPath($doc);
-      
+
       // returns first 20 items
       $input = strtolower($input);
       $expression = '(//field[starts-with(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "'. $input .'")])[position() <= 20]';
@@ -108,7 +109,7 @@ class ClipperController extends FOSRestController
         $result[] = $node->nodeValue;
       }
     }
-    
+
     return new Response($result);
   }
 
@@ -130,8 +131,8 @@ class ClipperController extends FOSRestController
    * @requestparam(name="loi", default="", description="LOI number.")
    * @requestparam(name="ir", default="", description="IR number.")
    * @requestparam(name="title", default="", description="Title, user generated.")
-   * @requestparam(name="name", default="", description="Name of the folio.")
-   * @requestparam(name="name_full", default="", description="Full name of the folio, user generated (same as Title).")
+   * @requestparam(name="name", default="", description="Readable name of the folio.")
+   * @requestparam(name="survey_type", default="", description="Machine name of the folio.")
    * @requestparam(name="patient_type", default="", description="Patient type, user generated..")
    * @requestparam(name="num_participants", default="", description="Number of participants.")
    * @requestparam(name="market", default="", description="Market array.", array=true)
@@ -145,14 +146,14 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function postOrderAction(ParamFetcher $paramFetcher)
+  public function postNeworderAction(ParamFetcher $paramFetcher)
   {
     $this->logger = $this->container->get('monolog.logger.clipper');
 
     // Object to return to remote form
     $returnObject = array();
     $responseStatus = 200;
-    
+
     try {
       // get $_POST values
       $form_data = new stdClass();
@@ -160,9 +161,8 @@ class ClipperController extends FOSRestController
       $form_data->ir = 10; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
-      $form_data->name_full = $paramFetcher->get('name_full');
+      $form_data->survey_type = $paramFetcher->get('survey_type');
       $form_data->patient_type = $paramFetcher->get('patient_type');
-      $form_data->num_participants = 35; // hard coded for now
       $form_data->timestamp = $paramFetcher->get('timestamp');
       $form_data->markets = $paramFetcher->get('market');
       $form_data->specialties = $paramFetcher->get('specialty');
@@ -174,10 +174,12 @@ class ClipperController extends FOSRestController
       
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
-      
+      $gsc->setupFeasibilitySheet();
+
       $gs_result_array = array();
       $gs_result_total = 0;
-
+      $num_participants_total = 0;
+      
       foreach ( $form_data->markets as $market_key => $market_value ) {
         foreach ( $form_data->specialties as $specialty_key => $specialty_value ) {
           $form_data_object = new stdClass();
@@ -185,24 +187,31 @@ class ClipperController extends FOSRestController
           $form_data_object->ir = 10; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
+          $form_data_object->num_participants = $this->container->get('quota_map')->lookupOne($market_value, $specialty_value);
+          $num_participants_total += $form_data_object->num_participants;
           
           // check feasibility
           $gs_result = $gsc->requestFeasibility($form_data_object);
           // add results
           if( $gs_result ) {
             $gs_result_array[] = $gs_result;
-            $gs_result_total += str_replace(',', '', $gs_result->price);
+            $gs_result_total += (int)str_replace(',', '', $gs_result->price);
           }
         }
       }
-      
+      $form_data->num_participants = $num_participants_total;
+      // Conversion function and return converted price with currency sign
+      $gs_result_total_label = $this->formatPrice($gs_result_total);
+
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
-      
+
       // build product response
-      $returnObject['product']['price'] = 4995; //number_format(4995, 2, '.', ','); // Hardcoded for now
+      $returnObject['product']['price'] = $gs_result_total;
+      $returnObject['product']['price_label'] = $gs_result_total_label;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
-      
+      $returnObject['product']['num_participants'] = $num_participants_total;
+
       // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
       $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
@@ -221,14 +230,14 @@ class ClipperController extends FOSRestController
     catch (\Exception $e) {
       // Return operation specific error
       $returnObject['product'] = FALSE;
-      $returnObject['error_message'] =  $e->getMessage();
+      $returnObject['error_message'] = $e->getMessage();
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
   }
-  
+
   /**
    * Retrieve FirstQ orders.
    *
@@ -244,27 +253,141 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrdersAction(Request $request) {
-    
+  public function getOrdersAction(Request $request)
+  {
+
+    $params = $this->container->getParameter('clipper');
+    $em = $this->getDoctrine()->getManager();
+
+    $firstq_groups;
+
+    // @TODO: get orders according to the user's session
+    // either by retrieving a user's ID in the JWT token
+    // or with the FW SSO through loadUserByUsername
+
     // get user_id from request
     $user_id = $request->query->get('user_id');
-    
-    $em = $this->getDoctrine()->getManager();
-    $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
-    
-    if (!empty($firstq_groups) && !$firstq_groups->isEmpty()) {
-      $firstqs_formatted = array(); 
+    if (!empty($user_id)) {
+      $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
+    }
+
+    if (!empty($firstq_groups)) {
+      $firstqs_formatted = array();
       foreach ($firstq_groups as $key => $firstq_group) {
         $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup();
       }
       return new Response($firstqs_formatted);
     }
     else {
-      $message = 'No orders for this user.';
+      $message = 'No orders.';
       return new Response($message, 204); // No Content
     }
   }
-  
+
+  /**
+   * Retrieve FirstQ orders.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param Request $request the request object
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getOrdersAdminAction(Request $request)
+  {
+
+    $this->logger = $this->container->get('monolog.logger.clipper');
+
+    if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMINUI_USER')) {
+      throw $this->createAccessDeniedException();
+    }
+
+    $params = $this->container->getParameter('clipper');
+    $em = $this->getDoctrine()->getManager();
+
+    try {
+
+      $firstq_groups;
+
+      $status = $request->query->get('status');
+      if (!empty($status)) {
+        $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByState($params['state_codes'][$status]);
+      }
+
+      if (!empty($firstq_groups)) {
+        $firstqs_formatted = array();
+        foreach ($firstq_groups as $key => $firstq_group) {
+
+          // User info retrieval from the FW SSO
+          $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+          $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
+
+          $fwsso_ws = $this->container->get('fw_sso_webservice');
+          $fwsso_ws->configure($settings);
+          $response = $fwsso_ws->getUser(array('uid' => $firstq_group->getUserId()));
+
+          $user_info = array();
+
+          if ($response->isOk()) {
+
+            $content = @json_decode($response->getContent(), TRUE);
+            if (json_last_error() != JSON_ERROR_NONE) {
+              throw new Exception('JSON decode error: ' . json_last_error());
+            }
+
+            $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
+            $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
+            $company = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+            $phone = (isset($content['field_phone']['und'][0]['value'])) ? $content['field_phone']['und'][0]['value'] : '';
+            $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+
+            // User info
+            $user_info['username'] = $first_name . " " . $last_name;
+            $user_info['address'] = $content['mail'];
+            $user_info['phone'] = $company . '<br/>' . $phone;
+            $user_info['company_name'] = $company_name;
+          }
+
+          $processed_info = NULL;
+          if ($params['state_codes'][$status] == $params['state_codes']['order_declined']) {
+
+            $firstq_process = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQProcessAction')
+                                   ->findOneBy(array('groupUuid' => $firstq_group->getId()));
+
+            $processed_info = array();
+            if ($firstq_process) {
+              $processed_info['username'] = $firstq_process->getUsername();
+              $processed_info['updated'] = $firstq_process->getUpdated();
+            }
+            else {
+              $processed_info['username'] = $firstq_group->getId();
+              $processed_info['updated'] = 'now';
+            }
+          }
+
+          $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup($user_info, $processed_info);
+        }
+        return new Response($firstqs_formatted);
+      }
+      else {
+        $message = 'No orders.';
+        return new Response($message, 204); // No Content
+      }
+    }
+    catch (\Exception $e) {
+      // Something messed up
+      $this->logger->debug("exception: {$e}");
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // Error
+    }
+  }
+
   /**
    * Retrieve a FirstQ order.
    *
@@ -281,10 +404,11 @@ class ClipperController extends FOSRestController
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
-  public function getOrderAction(Request $request, $uuid) {
+  public function getOrderAction(Request $request, $uuid)
+  {
     $em = $this->getDoctrine()->getManager();
     $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($uuid);
-    
+
     if ($firstq_group) {
       $firstq_formatted = $firstq_group->getFormattedFirstQGroup();
       return new Response($firstq_formatted);
@@ -294,7 +418,7 @@ class ClipperController extends FOSRestController
       return new Response($message, 204); // no content
     }
   }
-  
+
   /**
    * Process a FristQ Order
    *
@@ -310,10 +434,13 @@ class ClipperController extends FOSRestController
    *
    * @param ParamFetcher $paramFetcher Paramfetcher
    *
-   * @requestparam(name="stripeToken", default="", description="The Stripe token.")
+   * @requestparam(name="payment_method_nonce", default="", description="The Braintree payment nonce.")
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
-   * @requestparam(name="amount", default="", description="Amount of the project.")
+   * @requestparam(name="price", default="", description="price of the project.")
    * @requestparam(name="email", default="", description="Email of the client.")
+   * @requestparam(name="method", default="", description="Payment method.")
+   * @requestparam(name="project_number", default="", description="Project number for paying with points.")
+   * @requestparam(name="vat_number", default="", description="VAT number for paying with credit card.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -323,107 +450,410 @@ class ClipperController extends FOSRestController
     
     // Get parameters from the POST
     $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
-    $stripe_token = $paramFetcher->get('stripeToken');
-    $amount = (int)$paramFetcher->get('amount') * 100; // in cents
-    $email = $paramFetcher->get('email'); // not necessary
+
+    // payment_method_nonce, not necessary
+    $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
+    
+    $amount = (int)str_replace(',', '', $paramFetcher->get('price'));
+    $method = $paramFetcher->get('method');
+    
+    // Get user id
+    $usr = $this->get('security.context')->getToken()->getUser();
+    $userid = $usr->getUserId();
     
     // return error if empty
-    if (empty($firstq_group_uuid) || empty($stripe_token)) {
+    if (empty($firstq_group_uuid)) {
       $message = 'Invalid request - missing parameters';
       return new Response($message, 400); // invalid request
     }
+        
+    $parameters_clipper = $this->container->getParameter('clipper');
     
-    // Validate if firstq exists and is not processed yet
-    $em = $this->getDoctrine()->getManager();
-    $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
-    if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
-      $message = 'Error - FirstQ uuid is invalid';
-      return new Response($message, 400);
-    }
-    
-    // create the charge on Stripe's servers
-    // this will charge the user's card
     try {
       
-      $parameters_clipper = $this->container->getParameter('clipper');
+      // Validate if firstq exists and is not processed yet
+      $em = $this->getDoctrine()->getManager();
+      $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
+      if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
+        $returnObject['message'] = 'Error - FirstQ uuid is invalid';
+        return new Response($returnObject, 400);
+      }
       
-      // initiate the Stripe  and charge
-      \Stripe\Stripe::setApiKey($parameters_clipper['stripe']['private_key']);
-      $charge = \Stripe\Charge::create(array(
-        "amount" => $amount, // amount in cents, again
-        "currency" => "usd",
-        "source" => $stripe_token,
-        "description" => $email
-        )
-      );
-      
-      // Check that it was paid:
-      if ($charge->paid == true) {
+      // Invoice ------------------------------------------------------------------------------------
+      if ($method == 'INVOICE') {
         
-        // change status to order complete and return ok for redirect
-        $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
-        $firstq_group->setOrderId($stripe_token);
+        if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
+          $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+          $firstq_group->setUserId($userid);
+          $returnObject['message'] = 'Order complete. Your payment will be via invoice.';
+        } 
+        else {
+          $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
+          $firstq_group->setUserId($userid);
+          $returnObject['message'] = 'Order pending. The order will be activated after payment.';
+        }
+        
+        $em->persist($firstq_group);
+        $em->flush();
+        return new Response($returnObject, 200);
+      }
+      
+      // Points ------------------------------------------------------------------------------------
+      if ($method == 'POINTS') {
+        
+        // Validate the project number
+        $project_number = $paramFetcher->get('project_number');
+        $project_sub_number = substr($project_number, 0, 3);
+        if ($project_sub_number != $this->container->getParameter('payment.points.projectnumber')) {
+          $returnObject['message'] = 'Invalid project number';
+          return new Response($returnObject, 400); // invalid request
+        }
+
+        $form_raw_data = $firstq_group->getFormDataRaw();
+        $form_raw_data = json_decode($form_raw_data, TRUE);
+        $form_raw_data["project_number"] = $project_number;
+        
+        $firstq_group->setState($parameters_clipper['state_codes']['order_points']);
+        $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data, 'json'));
+        $firstq_group->setUserId($userid);
         $em->persist($firstq_group);
         $em->flush();
         
-        $firsq['fquuid'] = $firstq_group_uuid;
-        return new Response($message, 200);
-      } 
-      else {
-        // failed
-        $this->logger->debug('Payment System Error. Payment could NOT be processed. Not paid.');
-        
-        $message = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
-        return new Response($message, 400); // no content
+        $returnObject['message'] = 'Order pending. The order will be activated after payment.';
+        return new Response($returnObject, 200);
       }
-    } 
-    catch (\Stripe\Error\Card $e) {
-      // Card was declined.
-      $e_json = $e->getJsonBody();
-      $err = $e_json['error'];
-      $errors['stripe'] = $err['message'];
       
-      $this->logger->debug("Stripe/Card exception: {$e}");
-      
-      $message = 'Card was declined.';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\ApiConnection $e) {
-      // Network problem, perhaps try again.
-      $this->logger->debug("Stripe/ApiConnection exception: {$e}");
-      
-      $message = 'Network problem, perhaps try again.';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\InvalidRequest $e) {
-      // You screwed up in your programming. Shouldn't happen!
-      $this->logger->debug("Stripe/InvalidRequest exception: {$e}");
-      
-      $message = 'Invalid request';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\Api $e) {
-      // Stripe's servers are down!
-      $this->logger->debug("Stripe/Api exception: {$e}");
-      
-      $message = 'Network problem, perhaps try again.';
-      return new Response($message, 400); // no content
-    } 
-    catch (\Stripe\Error\Base $e) {
-      // Something else that's not the customer's fault.
-      $this->logger->debug("Stripe/Base exception: {$e}");
-      
-      $message = 'Error - Please try again.';
-      return new Response($message, 400); // no content
-    }
-    
-  }
+      // Credit ------------------------------------------------------------------------------------
+      if ($method == 'CREDIT') {
+        if (empty($payment_method_nonce)) {
+          $returnObject['message'] = 'Invalid request - missing parameters';
+          return new Response($returnObject, 400); // invalid request
+        }
+        
+        // VAT number
+        $vat_number = $paramFetcher->get('vat_number');
+        $form_raw_data_new = FALSE;
+        if (!empty($vat_number)) {
+          $form_raw_data_new = $firstq_group->getFormDataRaw();
+          $form_raw_data_new = json_decode($form_raw_data_new, TRUE);
+          $form_raw_data_new['vat_number'] = $vat_number;
+        }
+        
+        // create the charge on Braintree's servers
+        // this will charge the user's card
+        $parameters_clipper = $this->container->getParameter('clipper');
   
+        // @TODO: Use proper config according to country
+        $this->initBrainTree('uk');
+  
+        $sale_params = array(
+          'amount' => $amount,
+          'paymentMethodNonce' => $payment_method_nonce
+        );
+
+        $result = \Braintree_Transaction::sale($sale_params);
+
+        // Check that it was paid:
+        if ($result->success == TRUE) {
+  
+          // TODO: CLIP-30.
+          // # Credit card
+          // 1. send email to client with sale’s info.
+          // 2. send email to FW Finance about the new sale with sale’s info.
+          //
+          // # Invoice and Points
+          // 1. send email to client with sale’s info and a message that the order
+          //    will be aproved.
+          // 2. send email to FW Finance about the new sale with sale’s info AND
+          //    also a link to the Admin UI for approval.
+          //
+          // # Redirect
+          // Redirect to Dashboard Active.
+    
+          // Check that it was paid:
+          // change status to order complete and return ok for redirect
+          $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
+          if ($form_raw_data_new) {
+            $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data_new, 'json'));
+          }
+          $firstq_group->setOrderId($result->transaction->id);
+          $firstq_group->setUserId($userid);
+          $em->persist($firstq_group);
+          $em->flush();
+  
+          $returnObject['fquuid'] = $firstq_group_uuid;
+          $returnObject['message'] = "";
+          return new Response($returnObject, 200);
+        }
+        else {
+          // failed
+          $this->logger->debug("Payment System Error : " . var_export($result->errors, true));
+          $returnObject['message'] = $result->message;
+          // $returnObject['message'] = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
+          return new Response($returnObject, 400);
+        }
+      }
+    }
+    catch (\Exception $e) {
+      // Something messed up
+      $this->logger->debug("exception: {$e}");
+      $returnObject['message'] = "Error - Please try again. {$e}";
+      return new Response($returnObject, 400); // Error
+    }
+
+  }
+
+  /**
+   * Process a FristQ Order on the Admin side
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     400 = "Bad request or invalid data from the form",
+   *     401 = "Unauthorized request",
+   *   }
+   * )
+   *
+   * The data is coming from an AJAX call performed on the front end
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
+   * @requestparam(name="task", default="", description="Task for invoice.")
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function postOrderAdminprocessAction(ParamFetcher $paramFetcher)
+  {
+    $this->logger = $this->container->get('monolog.logger.clipper');
+
+    if (!$this->get('security.authorization_checker')->isGranted('ROLE_ADMINUI_USER')) {
+        throw $this->createAccessDeniedException();
+    }
+
+    // Get parameters from the POST
+    $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
+    $task = $paramFetcher->get('task');
+
+    // return error if empty
+    if (empty($firstq_group_uuid) || empty($task)) {
+      $message = 'Invalid request - missing parameters';
+      return new Response($message, 400); // invalid request
+    }
+
+    // Validate if firstq exists and is not processed yet
+    $em = $this->getDoctrine()->getManager();
+    $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
+
+    if (empty($firstq_group) || ($firstq_group->getState() != 'ORDER_INVOICE' && $firstq_group->getState() != 'ORDER_POINTS')) {
+      $message = 'Error - FirstQ uuid is invalid';
+      return new Response($message, 400);
+    }
+
+    // Change status and record the action
+    try {
+
+      $parameters_clipper = $this->container->getParameter('clipper');
+
+      $order_status;
+
+      if ($task == 'accept') {
+        $order_status = $parameters_clipper['state_codes']['order_complete'];
+        // change status to order complete and return ok for redirect
+        $firstq_group->setState($order_status);
+        $em->persist($firstq_group);
+
+        // Send email to client with sale’s info and message saying it was
+        // approved.
+        // TODO: CLIP-30. Find out how to get email addresses.
+        $this->sendConfirmationEmail(
+          'receipient@example.com',
+          'order_approved.client_copy',
+          array()
+        );
+      }
+      else {
+        $order_status = $parameters_clipper['state_codes']['order_declined'];
+        // change status to order complete and return ok for redirect
+        $firstq_group->setState($order_status);
+        $em->persist($firstq_group);
+      }
+
+      $usr = $this->get('security.context')->getToken()->getUser();
+      $username = $usr->getUsername();
+
+      // Create a new Process action
+      $firstq_process = new FirstQProcessAction();
+      $firstq_process->setGroupUuid($firstq_group_uuid);
+      $firstq_process->setUsername($username);
+      $firstq_process->setState($order_status);
+      $em->persist($firstq_process);
+
+      $em->flush();
+
+      $firsq['fquuid'] = $firstq_group_uuid;
+      return new Response($firsq, 200);
+    }
+    catch (\Exception $e) {
+      // Something messed up
+      $this->logger->debug("exception: {$e}");
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // Error
+    }
+
+  }
+
+
+    /**
+   * Get a Client Token for Braintree.
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     204 = "No Content for the parameters passed"
+   *   }
+   * )
+   *
+   * @param Request $request the request object
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function getClientTokenAction(Request $request)
+  {
+    // Set Braintree configuration
+    $this->initBrainTree('uk');
+
+    // get user_id from request
+    //$firstq_uuid = $request->query->get('firstq_uuid');
+
+    $client_token['clientToken'] = \Braintree_ClientToken::generate();
+
+    if (!$client_token) {
+      $message = 'Error - Please try again.';
+      return new Response($message, 400); // Error
+    }
+    return new Response($client_token, 200);
+  }
+
   /**
    * ----------------------------------------------------------------------------------------
    * HELPERS
    * ----------------------------------------------------------------------------------------
    */
+
+  /**
+   * Convert the amount according to country, with proper currency sign and
+   * format it nicely, e.g. £4995.95
+   *
+   * @param   float   $amout    The price.
+   * @param   string  $country  Country name.
+   *
+   * @return  string
+   */
+  private function formatPrice($amount = 0, $country = 'Canada')
+  {
+    $user = $this->get('security.context')->getToken()->getUser();
+
+    // This shouldn't be happen, user should be logged in.
+    if (is_string($user) && $user == 'anon.') {
+      return '$' . number_format($amount, 2, '.', ',');
+    }
+
+    // Assuming we can get the user country with $user->getUserCountry().
+    // TODO. Follow up the lack of method in user object. Hardcoded for now.
+    if (empty($country)) {
+      // $country = $user->getUserCountry;
+      $country = 'Canada';
+    }
+
+    // TODO. Refactor this switch control stucture, put it somewhere else.
+    switch ($country) {
+      case 'UK':
+        $currency = 'GBP';
+        break;
+
+      case 'France':
+      case 'Germany':
+      case 'Italy':
+      case 'Spain':
+      // European Union countries. Country list taken from Wikipedia /wiki/Euro.
+      // Country spelling taken from DG sites (DocPass).
+      case 'Austria':
+      case 'Belgium':
+      case 'Cyprus':
+      case 'Estonia':
+      case 'Finland':
+      case 'Greece':
+      case 'Ireland':
+      case 'Latvia':
+      case 'Lithuania':
+      case 'Luxembourg':
+      case 'Malta':
+      case 'Netherlands':
+      case 'Portugal':
+      case 'Slovakia':
+      case 'Slovenia':
+        $currency = 'EUR';
+        break;
+
+      case 'USA':
+      default:
+        $currency = 'USD';
+        break;
+    }
+
+    // After we decide the curreny unit, let's do conversion to exchange rate.
+    // TODO. Refactor this with DRY.
+    switch ($currency) {
+      case 'GBP':
+        $rate = $this->container->getParameter('currency.conversion.usd-gbp');
+        $amount = $amount * $rate;
+        $amount = '£' . number_format($amount, 2, '.', ',');
+        break;
+
+      case 'EUR':
+        $rate = $this->container->getParameter('currency.conversion.usd-eur');
+        $amount = $amount * $rate;
+        $amount = '€' . number_format($amount, 2, '.', ',');
+        break;
+
+      default:
+        $amount = '$' . number_format($amount, 2, '.', ',');
+        break;
+    }
+
+    return $amount;
+  }
+
+  /**
+   * Get BrainTree Object
+   */
+  private function initBrainTree($region_code = 'uk')
+  {
+    switch ($region_code) {
+      case 'eu':
+        $region_code = 'eu';
+        break;
+
+      case 'us':
+        $region_code = 'us';
+        break;
+
+      case 'uk':
+      default:
+        $region_code = 'uk';
+        break;
+    }
+
+    // Set Braintree configuration.
+    \Braintree_Configuration::environment($this->container->getParameter('braintree_' . $region_code . '.environment'));
+    \Braintree_Configuration::merchantId($this->container->getParameter('braintree_' . $region_code . '.merchant_id'));
+    \Braintree_Configuration::publicKey($this->container->getParameter('braintree_' . $region_code . '.public_key'));
+    \Braintree_Configuration::privateKey($this->container->getParameter('braintree_' . $region_code . '.private_key'));
+  }
+
 
   /**
    * Saves a new FirstQProject or update an existing one
@@ -437,32 +867,33 @@ class ClipperController extends FOSRestController
     // Get parameters
     $parameters_clipper = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
-    
+
     // Check if object exists already
     if (!empty($firstq_group_uuid)) {
       $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
-      
+
       if (!$firstq_group) {
         // Create FirstQGroup entity
         $firstq_group = new FirstQGroup();
       }
       else {
         // delete all projects associated to it
-        $query = $em->createQuery('delete from PSLClipperBundle:FirstQProject fg where fg.group_uuid = :group_uuid')
-          ->setParameter('group_uuid', $firstq_group->getId());
-        $query->execute();
+        $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($firstq_group->getId());
+        foreach ($fqps as $fqp) {
+          $em->remove($fqp);
+        }
       }
     }
     else {
       // Create FirstQGroup entity
       $firstq_group = new FirstQGroup();
     }
-    
+
     $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_data_serialized, 'json'));
     $firstq_group->setState($parameters_clipper['state_codes']['order_pending']);
     $em->persist($firstq_group);
-    
-    // Loop for all combination and set individual FirstQ projects 
+
+    // Loop for all combination and set individual FirstQ projects
     foreach ($gs_result_array as $key => $gs_result) {
       $firstq_project = new FirstQProject();
       $firstq_project->setSheetDataRaw($this->getSerializer()->encode($gs_result, 'json'));
@@ -470,76 +901,65 @@ class ClipperController extends FOSRestController
       $firstq_project->setFirstqgroup($firstq_group);
       $em->persist($firstq_project);
     }
-    
+
     $em->flush();
-    
+
     return $firstq_group->getId();
   }
-  
-  /**
-   * Simple debug output
-   * /clipper/autocomplete
-   */
-  public function autocompleteAction()
-  {
-    $response = $this->render('PSLClipperBundle:Clipper:autocomplete.html.twig');
 
-    return $response;
-  }
-  
   /**
    * Calculation of Estimated completion time of a survey
    * This value is just an estimate and not the real time of completion
-   * 
+   *
    * @param timestamp $launch_date - timestamp of 'Y-m-d H:i:s'
    * @param timezone $timezone_client - timezone of client
-   * @param array $timezone_adjusment - timezone of latest market 
-   * and adjustment longest time adjustment according to specialty/country  
-   * 
+   * @param array $timezone_adjusment - timezone of latest market
+   * and adjustment longest time adjustment according to specialty/country
+   *
    * @return formatted string date
    */
   private function calculateSurveyCompletionTime($launch_date, $timezone_client, $timezone_adjusment)
   {
-    
+
     /**
      * launch_date = (Survey start Date/time)
      * start_time = (Time from start date/time where the slowest selected geography hits 8:00 am on a weekday)
      * estimation = (determine estimated completion time by region/specialty)
-     * 
+     *
      * ex:
-     * 
+     *
      * client in UK chooses now to start the survey US/Oncology
-     * 
+     *
      * launch_date = now (thursday 23 july, 3pm UK time)
      * tomorrow at 8 am of US
-     * 
+     *
      * time of estimated survey ~ 2 hours for 35 people
-     * 
-     * 8 am + 2 hours = 10am + 6 hours timezone 
+     *
+     * 8 am + 2 hours = 10am + 6 hours timezone
      * completion time = 4pm, 24 july
-     * 
-     * 
-     * 
+     *
+     *
+     *
      * client in UK chooses in 4 days start at 3pm US/Oncology
-     * 
+     *
      * launch_date = sunday 27 july, 3pm UK time
      * monday 28 at 8 am of US
      *
      * time of estimated survey ~ 2 hours for 35 people
      *
-     * 8 am + 2 hours = 10am + 6 hours timezone    
-     * completion time = 4pm, 28 july  
-     * 
+     * 8 am + 2 hours = 10am + 6 hours timezone
+     * completion time = 4pm, 28 july
+     *
      * // fake data
      * // $launch_date = '2015-07-24 08:32:27';
      * // $timezone_latest = new DateTimeZone('America/New_York');
      * // $timezone_client = new DateTimeZone('Europe/Warsaw');
      * // $adjusment = 2;
      */
-    
+
     // Date format
     $date_format = 'Y-m-d H:i:s';
-    
+
     // Find start day
     // always the next day
     $dtime = DateTime::createFromFormat($date_format, $launch_date);
@@ -550,7 +970,7 @@ class ClipperController extends FOSRestController
     if ($day_of_week >= 5) {
       $day_added += 7 - $day_of_week;
     }
-    
+
     // Calculate the launch time
     // always at 8 of the latest timezone (USA would be the latest)
     $launch_date_array = explode(' ', $launch_date);
@@ -559,37 +979,104 @@ class ClipperController extends FOSRestController
     if ($time_to_start < 10) {
       $time_to_start = '0' . (string)$time_to_start;
     }
-    
+
     // Assemble launch date/time
     $latest_date = $launch_date_array[0] . ' ' . $time_to_start . ':00:00';
     $latest_date_timestamp = strtotime(date($date_format, strtotime($latest_date)) . ' + '. $day_added .' day');
-    
+
     // Set timezone difference from latest to client's
     $date_end = new DateTime(date($date_format, $latest_date_timestamp), new DateTimeZone($timezone_adjusment['timezone']));
     $date_end->setTimezone(new DateTimeZone($timezone_client));
     $completion_time = $date_end->format($date_format);
-    
-    return $completion_time; 
+
+    return $completion_time;
   }
-  
+
   /**
    * Verify the latest Timezone and Adjustment according to the order of market/country combination
-   * 
+   *
    * @param array $markets - array of markets coming from the front facing form
    * @param array $specialties - array of specialty coming from the front facing form
-   * 
+   *
    * @return array of the timezone and the adjustment
    */
   public function latestTimezoneAndAdjustment($markets, $specialties)
   {
     // check according to data
-    
+
     // @TODO: maping or data coming soon
     $timezone_and_adjustment = array();
     $timezone_and_adjustment['timezone'] = 'America/New_York';
-    $timezone_and_adjustment['adjustment'] = 2; 
-    
+    $timezone_and_adjustment['adjustment'] = 2;
+
     return $timezone_and_adjustment;
+  }
+
+  /**
+   * Validation of the user role
+   *
+   * @param string $role - user role
+   */
+  private function validateRole($role) {
+    if (!$this->get('security.context')->isGranted($role)) {
+      $message = 'Permission denied';
+      return new Response($message, 401); // Unauthorised request
+    }
+  }
+
+  /**
+   * A helper function to send confirmation email.
+   *
+   * @param string  $to           Email address to
+   * @param string  $type         Confirmation type
+   * @param array   $sales_info   Passing variables to salesinfo twig template
+   */
+  private function sendConfirmationEmail($to = 'recipient@example.com', $type = 'order_approved.client_copy', $sales_info = array())
+  {
+    // @TODO: Update the text/content when it's ready.
+    $subject = '';
+    $from = 'send@example.com';
+
+    switch ($type) {
+      case 'order_approved.client_copy':
+        $subject = 'Your order has been approved.';
+        break;
+
+      case 'order_approved.admin_copy':
+        $subject = 'An order is created.';
+        break;
+
+      case 'order_complete.client_copy':
+        $subject = 'Your order is completed.';
+        break;
+
+      case 'order_complete.admin_copy':
+        $subject = 'An order is completed.';
+        break;
+
+      case 'order_pending.client_copy':
+        $subject = 'Your order is pending.';
+        break;
+    }
+
+    $message = \Swift_Message::newInstance()
+      ->setContentType('text/html')
+      ->setSubject($subject)
+      ->setFrom($from)
+      ->setTo($to)
+      ->setBody(
+        $this->renderView(
+          // src/PSL/ClipperBundle/Resources/views/Emails/confirmation.{order_type}.{user_type}.html.twig
+          'PSLClipperBundle:Emails:confirmation.' . $type . '.html.twig',
+          array(
+            'sales_info' => $sales_info,
+          ),
+          'text/html'
+        )
+      )
+    ;
+
+    $this->get('mailer')->send($message);
   }
 
   /**
@@ -606,10 +1093,8 @@ class ClipperController extends FOSRestController
   {
     $response = null;
 
-    // config connection to LS
-    $params_ls = $this->container->getParameter('limesurvey');
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // get LS
+    $ls = $this->container->get('limesurvey');
     $response = $ls->get_survey_properties(array(
       'iSurveyID' => $sid,
       'aSurveySettings' => array('expires'),
@@ -662,28 +1147,28 @@ class ClipperController extends FOSRestController
 
     return $response;
   }
-  
+
   /**
    * flag order as order_complete and redirect to front-end
    * /clipper/thankyou/{fquuid}
-   * 
+   *
    * @param string $fquuid FirstQ uuid
    */
   public function thankyouAction($fquuid)
   {
-    
+
     // @TODO: this might no longer be needed since the front end will handle it
-    
+
     $parameters_clipper = $this->container->getParameter('clipper');
     $em = $this->getDoctrine()->getManager();
     $firstq_project = $em->getRepository('PSLClipperBundle:FirstQProject')->find($fquuid);
-    
+
     if ($firstq_project && $firstq_project->getState() == 'ORDER_PENDING') {
-      
+
       $firstq_project->setState($parameters_clipper['state_codes']['order_complete']);
       $em->persist($firstq_project);
       $em->flush();
-      
+
       $clipper_frontend_url = $this->container->getParameter('clipper.frontend.url');
       $destination = "{$clipper_frontend_url}?fquuid={$fquuid}&destination=dashboard";
     }
@@ -691,9 +1176,9 @@ class ClipperController extends FOSRestController
       $debug = 'Error - FirstQ uuid is invalid';
       return $this->render('PSLClipperBundle:Clipper:debug.html.twig', array('debug' => $debug));
     }
-    
+
     return new RedirectResponse($destination, 301);
-    
+
   }
-  
+
 }

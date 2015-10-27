@@ -14,7 +14,6 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Entity\LimeSurveyResponse;
-use PSL\ClipperBundle\Utils\LimeSurvey;
 
 class LimeSurveyResponses
 {
@@ -29,14 +28,14 @@ class LimeSurveyResponses
   {
     // this is @service_container
     $this->container = $container;
+    
     $this->logger = $this->container->get('monolog.logger.clipper');
     $params = $this->container->getParameter('clipper');
     self::$timestamp = time();
     $this->em = $this->container->get('doctrine')->getManager();
-    
-    $encoders = array(new XmlEncoder(), new JsonEncoder());
-    $normalizers = array(new ObjectNormalizer());
-    $this->serializer = new Serializer($normalizers, $encoders);
+
+    // serializer
+    $this->serializer = $container->get('clipper_serializer');
   }
   
   public function refreshResponses(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)
@@ -53,7 +52,7 @@ class LimeSurveyResponses
     
     $responses = $this->fetchResponses($iSurveyID);
     
-    $this->saveResponses($responses['responses'], $fqp);
+    $this->saveResponses($responses['responses'], $event);
     
   }
 
@@ -61,13 +60,11 @@ class LimeSurveyResponses
   {
     $responses = array();
     
-    // call LS api
-    $params_ls = $this->container->getParameter('limesurvey');
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // get LS
+    $ls = $this->container->get('limesurvey');
     $responses = $ls->export_responses(array(
       'iSurveyID' => $iSurveyID,
-      'sHeadingType' => 'full',
+      'sHeadingType' => 'code',
       'sCompletionStatus' => 'complete',
       'sDocumentType' => 'json',
     ));
@@ -75,38 +72,42 @@ class LimeSurveyResponses
     // stop if errors from request
     if( is_array($responses) ) {
       $responses = implode(', ', $responses);
-      throw new Exception("LS export_responses error: [{$responses}] for fqp->id: [{$fqp->getId()}] and iSurveyID: [{$iSurveyID}]");
+      throw new Exception("LS export_responses error: [{$responses}] for iSurveyID: [{$iSurveyID}]");
     }
     $responses = base64_decode($responses);
     $responses = $this->serializer->decode($responses, 'json');
     
     // stop if no responses
     if (!is_array($responses['responses']) || empty($responses['responses'])) {
-      throw new Exception("LS export_responses returns empty for fqp->id: [{$fqp->getId()}] and iSurveyID: [{$iSurveyID}]");
+      throw new Exception("LS export_responses empty for iSurveyID: [{$iSurveyID}]");
     }
     
     return $responses;
   }
 
-  public function saveResponses($responses, \PSL\ClipperBundle\Entity\FirstQProject $fqp)
+  public function saveResponses($responses, FirstQProjectEvent $event)
   {
+    $fqg = $event->getFirstQProjectGroup();
+    $fqp = $event->getFirstQProject();
+    
     // loop through the responses of the survey
     foreach ($responses as $key => $response) {
       $resp = current($response);
       
       // try to get by token
-      $lsresp = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->find($resp['Token']);
+      $lsresp = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->find($resp['token']);
       
       // if no record found then create new one
       if (!$lsresp) {
         $lsresp = new LimeSurveyResponse();
         
         // $lsresp needs to have "id" before you can call ->persist on it
-        $lsresp->setLsToken($resp['Token']);
+        $lsresp->setLsToken($resp['token']);
         
         // TODO: get mid (member id) from MDM. Default to "1" for now.
         // $lsresp->setMemberId($mid);
         $lsresp->setResponseRaw($this->serializer->encode($resp, 'json'));
+        $lsresp->setFirstqgroup($fqg);
         $lsresp->setFirstqproject($fqp);
         
         // Invoking the persist method on an entity does NOT cause an immediate 
@@ -115,7 +116,7 @@ class LimeSurveyResponses
         $this->em->persist($lsresp);
         
         // feedback
-        $this->logger->info("OK processing response, token: [{$resp['Token']}]");
+        $this->logger->info("OK processing response, token: [{$resp['token']}]");
       }
     }
   }

@@ -1,0 +1,7 @@
+/**
+ * Environment specific configuration
+ */
+
+var config = {
+ apiBaseUrl: "[*clipper_base_api*]"
+}

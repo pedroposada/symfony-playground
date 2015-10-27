@@ -14,7 +14,7 @@ PSL\ClipperBundle\Entity\FirstQProject:
   manyToOne:
     firstqgroup:
       targetEntity: FirstQGroup
-      cascade: [ "remove" ]
+      cascade: ["remove"]
       fetch: "EXTRA_LAZY"
   fields:
     sheet_data_raw:

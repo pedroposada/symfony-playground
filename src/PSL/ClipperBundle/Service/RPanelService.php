@@ -34,6 +34,8 @@ class RPanelService
   /**
    * Create a feasibility project and return it.
    * 
+   * Database Translateapi
+   * 
    * @param RPanelProject $rp - a RPanel project object
    * 
    * @return A string representation of the last inserted ID. (feasibility_project.projid)
@@ -53,6 +55,8 @@ class RPanelService
   
   /**
    * Creates a Feasibility project quota
+   * 
+   * Database Translateapi
    * 
    * @param RPanelProject $rp - a RPanel project object
    * @param Object $gs - a Google Sheet object
@@ -92,10 +96,16 @@ class RPanelService
                                                     'r_panel_usage' => (int)$gs->result['F14'],    // [Col F Row 14 in Google Sheet],
                                                     'r_hono_handling' => (int)$gs->result['F15'],  // [Col F Row 15 in Google Sheet],
                                                     'r_client_cur' => $gs->result['F12']));        // [Col F Row 12 in Google Sheet]);
+    
+    // returned the last inserted auto increment
+    // feasibility_project_quota.quota_id
+    return $conn->lastInsertId();
   }
   
   /**
    * update a Feasibility project
+   * 
+   * Database Translateapi
    * 
    * @param RPanelProject $rp - a RPanel project object
    */
@@ -110,6 +120,8 @@ class RPanelService
   /**
    * Creates a Feasibility project quota
    * 
+   * Database RPanel
+   * 
    * @param RPanelProject $rp - a RPanel project object
    * @return A string representation of the last inserted ID. (PROJECT.project_sk)
    */
@@ -117,7 +129,7 @@ class RPanelService
   {
     $conn = $this->conn;
     $conn->insert('PROJECT', array('project_code' => $rp->getProjId(),       // feasibility_project.projid
-                                  'client_id' => $rp->getCreatedBy(),        // [ClientID provided by Guohui]
+                                  'client_id' => $rp->getClientId(),        // [ClientID provided by Guohui]
                                   'status_id' => $rp->getStatusId(),         // 1
                                   'pm_details' => $rp->getProjName(),        // feasibility_project.proj_name
                                   'brand_id' => $rp->getBrandId(),           // 1
@@ -130,6 +142,8 @@ class RPanelService
   
   /**
    * Creates a Feasibility project detail
+   * 
+   * Database RPanel
    * 
    * @param RPanelProject $rp - a RPanel project object
    */
@@ -151,6 +165,8 @@ class RPanelService
   /**
    * Creates a Feasibility Link type
    * 
+   * Database RPanel
+   * 
    * @param RPanelProject $rp - a RPanel project object
    * 
    * @return A string representation of the last inserted ID. (feasibility_link_type.ltid)
@@ -159,7 +175,7 @@ class RPanelService
   {
     $conn = $this->conn;
     $conn->insert('feasibility_link_type', array('proj_id' => $rp->getProjId(),             // feasibility_project.projid
-                                                 'quote_id' => $rp->getProjectSK(),         // PROJECT.project_sk
+                                                 'quote_id' => $rp->getQuoteId(),           // feasibility_project_quota.quota_id
                                                  'link_type' => $rp->getLinkType(),         // 'full'
                                                  'created_by' => $rp->getCreatedBy(),       // [UserID created by Guohui]
                                                  'created_date' => $rp->getCreatedDate())); // Now()
@@ -170,6 +186,8 @@ class RPanelService
   
   /**
    * Creates a Feasibility link full url
+   * 
+   * Database RPanel
    * 
    * @param RPanelProject $rp - a RPanel project object
    */

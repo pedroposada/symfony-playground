@@ -1,123 +1,72 @@
-# This file is auto-generated during the composer install
+# /app/config/parameters.yml.dist
+
+################################################
+# infrastructure-related configuration options #
+################################################
+
 parameters:
-  
-  # Database settings
-  database_driver:                    "pdo_mysql"
-  database_host:                      "[*db_host*]"
-  database_port:                      "[*db_port*]"
-  database_name:                      "[*db_name*]"
-  database_user:                      "[*db_user*]"
-  database_password:                  "[*db_pass*]"
-  
-  # Locale
-  locale:                             "en"
-  
-  # secret key
-  secret:                             "[*secret*]"
-  
-  # Clipper settings
-  clipper:
-    email_ls_results:
-      to:                             "[*clipper_email_ls_results_to*]"
-      from:                           "[*clipper_email_ls_results_from*]"
-      subject:                        "FirstQ Survey Results - %limesurvey.url_destination_base_sid%"
-      body:                           "FirstQ Survey results for Survey ID: [SID]. URL: %limesurvey.url_destination_base_sid%"
-    state_codes:
-      #firstq_group
-      order_pending:                  ORDER_PENDING
-      order_complete:                 ORDER_COMPLETE
-      #firstq_project
-      limesurvey_pending:             LIMESURVEY_PENDING
-      limesurvey_created:             LIMESURVEY_CREATED
-      rpanel_complete:                RPANEL_COMPLETE
-      limesurvey_complete:            LIMESURVEY_COMPLETE
-      limesurvey_exported:            LIMESURVEY_EXPORTED
-    worldpay:
-      inst_id:                        "[*clipper_worldpay_inst_id*]"
-      form_action:                    "[*clipper_worldpay_form_action*]"
-      test_mode:                      "[*clipper_worldpay_test_mode*]"
-      cart_id:                        "[*clipper_worldpay_cart_id*]"
-    stripe:
-      private_key:                    "[*clipper_stripe_private_key*]"
-      public_key:                     "[*clipper_stripe_public_key*]"
-  clipper.brands:                     "Resources/terms/brands.xml"
-  clipper.conditions:                 "Resources/terms/conditions.xml"
-  clipper.frontend.url:               "[*clipper.frontend.url*]"
-      
-  # LimeSurvey settings
-  limesurvey:
-    api:
-      ls_baseurl:                     "[*limesurvey_api_ls_baseurl*]"
-      ls_password:                    "[*limesurvey_api_ls_password*]"
-      ls_user:                        "[*limesurvey_api_ls_user*]"
-    lss:
-      dir:                              "[*limesurvey_lss_dir*]"
-      brand_adoption:                   "limesurvey_survey__brand_adoption.lss"
-      nps_plus:                         "limesurvey_survey__nps_plus.lss"
-  limesurvey.url_destination_base_sid:  "%limesurvey.url_destination_base%/sid/[SID]"
-  limesurvey.url_destination_base:      "[*limesurvey.url_destination_base*]"
-  limesurvey.url_destination:           "%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?lstoken=[SLUG]"
-  limesurvey.url_redirect_base:         "[*limesurvey.url_redirect_base*]"
-  limesurvey.url_redirect:              "%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]"
-  limesurvey.url_exit:                  "%limesurvey.url_redirect_base%/clipper/limesurvey/exit?lstoken={PASSTHRU:lstoken}"
-    
-  # Rpanel
-  rpanel:
-    user_id:                          "[*rpanel_user_id*]" # Userid is the user ID of the one created by Guohui for you
-    databases:
-      rpanel:
-        dbname:                       "[*rpanel_databases_rpanel_dbname*]"
-        user:                         "[*rpanel_databases_rpanel_user*]"
-        password:                     "[*rpanel_databases_rpanel_password*]"
-        host:                         "[*rpanel_databases_rpanel_host*]"
-        driver:                       "[*rpanel_databases_rpanel_driver*]"
-      translateapi:
-        dbname:                       "[*rpanel_databases_translateapi_dbname*]"
-        user:                         "[*rpanel_databases_translateapi_user*]"
-        password:                     "[*rpanel_databases_translateapi_password*]"
-        host:                         "[*rpanel_databases_translateapi_host*]"
-        driver:                       "[*rpanel_databases_translateapi_driver*]"
-    default_table_values:
-      proj_status:                    "[*rpanel_default_table_values_proj_status*]"
-      proj_type:                      "[*rpanel_default_table_values_proj_type*]"
-      incidence_rate:                 "[*rpanel_default_table_values_incidence_rate*]"
-      length:                         "[*rpanel_default_table_values_length*]"
-      field_duration:                 "[*rpanel_default_table_values_field_duration*]"
-      project_type:                   "[*rpanel_default_table_values_project_type*]"
-      link_type:                      "[*rpanel_default_table_values_link_type*]"
-      target_size:                    "[*rpanel_default_table_values_target_size*]"
-      target_list:                    "[*rpanel_default_table_values_target_list*]"
-      feasibility_file:               "[*rpanel_default_table_values_feasibility_file*]"
-      respondent:                     "[*rpanel_default_table_values_respondent*]"
-      duration:                       "[*rpanel_default_table_values_duration*]"
-      status_id:                      "[*rpanel_default_table_values_status_id*]"
-      brand_id:                       "[*rpanel_default_table_values_brand_id*]"
-      email_template_id:              "[*rpanel_default_table_values_email_template_id*]"
-
-  # PSL Clipper Configuration
-  google_spreadsheets:
-    client_id :                       "[*google_spreadsheets_client_id*]"
-    service_account_name :            "[*google_spreadsheets_service_account_name*]"
-    p12_file_name :                   "[*google_spreadsheets_p12_file_name*]"
-    spreadsheet_name :                "[*google_spreadsheets_spreadsheet_name*]"
-    worksheet_name :                  "[*google_spreadsheets_worksheet_name*]"
-
-
-# Monolog
-monolog:
-    channels:                         ["clipper"]
-    
-
-# Swiftmailer Configuration
-swiftmailer:
-    transport:                        "[*swiftmailer_transport*]"
-    username:                         "[*swiftmailer_username*]"
-    password:                         "[*swiftmailer_password*]"
-    host:                             "[*swiftmailer_host*]"
-    port:                             "[*swiftmailer_port*]"
-    encryption:                       "[*swiftmailer_encryption*]"
-    auth_mode:                        "[*swiftmailer_auth_mode*]"
-    antiflood:
-        threshold:                    99
-        sleep:                        0
-    logging:                          "%kernel.debug%"
+  database_driver:                            "[*database_driver*]"
+  database_host:                              "[*database_host*]"
+  database_port:                              "[*database_port*]"
+  database_name:                              "[*database_name*]"
+  database_user:                              "[*database_user*]"
+  database_password:                          "[*database_password*]"
+  # clipper:
+  clipper.frontend.url:                       "[*clipper.frontend.url*]"
+  clipper.users.ql_encryptionkey:             "[*clipper.users.ql_encryptionkey*]"
+  # limesurvey:
+  limesurvey.api.ls_baseurl:                  "[*limesurvey.api.ls_baseurl*]"
+  limesurvey.api.ls_user:                     "[*limesurvey.api.ls_user*]"
+  limesurvey.api.ls_password:                 "[*limesurvey.api.ls_password*]"
+  limesurvey.url_destination_base:            "[*limesurvey.url_destination_base*]"
+  limesurvey.url_redirect_base:               "[*limesurvey.url_redirect_base*]"
+  # rpanel:
+  rpanel.user_id:                             "[*rpanel.user_id*]"
+  rpanel.client_id:                           "[*rpanel.client_id*]" 
+  rpanel.databases.rpanel.dbname:             "[*rpanel.databases.rpanel.dbname*]"
+  rpanel.databases.rpanel.user:               "[*rpanel.databases.rpanel.user*]"
+  rpanel.databases.rpanel.password:           "[*rpanel.databases.rpanel.password*]"
+  rpanel.databases.rpanel.host:               "[*rpanel.databases.rpanel.host*]"
+  rpanel.databases.rpanel.driver:             "[*rpanel.databases.rpanel.driver*]"
+  rpanel.databases.translateapi.dbname:       "[*rpanel.databases.translateapi.dbname*]"
+  rpanel.databases.translateapi.user:         "[*rpanel.databases.translateapi.user*]"
+  rpanel.databases.translateapi.password:     "[*rpanel.databases.translateapi.password*]"
+  rpanel.databases.translateapi.host:         "[*rpanel.databases.translateapi.host*]"
+  rpanel.databases.translateapi.driver:       "[*rpanel.databases.translateapi.driver*]"
+  # google_spreadsheets:
+  google_spreadsheets.client_id:              "[*google_spreadsheets.client_id*]"
+  google_spreadsheets.service_account_name:   "[*google_spreadsheets.service_account_name*]"
+  google_spreadsheets.p12_file_name:          "[*google_spreadsheets.p12_file_name*]"
+  google_spreadsheets.spreadsheet_name:       "[*google_spreadsheets.spreadsheet_name*]"
+  google_spreadsheets.worksheet_name:         "[*google_spreadsheets.worksheet_name*]"
+  google_spreadsheets.p12_file_path:          "[*google_spreadsheets.p12_file_path*]"
+  # sale emails
+  confirmation_emails.invoice.pending:        "[*confirmation_emails.invoice.pending*]"
+  confirmation_emails.invoice.complete:       "[*confirmation_emails.invoice.complete*]"
+  confirmation_emails.points.pending:         "[*confirmation_emails.points.pending*]"
+  confirmation_emails.points.complete:        "[*confirmation_emails.points.complete*]"
+  # braintree:
+  braintree_uk.environment:                   "[*braintree_uk.environment*]"
+  braintree_uk.merchant_id:                   "[*braintree_uk.merchant_id*]"
+  braintree_uk.public_key:                    "[*braintree_uk.public_key*]"
+  braintree_uk.private_key:                   "[*braintree_uk.private_key*]"
+  braintree_eu.environment:                   "[*braintree_eu.environment*]"
+  braintree_eu.merchant_id:                   "[*braintree_eu.merchant_id*]"
+  braintree_eu.public_key:                    "[*braintree_eu.public_key*]"
+  braintree_eu.private_key:                   "[*braintree_eu.private_key*]"
+  braintree_us.environment:                   "[*braintree_us.environment*]"
+  braintree_us.merchant_id:                   "[*braintree_us.merchant_id*]"
+  braintree_us.public_key:                    "[*braintree_us.public_key*]"
+  braintree_us.private_key:                   "[*braintree_us.private_key*]"
+  # currency exchange rates
+  currency.conversion.usd-gbp:                "[*currency.conversion.usd-gbp*]"
+  currency.conversion.gbp-usd:                "[*currency.conversion.gbp-usd*]"
+  currency.conversion.usd-eur:                "[*currency.conversion.usd-eur*]"
+  currency.conversion.eur-usd:                "[*currency.conversion.eur-usd*]"
+  currency.conversion.gbp-eur:                "[*currency.conversion.gbp-eur*]"
+  currency.conversion.eur-gbp:                "[*currency.conversion.eur-gbp*]"
+  # FW SSO
+  fwsso_api.url:                              "[*fwsso_api.url*]"
+  fwsso_api.app_token:                        "[*fwsso_api.app_token*]"
+  # Project number payment by points
+  payment.points.projectnumber:               "[*payment.points.projectnumber*]"

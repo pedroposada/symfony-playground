@@ -4,17 +4,37 @@ security:
     # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
+        PSL\ClipperBundle\Security\User\YamlAdminUser: plaintext
+        PSL\ClipperBundle\Security\User\FWSSOUser:
+            id: drupal_password_encoder
+        PSL\ClipperBundle\Security\User\FWSSOQuickLoginUser: plaintext
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_INVOICE_WHITELISTED:   ROLE_USER
+        ROLE_ADMIN:                 ROLE_USER                                                           # regular admins
+        ROLE_ADMINUI_USER:          ROLE_USER                                                         # regular Admin UI users
+        ROLE_SUPER_ADMIN:           [ROLE_USER, ROLE_ADMINUI_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]  # SUPER COOL ADMIN TO RULE THEM ALL
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
+        chain_provider:
+            chain:
+                providers: [yaml_admin, fw_sso, fw_sso_ql]
+        # Admin UI users
+        yaml_admin:
+            id: yaml_admin_user_provider
+        # FW SSO Users
+        fw_sso:
+            id: fw_sso_user_provider
+        # FW SSO Quick Login Users
+        fw_sso_ql:
+            id: fw_sso_quick_login_user_provider
+        # Default Users
         in_memory:
             memory:
                 users:
+                    # Add users here for access to the Admin UI front end
                     user:  { password: userpass, roles: [ 'ROLE_USER' ] }
                     admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
 
@@ -44,6 +64,88 @@ security:
             #anonymous: ~
             #http_basic:
             #    realm: "Secured Demo Area"
+
+        # Admin UI Login
+        login_admin:
+            pattern:  ^/clipper/api/admin/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured Admin Area"
+                provider: yaml_admin
+            form_login:
+                check_path: /clipper/api/admin/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # FW SSO Login
+        login:
+            pattern:  ^/clipper/api/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured API"
+                provider: fw_sso
+            form_login:
+                check_path: /clipper/api/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # FW SSO Quick Login
+        login_ql:
+            pattern:  ^/clipper/api/ql/login
+            stateless: true
+            anonymous: true
+            http_basic:
+                realm: "Secured API"
+                provider: fw_sso_ql
+            form_login:
+                check_path: /clipper/api/ql/login_check
+                require_previous_session: false
+                username_parameter: username
+                password_parameter: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # Post orders only
+        api_orders:
+            pattern:  ^/clipper/api/neworders
+            stateless: true
+            anonymous: true
+        # Clipper Autocomplete only
+        api_autocomplete:
+            pattern:  ^/clipper/api/clipper/autocomplete
+            stateless: true
+            anonymous: true
+        # User create
+        api_post_users:
+            pattern:  ^/clipper/api/newusers
+            stateless: true
+            anonymous: true
+        # Post Forgot Password
+        api_forgotpasswords:
+            pattern:  ^/clipper/api/forgotpasswords
+            stateless: true
+            anonymous: true
+        # Clipper REST endpoints test page
+        api_doc:
+            pattern:  ^/clipper/api/doc
+            stateless: true
+            anonymous: true
+        # Rest of API
+        api:
+            pattern:   ^/clipper/api(?!/user/forgotpassword)
+            stateless: true
+            lexik_jwt:
+                authorization_header:
+                    enabled: true
+                    prefix:  Bearer
+                query_parameter:
+                    enabled: true
+                    name:    bearer
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods

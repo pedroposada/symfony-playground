@@ -33,9 +33,10 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project = new RPanelProject($fqp);
     $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
     $rpanel_project->setProjStatus($params_rp['default_table_values']['proj_status']);
-    $rpanel_project->setLaunchDate($form_data->launch_date); // Y-m-d H:i:s
+    $rpanel_project->setLaunchDate($form_data['launch_date']); // Y-m-d H:i:s
     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
     $rpanel_project->setCreatedBy($params_rp['user_id']);
+    $rpanel_project->setClientId($params_rp['client_id']);
     $rpanel_project->setIncidenceRate($params_rp['default_table_values']['incidence_rate']);
     $rpanel_project->setLength($params_rp['default_table_values']['length']);
     $rpanel_project->setTargetSize($params_rp['default_table_values']['target_size']);
@@ -47,32 +48,36 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setStatusId($params_rp['default_table_values']['status_id']);
     $rpanel_project->setBrandId($params_rp['default_table_values']['brand_id']);
     $rpanel_project->setEmailTemplateId($params_rp['default_table_values']['email_template_id']);
-    $rpanel_project->setNumParticipants($form_data->num_participants);
     $rpanel_project->setEstimateDate(date('Y-m-d H:i:s'));
     $rpanel_project->setCreatedDate(date('Y-m-d H:i:s'));
     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
+    $rpanel_project->setNumParticipants($sheet_data['num_participants']);
     
     // GS object
     $gs_object = new stdClass();
-    $specialty_id = (string)$sheet_data->specialty;
-    $gs_object->specialty_id = MDMMapping::map('specialties', $specialty_id);
-    // $country_id = $value->market;
-    // $gs_object->country_id = MDMMapping::map('countries', $country_id);
-    $gs_object->country_id = 10; // @TODO: this is a hard coded value up until we get the proper mapping
+    $gs_object->specialty_id = MDMMapping::map('specialties', $sheet_data['specialty']);
+    $gs_object->country_id = MDMMapping::map('countries', $sheet_data['market']);
 
-    foreach ($sheet_data->result as $result_key => &$result_value) {
+    foreach ($sheet_data['result'] as $result_key => &$result_value) {
       $search = array('$', ',');
       $result_value = str_replace($search, "", $result_value);
     }
   
-    $gs_object->result = $sheet_data->result;
+    $gs_object->result = $sheet_data['result'];
       
     // Get RPanel service
     $rps = $this->container->get('rpanel');
     // connect db
     $config = new \Doctrine\DBAL\Configuration();
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['translateapi'], $config);
+    $dbconfig = array(
+      'dbname' => $this->container->getParameter('rpanel.databases.translateapi.dbname'),
+      'user' => $this->container->getParameter('rpanel.databases.translateapi.user'),
+      'password' => $this->container->getParameter('rpanel.databases.translateapi.password'),
+      'host' => $this->container->getParameter('rpanel.databases.translateapi.host'),
+      'driver' => $this->container->getParameter('rpanel.databases.translateapi.driver'),
+    );
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
  
@@ -89,7 +94,8 @@ class LimeSurveyCreated extends FqProcess
       $rpanel_project->setProjId($fqg->getProjId());
       
       // Create Feasibility Project Quota (many to one)
-      $rps->createFeasibilityProjectQuota($rpanel_project, $gs_object);
+      $quote_id = $rps->createFeasibilityProjectQuota($rpanel_project, $gs_object);
+      $rpanel_project->setQuoteId($quote_id);
       
       // Update Feasibility Project - Launch project
       $rps->updateFeasibilityProject($rpanel_project);
@@ -103,7 +109,14 @@ class LimeSurveyCreated extends FqProcess
  
     // connect db
     $config = new \Doctrine\DBAL\Configuration();
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($params_rp['databases']['rpanel'], $config);
+    $dbconfig = array(
+      'dbname' => $this->container->getParameter('rpanel.databases.rpanel.dbname'),
+      'user' => $this->container->getParameter('rpanel.databases.rpanel.user'),
+      'password' => $this->container->getParameter('rpanel.databases.rpanel.password'),
+      'host' => $this->container->getParameter('rpanel.databases.rpanel.host'),
+      'driver' => $this->container->getParameter('rpanel.databases.rpanel.driver'),
+    );
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
 
@@ -128,7 +141,7 @@ class LimeSurveyCreated extends FqProcess
       
       // Create Feasibility Full Url
       $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
-      $urls = $ls_data->urls;
+      $urls = $ls_data['urls'];
       $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
       
       $conn->commit();

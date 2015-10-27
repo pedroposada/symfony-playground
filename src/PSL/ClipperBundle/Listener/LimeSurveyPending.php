@@ -9,11 +9,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Common\Util\Debug as Debug;
 
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
@@ -29,12 +24,8 @@ class LimeSurveyPending extends FqProcess
     $fqg = $event->getFirstQProjectGroup();
     $fqp = $event->getFirstQProject();
     
-    // get LS settings
-    $params_ls = $this->container->getParameter('limesurvey');
-    
-    // config connection to LS
-    $ls = new LimeSurvey();
-    $ls->configure($params_ls['api']);
+    // get LS
+    $ls = $this->container->get('limesurvey');
     
     // array for limesurvey data
     $ls_data_raw_array = array();
@@ -44,19 +35,18 @@ class LimeSurveyPending extends FqProcess
     $sheet_data = $fqp->getSheetDataUnserialized();
     
     // Mapping
-    $specialty_id = MDMMapping::map('specialties', (string)$sheet_data->specialty);
-    // $country_id = MDMMapping::map('countries', (string)$sheet_data->market);
-    $country_id = 10; // @TODO: this is a hard coded value up until we get the proper mapping
+    $specialty_id = MDMMapping::map('specialties', $sheet_data['specialty']);
+    $country_id = MDMMapping::map('countries', $sheet_data['market']);
     
     // Survey data settings
     $survey_data = new stdClass();
     $survey_data->market = $specialty_id;
     $survey_data->specialty = $country_id;
-    $survey_data->patients = $form_data->patient_type; // current($fqg->getFormDataByField('patient_type'));
-    $survey_data->brands = $form_data->brands; // $fqg->getFormDataByField('brands'); //$this->clipperBrands($fq->getFormDataByField('brands'));
-    $survey_data->attributes = $form_data->attributes; // $fqg->getFormDataByField('statements');
+    $survey_data->patients = $form_data['patient_type'];
+    $survey_data->brands = $form_data['brands'];
+    $survey_data->attributes = $form_data['attributes'];
     $survey_data->url_exit = $this->container->getParameter('limesurvey.url_exit');
-    $type = 'nps'; //$form_data->name;
+    $type = $form_data['survey_type'];
     
     $sc = $this->container->get('survey_builder');
     $lss = $sc->createSurvey($type, $survey_data);
@@ -65,21 +55,20 @@ class LimeSurveyPending extends FqProcess
     $iSurveyID = $ls->import_survey(array(
       'sImportData' => base64_encode($lss), // BASE 64 encoded data of a lss
       'sImportDataType' => 'lss', 
-      'sNewSurveyName' => "Clipper test - " . $fqp->getId(), 
+      'sNewSurveyName' => $form_data['title'], 
     ));
-    
-    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'import_survey'));
+    $this->logger->debug("form_data[title] {$form_data['title']}", array('LimeSurveyPending', 'import_survey'));
     if (!is_int($iSurveyID)) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [import_survey]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [import_survey]", 2);
     }
     
     // activate S
     $response = $ls->activate_survey(array(
       'iSurveyID' => $iSurveyID, 
     ));
-    $this->logger->debug(Debug::toString($ls), array('bigcommerce_complete', 'activate_survey'));
+    $this->logger->debug("iSurveyID [{$iSurveyID}]", array('LimeSurveyPending', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_survey]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_survey]", 2);
     }
     
     // activate tokens
@@ -87,14 +76,18 @@ class LimeSurveyPending extends FqProcess
       'iSurveyID' => $iSurveyID, 
     ));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [activate_tokens]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_tokens]", 2);
     }
     
-    // add participants
-    // $participants_sample = $sheet_data->participants_sample; // number of tokens (links) for participants
-    $participants_sample = 2;
+    // get amount of participants to be added for this survey
+    $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
+    if ($this->container->hasParameter('clipper.participants_sample')) {
+      // use DEV value from config_dev.yml
+      $participants_sample = $this->container->getParameter('clipper.participants_sample');
+    }
+    
     if (empty($participants_sample)) {
-      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fq->id: [{$fq->getId()}] on [bigcommerce_complete]");
+      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]", 2);
     }
     
     $participants = array();
@@ -110,17 +103,16 @@ class LimeSurveyPending extends FqProcess
       'participantData' => $participants, 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fq->id: [{$fq->getId()}] on [add_participants]");
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [add_participants]", 2);
     }
     
     // save limesurvey raw data
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $response;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this
-      ->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
+    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
     
-    $fqp->setLimesurveyDataRaw($this->getSerializer()->encode($ls_raw_data, 'json'));
+    $fqp->setLimesurveyDataRaw($this->serializer->encode($ls_raw_data));
     
   }
 

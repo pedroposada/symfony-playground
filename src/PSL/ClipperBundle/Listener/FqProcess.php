@@ -8,10 +8,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 
-class FqProcess
+abstract class FqProcess
 {
   protected $container;
   protected $logger;
+  protected $serializer;
   protected $current_state;
   protected $state;
   protected $dispatcher;
@@ -23,6 +24,7 @@ class FqProcess
     // this is @service_container
     $this->container = $container;
     $this->logger = $this->container->get('monolog.logger.clipper');
+    $this->serializer = $container->get('clipper_serializer');
     $params = $this->container->getParameter('clipper');
     
     // find next state
@@ -58,7 +60,5 @@ class FqProcess
     }
   }
   
-  protected function main(FirstQProjectEvent $event)
-  {
-  }
+  abstract protected function main(FirstQProjectEvent $event);
 }

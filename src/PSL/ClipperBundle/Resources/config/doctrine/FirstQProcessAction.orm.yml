@@ -1,0 +1,35 @@
+PSL\ClipperBundle\Entity\FirstQProcessAction:
+  type: entity
+  table: firstq_process_action
+  id:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+  fields:
+    groupUuid:
+      type: string
+      length: 255
+      column: group_uuid
+    username:
+      type: string
+      length: 255
+    state:
+      type: string
+      length: 255
+    created:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create
+      options:
+        comment: date and time at creation
+    updated:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: update
+      options:
+        comment: date and time at update
+  lifecycleCallbacks: {  }
