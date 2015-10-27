@@ -45,7 +45,7 @@ parameters:
   confirmation_emails.invoice.order_complete: "[*confirmation_emails.invoice.order_complete*]"
   confirmation_emails.points.order_points:    "[*confirmation_emails.points.order_points*]"
   confirmation_emails.credit.order_complete:  "[*confirmation_emails.credit.order_complete*]"
-  confirmation_emails.project_complete        "[*confirmation_emails.project_complete*]"
+  confirmation_emails.project_complete:       "[*confirmation_emails.project_complete*]"
   # braintree:
   braintree_uk.environment:                   "[*braintree_uk.environment*]"
   braintree_uk.merchant_id:                   "[*braintree_uk.merchant_id*]"
