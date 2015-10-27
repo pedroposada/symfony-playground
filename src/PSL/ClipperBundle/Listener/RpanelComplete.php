@@ -50,7 +50,7 @@ class RpanelComplete extends FqProcess
     $response = $ls->set_survey_properties(array(
       'iSurveyID' => $iSurveyID, 
       'aSurveySettings' => array(
-        'expires' => self::$timestamp,
+        'expires' => parent::$timestamp,
       ), 
     ));
     
