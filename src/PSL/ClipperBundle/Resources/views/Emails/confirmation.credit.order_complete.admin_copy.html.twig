@@ -1,0 +1,11 @@
+{# src/PSL/ClipperBundle/Resources/views/Emails/confirmation.base.html.twig #}
+{# Email to send to admin when credit card order is complete #}
+{% extends 'PSLClipperBundle:Emails:confirmation.base.html.twig' %}
+
+{# Message to user #}
+{% block message %}
+    <div class="message">
+        <span>Your order has been approved.</span>
+    </div>
+{% endblock %}
+
