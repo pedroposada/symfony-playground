@@ -41,7 +41,7 @@ class LimeSurveyComplete extends FqProcess
     // link to project report with quick-login of the user
     $fqg = $event->getFirstQProjectGroup();
     $user = $this->container->get('security.context')->getToken()->getUser();
-    $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', $user->getUsername(), '', array());
+    $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', $user->getEmail(), '', array());
     $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
     $link = $this->container->getParameter('clipper.frontend.url') . '?ql_hash=' . $hash . '&order_id=' . $fqg->getId() . '#project';
 
@@ -49,7 +49,7 @@ class LimeSurveyComplete extends FqProcess
       ->setContentType('text/html')
       ->setSubject('Quota has been reached')
       ->setFrom(array('noreply@clipper.com' => 'No reply'))
-      ->setTo(array($user->getUsername()))
+      ->setTo(array($user->getEmail()))
       ->setBody(
         $this->container->get('templating')->render(
           'PSLClipperBundle:Emails:confirmation_emails.order_close.html.twig',
