@@ -1,12 +1,12 @@
 {# src/PSL/ClipperBundle/Resources/views/Emails/confirmation.base.html.twig #}
-{# Email to send to admin when points order is complete #}
+{# Email to send to admin when invoice order is pending #}
 {% extends 'PSLClipperBundle:Emails:confirmation.base.html.twig' %}
 
 {# Message to user #}
 {% block message %}
     <div class="message">
-        <span>Points - order_points - admin copy</span>
-        <span>Your order has been approved.</span>
+        <span>Invoice - order_invoice - admin copy</span>
+        <span>Your order is pending upon approval.</span>
     </div>
 {% endblock %}
 

@@ -41,7 +41,7 @@ parameters:
   google_spreadsheets.worksheet_name:         "[*google_spreadsheets.worksheet_name*]"
   google_spreadsheets.p12_file_path:          "[*google_spreadsheets.p12_file_path*]"
   # sale emails
-  confirmation_emails.invoice.order_pending:  "[*confirmation_emails.invoice.order_pending*]"
+  confirmation_emails.invoice.order_invoice:  "[*confirmation_emails.invoice.order_invoice*]"
   confirmation_emails.invoice.order_complete: "[*confirmation_emails.invoice.order_complete*]"
   confirmation_emails.points.order_points:    "[*confirmation_emails.points.order_points*]"
   confirmation_emails.credit.order_complete:  "[*confirmation_emails.credit.order_complete*]"

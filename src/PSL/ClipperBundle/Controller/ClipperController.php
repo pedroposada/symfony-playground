@@ -502,13 +502,13 @@ class ClipperController extends FOSRestController
         $order_state = strtolower($method . '.' . $firstq_group->getState());
         $sales_info = array();
         $this->sendConfirmationEmail(
-          $usr->getUsername(),
-          $order_state . '.client_copy', // e.g. 'invoice.order_complete.client_copy'
+          $usr->getEmail(),
+          $order_state . '.client_copy', // 'invoice.order_complete.client_copy' or 'invoice.order_invoice.client_copy' 
           $sales_info
         );
         $this->sendConfirmationEmail(
           $this->container->getParameter('confirmation_emails.' . $order_state),
-          $order_state . '.admin_copy',
+          $order_state . '.admin_copy', // 'invoice.order_complete.admin_copy' or 'invoice.order_invoice.admin_copy'
           $sales_info
         );
 
@@ -546,13 +546,13 @@ class ClipperController extends FOSRestController
         $order_state = strtolower($method . '.' . $firstq_group->getState());
         $sales_info = array();
         $this->sendConfirmationEmail(
-          $usr->getUsername(),
-          $order_state . '.client_copy', // e.g. 'points.order_complete.client_copy'
+          $usr->getEmail(),
+          $order_state . '.client_copy', // 'points.order_points.client_copy'
           $sales_info
         );
         $this->sendConfirmationEmail(
           $this->container->getParameter('confirmation_emails.' . $order_state),
-          $order_state . 'admin_copy',
+          $order_state . '.admin_copy', // 'points.order_points.admin_copy'
           $sales_info
         );
 
@@ -612,13 +612,13 @@ class ClipperController extends FOSRestController
           $order_state = strtolower($method . '.' . $firstq_group->getState());
           $sales_info = array();
           $this->sendConfirmationEmail(
-            $usr->getUsername(),
-            $order_state . '.client_copy', // e.g. 'credit.order_complete.client_copy'
+            $usr->getEmail(),
+            $order_state . '.client_copy', // 'credit.order_complete.client_copy'
             $sales_info
           );
           $this->sendConfirmationEmail(
             $this->container->getParameter('confirmation_emails.' . $order_state),
-            $order_state . 'admin_copy',
+            $order_state . '.admin_copy', // 'credit.order_complete.admin_copy'
             $sales_info
           );
 
@@ -702,15 +702,6 @@ class ClipperController extends FOSRestController
         // change status to order complete and return ok for redirect
         $firstq_group->setState($order_status);
         $em->persist($firstq_group);
-
-        // Send email to client with sale’s info and message saying it was
-        // approved.
-        // TODO: CLIP-30. Find out how to get email addresses.
-        $this->sendConfirmationEmail(
-          'receipient@example.com',
-          'order_approved.client_copy',
-          array()
-        );
       }
       else {
         $order_status = $parameters_clipper['state_codes']['order_declined'];
@@ -799,6 +790,10 @@ class ClipperController extends FOSRestController
     if (is_string($user) && $user == 'anon.') {
       return '$' . number_format($amount);
     }
+    
+    // User info retrieval from the FW SSO
+    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
 
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
@@ -1094,42 +1089,40 @@ class ClipperController extends FOSRestController
     }
 
     switch ($type) {
-      // Invoice
-      case 'invoice.order_pending.client_copy':
+      // Invoice pending ------------------------------
+      case 'invoice.order_invoice.client_copy':
         $subject = 'Your order is pending.';
         break;
-
-      case 'invoice.order_pending.admin_copy':
+      case 'invoice.order_invoice.admin_copy':
         $subject = 'A pending order is created.';
         break;
-
+        
+      // Invoice complete ------------------------------
       case 'invoice.order_complete.client_copy':
-        $subject = 'Your order is completed.';
+        $subject = 'Your order is ready.';
         break;
-
       case 'invoice.order_complete.admin_copy':
-        $subject = 'An order is completed.';
+        $subject = 'An order is ready.';
         break;
-
-      // Points
+      
+      // Points pending ------------------------------
       case 'points.order_points.client_copy':
-        $subject = 'Your order is completed.';
+        $subject = 'Your order is pending.';
         break;
-
       case 'points.order_points.admin_copy':
-        $subject = 'An order is completed.';
+        $subject = 'A pending order is created.';
         break;
-
-      // Credit card
+      
+      // Credit card ------------------------------
       case 'credit.order_complete.client_copy':
-        $subject = 'Your order is completed.';
+        $subject = 'Your order is ready.';
         break;
-
       case 'credit.order_complete.admin_copy':
-        $subject = 'An order is completed.';
+        $subject = 'An order is ready.';
         break;
-
-      // Project completed
+      
+      // Project completed ------------------------------
+      // @TODO: project complete
     }
 
     $message = \Swift_Message::newInstance()
