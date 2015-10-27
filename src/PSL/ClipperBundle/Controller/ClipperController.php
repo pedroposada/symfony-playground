@@ -502,7 +502,7 @@ class ClipperController extends FOSRestController
         $order_state = strtolower($method . '.' . $firstq_group->getState());
         $sales_info = array();
         $this->sendConfirmationEmail(
-          $usr->getUsername(),
+          $usr->getEmail(),
           $order_state . '.client_copy', // e.g. 'invoice.order_complete.client_copy'
           $sales_info
         );
@@ -546,7 +546,7 @@ class ClipperController extends FOSRestController
         $order_state = strtolower($method . '.' . $firstq_group->getState());
         $sales_info = array();
         $this->sendConfirmationEmail(
-          $usr->getUsername(),
+          $usr->getEmail(),
           $order_state . '.client_copy', // e.g. 'points.order_complete.client_copy'
           $sales_info
         );
@@ -612,7 +612,7 @@ class ClipperController extends FOSRestController
           $order_state = strtolower($method . '.' . $firstq_group->getState());
           $sales_info = array();
           $this->sendConfirmationEmail(
-            $usr->getUsername(),
+            $usr->getEmail(),
             $order_state . '.client_copy', // e.g. 'credit.order_complete.client_copy'
             $sales_info
           );
