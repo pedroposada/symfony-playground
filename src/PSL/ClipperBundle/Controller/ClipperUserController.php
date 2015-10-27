@@ -489,6 +489,10 @@ class ClipperUserController extends FOSRestController
         'fwsso_name' => 'pass',
         'nullable' => TRUE
       ),
+      'timezone' => array(
+        'fwsso_name' => 'timezone',
+        'nullable' => TRUE
+      ),
       'firstname' => array(
         'fwsso_name' => 'field_firstname'
       ),
