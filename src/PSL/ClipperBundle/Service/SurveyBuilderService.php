@@ -29,30 +29,18 @@ class SurveyBuilderService
   
   protected $container;
   
-  // @TODO: only get templating
   public function __construct(ContainerInterface $container)
   {
     $this->container = $container;
   }
   
-  /*
-  protected $templating;
-  
-  public function __construct()
-  {
-    
-  }
-  
-  // public function setTemplating(Templating $templating)
-  public function setTemplating()
-  {
-    // $templating = new PhpEngine(new TemplateNameParser());
-    // $this->templating = $templating;
-  }
-  */
-  
   /**
-   *
+   * Create survey and outputs a LimeSurvey ready XML string
+   * 
+   * @param string $type - the machine name of survey
+   * @param mixed $survey_data - the data needed to build the survey
+   * 
+   * @return string
    */
   public function createSurvey($type, $survey_data)
   {
@@ -61,7 +49,7 @@ class SurveyBuilderService
     
     switch ($type) {
       case 'nps_plus':
-        $nps_survey = new NPSPlusSurvey($this->container->get('templating'), $survey_data);
+        $nps_survey = new NPSPlusSurvey($this->container, $survey_data);
         $survey_output = $nps_survey->createSurveyComponants()->assembleSurvey();
         // 
         break;
