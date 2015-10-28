@@ -202,7 +202,7 @@ class ClipperController extends FOSRestController
       $form_data->num_participants = $num_participants_total;
       // Conversion function and return converted price with currency sign
       $gs_result_total_label = $this->formatPrice($gs_result_total);
-
+      $form_data->price_total = $gs_result_total_label;
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
 
@@ -500,7 +500,7 @@ class ClipperController extends FOSRestController
         // - Email to client with order/confirmation #, and order details.
         // - Email to FW Finance and others (multi email field) order/confirmation #, and order details.
         $order_state = strtolower($method . '.' . $firstq_group->getState());
-        $sales_info = array();
+        $sales_info = $this->formatOrderInfo($firstq_group);
         $this->sendConfirmationEmail(
           $usr->getEmail(),
           $order_state . '.client_copy', // 'invoice.order_complete.client_copy' or 'invoice.order_invoice.client_copy' 
@@ -544,7 +544,7 @@ class ClipperController extends FOSRestController
         // Email to FW Finance and others (multi email field) order/confirmation #,
         // and order details and include link to Clipper Admin UI
         $order_state = strtolower($method . '.' . $firstq_group->getState());
-        $sales_info = array();
+        $sales_info = $this->formatOrderInfo($firstq_group);
         $this->sendConfirmationEmail(
           $usr->getEmail(),
           $order_state . '.client_copy', // 'points.order_points.client_copy'
@@ -610,7 +610,7 @@ class ClipperController extends FOSRestController
           // Email to client with order/confirmation #, and order details
           // Email to FW Finance and others (multi email field)
           $order_state = strtolower($method . '.' . $firstq_group->getState());
-          $sales_info = array();
+          $sales_info = $this->formatOrderInfo($firstq_group);
           $this->sendConfirmationEmail(
             $usr->getEmail(),
             $order_state . '.client_copy', // 'credit.order_complete.client_copy'
@@ -823,19 +823,27 @@ class ClipperController extends FOSRestController
       // Country spelling taken from DG sites (DocPass).
       case 'Austria':
       case 'Belgium':
+      case 'Bulgaria':
+      case 'Croatia':
       case 'Cyprus':
+      case 'Czech Republic':
+      case 'Denmark':
       case 'Estonia':
       case 'Finland':
       case 'Greece':
+      case 'Hungary':
       case 'Ireland':
       case 'Latvia':
       case 'Lithuania':
       case 'Luxembourg':
       case 'Malta':
       case 'Netherlands':
+      case 'Poland':
       case 'Portugal':
+      case 'Romania':
       case 'Slovakia':
       case 'Slovenia':
+      case 'Sweden':
         $currency = 'EUR';
         break;
 
@@ -1144,7 +1152,64 @@ class ClipperController extends FOSRestController
 
     $this->get('mailer')->send($message);
   }
+  
+  /**
+   * format the order info for the emails
+   */
+  private function formatOrderInfo($firstq_group) {
+    
+    $sale_info = array();
+    
+    $firstq_formatted = $firstq_group->getFormattedFirstQGroup();
+    
+    // User info retrieval from the FW SSO
+    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
 
+    $fwsso_ws = $this->container->get('fw_sso_webservice');
+    $fwsso_ws->configure($settings);
+    $response = $fwsso_ws->getUser(array('uid' => $firstq_group->getUserId()));
+
+    $user_info = array();
+
+    if ($response->isOk()) {
+
+      $content = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        throw new Exception('JSON decode error: ' . json_last_error());
+      }
+
+      $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
+      $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
+      $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+
+      // User info
+      $user_info['name'] = $first_name . " " . $last_name;
+      $user_info['company_name'] = $company_name;
+    }
+    
+    $markets = '';
+    foreach ($firstq_formatted['markets'] as $mkey => $mvalue) {
+      $markets .= $mvalue . ', '; 
+    }
+    $markets = rtrim($markets, ', ');
+    $specialties = '';
+    foreach ($firstq_formatted['specialties'] as $skey => $svalue) {
+      $specialties .= $svalue . ', '; 
+    }
+    $specialties = rtrim($specialties, ', ');
+    
+    $sale_info['user_name'] = $user_info['name'];
+    $sale_info['company'] = $user_info['company_name'];
+    $sale_info['title'] = $firstq_formatted['title'];
+    $sale_info['launch_date'] = $firstq_formatted['launch_date'];
+    $sale_info['markets'] = $markets;
+    $sale_info['specialties'] = $specialties;
+    $sale_info['price'] = $firstq_formatted['price'];
+    
+    return $sale_info;
+  }
+  
   /**
    * ----------------------------------------------------------------------------------------
    * REDIRECT OR OUPUT
