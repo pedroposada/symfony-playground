@@ -325,22 +325,10 @@ class ClipperController extends FOSRestController
         foreach ($firstq_groups as $key => $firstq_group) {
 
           // User info retrieval from the FW SSO
-          $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
-          $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
-
-          $fwsso_ws = $this->container->get('fw_sso_webservice');
-          $fwsso_ws->configure($settings);
-          $response = $fwsso_ws->getUser(array('uid' => $firstq_group->getUserId()));
-
+          $content = $this->getUserObject($firstq_group->getUserId());
           $user_info = array();
 
-          if ($response->isOk()) {
-
-            $content = @json_decode($response->getContent(), TRUE);
-            if (json_last_error() != JSON_ERROR_NONE) {
-              throw new Exception('JSON decode error: ' . json_last_error());
-            }
-
+          if ($content) {
             $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
             $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
             $company = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
@@ -811,19 +799,10 @@ class ClipperController extends FOSRestController
     }
     
     // User info retrieval from the FW SSO
-    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
-    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
-
-    $fwsso_ws = $this->container->get('fw_sso_webservice');
-    $fwsso_ws->configure($settings);
-    $response = $fwsso_ws->getUser(array('uid' => $user->getUserId()));
+    $content = $this->getUserObject($user->getUserId());
     $country = 'USA';
-    if ($response->isOk()) {
-
-      $content = @json_decode($response->getContent(), TRUE);
-      if (json_last_error() != JSON_ERROR_NONE) {
-        throw new Exception('JSON decode error: ' . json_last_error());
-      }
+    
+    if ($content) {
       $country = (isset($content['field_country']['und'][0]['value'])) ? $content['field_country']['und'][0]['value'] : '';
     }
 
@@ -1180,24 +1159,12 @@ class ClipperController extends FOSRestController
     $sale_info = array();
     
     $firstq_formatted = $firstq_group->getFormattedFirstQGroup();
-    
+
     // User info retrieval from the FW SSO
-    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
-    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
-
-    $fwsso_ws = $this->container->get('fw_sso_webservice');
-    $fwsso_ws->configure($settings);
-    $response = $fwsso_ws->getUser(array('uid' => $firstq_group->getUserId()));
-
+    $content = $this->getUserObject($firstq_group->getUserId());
     $user_info = array();
 
-    if ($response->isOk()) {
-
-      $content = @json_decode($response->getContent(), TRUE);
-      if (json_last_error() != JSON_ERROR_NONE) {
-        throw new Exception('JSON decode error: ' . json_last_error());
-      }
-
+    if ($content) {
       $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
       $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
       $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
@@ -1229,6 +1196,33 @@ class ClipperController extends FOSRestController
     return $sale_info;
   }
   
+  /**
+   * Returns the user object from the FW SSO
+   * 
+   * @param: int $user_id - FW SSO user id
+   */
+  private function getUserObject($user_id) {
+    // User info retrieval from the FW SSO
+    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
+
+    $fwsso_ws = $this->container->get('fw_sso_webservice');
+    $fwsso_ws->configure($settings);
+    $response = $fwsso_ws->getUser(array('uid' => $user_id));
+    
+    if ($response->isOk()) {
+      $content = @json_decode($response->getContent(), TRUE);
+      if (json_last_error() != JSON_ERROR_NONE) {
+        throw new Exception('JSON decode error: ' . json_last_error());
+      }
+      else {
+        return $content;
+      }
+    }
+    else {
+      return FALSE;
+    }
+  }
   /**
    * ----------------------------------------------------------------------------------------
    * REDIRECT OR OUPUT
