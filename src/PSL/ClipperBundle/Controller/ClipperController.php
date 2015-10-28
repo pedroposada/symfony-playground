@@ -1101,34 +1101,38 @@ class ClipperController extends FOSRestController
 
   function sendSecurityEmail() {
     
-    /*
-    // @TODO: check if user is logged in
-    // if logged in, get data
-    // get IP address for both anon and auth
-    // use email template to insert data
-     
-    $usr = $this->get('security.context')->getToken()->getUser();
-    $userid = $usr->getUserId();
-    $userEmail = $usr->getEmail();
+    // Check if user is logged in
+    $user = $this->get('security.context')->getToken()->getUser();
     
-    // User info retrieval from the FW SSO
-    $content = $this->getUserObject($firstq_group->getUserId());
+    $user_log = ''; // message for email and log
+    
     $user_info = array();
-
-    if ($content) {
-      $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
-      $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
-      $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
-
-      // User info
-      $user_info['name'] = $first_name . " " . $last_name;
-      $user_info['company_name'] = $company_name;
-    }
-    $user_info['email'] = $userEmail;
+    $user_info['name'] = '';
+    $user_info['company_name'] = '';
+    $user_info['email'] = '';
+    $user_info['ip'] = $this->container->get('request')->getClientIp();
     
+    if (!is_string($user) || $user != 'anon.') {
+      // if logged in, get data
+      $userid = $usr->getUserId();
+      $userEmail = $usr->getEmail();
+      
+      // User info retrieval from the FW SSO
+      $content = $this->getUserObject($firstq_group->getUserId());
+  
+      if ($content) {
+        $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
+        $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
+        $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+        $user_info['name'] = $first_name . ' ' . $last_name;
+        $user_info['company_name'] = $company_name;
+      }
+      $user_info['email'] = $userEmail;
+      $user_log .= 'Name: ' . $user_info['name'] . ' Company: ' . $user_info['company_name'] . ' Email: ' . $user_info['email'];
+    }
     $this->logger = $this->container->get('monolog.logger.clipper');
-    $this->logger->info("Log an event with some of the info");
-    */
+    $user_log .= ' IP:' . $user_info['ip'];  
+    $this->logger->info('Email sent for high volume of Google sheet requests - ' . $user_log);
     
     $subject = "Security Alerts - abnormal order request level.";
     $from = $this->container->getParameter('security_alerts.email_from');
@@ -1142,7 +1146,7 @@ class ClipperController extends FOSRestController
       ->setBody(
         $this->renderView(
           'PSLClipperBundle:Emails:security.alerts.html.twig',
-          array(),
+          array('user_log' => $user_log),
           'text/html'
         )
       )
