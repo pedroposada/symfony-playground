@@ -125,6 +125,7 @@ class GoogleSpreadsheetService
         $feasibility->market = $form_data->market;
         $feasibility->specialty = $form_data->specialty;
         $feasibility->feasibility = TRUE;
+        $feasibility->num_participants = $form_data->num_participants;
         $feasibility->participants_sample = $result['F8'];
         $feasibility->price = $result['F24'];
         $feasibility->result = $result;

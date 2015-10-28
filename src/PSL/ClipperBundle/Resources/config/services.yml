@@ -1,11 +1,13 @@
 services:
   clipper_cache:
     class: PSL\ClipperBundle\Service\ClipperCacheService
-    arguments: [%clipper_cache.config%]
+    arguments: 
+      - %clipper_cache.config%
+      - @service_container
 
   google_spreadsheet:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
-    arguments: 
+    arguments:
       - @service_container
       - %google_spreadsheets.client_id%
       - %google_spreadsheets.service_account_name%
@@ -33,11 +35,22 @@ services:
   explode_tree:
     class: PSL\ClipperBundle\Utils\ExplodeTree
 
+  quota_map:
+    class: PSL\ClipperBundle\Utils\Quota
+
   survey_chart_map:
     class: PSL\ClipperBundle\Charts\SurveyChartMap
 
   chart_assembler:
     class: PSL\ClipperBundle\Charts\Assembler
+    arguments: [@service_container]
+
+  chart_helper:
+    class: PSL\ClipperBundle\Service\ClipperChartsService
+    arguments: [@service_container]
+
+  download_assembler:
+    class: PSL\ClipperBundle\Downloads\Assembler
     arguments: [@service_container]
 
   clipper_serializer:
@@ -60,6 +73,10 @@ services:
 
   drupal_password_encoder:
     class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
+    arguments: ["@service_container"]
+
+  translator_service:
+    class: PSL\ClipperBundle\Service\TranslatorService
     arguments: ["@service_container"]
 
   # --------------------------- #
@@ -100,57 +117,89 @@ services:
       - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }
       - { name: kernel.event_listener, event: after_limesurvey_complete, method: refreshResponses, priority: 0 }
 
+  # Limesurvey Translator
+  clipper.limesurvey.translator:
+    class: PSL\ClipperBundle\Listener\LimeSurveyTranslator
+    arguments: ["@service_container"]
+    tags:
+      - { name: kernel.event_listener, event: limesurvey_translation, method: onTranslate, priority: 0 }
+
   # types of charts
-  clipper.chart.net_promoters:
-    class: PSL\ClipperBundle\Charts\Types\NetPromoters
-    arguments: ["@service_container", "net_promoters"]
+  #NPS: 001
+  clipper.chart.nps:
+    class: PSL\ClipperBundle\Charts\Types\NPS
+    arguments: ["@service_container", "NPS"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
-
-  clipper.chart.devoted_doctor_to_brands:
-    class: PSL\ClipperBundle\Charts\Types\DevotedDoctorToBrands
-    arguments: ["@service_container", "devoted_doctor_to_brands"]
+  #NPS: 002
+  clipper.chart.loyalty:
+    class: PSL\ClipperBundle\Charts\Types\Loyalty
+    arguments: ["@service_container", "Loyalty"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
-
-  clipper.chart.doctor_promoting_brands:
-    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingBrands
-    arguments: ["@service_container", "doctor_promoting_brands"]
+  #NPS: 003
+  clipper.chart.doctorspromote:
+    class: PSL\ClipperBundle\Charts\Types\DoctorsPromote
+    arguments: ["@service_container", "DoctorsPromote"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
-
-  clipper.chart.doctor_promoting_mine_also_others:
-    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingMineAlsoOthers
-    arguments: ["@service_container", "doctor_promoting_mine_also_others"]
+  #NPS: 004
+  clipper.chart.promoterspromote:
+    class: PSL\ClipperBundle\Charts\Types\PromotersPromote
+    arguments: ["@service_container", "PromotersPromote"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
-
-  clipper.chart.doctor_promoting_mine_also_others_table:
-    class: PSL\ClipperBundle\Charts\Types\DoctorPromotingMineAlsoOthersTable
-    arguments: ["@service_container", "doctor_promoting_mine_also_others_table"]
+  #NPS: 005
+  clipper.chart.detractorspromote:
+    class: PSL\ClipperBundle\Charts\Types\DetractorsPromote
+    arguments: ["@service_container", "DetractorsPromote"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
-
-  clipper.chart.detractors_promotes_these_brands:
-    class: PSL\ClipperBundle\Charts\Types\DetractorsPromotesTheseBrands
-    arguments: ["@service_container", "detractors_promotes_these_brands"]
+  #NPS: 006
+  clipper.chart.promvsdetrpromote:
+    class: PSL\ClipperBundle\Charts\Types\PromVsDetrPromote
+    arguments: ["@service_container", "PromVsDetrPromote"]
     tags:
-      - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
-
-  clipper.chart.promoters_prescribe_versus_detractors:
-    class: PSL\ClipperBundle\Charts\Types\PromotersPrescribeVersusDetractors
-    arguments: ["@service_container", "promoters_prescribe_versus_detractors"]
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  #NPS: 007
+  clipper.chart.ppdbrandmessages:
+    class: PSL\ClipperBundle\Charts\Types\PPDBrandMessages
+    arguments: ["@service_container", "PPDBrandMessages"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  #NPS: 008
+  clipper.chart.dna:
+    class: PSL\ClipperBundle\Charts\Types\DNA
+    arguments: ["@service_container", "DNA"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  #Extra for export
+  #Table 4
+  clipper.chart.promoterspromotemean:
+    class: PSL\ClipperBundle\Charts\Types\PromotersPromoteMean
+    arguments: ["@service_container", "PromotersPromoteMean"]
+    tags:
+       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  #Table 9-16
+  clipper.chart.ppdbrandmessagesbybrands:
+    class: PSL\ClipperBundle\Charts\Types\PPDBrandMessagesByBrands
+    arguments: ["@service_container", "PPDBrandMessagesByBrands"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
 
-  clipper.chart.what_they_say:
-    class: PSL\ClipperBundle\Charts\Types\WhatTheySay
-    arguments: ["@service_container", "what_they_say"]
-    tags:
-       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+  # --------------------------- #
+  #   Clipper event listeners   #
+  # --------------------------- #
 
-  clipper.chart.associate_categories_importance:
-    class: PSL\ClipperBundle\Charts\Types\AssociateCategoriesImportance
-    arguments: ["@service_container", "associate_categories_importance"]
+  #@TODO: remove this
+  clipper.download.nps_plus_dev:
+    class: PSL\ClipperBundle\Downloads\Types\NPSPlusDev
+    arguments: ["@service_container", "nps_plus", "dev"]
     tags:
-       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
+       - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }
+
+  clipper.download.nps_plus_excel:
+    class: PSL\ClipperBundle\Downloads\Types\NPSPlusExcel
+    arguments: ["@service_container", "nps_plus", "xls"]
+    tags:
+       - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }

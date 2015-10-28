@@ -138,7 +138,25 @@ nelmio_cors:
                 - OPTIONS
             expose_headers: {  }
             max_age: 3600
-            
+        ^/clipper/charts:
+            allow_credentials: true
+            allow_origin:
+              - '*'
+            allow_headers:
+              - Origin
+              - X-Requested-With
+              - Content-Type
+              - Accept
+              - Authorization
+            allow_methods:
+              - POST
+              - GET
+              - DELETE
+              - PUT
+              - OPTIONS
+            expose_headers: { }
+            max_age: 3600
+
 
 
 
@@ -157,6 +175,7 @@ parameters:
       #firstq_group
       order_pending: ORDER_PENDING
       order_invoice: ORDER_INVOICE
+      order_points: ORDER_POINTS
       order_declined: ORDER_DECLINED
       order_complete: ORDER_COMPLETE
       order_closed: ORDER_CLOSED
@@ -175,6 +194,7 @@ parameters:
   clipper.conditions: Resources/terms/conditions.xml
   clipper.quota.universal: "1"
   
+  
   #limeSurvey
   limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]'
   limesurvey.url_exit: '%limesurvey.url_redirect_base%/clipper/limesurvey/exit'
@@ -183,7 +203,8 @@ parameters:
       
   #rpanel
   rpanel:
-    user_id: 7777
+    user_id: %rpanel.user_id%
+    client_id: %rpanel.client_id%
     default_table_values:
       proj_status: 1
       proj_type: 1

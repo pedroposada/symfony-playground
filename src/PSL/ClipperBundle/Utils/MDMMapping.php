@@ -503,10 +503,20 @@ class MDMMapping
     )
   );
 
+  /**
+   * @param $type string "countries" or "specialties"
+   * @param $search string name
+   * @return false or code
+   */
   public static function map($type, $search = '') {
     return isset(self::$mappings[$type][$search]) ? self::$mappings[$type][$search] : FALSE;
   }
 
+  /**
+   * @param $type string "countries" or "specialties"
+   * @param $searches array of string names
+   * @return false or code
+   */
   public static function map_multiple($type, $searches = array()) {
     $map = array();
     foreach ($searches as $search) {

@@ -25,9 +25,8 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
 
   public function loadUserByUsername($username)
   {
-    $fwsso_config = $this->container->getParameter('fwsso_api');
-    $settings['fwsso_baseurl'] = $fwsso_config['url'];
-    $settings['fwsso_app_token'] = $fwsso_config['app_token'];
+    $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
+    $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
     
     // @TODO: modification on the FWSSO server side is required
     $fwsso_ws = $this->container->get('fw_sso_webservice');
@@ -40,12 +39,14 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
       if (json_last_error() != JSON_ERROR_NONE) {
         throw new Exception('JSON decode error: ' . json_last_error());
       }
+      $userId = $content['account']['uid'];
       $username = $content['account']['name'];
+      $email = $content['account']['mail'];
       $password = 'password';
 
       $roles = $this->getRoles($username);
       
-      $fwsso_user = new FWSSOQuickLoginUser($username, $password, $roles);
+      $fwsso_user = new FWSSOQuickLoginUser($userId, $username, $email, $password, $roles);
 
       return $fwsso_user;
     }

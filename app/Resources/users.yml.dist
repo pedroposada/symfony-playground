@@ -1,0 +1,4 @@
+# Example
+# uuser:
+#    password: 'userpass'
+#    roles: [ROLE_ADMINUI_USER]
