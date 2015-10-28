@@ -1100,7 +1100,36 @@ class ClipperController extends FOSRestController
   }
 
   function sendSecurityEmail() {
+    
+    /*
+    // @TODO: check if user is logged in
+    // if logged in, get data
+    // get IP address for both anon and auth
+    // use email template to insert data
+     
+    $usr = $this->get('security.context')->getToken()->getUser();
+    $userid = $usr->getUserId();
+    $userEmail = $usr->getEmail();
+    
+    // User info retrieval from the FW SSO
+    $content = $this->getUserObject($firstq_group->getUserId());
+    $user_info = array();
 
+    if ($content) {
+      $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
+      $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
+      $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+
+      // User info
+      $user_info['name'] = $first_name . " " . $last_name;
+      $user_info['company_name'] = $company_name;
+    }
+    $user_info['email'] = $userEmail;
+    
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    $this->logger->info("Log an event with some of the info");
+    */
+    
     $subject = "Security Alerts - abnormal order request level.";
     $from = $this->container->getParameter('security_alerts.email_from');
     $to = $this->container->getParameter('security_alerts.email_to');
