@@ -212,7 +212,7 @@ class ClipperController extends FOSRestController
       $gs_result_total_label = $this->formatPrice($gs_result_total);
       $form_data->price_total = $gs_result_total_label;
       
-       // calculate estimated time of completion
+      // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
       $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
       

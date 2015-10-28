@@ -177,8 +177,8 @@ parameters:
       order_invoice: ORDER_INVOICE
       order_points: ORDER_POINTS
       order_declined: ORDER_DECLINED
-      order_complete: ORDER_COMPLETE
-      order_closed: ORDER_CLOSED
+      order_complete: ORDER_COMPLETE # good payment
+      order_closed: ORDER_CLOSED # quota is met or time limit reached, whatever comes first
       #firstq_project
       limesurvey_pending: LIMESURVEY_PENDING
       limesurvey_created: LIMESURVEY_CREATED

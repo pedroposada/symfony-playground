@@ -19,27 +19,11 @@ class LimeSurveyComplete extends FqProcess
   {
     // get FirstQProject object
     $fqp = $event->getFirstQProject();
+    $fqg = $event->getFirstQProjectGroup();
 
-    // @TODO: Support multi market/specialty combo
-    $iSurveyID = current($fqp->getLimesurveyDataByField('sid'));
-
-    // get LS
-    $ls = $this->container->get('limesurvey');
-
-    // get lime survey results
-    $responses = $ls->export_responses(array(
-      'iSurveyID' => $iSurveyID,
-      'sHeadingType' => 'full',
-    ));
-
-    if( is_array($responses) ) {
-      $responses = implode(', ', $responses);
-      throw new Exception("LS export_responses error: [{$responses}] for fq->id: [{$fqp->getId()}] - limesurvey_complete", 2);
-    }
 
     // Email to client when quota has been reached and the report is ready.
     // link to project report with quick-login of the user
-    $fqg = $event->getFirstQProjectGroup();
     $user = $this->container->get('security.context')->getToken()->getUser();
     $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', $user->getEmail(), '', array());
     $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
