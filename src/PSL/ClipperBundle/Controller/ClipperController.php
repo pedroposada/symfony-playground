@@ -451,7 +451,8 @@ class ClipperController extends FOSRestController
 
     // return error if empty
     if (empty($firstq_group_uuid)) {
-      $message = 'Invalid request - missing parameters';
+      $message = 'We were unable to complete your order. Please <a href="/">create your project again</a>.';
+      $this->logger->debug('Process order - Invalid request - missing firstq uuid');
       return new Response($message, 400); // invalid request
     }
 
@@ -463,7 +464,8 @@ class ClipperController extends FOSRestController
       $em = $this->getDoctrine()->getManager();
       $firstq_group = $em->getRepository('PSLClipperBundle:FirstQGroup')->find($firstq_group_uuid);
       if (empty($firstq_group) || $firstq_group->getState() != 'ORDER_PENDING') {
-        $returnObject['message'] = 'Error - FirstQ uuid is invalid';
+        $returnObject['message'] = 'We were unable to complete your order. Please <a href="/">create your project again</a>.';
+        $this->logger->debug('Process order - Error - FirstQ uuid is invalid');
         return new Response($returnObject, 400);
       }
 
@@ -550,7 +552,8 @@ class ClipperController extends FOSRestController
       // Credit ------------------------------------------------------------------------------------
       if ($method == 'CREDIT') {
         if (empty($payment_method_nonce)) {
-          $returnObject['message'] = 'Invalid request - missing parameters';
+          $returnObject['message'] = 'We were unable to process your payment. Please try again.';
+          $this->logger->debug('Process order - Invalid request - missing parameter payment nonce');
           return new Response($returnObject, 400); // invalid request
         }
 
@@ -592,7 +595,7 @@ class ClipperController extends FOSRestController
           $em->flush();
 
           $returnObject['fquuid'] = $firstq_group_uuid;
-          $returnObject['message'] = "";
+          $returnObject['message'] = 'Thank you for your payment.';
 
           // Send confirmation emails.
           // Email to client with order/confirmation #, and order details
@@ -618,8 +621,8 @@ class ClipperController extends FOSRestController
           // @see https://developers.braintreepayments.com/reference/response/transaction/php#result-object
           
           // We will check if there's any errors
-          $error_message = "";
-          $error_code = ""; 
+          $error_message = '';
+          $error_code = '';
           foreach($result->errors->deepAll() AS $error) {
             $error_message .= $error->message . "\n";
             // we need only 1 error code, this is for frontend to trigger error message.
@@ -635,15 +638,14 @@ class ClipperController extends FOSRestController
           }
           $this->logger->debug("Payment System Error : " . var_export($result->errors, true));
           $returnObject['message'] = $error_message;
-          // $returnObject['message'] = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
           return new Response($returnObject, 400);
         }
       }
     }
     catch (\Exception $e) {
       // Something messed up
-      $this->logger->debug("exception: {$e}");
-      $returnObject['message'] = "Error - Please try again. {$e}";
+      $this->logger->debug("Process order - exception: {$e}");
+      $returnObject['message'] = 'We were unable to process your payment. Please try again.';
       return new Response($returnObject, 400); // Error
     }
 
@@ -734,7 +736,7 @@ class ClipperController extends FOSRestController
     }
     catch (\Exception $e) {
       // Something messed up
-      $this->logger->debug("exception: {$e}");
+      $this->logger->debug("Process order admin - exception: {$e}");
       $message = 'Error - Please try again.';
       return new Response($message, 400); // Error
     }
@@ -1213,7 +1215,7 @@ class ClipperController extends FOSRestController
     if ($response->isOk()) {
       $content = @json_decode($response->getContent(), TRUE);
       if (json_last_error() != JSON_ERROR_NONE) {
-        throw new Exception('JSON decode error: ' . json_last_error());
+        throw new Exception('Get User object - JSON decode error: ' . json_last_error());
       }
       else {
         return $content;

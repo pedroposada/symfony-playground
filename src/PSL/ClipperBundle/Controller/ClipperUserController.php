@@ -107,13 +107,16 @@ class ClipperUserController extends FOSRestController
       if ($response->isOk()) {
         $content = @json_decode($response->getContent(), TRUE);
         if (json_last_error() != JSON_ERROR_NONE) {
+          $this->logger = $this->container->get('monolog.logger.clipper');
           // Return operation specific error
           $returnObject['user'] = FALSE;
-          $returnObject['error_message'] = 'JSON decode error: ' . json_last_error();
+          $returnObject['error_message'] = 'An error has occurred. Please try again.';
+          $this->logger->debug('Create account - JSON decode error: ' . json_last_error());
           $responseStatus = 500;
         }
         $returnObject['user'] = $content;
-      } else {
+      } 
+      else {
         throw new Exception('Error creating user. ' . $response->getReasonPhrase());
       }
     }
@@ -123,7 +126,7 @@ class ClipperUserController extends FOSRestController
       $returnObject['user'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      $this->logger->debug("Create account - General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -151,6 +154,7 @@ class ClipperUserController extends FOSRestController
    */
   public function postUserAction(ParamFetcher $paramFetcher, $uid)
   {
+    $this->logger = $this->container->get('monolog.logger.clipper');
     // Object to return to remote form
     $returnObject = array();
     $responseStatus = 200;
@@ -186,21 +190,25 @@ class ClipperUserController extends FOSRestController
         if (json_last_error() != JSON_ERROR_NONE) {
           // Return operation specific error
           $returnObject['user'] = FALSE;
-          $returnObject['error_message'] = 'JSON decode error: ' . json_last_error();
+          $admin_email = $this->container->getParameter('clipper.admin_email');
+          $returnObject['error_message'] = 'An error has occurred. Please try again or contact us at <a href="mailto:' + $admin_email + '">' + $admin_email + '</a>.';
+          $this->logger->debug('Edit profile - JSON decode error: ' . json_last_error());
           $responseStatus = 500;
         }
         $returnObject['user'] = $content;
-      } else {
-        throw new Exception('Error creating user. ' . $response->getReasonPhrase());
+        $returnObject['message'] = 'Your changes have been saved';
+      } 
+      else {
+        throw new Exception('Error editing user. ' . $response->getReasonPhrase());
       }
     }
     catch (\Exception $e) {
-      $this->logger = $this->container->get('monolog.logger.clipper');
       // Return operation specific error
-      $returnObject['product'] = FALSE;
-      $returnObject['error_message'] =  $e->getMessage();
+      $returnObject['user'] = FALSE;
+      $admin_email = $this->container->getParameter('clipper.admin_email');
+      $returnObject['error_message'] = 'An error has occurred. Please try again or contact us at <a href="mailto:' + $admin_email + '">' + $admin_email + '</a>.';
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      $this->logger->debug("Edit user - General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -247,15 +255,18 @@ class ClipperUserController extends FOSRestController
       if ($response->isOk()) {
         $content = @json_decode($response->getContent(), TRUE);
         if (json_last_error() != JSON_ERROR_NONE) {
+          $this->logger = $this->container->get('monolog.logger.clipper');
           // Return operation specific error
           $returnObject['user'] = FALSE;
-          $returnObject['error_message'] = 'JSON decode error: ' . json_last_error();
+          $returnObject['error_message'] = 'An error has occurred. Please try again.';
+          $this->logger->debug('Retrieve user - JSON decode error: ' . json_last_error());
           $responseStatus = 500;
         }
         $returnObject['user'] = $content;
         // Is this user invoice whitelisted?
         $returnObject['user']['whitelisted'] = $this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED');
-      } else {
+      } 
+      else {
         throw new Exception('Error retrieving the user. ' . $response->getReasonPhrase());
       }
       
@@ -266,7 +277,7 @@ class ClipperUserController extends FOSRestController
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] =  $e->getMessage();
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      $this->logger->debug("Retrieve user - General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -304,7 +315,8 @@ class ClipperUserController extends FOSRestController
       $response = $fwsso_ws->forgotPassword($user);
       if ($response->isOk()) {
         $returnObject['message'] = $response;
-      } else {
+      } 
+      else {
         throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
       }
       
@@ -313,9 +325,9 @@ class ClipperUserController extends FOSRestController
       $this->logger = $this->container->get('monolog.logger.clipper');
       // Return operation specific error
       $returnObject['product'] = FALSE;
-      $returnObject['error_message'] =  $e->getMessage();
+      $returnObject['error_message'] = 'An error has occurred. Please try again.';
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      $this->logger->debug("Forgot password - General exception: {$e}");
     }
 
     return new Response($returnObject, $responseStatus);
@@ -353,15 +365,18 @@ class ClipperUserController extends FOSRestController
     if ($response->isOk()) {
       $user = @json_decode($response->getContent(), TRUE);
       if (json_last_error() != JSON_ERROR_NONE) {
+        $this->logger = $this->container->get('monolog.logger.clipper');
+        $this->logger->debug('Change password get user - JSON decode error: ' . json_last_error());
         // Return operation specific error
         $retObj = array(
-          'error_message' => 'User - JSON decode error: ' . json_last_error(),
+          'error_message' => 'An error has occurred. Please try again.',
         );
         $retCode = 500;
         $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
         return $response;
       }
-    } else {
+    } 
+    else {
       throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
     }
 
@@ -378,15 +393,18 @@ class ClipperUserController extends FOSRestController
     if ($response->isOk()) {
       $content = @json_decode($response->getContent(), TRUE);
       if (json_last_error() != JSON_ERROR_NONE) {
+        $this->logger = $this->container->get('monolog.logger.clipper');
+        $this->logger->debug('Change password - JSON decode error: ' . json_last_error());
         // Return operation specific error
         $retObj = array(
-          'error_message' => 'Content - JSON decode error: ' . json_last_error(),
+          'error_message' => 'An error has occurred. Please try again.',
         );
         $retCode = 500;
         $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
         return $response;
       }
-    } else {
+    } 
+    else {
       throw new Exception('Error retrieving the password. ' . $response->getReasonPhrase());
     }
 
@@ -398,7 +416,6 @@ class ClipperUserController extends FOSRestController
     $retCode = 200;
     $response = new HttpFoundationResponse(json_encode($retObj), $retCode, $retHeaders);
     return $response;
-
   }
 
   /**
@@ -447,14 +464,14 @@ class ClipperUserController extends FOSRestController
       $this->get('mailer')->send($msg);
       
       // return message
-      $returnObject['message'] = 'Password recovery mail sent to "' . $email . '".';
+      $returnObject['message'] = 'Further instructions have been sent to "' . $email . '".';
     }
     catch (\Exception $e) {
       $this->logger = $this->container->get('monolog.logger.clipper');
       // Return operation specific error
-      $returnObject['error_message'] =  $e->getMessage();
+      $returnObject['error_message'] =  'An error has occurred. Please try again.';
       $responseStatus = 400;
-      $this->logger->debug("General exception: {$e}");
+      $this->logger->debug("Forgot password - General exception: {$e}");
     }
     
     return new Response($returnObject, $responseStatus);
