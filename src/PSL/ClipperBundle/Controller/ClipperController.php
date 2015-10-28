@@ -203,6 +203,13 @@ class ClipperController extends FOSRestController
       // Conversion function and return converted price with currency sign
       $gs_result_total_label = $this->formatPrice($gs_result_total);
       $form_data->price_total = $gs_result_total_label;
+      
+      // calculate estimated time of completion
+      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
+      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
+      
+      $form_data->completion_date = $completion_date;
+      
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
 
@@ -211,11 +218,6 @@ class ClipperController extends FOSRestController
       $returnObject['product']['price_label'] = $gs_result_total_label;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
       $returnObject['product']['num_participants'] = $num_participants_total;
-
-      // calculate estimated time of completion
-      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
-      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
-
       $returnObject['product']['end_date'] = $completion_date;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
     }
