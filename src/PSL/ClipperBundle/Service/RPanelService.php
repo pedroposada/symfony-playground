@@ -202,4 +202,24 @@ class RPanelService
     }
   }
   
+  /**
+   * PROJECT_DETAIL_TEXTINVITES
+   * 
+   * @param RPanelProject $rp - a RPanel project object
+   */
+  public function createProjectDetailTextinvites(RPanelProject $rp)
+  {
+    $conn = $this->conn;
+    $conn->insert('PROJECT_DETAIL_TEXTINVITES', array(
+      // TODO: ask business for proper value
+      'title' => $rp->getProjName(),            
+      // TODO: ask business for proper value
+      'description' => $rp->getProjName(),      
+      // TODO: ask business for proper value
+      'subject_email' => $rp->getProjName(), 
+      // translateapi.feasibility_project_quota.quota_id
+      'quota_id' => $rp->getQuoteId(),
+    ));   
+  }
+  
 }
