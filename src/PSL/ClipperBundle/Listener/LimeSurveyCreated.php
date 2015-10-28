@@ -10,11 +10,19 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
-use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
+use PSL\ClipperBundle\Utils\MDMMapping;
+use PSL\ClipperBundle\Utils\RPanelProject;
+use PSL\ClipperBundle\Service\RPanelService;
 
 class LimeSurveyCreated extends FqProcess
 {
+  private $rps;
+  
+  public function __construct(ContainerInterface $container, $state, RPanelService $rps)
+  {
+    parent::__construct($container, $state);
+    $this->rps = $rps;
+  }
 
   protected function main(FirstQProjectEvent $event)
   {
@@ -67,7 +75,7 @@ class LimeSurveyCreated extends FqProcess
     $gs_object->result = $sheet_data['result'];
       
     // Get RPanel service
-    $rps = $this->container->get('rpanel');
+    $rps = $this->rps;
     // connect db
     $config = new \Doctrine\DBAL\Configuration();
     $dbconfig = array(
@@ -143,6 +151,9 @@ class LimeSurveyCreated extends FqProcess
       $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
       $urls = $ls_data['urls'];
       $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
+      
+      // PROJECT_DETAIL_TEXTINVITES
+      $rps->createProjectDetailTextinvites($rpanel_project);
       
       $conn->commit();
     }
