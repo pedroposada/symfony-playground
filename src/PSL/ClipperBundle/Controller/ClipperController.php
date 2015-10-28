@@ -41,6 +41,7 @@ use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Entity\FirstQProcessAction as FirstQProcessAction;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
+use PSL\ClipperBundle\Utils\CurrencyMapper as CurrencyMapper;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
@@ -570,8 +571,7 @@ class ClipperController extends FOSRestController
         // this will charge the user's card
         $parameters_clipper = $this->container->getParameter('clipper');
 
-        // @TODO: Use proper config according to country
-        $this->initBrainTree('uk');
+        $this->initBrainTree();
 
         $sale_params = array(
           'amount' => $amount,
@@ -762,10 +762,7 @@ class ClipperController extends FOSRestController
   public function getClientTokenAction(Request $request)
   {
     // Set Braintree configuration
-    $this->initBrainTree('uk');
-
-    // get user_id from request
-    //$firstq_uuid = $request->query->get('firstq_uuid');
+    $this->initBrainTree();
 
     $client_token['clientToken'] = \Braintree_ClientToken::generate();
 
@@ -802,55 +799,18 @@ class ClipperController extends FOSRestController
     
     // User info retrieval from the FW SSO
     $content = $this->getUserObject($user->getUserId());
-    $country = 'USA';
     
+    $country_id = 0;
     if ($content) {
-      $country = (isset($content['field_country']['und'][0]['value'])) ? $content['field_country']['und'][0]['value'] : '';
+      $country_id = (isset($content['field_country']['und'][0]['tid'])) ? $content['field_country']['und'][0]['tid'] : '';
     }
 
-    // TODO. Refactor this switch control stucture, put it somewhere else. Use country IDs and not names.
-
-    switch ($country) {
-      case 'UK':
-        $currency = 'GBP';
-        break;
-
-      case 'France':
-      case 'Germany':
-      case 'Italy':
-      case 'Spain':
-      // European Union countries. Country list taken from Wikipedia /wiki/Euro.
-      // Country spelling taken from DG sites (DocPass).
-      case 'Austria':
-      case 'Belgium':
-      case 'Bulgaria':
-      case 'Croatia':
-      case 'Cyprus':
-      case 'Czech Republic':
-      case 'Denmark':
-      case 'Estonia':
-      case 'Finland':
-      case 'Greece':
-      case 'Hungary':
-      case 'Ireland':
-      case 'Latvia':
-      case 'Lithuania':
-      case 'Luxembourg':
-      case 'Malta':
-      case 'Netherlands':
-      case 'Poland':
-      case 'Portugal':
-      case 'Romania':
-      case 'Slovakia':
-      case 'Slovenia':
-      case 'Sweden':
-        $currency = 'EUR';
-        break;
-
-      case 'USA':
-      default:
-        $currency = 'USD';
-        break;
+    // get the mapping
+    $currency =  CurrencyMapper::findCurrencies($country_id);
+    if ($currency) {
+      $currency = array_shift($currency);
+    } else {
+      $currency = 'USD';
     }
 
     // After we decide the curreny unit, let's do conversion to exchange rate.
@@ -879,18 +839,38 @@ class ClipperController extends FOSRestController
   /**
    * Get BrainTree Object
    */
-  private function initBrainTree($region_code = 'uk')
+  private function initBrainTree($currency = '')
   {
-    switch ($region_code) {
-      case 'eu':
+    // We will currency from user country if no currency is defined.
+    if (empty($currency)) {
+      $usr = $this->get('security.context')->getToken()->getUser();
+      $userid = $usr->getUserId();
+
+      // User info retrieval from the FW SSO
+      $userObject = $this->getUserObject($userid);
+      $country_id = 0;
+      if ($userObject) {
+        $country_id = (isset($userObject['field_country']['und'][0]['tid'])) ? $userObject['field_country']['und'][0]['tid'] : '';
+      }
+
+      $currency =  CurrencyMapper::findCurrencies($country_id);
+      if ($currency) {
+        $currency = array_shift($currency);
+      } else {
+        $currency = 'USD';
+      }
+    }
+
+    switch (strtoupper($currency)) {
+      case 'EUR':
         $region_code = 'eu';
         break;
 
-      case 'us':
+      case 'USD':
         $region_code = 'us';
         break;
 
-      case 'uk':
+      case 'GBP':
       default:
         $region_code = 'uk';
         break;
@@ -1225,6 +1205,7 @@ class ClipperController extends FOSRestController
       return FALSE;
     }
   }
+
   /**
    * ----------------------------------------------------------------------------------------
    * REDIRECT OR OUPUT
