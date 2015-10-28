@@ -626,10 +626,29 @@ class ClipperController extends FOSRestController
         }
         else {
           // failed
-          $this->logger->debug("Payment System Error : " . var_export($result->errors, true));
-          $returnObject['message'] = $result->message;
+          
+          // https://developers.braintreepayments.com/reference/response/transaction/php#result-object
+          
+          // We will check if there's any errors
+          $error_message = "";
+          $error_code = ""; 
+          foreach($result->errors->deepAll() AS $error) {
+            $error_message = $error->message . "\n";
+            // we need only 1 error code, this is for frontend to trigger error message.
+            $error_code = $error->code; 
+          }
+
+          // No errors, but it could be from processor
+          if (empty($error_code)) {
+            if (isset($result->transaction->processorResponseCode)) {
+              $error_code = $result->transaction->processorResponseCode;
+              $error_message = $result->transaction->processorResponseText;
+            }
+          }
+
+          $returnObject['message'] = $error_message;
           // $returnObject['message'] = 'Payment System Error! Your payment could NOT be processed (i.e., you have not been charged) because the payment system rejected the transaction. You can try again or use another card.';
-          return new Response($returnObject, 400);
+          return new Response($returnObject, $error_code);
         }
       }
     }
