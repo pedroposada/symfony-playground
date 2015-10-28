@@ -12,7 +12,7 @@ use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class DNA extends ChartType {
-  private $comments = array();
+  private $comments   = array();
 
   private static $enclosure      = '';
   private static $maxComments    = 15;
@@ -30,8 +30,19 @@ class DNA extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep comments structure
-    $this->comments = array_combine($this->brands, array_fill(0, count($this->brands), array('det' => array(), 'pro' => array())));
-
+    $this->comments = array_combine(
+      array_keys(parent::$net_promoters_cat_range), 
+      array_fill(0, count(parent::$net_promoters_cat_range), array(        
+        'comments' => array(),
+      ))
+    );
+    $this->comments = array_combine(
+      $this->brands, 
+      array_fill(0, count($this->brands), $this->comments)
+    );
+    //prep other attributes
+    parent::$decimal_point = 1;
+    
     //extract comments from respondent
     foreach ($event->getData() as $response) {
       //update @var $this->comments
@@ -42,13 +53,18 @@ class DNA extends ChartType {
     $dataTable = array();
 
     foreach ($this->brands as $brand) {
-      $dataTable[] = array(
-        'brand'      => $brand,
-        'detractors' => $this->comments[$brand]['det'],
-        'promoters'  => $this->comments[$brand]['pro'],
+      $data = array(
+        'brand' => $brand
       );
+      foreach (parent::$net_promoters_cat_range as $type => $set) {
+        $comments = array_values($this->comments[$brand][$type]['comments']);
+        $data[$type . 's'] = $comments;
+      }
       unset($this->comments[$brand]);
+      $dataTable[] = $data;
     }
+
+    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
 
     return $dataTable;
   }
@@ -65,11 +81,15 @@ class DNA extends ChartType {
    * Post-format:
    *   $this->comments
    *     BRAND =>
-   *       pro =>
-   *         COMMENT
-   *         COMMENT
-   *       det =>
-   *         COMMENT
+   *       detractor =>
+   *         comments =>
+   *           COMMENT
+   *           COMMENT
+   *       passive  =>
+   *         comments =>
+   *       promoter =>
+   *         comments =>
+   *           COMMENT
    *     ...
    *
    * @param  LimeSurveyResponse $response
@@ -85,18 +105,44 @@ class DNA extends ChartType {
 
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
-
+    
     foreach ($this->brands as $brand) {
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      $type = array_search($type, array('detractor', 'promoter'), TRUE);
-      if ($type === FALSE) {
-        //ignore passive
-        continue; //foreach
-      }
-      $type = (empty($type) ? 'det' : 'pro');
-      if ((!empty($answers_que[$brand])) && (count($this->comments[$brand][$type]) <= self::$maxComments)) {
-        $this->comments[$brand][$type][] = self::$enclosure . $answers_que[$brand] . self::$enclosure;
-      }
+      $this->addComment($brand, $type, $answers_que[$brand]);
     }
+  }
+  
+  /**
+   * Method to register comment.
+   * @method addComment
+   *
+   * @param  string $brand
+   *    Brand name.
+   *    
+   * @param  string $type
+   *    Category name.
+   *    
+   * @param  string $comment
+   */
+  private function addComment($brand, $type, $comment = '') {
+    //reject if empty
+    if (empty($comment)) {
+      return;
+    }
+    //reject if max-up
+    if (count($this->comments[$brand][$type]['comments']) > self::$maxComments) {
+      return;
+    }
+    
+    //identify
+    $key = $this->sanitiveComment($comment);
+    
+    //reject if same/almost comment entered before    
+    if (isset($this->comments[$brand][$type]['comments'][$key])) {
+      return;
+    }
+    
+    //OK
+    $this->comments[$brand][$type]['comments'][$key] = self::$enclosure . $comment . self::$enclosure;
   }
 }

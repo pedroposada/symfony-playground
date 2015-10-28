@@ -25,6 +25,7 @@ class AppKernel extends Kernel
             new Gremo\BuzzBundle\GremoBuzzBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+            new Liuggio\ExcelBundle\LiuggioExcelBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

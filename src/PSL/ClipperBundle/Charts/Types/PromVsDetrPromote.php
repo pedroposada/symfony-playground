@@ -14,8 +14,9 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 class PromVsDetrPromote extends ChartType {
 
   private $brands_scores         = array();
+  //differences of 'pro' against 'det'
   private $brands_scores_results = array();
-
+  private $answer_set            = array();
   /**
    * Method call to return chart data.
    * @method dataTable
@@ -32,23 +33,23 @@ class PromVsDetrPromote extends ChartType {
     parent::$decimal_point = 1;
 
     //create basic structure for @var $this->brands_scores
-    $score_set = array(
-      'pro' => array( //promoters
-        'c' => 0, //count
-        't' => 0, //total
-      ),
-      'det' => array( //detractors
-        'c' => 0, //count
-        't' => 0, //total
-      ),
-      'cal' => array( //result
-        'pro' => 0, //promoter-value
-        'det' => 0, //detractors-value
-        'res' => 0, //differences of 'pro' against 'det'
-      ),
+    $score_set = array_combine(
+      array_keys(parent::$net_promoters_cat_range), 
+      array_fill(0, count(parent::$net_promoters_cat_range), 
+        array(
+          'c'   => 0, //count / use for base 
+          't'   => 0, //total
+          'cal' => 0, //slide calculation
+          'p'   => 0, //percentage
+        )
+      )
     );
     $this->brands_scores = array_combine($this->brands, array_fill(0, count($this->brands), $score_set));
     $this->brands_scores_results = array_flip($this->brands);
+    
+    $this->answer_set = array_combine(array_keys(parent::$net_promoters_cat_range), 
+      array_fill(0, count(array_keys(parent::$net_promoters_cat_range)), 0)
+    );
     
     if ($event->getCountFiltered()) {
       //extract respondent
@@ -58,6 +59,7 @@ class PromVsDetrPromote extends ChartType {
       }
       foreach ($this->brands as $index => $brand) {
         //update @var $this->brands_scores
+        //update @var $this->brands_scores_results
         $this->calculateBrandScore($brand);
       }
       
@@ -68,13 +70,18 @@ class PromVsDetrPromote extends ChartType {
     //data formation
     $dataTable = array();
     foreach ($this->brands_scores_results as $brand => $result) {
-      $dataTable[] = array(
-        'brand'      => $brand,
-        'promoters'  => $this->roundingUpValue($this->brands_scores[$brand]['cal']['pro']),
-        'detractors' => $this->roundingUpValue($this->brands_scores[$brand]['cal']['det']),
-        'diff'       => $this->roundingUpValue($this->brands_scores[$brand]['cal']['res']),
-      );
+      $data = array('brand' => $brand);
+      foreach (parent::$net_promoters_cat_range as $type => $et) {
+        $data[$type . 's']       = $this->brands_scores[$brand][$type]['cal'];
+        $data[$type . 's_prec']  = $this->brands_scores[$brand][$type]['p'];
+        $data[$type . 's_count'] = $this->brands_scores[$brand][$type]['c'];
+      }
+      $data['diff'] = $result;
+      $dataTable[]  = $data;
     }
+
+    // "How much more of my brand do Promoters use compared to Detractors?"
+    $event->setTitleLong("How much more of my brand do Promoters use compared to Detractors?");
 
     return $dataTable;
   }
@@ -87,21 +94,32 @@ class PromVsDetrPromote extends ChartType {
    *
    * Process will populate
    * - @var $this->brands_scores
+   * - @var $this->brands_scores_results
    *
    * Post-format:
    *   $this->brands_scores
    *     BRAND =>
-   *       pro =>
-   *         c => COUNT
-   *         t => TOTAL
-   *       det =>
-   *         c => COUNT
-   *         t => TOTAL
-   *       cal =>
-   *         pro => no-changes
-   *         det => no-changes
-   *         res => no-changes
+   *       detractor =>
+   *         c   => COUNT
+   *         t   => TOTAL
+   *         cal => no-changes
+   *         p   => no-changes
+   *       passive =>
+   *         c   => COUNT
+   *         t   => TOTAL
+   *         cal => no-changes
+   *         p   => no-changes
+   *       promoter =>
+   *         c   => COUNT
+   *         t   => TOTAL
+   *         cal => no-changes
+   *         p   => no-changes
    *     ...
+   *     
+   *     $this->brands_scores_results
+   *       BRAND => DIFF-CALC
+   *       BRAND => DIFF-CALC
+   *       ...
    *
    * @param  LimeSurveyResponse $response
    *
@@ -122,12 +140,6 @@ class PromVsDetrPromote extends ChartType {
     foreach ($this->brands as $brand) {
       //update brands' scores
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      $type = array_search($type, array('detractor', 'promoter'), TRUE);
-      if ($type === FALSE) {
-        //ignore passive
-        continue; //foreach
-      }
-      $type = (empty($type) ? 'det' : 'pro');
       $this->brands_scores[$brand][$type]['c']++;
       $this->brands_scores[$brand][$type]['t'] += $answers_que[$brand];
     }
@@ -143,16 +155,21 @@ class PromVsDetrPromote extends ChartType {
    * Post-format:
    *   $this->brands_scores
    *     BRAND =>
-   *       pro =>
-   *         c => no-changes
-   *         t => no-changes
-   *       det =>
-   *         c => no-changes
-   *         t => no-changes
-   *       cal =>
-   *         pro => PROMOTER-SUM
-   *         det => DETRACTORS-SUM
-   *         res => RESULT-VALUE
+   *       detractor =>
+   *         c   => no-changes
+   *         t   => no-changes
+   *         cal => SLIDE-CALC
+   *         p   => PERCENTAGE
+   *       passive =>
+   *         c   => no-changes
+   *         t   => no-changes
+   *         cal => SLIDE-CALC
+   *         p   => PERCENTAGE
+   *       promoter =>
+   *         c   => no-changes
+   *         t   => no-changes
+   *         cal => SLIDE-CALC
+   *         p   => PERCENTAGE
    *     ...
    *
    * @param  string $brand
@@ -160,20 +177,25 @@ class PromVsDetrPromote extends ChartType {
    * @return void
    */
   private function calculateBrandScore($brand) {
-    $pro = $det = 0;
-    foreach (array('pro', 'det') as $type) {
-      if (!empty($this->brands_scores[$brand][$type]['c'])) {
-        $$type = $this->brands_scores[$brand]['cal'][$type] = $this->brands_scores[$brand][$type]['t'] / $this->brands_scores[$brand][$type]['c'];
-      }
-      else {
-        $$type = $this->brands_scores[$brand]['cal'][$type] = $this->brands_scores[$brand][$type]['t'];
+    extract($this->answer_set);
+    $total_count = 0;
+    foreach ($this->answer_set as $type => $empty) {
+      $count = $this->brands_scores[$brand][$type]['c'];
+      $count = max(1, $count);
+      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->brands_scores[$brand][$type]['t'] / $count;
+      $total_count += $this->brands_scores[$brand][$type]['c'];
+    }
+    if (!empty($total_count)) {
+      foreach ($this->answer_set as $type => $empty) {
+        $percentage = (($this->brands_scores[$brand][$type]['c'] / $total_count) * 100);
+        $this->brands_scores[$brand][$type]['p'] = $this->roundingUpValue($percentage);
       }
     }
-    $result = ($pro - $det);
-    if (!empty($det)) {
-      $result = ($result / $det);
+    $result = ($promoter - $detractor);
+    if (!empty($detractor)) {
+      $result = ($result / $detractor);
       $result *= 100;
     }
-    $this->brands_scores[$brand]['cal']['res'] = $this->brands_scores_results[$brand] = $result;
+    $this->brands_scores_results[$brand] = $this->roundingUpValue($result);
   }
 }

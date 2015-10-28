@@ -14,6 +14,10 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 class DetractorsPromote extends ChartType {
 
   private $competitors = array();
+  
+  //All responses who are detractors of the brands
+  // $answer > 0
+  private $base        = array();
 
   /**
    * Method call to return chart data.
@@ -36,6 +40,9 @@ class DetractorsPromote extends ChartType {
     //prep competitors structure
     $this->competitors = array_combine($this->brands, array_fill(0, count($this->brands), array()));
     
+    //prep base structure
+    $this->base = array_combine($this->brands, array_fill(0, count($this->brands), 0));
+    
     //stop if no responses
     if ($event->getCountFiltered()) {
       //extract respondent
@@ -55,9 +62,13 @@ class DetractorsPromote extends ChartType {
     foreach ($this->brands as $brand) {
       $dataTable[] = array(
         'brand'       => $brand,
+        'base'        => $this->base[$brand],
         'competitors' => (empty($this->competitors[$brand]) ? new \stdClass() : $this->competitors[$brand]),
       );
     }
+
+    $event->setTitleLong('Amongst my Detractors, which other brands do they promote?');
+
     return $dataTable;
   }
 
@@ -87,6 +98,13 @@ class DetractorsPromote extends ChartType {
     //getting answers
     $answers = $response->getResponseDecoded();
     $answers = $this->filterAnswersToQuestionMap($answers, 'int');    
+    
+    //capture base
+    foreach ($this->brands as $brand) {
+      if ($this->identifyRespondentCategory($answers[$brand], 'detractor')) {
+        $this->base[$brand]++;
+      }
+    }
     
     $answers = array_filter($answers);
     asort($answers);

@@ -285,6 +285,15 @@ class FirstQGroup
     }
 
     /**
+     * Get Projects
+     * 
+     * @return \FirstQProject
+     */
+    public function getProjects() {
+      return $this->projects;
+    }
+
+    /**
      * Set proj_id
      *
      * @param string $proj_id
@@ -372,7 +381,9 @@ class FirstQGroup
         $firstq_formatted = array();
         $firstq_formatted['id'] = $this->id;
         $firstq_formatted['title'] = $form_data['title']; // user generated
+        $firstq_formatted['project_number'] = isset($form_data['project_number']) ? $form_data['project_number'] : 'project_number';
         $firstq_formatted['name'] = $form_data['name']; // folio type
+        $firstq_formatted['launch_date'] = $form_data['launch_date'];
         $firstq_formatted['patient_type'] = $form_data['patient_type']; // user generated
         $firstq_formatted['num_participants'] = $form_data['num_participants'];
         $firstq_formatted['updated'] = $this->updated;
@@ -382,6 +393,8 @@ class FirstQGroup
         $firstq['attributes'] = $form_data['attributes'];
         switch ($this->state) {
             case 'ORDER_PENDING':
+            case 'ORDER_INVOICE':
+            case 'ORDER_POINTS':
                 $firstq_formatted['state'] = 'pending';
                 break;
             case 'ORDER_CLOSED':
@@ -392,8 +405,7 @@ class FirstQGroup
                 break;
         }
         $firstq_formatted['created'] = $this->created;
-        // $firstq_formatted['price'] = number_format(4995, 2, ',', ','); // Hardcoded for now
-        $firstq_formatted['price'] = 4995; // Hardcoded for now
+        $firstq_formatted['price'] = $form_data['price_total'];
         $firstq_formatted['report_url'] = ''; // TBD
 
         if ($user_info !== null) {

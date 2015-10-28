@@ -1,6 +1,0 @@
-uuser:
-    password: 'userpass'
-    roles: [ROLE_ADMINUI_USER]
-aadmin:
-    password: 'adminpass'
-    roles: [ROLE_ADMIN, ROLE_ADMINUI_USER]

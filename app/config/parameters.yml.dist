@@ -7,13 +7,14 @@
 parameters:
   database_driver:                            "[*database_driver*]"
   database_host:                              "[*database_host*]"
-  database_port:                              "[database_port]"
+  database_port:                              "[*database_port*]"
   database_name:                              "[*database_name*]"
   database_user:                              "[*database_user*]"
   database_password:                          "[*database_password*]"
   # clipper:
   clipper.frontend.url:                       "[*clipper.frontend.url*]"
   clipper.users.ql_encryptionkey:             "[*clipper.users.ql_encryptionkey*]"
+  clipper.admin_email:                        "[*clipper.admin_email*]"
   # limesurvey:
   limesurvey.api.ls_baseurl:                  "[*limesurvey.api.ls_baseurl*]"
   limesurvey.api.ls_user:                     "[*limesurvey.api.ls_user*]"
@@ -22,7 +23,7 @@ parameters:
   limesurvey.url_redirect_base:               "[*limesurvey.url_redirect_base*]"
   # rpanel:
   rpanel.user_id:                             "[*rpanel.user_id*]"
-  rpanel.client_id:                           "[*rpanel.client_id*]" 
+  rpanel.client_id:                           "[*rpanel.client_id*]"
   rpanel.databases.rpanel.dbname:             "[*rpanel.databases.rpanel.dbname*]"
   rpanel.databases.rpanel.user:               "[*rpanel.databases.rpanel.user*]"
   rpanel.databases.rpanel.password:           "[*rpanel.databases.rpanel.password*]"
@@ -41,12 +42,11 @@ parameters:
   google_spreadsheets.worksheet_name:         "[*google_spreadsheets.worksheet_name*]"
   google_spreadsheets.p12_file_path:          "[*google_spreadsheets.p12_file_path*]"
   # sale emails
-  confirmation_emails.invoice.pending:        "[*confirmation_emails.invoice.pending*]"
-  confirmation_emails.invoice.complete:       "[*confirmation_emails.invoice.complete*]"
-  confirmation_emails.points.pending:         "[*confirmation_emails.points.pending*]"
-  confirmation_emails.points.complete:        "[*confirmation_emails.points.complete*]"
-  fwsso_api.url:                              "[*fwsso_api_url*]"
-  fwsso_api.app_token:                        "[*fwsso_api_url*]"
+  confirmation_emails.invoice.order_invoice:  "[*confirmation_emails.invoice.order_invoice*]"
+  confirmation_emails.invoice.order_complete: "[*confirmation_emails.invoice.order_complete*]"
+  confirmation_emails.points.order_points:    "[*confirmation_emails.points.order_points*]"
+  confirmation_emails.credit.order_complete:  "[*confirmation_emails.credit.order_complete*]"
+  confirmation_emails.project_complete:       "[*confirmation_emails.project_complete*]"
   # braintree:
   braintree_uk.environment:                   "[*braintree_uk.environment*]"
   braintree_uk.merchant_id:                   "[*braintree_uk.merchant_id*]"
@@ -75,4 +75,5 @@ parameters:
   security_alerts.order_request.timeframe:    "[*security_alerts.order_request.timeframe*]"
   security_alerts.email_to:                   "[*security_alerts.email_to*]"
   security_alerts.email_from:                 "[*security_alerts.email_from*]"
-
+  # Project number payment by points
+  payment.points.projectnumber:               "[*payment.points.projectnumber*]"

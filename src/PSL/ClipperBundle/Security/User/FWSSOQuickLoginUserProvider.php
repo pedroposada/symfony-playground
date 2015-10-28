@@ -41,11 +41,12 @@ class FWSSOQuickLoginUserProvider implements UserProviderInterface
       }
       $userId = $content['account']['uid'];
       $username = $content['account']['name'];
+      $email = $content['account']['mail'];
       $password = 'password';
 
       $roles = $this->getRoles($username);
       
-      $fwsso_user = new FWSSOQuickLoginUser($userId, $username, $password, $roles);
+      $fwsso_user = new FWSSOQuickLoginUser($userId, $username, $email, $password, $roles);
 
       return $fwsso_user;
     }
