@@ -28,7 +28,8 @@ final class ClipperEvents
 
     const BEFORE_LIMESURVEY_COMPLETE    = 'before_limesurvey_complete';
     const AFTER_LIMESURVEY_COMPLETE     = 'after_limesurvey_complete';
-
+    
+    const LIMESURVEY_TRANSLATION        = 'limesurvey_translation';
 
     /**
      * The event listeners receive an instance of

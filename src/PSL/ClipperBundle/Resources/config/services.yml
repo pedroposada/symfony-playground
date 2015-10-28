@@ -75,6 +75,10 @@ services:
     class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
     arguments: ["@service_container"]
 
+  translator_service:
+    class: PSL\ClipperBundle\Service\TranslatorService
+    arguments: ["@service_container"]
+
   # --------------------------- #
   #   Clipper event listeners   #
   # --------------------------- #
@@ -112,6 +116,13 @@ services:
     tags:
       - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }
       - { name: kernel.event_listener, event: after_limesurvey_complete, method: refreshResponses, priority: 0 }
+
+  # Limesurvey Translator
+  clipper.limesurvey.translator:
+    class: PSL\ClipperBundle\Listener\LimeSurveyTranslator
+    arguments: ["@service_container"]
+    tags:
+      - { name: kernel.event_listener, event: limesurvey_translation, method: onTranslate, priority: 0 }
 
   # types of charts
   #NPS: 001

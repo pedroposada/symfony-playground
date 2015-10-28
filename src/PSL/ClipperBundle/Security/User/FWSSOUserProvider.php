@@ -42,12 +42,13 @@ class FWSSOUserProvider implements UserProviderInterface
       }
       $userId = $content['uid'];
       $username = $content['name'];
+      $email = $content['mail'];
       $password = $content['pass'];
       $salt = substr($content['pass'], 0, 12);
 
       $roles = $this->getRoles($username);
       
-      return new FWSSOUser($userId, $username, $password, $salt, $roles);
+      return new FWSSOUser($userId, $username, $email, $password, $salt, $roles);
     }
     
     // Return error if no user with this username 

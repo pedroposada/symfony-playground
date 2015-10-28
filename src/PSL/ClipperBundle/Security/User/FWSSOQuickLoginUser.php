@@ -8,13 +8,15 @@ class FWSSOQuickLoginUser implements UserInterface
 {
     protected $userId;
     protected $username;
+    protected $email;
     protected $password;
     protected $roles;
 
-    public function __construct($userId, $username, $password, array $roles)
+    public function __construct($userId, $username, $email, $password, array $roles)
     {
         $this->userId = $userId;
         $this->username = $username;
+        $this->email = $email;
         $this->password = $password;
         $this->roles = $roles;
     }
@@ -31,6 +33,11 @@ class FWSSOQuickLoginUser implements UserInterface
     public function getUsername()
     {
         return $this->username;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     public function getPassword()
