@@ -20,7 +20,7 @@ class YamlAdminUserProvider implements UserProviderInterface
 
         $this->users = array();
 
-        foreach ($userDefinitions as $username => $attributes) {
+        foreach ((array)$userDefinitions as $username => $attributes) {
             $password = isset($attributes['password']) ? $attributes['password'] : null;
             $roles = isset($attributes['roles']) ? $attributes['roles'] : array();
 

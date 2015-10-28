@@ -48,7 +48,7 @@ class LimeSurveyCompleteTest extends WebTestCase
     {
         // TODO: call function
         // Fatal error: Call to protected method PSL\ClipperBundle\Listener\LimeSurveyComplete::main()
-        // $response = $this->limeSurveyComplete->main($this->$firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
+        // $response = $this->limeSurveyComplete->main($this->firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
 
         // TODO: assert output
 

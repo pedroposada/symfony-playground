@@ -70,5 +70,10 @@ parameters:
   # FW SSO
   fwsso_api.url:                              "[*fwsso_api.url*]"
   fwsso_api.app_token:                        "[*fwsso_api.app_token*]"
+  # Security Alerts
+  security_alerts.order_request.counter:      "[*security_alerts.order_request.counter*]"
+  security_alerts.order_request.timeframe:    "[*security_alerts.order_request.timeframe*]"
+  security_alerts.email_to:                   "[*security_alerts.email_to*]"
+  security_alerts.email_from:                 "[*security_alerts.email_from*]"
   # Project number payment by points
   payment.points.projectnumber:               "[*payment.points.projectnumber*]"

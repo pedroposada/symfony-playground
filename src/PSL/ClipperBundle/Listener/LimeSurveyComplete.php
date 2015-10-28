@@ -27,7 +27,11 @@ class LimeSurveyComplete extends FqProcess
     $user = $this->container->get('security.context')->getToken()->getUser();
     $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', $user->getEmail(), '', array());
     $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
-    $link = $this->container->getParameter('clipper.frontend.url') . '?ql_hash=' . $hash . '&order_id=' . $fqg->getId() . '#project';
+
+    // http://external.dev.csb.pslgroup.com/remote/fwreports.html#order_id=B086E0BB-0BB5-4FD8-9CC5-6CEB3B28C0AC&ql_hash=XJhPyUGjKVenxX3s1SNvAJYsmcC3CtArKwenb3omrN0,
+    $link = $this->container->getParameter('clipper.frontend.url')
+          . '#order_id=' . $fqg->getId()
+          . '&ql_hash=' . $hash;
 
     $message = \Swift_Message::newInstance()
       ->setContentType('text/html')
