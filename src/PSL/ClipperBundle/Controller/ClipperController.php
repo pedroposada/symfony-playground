@@ -41,6 +41,7 @@ use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Entity\FirstQProcessAction as FirstQProcessAction;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
+use PSL\ClipperBundle\Utils\CurrencyMapper as CurrencyMapper;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
@@ -143,6 +144,8 @@ class ClipperController extends FOSRestController
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
    * @requestparam(name="timezone_client", default="", description="Timezone of the client.")
+   * @requestparam(name="request_counter", default="", description="Number for request of the client.")
+   * @requestparam(name="request_timestamp", default="", description="Initial timestamp of the client request.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -170,7 +173,12 @@ class ClipperController extends FOSRestController
       $form_data->attributes = $paramFetcher->get('attribute');
       $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
       $form_data->timezone_client = $paramFetcher->get('timezone_client');
+      $form_data->request_counter = $paramFetcher->get('request_counter');
+      $form_data->request_timestamp = $paramFetcher->get('request_timestamp');
       $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
+      
+      // Security Email Alerts Checking
+      $returnObject = array_merge($returnObject, $this->checkOrderRequestLevel($form_data));
 
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
@@ -203,6 +211,13 @@ class ClipperController extends FOSRestController
       // Conversion function and return converted price with currency sign
       $gs_result_total_label = $this->formatPrice($gs_result_total);
       $form_data->price_total = $gs_result_total_label;
+      
+       // calculate estimated time of completion
+      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
+      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
+      
+      $form_data->completion_date = $completion_date;
+      
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
 
@@ -211,11 +226,6 @@ class ClipperController extends FOSRestController
       $returnObject['product']['price_label'] = $gs_result_total_label;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
       $returnObject['product']['num_participants'] = $num_participants_total;
-
-      // calculate estimated time of completion
-      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
-      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
-
       $returnObject['product']['end_date'] = $completion_date;
       $returnObject['product']['firstq_uuid'] = $firstq_uuid;
     }
@@ -570,8 +580,7 @@ class ClipperController extends FOSRestController
         // this will charge the user's card
         $parameters_clipper = $this->container->getParameter('clipper');
 
-        // @TODO: Use proper config according to country
-        $this->initBrainTree('uk');
+        $this->initBrainTree();
 
         $sale_params = array(
           'amount' => $amount,
@@ -762,10 +771,7 @@ class ClipperController extends FOSRestController
   public function getClientTokenAction(Request $request)
   {
     // Set Braintree configuration
-    $this->initBrainTree('uk');
-
-    // get user_id from request
-    //$firstq_uuid = $request->query->get('firstq_uuid');
+    $this->initBrainTree();
 
     $client_token['clientToken'] = \Braintree_ClientToken::generate();
 
@@ -802,55 +808,18 @@ class ClipperController extends FOSRestController
     
     // User info retrieval from the FW SSO
     $content = $this->getUserObject($user->getUserId());
-    $country = 'USA';
     
+    $country_id = 0;
     if ($content) {
-      $country = (isset($content['field_country']['und'][0]['value'])) ? $content['field_country']['und'][0]['value'] : '';
+      $country_id = (isset($content['field_country']['und'][0]['tid'])) ? $content['field_country']['und'][0]['tid'] : '';
     }
 
-    // TODO. Refactor this switch control stucture, put it somewhere else. Use country IDs and not names.
-
-    switch ($country) {
-      case 'UK':
-        $currency = 'GBP';
-        break;
-
-      case 'France':
-      case 'Germany':
-      case 'Italy':
-      case 'Spain':
-      // European Union countries. Country list taken from Wikipedia /wiki/Euro.
-      // Country spelling taken from DG sites (DocPass).
-      case 'Austria':
-      case 'Belgium':
-      case 'Bulgaria':
-      case 'Croatia':
-      case 'Cyprus':
-      case 'Czech Republic':
-      case 'Denmark':
-      case 'Estonia':
-      case 'Finland':
-      case 'Greece':
-      case 'Hungary':
-      case 'Ireland':
-      case 'Latvia':
-      case 'Lithuania':
-      case 'Luxembourg':
-      case 'Malta':
-      case 'Netherlands':
-      case 'Poland':
-      case 'Portugal':
-      case 'Romania':
-      case 'Slovakia':
-      case 'Slovenia':
-      case 'Sweden':
-        $currency = 'EUR';
-        break;
-
-      case 'USA':
-      default:
-        $currency = 'USD';
-        break;
+    // get the mapping
+    $currency =  CurrencyMapper::findCurrencies($country_id);
+    if ($currency) {
+      $currency = array_shift($currency);
+    } else {
+      $currency = 'USD';
     }
 
     // After we decide the curreny unit, let's do conversion to exchange rate.
@@ -879,18 +848,38 @@ class ClipperController extends FOSRestController
   /**
    * Get BrainTree Object
    */
-  private function initBrainTree($region_code = 'uk')
+  private function initBrainTree($currency = '')
   {
-    switch ($region_code) {
-      case 'eu':
+    // We will currency from user country if no currency is defined.
+    if (empty($currency)) {
+      $usr = $this->get('security.context')->getToken()->getUser();
+      $userid = $usr->getUserId();
+
+      // User info retrieval from the FW SSO
+      $userObject = $this->getUserObject($userid);
+      $country_id = 0;
+      if ($userObject) {
+        $country_id = (isset($userObject['field_country']['und'][0]['tid'])) ? $userObject['field_country']['und'][0]['tid'] : '';
+      }
+
+      $currency =  CurrencyMapper::findCurrencies($country_id);
+      if ($currency) {
+        $currency = array_shift($currency);
+      } else {
+        $currency = 'USD';
+      }
+    }
+
+    switch (strtoupper($currency)) {
+      case 'EUR':
         $region_code = 'eu';
         break;
 
-      case 'us':
+      case 'USD':
         $region_code = 'us';
         break;
 
-      case 'uk':
+      case 'GBP':
       default:
         $region_code = 'uk';
         break;
@@ -1074,6 +1063,101 @@ class ClipperController extends FOSRestController
   }
 
   /**
+   * Check order request level
+   *
+   * @param object $form_data - form data
+   */
+  private function checkOrderRequestLevel($form_data) {
+    
+    $returnObject = array();
+
+    // get config
+    $counter = $this->container->getParameter('security_alerts.order_request.counter');
+    $timeframe = $this->container->getParameter('security_alerts.order_request.timeframe');
+
+    $request_counter = isset($form_data->request_counter) ? $form_data->request_counter : 0;
+    $request_timestamp = isset($form_data->request_timestamp) ? $form_data->request_timestamp : 0;
+
+    if ($request_timestamp == 0) {
+      $request_timestamp = time();
+    }
+
+    $returnObject['request_timestamp'] = $request_timestamp;
+    
+    // check if the request is within timeframe?
+    $timestamp = time();
+
+    if ($timestamp - $request_timestamp > $timeframe) {
+      // longer than the timeframe, reset counter
+      $returnObject['reset_counter'] = TRUE;
+    } else {
+      // within the timeframe
+      // check if counter is hit or not
+      if ($request_counter >= $counter) {
+        $this->sendSecurityEmail();
+      }
+    }
+    $returnObject['reset_counter'] = FALSE;
+    return $returnObject;
+  }
+
+  function sendSecurityEmail() {
+    
+    // Check if user is logged in
+    $user = $this->get('security.context')->getToken()->getUser();
+    
+    $user_log = ''; // message for email and log
+    
+    $user_info = array();
+    $user_info['name'] = '';
+    $user_info['company_name'] = '';
+    $user_info['email'] = '';
+    $user_info['ip'] = $this->container->get('request')->getClientIp();
+    
+    if (!is_string($user) || $user != 'anon.') {
+      // if logged in, get data
+      $userid = $usr->getUserId();
+      $userEmail = $usr->getEmail();
+      
+      // User info retrieval from the FW SSO
+      $content = $this->getUserObject($firstq_group->getUserId());
+  
+      if ($content) {
+        $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
+        $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
+        $company_name = (isset($content['field_company']['und'][0]['value'])) ? $content['field_company']['und'][0]['value'] : '';
+        $user_info['name'] = $first_name . ' ' . $last_name;
+        $user_info['company_name'] = $company_name;
+      }
+      $user_info['email'] = $userEmail;
+      $user_log .= 'Name: ' . $user_info['name'] . ' Company: ' . $user_info['company_name'] . ' Email: ' . $user_info['email'];
+    }
+    $this->logger = $this->container->get('monolog.logger.clipper');
+    $user_log .= ' IP:' . $user_info['ip'];  
+    $this->logger->info('Email sent for high volume of Google sheet requests - ' . $user_log);
+    
+    $subject = "Security Alerts - abnormal order request level.";
+    $from = $this->container->getParameter('security_alerts.email_from');
+    $to = $this->container->getParameter('security_alerts.email_to');
+
+    $message = \Swift_Message::newInstance()
+      ->setContentType('text/html')
+      ->setSubject($subject)
+      ->setFrom($from)
+      ->setTo($to)
+      ->setBody(
+        $this->renderView(
+          'PSLClipperBundle:Emails:security.alerts.html.twig',
+          array('user_log' => $user_log),
+          'text/html'
+        )
+      )
+    ;
+
+    $this->get('mailer')->send($message);
+  }
+
+  /**
    * A helper function to send confirmation email.
    *
    * @param mixed   $to           String of emails separated by comma or array of email addresses
@@ -1225,6 +1309,7 @@ class ClipperController extends FOSRestController
       return FALSE;
     }
   }
+
   /**
    * ----------------------------------------------------------------------------------------
    * REDIRECT OR OUPUT
