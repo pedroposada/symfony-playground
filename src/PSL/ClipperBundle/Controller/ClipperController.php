@@ -144,6 +144,8 @@ class ClipperController extends FOSRestController
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="launch_date", default="", description="Lauch date of the folio.")
    * @requestparam(name="timezone_client", default="", description="Timezone of the client.")
+   * @requestparam(name="request_counter", default="", description="Number for request of the client.")
+   * @requestparam(name="request_timestamp", default="", description="Initial timestamp of the client request.")
    *
    * @return \Symfony\Component\BrowserKit\Response
    */
@@ -171,7 +173,12 @@ class ClipperController extends FOSRestController
       $form_data->attributes = $paramFetcher->get('attribute');
       $form_data->launch_date = $paramFetcher->get('launch_date'); // Y-m-d H:i:s
       $form_data->timezone_client = $paramFetcher->get('timezone_client');
+      $form_data->request_counter = $paramFetcher->get('request_counter');
+      $form_data->request_timestamp = $paramFetcher->get('request_timestamp');
       $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
+      
+      // Security Email Alerts Checking
+      $returnObject = array_merge($returnObject, $this->checkOrderRequestLevel($form_data));
 
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
@@ -1051,6 +1058,68 @@ class ClipperController extends FOSRestController
       $message = 'Permission denied';
       return new Response($message, 401); // Unauthorised request
     }
+  }
+
+  /**
+   * Check order request level
+   *
+   * @param object $form_data - form data
+   */
+  private function checkOrderRequestLevel($form_data) {
+    
+    $returnObject = array();
+
+    // get config
+    $counter = $this->container->getParameter('security_alerts.order_request.counter');
+    $timeframe = $this->container->getParameter('security_alerts.order_request.timeframe');
+
+    $request_counter = isset($form_data->request_counter) ? $form_data->request_counter : 0;
+    $request_timestamp = isset($form_data->request_timestamp) ? $form_data->request_timestamp : 0;
+
+    if ($request_timestamp == 0) {
+      $request_timestamp = time();
+    }
+
+    $returnObject['request_timestamp'] = $request_timestamp;
+    
+    // check if the request is within timeframe?
+    $timestamp = time();
+
+    if ($timestamp - $request_timestamp > $timeframe) {
+      // longer than the timeframe, reset counter
+      $returnObject['reset_counter'] = TRUE;
+    } else {
+      // within the timeframe
+      // check if counter is hit or not
+      if ($request_counter >= $counter) {
+        $this->sendSecurityEmail();
+      }
+    }
+    $returnObject['reset_counter'] = FALSE;
+    return $returnObject;
+  }
+
+  function sendSecurityEmail() {
+
+    $subject = "Security Alerts - abnormal order request level.";
+    $from = $this->container->getParameter('security_alerts.email_from');
+    $to = $this->container->getParameter('security_alerts.email_to');
+
+    $message = \Swift_Message::newInstance()
+      ->setContentType('text/html')
+      ->setSubject($subject)
+      ->setFrom($from)
+      ->setTo($to)
+      ->setBody(
+        $this->renderView(
+          'PSLClipperBundle:Emails:security.alerts.html.twig',
+          array(),
+          'text/html'
+        )
+      )
+    ;
+
+    $this->get('mailer')->send($message);
   }
 
   /**
