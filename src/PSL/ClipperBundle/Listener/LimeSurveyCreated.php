@@ -13,12 +13,13 @@ use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\MDMMapping;
 use PSL\ClipperBundle\Utils\RPanelProject;
 use PSL\ClipperBundle\Service\RPanelService;
+use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyCreated extends FqProcess
 {
   private $rps;
 
-  public function __construct(ContainerInterface $container, $state, $user, RPanelService $rps)
+  public function __construct(ContainerInterface $container, $state, FWSSOUser $user, RPanelService $rps)
   {
     parent::__construct($container, $state, $user);
     $this->rps = $rps;

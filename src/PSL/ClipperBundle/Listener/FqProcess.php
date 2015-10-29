@@ -7,6 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
+use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 abstract class FqProcess
 {
@@ -20,7 +21,7 @@ abstract class FqProcess
   static $timestamp;
   public $result;
 
-  public function __construct(ContainerInterface $container, $state, $user = array())
+  public function __construct(ContainerInterface $container, $state, FWSSOUser $user = null)
   {
     // this is @service_container
     $this->container = $container;
