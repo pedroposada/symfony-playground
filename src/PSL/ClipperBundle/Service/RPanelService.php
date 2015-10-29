@@ -102,7 +102,7 @@ class RPanelService
         'r_panel_usage' => (int)$gs->result['F14'],       // [Col F Row 14 in Google Sheet],
         'r_hono_handling' => (int)$gs->result['F15'],     // [Col F Row 15 in Google Sheet],
         'r_client_cur' => $gs->result['F12'],             // [Col F Row 12 in Google Sheet]);
-      ),            
+      )            
     );      
     
     // returned the last inserted auto increment
