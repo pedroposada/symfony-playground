@@ -17,21 +17,20 @@ class ClipperCacheCommandTest extends WebTestCase
 {
   /**
    * @method  testExecute
-   * 
+   *
    * @dataProvider dataExecute
    */
   public function testExecute($command, $status, $contains, $message = NULL)
   {
     $contains = (array) $contains;
-    
-    $client = self::createClient();
-    $output = $this->runCommand($client, $command);
+
+    $output = $this->runCustomCommand($command);
     $this->assertContains('clipper.' . $status . ':', $output);
     foreach ($contains as $contain) {
       $this->assertContains($contain, $output, $message);
     }
   }
-  
+
   /**
    * Data provider for testExecute()
    * @method dataExecute

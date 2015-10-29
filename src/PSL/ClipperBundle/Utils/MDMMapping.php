@@ -1,4 +1,23 @@
 <?php
+/**
+ * PSL/ClipperBundle/Utils/MDMMapping.php
+ *
+ * Clipper MDM Mapping Utilities.
+ * 
+ * This class will provide the IDs reated to Specialty and country from MDM.
+ *
+ * ----- NOT TO BE CONFUSED WITH Country FW SSO ----- 
+ * 
+ * The mapping is for the specialty ids and country ids used for projects
+ * on the RPanel side.
+ * 
+ * @uses  Controller/ClipperController initBrainTree()
+ * @uses  Controller/ClipperController formatPrice()
+ *
+ * @version 1.0
+ * @date 2015-10-28
+ *
+ */
 
 namespace PSL\ClipperBundle\Utils;
 

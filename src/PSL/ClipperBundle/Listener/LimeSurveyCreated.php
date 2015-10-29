@@ -13,29 +13,30 @@ use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\MDMMapping;
 use PSL\ClipperBundle\Utils\RPanelProject;
 use PSL\ClipperBundle\Service\RPanelService;
+use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyCreated extends FqProcess
 {
   private $rps;
-  
-  public function __construct(ContainerInterface $container, $state, RPanelService $rps)
+
+  public function __construct(ContainerInterface $container, $state, FWSSOUser $user, RPanelService $rps)
   {
-    parent::__construct($container, $state);
+    parent::__construct($container, $state, $user);
     $this->rps = $rps;
   }
 
   protected function main(FirstQProjectEvent $event)
   {
-    // get FirstQGroup and FirstQProject objects 
+    // get FirstQGroup and FirstQProject objects
     $fqg = $event->getFirstQProjectGroup();
     $fqp = $event->getFirstQProject();
-    
+
     // database parameters
     $params_rp = $this->container->getParameter('rpanel');
-    
+
     $form_data = $fqg->getFormDataUnserialized();
     $sheet_data = $fqp->getSheetDataUnserialized();
-    
+
     // set up the RPanel Project object
     // and add other values
     $rpanel_project = new RPanelProject($fqp);
@@ -61,7 +62,7 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
     $rpanel_project->setNumParticipants($sheet_data['num_participants']);
-    
+
     // GS object
     $gs_object = new stdClass();
     $gs_object->specialty_id = MDMMapping::map('specialties', $sheet_data['specialty']);
@@ -71,9 +72,9 @@ class LimeSurveyCreated extends FqProcess
       $search = array('$', ',');
       $result_value = str_replace($search, "", $result_value);
     }
-  
+
     $gs_object->result = $sheet_data['result'];
-      
+
     // Get RPanel service
     $rps = $this->rps;
     // connect db
@@ -88,33 +89,33 @@ class LimeSurveyCreated extends FqProcess
     $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
- 
+
     try {
       $conn->beginTransaction();
-      
+
       // Create Feasibility Project (one to many)
       if (!$fqg->getProjId()) {
         $proj_id = $rps->createFeasibilityProject($rpanel_project);
         $fqg->setProjId($proj_id);
       }
-      
+
       // set proj_id
       $rpanel_project->setProjId($fqg->getProjId());
-      
+
       // Create Feasibility Project Quota (many to one)
       $quote_id = $rps->createFeasibilityProjectQuota($rpanel_project, $gs_object);
       $rpanel_project->setQuoteId($quote_id);
-      
+
       // Update Feasibility Project - Launch project
       $rps->updateFeasibilityProject($rpanel_project);
-      
+
       $conn->commit();
     }
     catch (\Exception $e) {
       $conn->rollBack();
       throw $e;
     }
- 
+
     // connect db
     $config = new \Doctrine\DBAL\Configuration();
     $dbconfig = array(
@@ -130,31 +131,31 @@ class LimeSurveyCreated extends FqProcess
 
     try {
       $conn->beginTransaction();
-      
+
       // Create Project (one to many)
       if (!$fqg->getProjectSk()) {
         $project_sk = $rps->createProject($rpanel_project);
         $fqg->setProjectSk($project_sk);
       }
-      
+
       // set project_sk
       $rpanel_project->setProjectSK($fqg->getProjectSk());
-      
+
       // Create Feasibility Link Type and insert LTId
       $ltid = $rps->feasibilityLinkType($rpanel_project);
       $rpanel_project->setLTId($ltid);
-      
+
       // Create Project Detail (many to one)
       $rps->createProjectDetail($rpanel_project, $gs_object);
-      
+
       // Create Feasibility Full Url
       $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
       $urls = $ls_data['urls'];
       $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
-      
+
       // PROJECT_DETAIL_TEXTINVITES
       $rps->createProjectDetailTextinvites($rpanel_project);
-      
+
       $conn->commit();
     }
     catch (\Exception $e) {
