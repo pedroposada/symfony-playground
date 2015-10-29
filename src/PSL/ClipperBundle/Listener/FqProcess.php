@@ -38,7 +38,7 @@ abstract class FqProcess
     self::$timestamp = time();
 
     // Set user as current user.
-    if (empty($user)) {
+    if (is_null($user)) {
       $user = $this->container->get('security.context')->getToken()->getUser();
     }
     $this->user = $user;
