@@ -1086,7 +1086,7 @@ class ClipperController extends FOSRestController
     
     // check if the request is within timeframe?
     $timestamp = time();
-
+    $returnObject['reset_counter'] = FALSE;
     if ($timestamp - $request_timestamp > $timeframe) {
       // longer than the timeframe, reset counter
       $returnObject['reset_counter'] = TRUE;
@@ -1096,8 +1096,7 @@ class ClipperController extends FOSRestController
       if ($request_counter >= $counter) {
         $this->sendSecurityEmail();
       }
-    }
-    $returnObject['reset_counter'] = FALSE;
+    }   
     return $returnObject;
   }
 
@@ -1116,11 +1115,11 @@ class ClipperController extends FOSRestController
     
     if (!is_string($user) || $user != 'anon.') {
       // if logged in, get data
-      $userid = $usr->getUserId();
-      $userEmail = $usr->getEmail();
+      $userid = $user->getUserId();
+      $userEmail = $user->getEmail();
       
       // User info retrieval from the FW SSO
-      $content = $this->getUserObject($firstq_group->getUserId());
+      $content = $this->getUserObject($userid);
   
       if ($content) {
         $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
