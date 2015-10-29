@@ -7,6 +7,8 @@ namespace PSL\ClipperBundle\Tests\Listener;
 use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\LimeSurveyComplete;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
+// use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+// use Symfony\Component\BrowserKit\Cookie;
 
 class LimeSurveyCompleteTest extends WebTestCase
 {
@@ -46,9 +48,21 @@ class LimeSurveyCompleteTest extends WebTestCase
 
     public function testOnMain()
     {
+        // Create the token for authentication.
+        // $client = $this->createAuthenticatedClient('anotheruser', 'userpass');
+        // $session = $this->getContainer()->get('session');
+        // $firewall = 'api_orders';
+        // $token = new UsernamePasswordToken('anotheruser', null, $firewall, array('ROLE_ADMIN'));
+        // $session->set('_security_'.$firewall, serialize($token));
+        // $session->save();
+        // $client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
+        // $this->getContainer()->get('security.context')->setToken($token);
+        $user_email = 'jewei.mak@pslgroup.com';
+
+
         // TODO: call function
         // Fatal error: Call to protected method PSL\ClipperBundle\Listener\LimeSurveyComplete::main()
-        // $response = $this->limeSurveyComplete->main($this->firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
+        $response = $this->limeSurveyComplete->main($this->firstQProjectEvent, 'limesurvey_complete', $this->dispatcher, $user_email);
 
         // TODO: assert output
 
