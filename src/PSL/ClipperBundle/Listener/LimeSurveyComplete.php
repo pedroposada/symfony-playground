@@ -18,19 +18,7 @@ class LimeSurveyComplete extends FqProcess
 {
   public function main(FirstQProjectEvent $event)
   {
-    // A temporary dirty way to pass unit test. In test environment, we don't
-    // have a valid FWSSO user with email to get quick login hash.
-    $user_email = '';
-    $args = func_get_args();
-    if (count($args) == 4 &&  is_string($args[3])) {
-      $user_email = $args[3];
-    }
-    else {
-      $user = $this->container->get('security.context')->getToken()->getUser();
-      $user_email = $user->getEmail();
-    }
-
-    // get FirstQProject object
+    // Get FirstQProject object
     $fqp = $event->getFirstQProject();
     $fqg = $event->getFirstQProjectGroup();
 
@@ -54,7 +42,7 @@ class LimeSurveyComplete extends FqProcess
     if ($quota_is_reached || $time_has_expired) {
       // Email to client when quota has been reached and the report is ready.
       // link to project report with quick-login of the user.
-      $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $user_email, '', array());
+      $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $this->user->getEmail(), '', array());
       $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
 
       // http://external.dev.csb.pslgroup.com/remote/fwreports.html#order_id=B086E0BB-0BB5-4FD8-9CC5-6CEB3B28C0AC&ql_hash=XJhPyUGjKVenxX3s1SNvAJYsmcC3CtArKwenb3omrN0,
@@ -66,7 +54,7 @@ class LimeSurveyComplete extends FqProcess
         ->setContentType('text/html')
         ->setSubject('Quota has been reached')
         ->setFrom(array('noreply@clipper.com' => 'No reply'))
-        ->setTo(array($user_email))
+        ->setTo(array($this->user->getEmail()))
         ->setBody(
           $this->container->get('templating')->render(
             'PSLClipperBundle:Emails:confirmation_emails.order_close.html.twig',

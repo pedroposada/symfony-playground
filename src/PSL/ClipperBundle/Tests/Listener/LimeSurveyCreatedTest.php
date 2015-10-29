@@ -9,6 +9,7 @@ use PSL\ClipperBundle\Listener\LimeSurveyCreated;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use Doctrine\Common\Collections\ArrayCollection;
 use PSL\ClipperBundle\Service\RPanelService;
+use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyCreatedTest extends WebTestCase
 {
@@ -45,7 +46,8 @@ class LimeSurveyCreatedTest extends WebTestCase
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
         $rps = new RPanelService(array());
-        $this->limeSurveyCreated= new LimeSurveyCreated($this->container, 'limesurvey_created', $rps);
+        $user = new FWSSOUser('', '', '', '', '', array());
+        $this->limeSurveyCreated= new LimeSurveyCreated($this->container, 'limesurvey_created', $user, $rps);
     }
 
     public function testOnMain()
