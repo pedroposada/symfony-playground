@@ -41,7 +41,7 @@ use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
 use PSL\ClipperBundle\Entity\FirstQProcessAction as FirstQProcessAction;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
-use PSL\ClipperBundle\Utils\CurrencyMapper as CurrencyMapper;
+use PSL\ClipperBundle\Utils\CountryFWSSO as CountryFWSSO;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
@@ -815,7 +815,7 @@ class ClipperController extends FOSRestController
     }
 
     // get the mapping
-    $currency =  CurrencyMapper::findCurrencies($country_id);
+    $currency =  CountryFWSSO::getCurrencies($country_id);
     if ($currency) {
       $currency = array_shift($currency);
     } else {
@@ -862,7 +862,7 @@ class ClipperController extends FOSRestController
         $country_id = (isset($userObject['field_country']['und'][0]['tid'])) ? $userObject['field_country']['und'][0]['tid'] : '';
       }
 
-      $currency =  CurrencyMapper::findCurrencies($country_id);
+      $currency =  CountryFWSSO::getCurrencies($country_id);
       if ($currency) {
         $currency = array_shift($currency);
       } else {
