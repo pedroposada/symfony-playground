@@ -20,13 +20,12 @@ class ClipperGoogleSpreadsheetCommandTest extends WebTestCase
    */
   public function testExecute()
   {
-    $client = self::createClient();
-    $output = $this->runCommand($client, "clipper:gdoc-auth-refresh -f -v");
+    $output = $this->runCustomCommand("clipper:gdoc-auth-refresh -f -v");
     $this->assertContains('clipper.INFO:', $output);
     $this->assertContains('Success: Access token is active.', $output, 'Check Clipper Cache service might on Inactive state.');
-    
+
     //flush all cache
-    $output = $this->runCommand($client, "clipper:cache flush all -v");
+    $output = $this->runCustomCommand("clipper:cache flush all -v");
     $this->assertContains('Flush complete', $output);
   }
 }

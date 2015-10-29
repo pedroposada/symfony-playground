@@ -56,7 +56,7 @@ abstract class WebTestCase extends BaseWebTestCase
         $this->dispatcher = $this->container->get('event_dispatcher');
         $this->authenticatedClient = static::createAuthenticatedClient('uuser', 'userpass');
     }
-    
+
     protected function reloadFixture()
     {
         // Add all your fixtures classes that implement
@@ -65,7 +65,7 @@ abstract class WebTestCase extends BaseWebTestCase
             'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQGroups',
             'PSL\ClipperBundle\DataFixtures\ORM\LoadFirstQProjects',
             'PSL\ClipperBundle\DataFixtures\ORM\LoadLimeSurveyResponse',
-        ));   
+        ));
     }
 
     /**
@@ -184,17 +184,17 @@ abstract class WebTestCase extends BaseWebTestCase
             $content
         );
     }
-    
+
     /**
      * Method to query 1 latest FirstQGroup entity.
      * @method getLatestFirstQGroup
      *
      * @param  string $survey_type
      *   Survey type; nps_plus
-     *   
+     *
      * @param  string $order_status
      *   Order state; ORDER_COMPLETE
-     *   
+     *
      * @param  boolean|string $return_one
      *   FALSE; will return the whole FirstQGroup
      *   string; refer to function for "get" an attribute of entity
@@ -203,7 +203,7 @@ abstract class WebTestCase extends BaseWebTestCase
      */
     public function getLatestFirstQGroup($survey_type, $order_status, $return_one = FALSE) {
       $em = $this->container->get('doctrine')->getManager();
-      
+
       $group =  $em->getRepository("PSLClipperBundle:FirstQGroup")->createQueryBuilder('fqg')
                    ->where('fqg.state = :state')
                    ->andWhere('fqg.formDataRaw LIKE :raw_like')
@@ -223,12 +223,14 @@ abstract class WebTestCase extends BaseWebTestCase
       }
       return $group;
     }
-    
+
     /**
      * Runs a command and returns it output
      */
-    public function runCommand(Client $client, $command)
+    public function runCustomCommand($command)
     {
+        $client = static::makeClient();
+
         $application = new Application($client->getKernel());
         $application->setAutoExit(false);
 
