@@ -7,6 +7,7 @@ namespace PSL\ClipperBundle\Tests\Listener;
 use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\LimeSurveyComplete;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
+use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyCompleteTest extends WebTestCase
 {
@@ -41,14 +42,15 @@ class LimeSurveyCompleteTest extends WebTestCase
         $firstQProject->setState($this->params['state_codes']['limesurvey_complete']);
 
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
-        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete');
+
+        $user = new FWSSOUser('', '', 'jewei.mak@pslgroup.com', '', '', array());
+        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete', $user);
     }
 
     public function testOnMain()
     {
         // TODO: call function
-        // Fatal error: Call to protected method PSL\ClipperBundle\Listener\LimeSurveyComplete::main()
-        // $response = $this->limeSurveyComplete->main($this->firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
+        $response = $this->limeSurveyComplete->main($this->firstQProjectEvent, 'limesurvey_complete', $this->dispatcher);
 
         // TODO: assert output
 
