@@ -1095,6 +1095,7 @@ class ClipperController extends FOSRestController
       // check if counter is hit or not
       if ($request_counter >= $counter) {
         $this->sendSecurityEmail();
+        $returnObject['reset_counter'] = TRUE;
       }
     }   
     return $returnObject;
