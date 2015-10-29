@@ -5,6 +5,11 @@
  * Clipper CountryFWSSO Utilities.
  * 
  * This class will provide a Country FWSSO mapping for general purpose.
+ *
+ * ----- NOT TO BE CONFUSED WITH MDM MAPPING ----- 
+ * 
+ * The mapping is for User Country and Currency to country
+ * These IDs are related to the user object for FW SSO only.
  * 
  * @uses  Controller/ClipperController initBrainTree()
  * @uses  Controller/ClipperController formatPrice()
