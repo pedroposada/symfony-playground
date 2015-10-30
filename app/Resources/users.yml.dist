@@ -3,5 +3,4 @@
 #    user_id: 9527
 #    email: 'test@example.com'
 #    password: 'userpass'
-#    salt: 'secret'
 #    roles: [ROLE_ADMINUI_USER]
