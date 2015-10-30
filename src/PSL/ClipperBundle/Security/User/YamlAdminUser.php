@@ -6,20 +6,36 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class YamlAdminUser implements UserInterface
 {
+    protected $user_id;
     protected $username;
+    protected $email;
     protected $password;
+    protected $salt;
     protected $roles;
 
-    public function __construct($username, $password, array $roles)
+    public function __construct($user_id, $username, $email, $password, $salt, array $roles)
     {
+        $this->user_id = $user_id;
         $this->username = $username;
+        $this->email = $email;
         $this->password = $password;
+        $this->salt = $salt;
         $this->roles = $roles;
     }
 
-    public function getRoles()
+    public function getUserId()
     {
-        return $this->roles;
+        return $this->user_id;
+    }
+
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     public function getPassword()
@@ -29,12 +45,13 @@ class YamlAdminUser implements UserInterface
 
     public function getSalt()
     {
+        return $this->salt;
     }
 
-    public function getUsername()
+    public function getRoles()
     {
-        return $this->username;
-    }    
+        return $this->roles;
+    }
 
     public function eraseCredentials()
     {
@@ -46,15 +63,19 @@ class YamlAdminUser implements UserInterface
             return false;
         }
 
+        if ($this->user_id !== $user->getUserId()) {
+            return false;
+        }
+
+        if ($this->username !== $user->getUsername()) {
+            return false;
+        }
+
         if ($this->password !== $user->getPassword()) {
             return false;
         }
 
         if ($this->getSalt() !== $user->getSalt()) {
-            return false;
-        }
-
-        if ($this->username !== $user->getUsername()) {
             return false;
         }
 
