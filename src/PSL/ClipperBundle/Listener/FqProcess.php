@@ -17,11 +17,10 @@ abstract class FqProcess
   protected $current_state;
   protected $state;
   protected $dispatcher;
-  protected $user;
   static $timestamp;
   public $result;
 
-  public function __construct(ContainerInterface $container, $state, FWSSOUser $user = null)
+  public function __construct(ContainerInterface $container, $state)
   {
     // this is @service_container
     $this->container = $container;
@@ -36,12 +35,6 @@ abstract class FqProcess
     $this->state = $params['state_codes'][$state];
 
     self::$timestamp = time();
-
-    // Set user as current user.
-    if (is_null($user)) {
-      $user = $this->container->get('security.context')->getToken()->getUser();
-    }
-    $this->user = $user;
   }
 
   public function onMain(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)
