@@ -176,7 +176,7 @@ class ClipperController extends FOSRestController
       $form_data->request_counter = $paramFetcher->get('request_counter');
       $form_data->request_timestamp = $paramFetcher->get('request_timestamp');
       $firstq_group_uuid = $paramFetcher->get('firstq_uuid');
-      
+
       // Security Email Alerts Checking
       $returnObject = array_merge($returnObject, $this->checkOrderRequestLevel($form_data));
 
@@ -211,13 +211,13 @@ class ClipperController extends FOSRestController
       // Conversion function and return converted price with currency sign
       $gs_result_total_label = $this->formatPrice($gs_result_total);
       $form_data->price_total = $gs_result_total_label;
-      
+
       // calculate estimated time of completion
       $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
       $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
-      
+
       $form_data->completion_date = $completion_date;
-      
+
       // Save or update into the database
       $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
 
@@ -503,7 +503,7 @@ class ClipperController extends FOSRestController
         $sales_info = $this->formatOrderInfo($firstq_group);
         $this->sendConfirmationEmail(
           $usr->getEmail(),
-          $order_state . '.client_copy', // 'invoice.order_complete.client_copy' or 'invoice.order_invoice.client_copy' 
+          $order_state . '.client_copy', // 'invoice.order_complete.client_copy' or 'invoice.order_invoice.client_copy'
           $sales_info
         );
         $this->sendConfirmationEmail(
@@ -626,16 +626,16 @@ class ClipperController extends FOSRestController
         }
         else {
           // failed
-          
+
           // @see https://developers.braintreepayments.com/reference/response/transaction/php#result-object
-          
+
           // We will check if there's any errors
           $error_message = '';
           $error_code = '';
           foreach($result->errors->deepAll() AS $error) {
             $error_message .= $error->message . "\n";
             // we need only 1 error code, this is for frontend to trigger error message.
-            $error_code = $error->code; 
+            $error_code = $error->code;
           }
 
           // No errors, but it could be from processor
@@ -805,10 +805,10 @@ class ClipperController extends FOSRestController
     if (is_string($user) && $user == 'anon.') {
       return '$' . number_format($amount);
     }
-    
+
     // User info retrieval from the FW SSO
     $content = $this->getUserObject($user->getUserId());
-    
+
     $country_id = 0;
     if ($content) {
       $country_id = (isset($content['field_country']['und'][0]['tid'])) ? $content['field_country']['und'][0]['tid'] : '';
@@ -1068,7 +1068,7 @@ class ClipperController extends FOSRestController
    * @param object $form_data - form data
    */
   private function checkOrderRequestLevel($form_data) {
-    
+
     $returnObject = array();
 
     // get config
@@ -1083,7 +1083,7 @@ class ClipperController extends FOSRestController
     }
 
     $returnObject['request_timestamp'] = $request_timestamp;
-    
+
     // check if the request is within timeframe?
     $timestamp = time();
     $returnObject['reset_counter'] = FALSE;
@@ -1097,31 +1097,31 @@ class ClipperController extends FOSRestController
         $this->sendSecurityEmail();
         $returnObject['reset_counter'] = TRUE;
       }
-    }   
+    }
     return $returnObject;
   }
 
   function sendSecurityEmail() {
-    
+
     // Check if user is logged in
     $user = $this->get('security.context')->getToken()->getUser();
-    
+
     $user_log = ''; // message for email and log
-    
+
     $user_info = array();
     $user_info['name'] = '';
     $user_info['company_name'] = '';
     $user_info['email'] = '';
     $user_info['ip'] = $this->container->get('request')->getClientIp();
-    
+
     if (!is_string($user) || $user != 'anon.') {
       // if logged in, get data
       $userid = $user->getUserId();
       $userEmail = $user->getEmail();
-      
+
       // User info retrieval from the FW SSO
       $content = $this->getUserObject($userid);
-  
+
       if ($content) {
         $first_name = (isset($content['field_firstname']['und'][0]['value'])) ? $content['field_firstname']['und'][0]['value'] : '';
         $last_name = (isset($content['field_lastname']['und'][0]['value'])) ? $content['field_lastname']['und'][0]['value'] : '';
@@ -1133,9 +1133,9 @@ class ClipperController extends FOSRestController
       $user_log .= 'Name: ' . $user_info['name'] . ' Company: ' . $user_info['company_name'] . ' Email: ' . $user_info['email'];
     }
     $this->logger = $this->container->get('monolog.logger.clipper');
-    $user_log .= ' IP:' . $user_info['ip'];  
+    $user_log .= ' IP:' . $user_info['ip'];
     $this->logger->info('Email sent for high volume of Google sheet requests - ' . $user_log);
-    
+
     $subject = "Security Alerts - abnormal order request level.";
     $from = $this->container->getParameter('security_alerts.email_from');
     $to = $this->container->getParameter('security_alerts.email_to');
@@ -1188,7 +1188,7 @@ class ClipperController extends FOSRestController
       case 'invoice.order_invoice.admin_copy':
         $subject = 'A pending order is created.';
         break;
-        
+
       // Invoice complete ------------------------------
       case 'invoice.order_complete.client_copy':
         $subject = 'Your order is ready.';
@@ -1196,7 +1196,7 @@ class ClipperController extends FOSRestController
       case 'invoice.order_complete.admin_copy':
         $subject = 'An order is ready.';
         break;
-      
+
       // Points pending ------------------------------
       case 'points.order_points.client_copy':
         $subject = 'Your order is pending.';
@@ -1204,7 +1204,7 @@ class ClipperController extends FOSRestController
       case 'points.order_points.admin_copy':
         $subject = 'A pending order is created.';
         break;
-      
+
       // Credit card ------------------------------
       case 'credit.order_complete.client_copy':
         $subject = 'Your order is ready.';
@@ -1212,7 +1212,7 @@ class ClipperController extends FOSRestController
       case 'credit.order_complete.admin_copy':
         $subject = 'An order is ready.';
         break;
-      
+
       // Project completed ------------------------------
       // @TODO: project complete
     }
@@ -1236,14 +1236,14 @@ class ClipperController extends FOSRestController
 
     $this->get('mailer')->send($message);
   }
-  
+
   /**
    * format the order info for the emails
    */
   private function formatOrderInfo($firstq_group) {
-    
+
     $sale_info = array();
-    
+
     $firstq_formatted = $firstq_group->getFormattedFirstQGroup();
 
     // User info retrieval from the FW SSO
@@ -1259,18 +1259,18 @@ class ClipperController extends FOSRestController
       $user_info['name'] = $first_name . " " . $last_name;
       $user_info['company_name'] = $company_name;
     }
-    
+
     $markets = '';
     foreach ($firstq_formatted['markets'] as $mkey => $mvalue) {
-      $markets .= $mvalue . ', '; 
+      $markets .= $mvalue . ', ';
     }
     $markets = rtrim($markets, ', ');
     $specialties = '';
     foreach ($firstq_formatted['specialties'] as $skey => $svalue) {
-      $specialties .= $svalue . ', '; 
+      $specialties .= $svalue . ', ';
     }
     $specialties = rtrim($specialties, ', ');
-    
+
     $sale_info['user_name'] = $user_info['name'];
     $sale_info['company'] = $user_info['company_name'];
     $sale_info['title'] = $firstq_formatted['title'];
@@ -1278,13 +1278,13 @@ class ClipperController extends FOSRestController
     $sale_info['markets'] = $markets;
     $sale_info['specialties'] = $specialties;
     $sale_info['price'] = $firstq_formatted['price'];
-    
+
     return $sale_info;
   }
-  
+
   /**
    * Returns the user object from the FW SSO
-   * 
+   *
    * @param: int $user_id - FW SSO user id
    */
   private function getUserObject($user_id) {
@@ -1295,7 +1295,7 @@ class ClipperController extends FOSRestController
     $fwsso_ws = $this->container->get('fw_sso_webservice');
     $fwsso_ws->configure($settings);
     $response = $fwsso_ws->getUser(array('uid' => $user_id));
-    
+
     if ($response->isOk()) {
       $content = @json_decode($response->getContent(), TRUE);
       if (json_last_error() != JSON_ERROR_NONE) {

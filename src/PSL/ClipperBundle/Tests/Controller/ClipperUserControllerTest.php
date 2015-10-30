@@ -11,11 +11,9 @@ use PSL\ClipperBundle\Tests\WebTestCase;
  */
 class ClipperUserControllerTest extends WebTestCase
 {
-    public function testPostUsersAction()
+    public function testPostNewuserAction()
     {
-        $uri = $this->getUrl('post_users');
-
-        $this->assertBehindFirewall('POST', $uri);
+        $uri = $this->getUrl('post_newuser');
 
         $postData = array();
 
@@ -75,6 +73,12 @@ class ClipperUserControllerTest extends WebTestCase
         $this->authenticatedClient->request('POST', $uri, array(), array(), array('CONTENT_TYPE' => 'application/json'), $postData);
         $content = $this->authenticatedClient->getResponse()->getContent();
         $content = json_decode($content, true);
+
+        // BUG:
+        // HTTP/1.1 500 Internal Server Error :
+        // An error occurred (23000): SQLSTATE[23000]:
+        // Integrity constraint violation:
+        // 1062 Duplicate entry 'user_1440750926' for key 'name'
 
         $this->assertArrayHasKey('user', $content['content']);
 
@@ -178,12 +182,12 @@ class ClipperUserControllerTest extends WebTestCase
         $content = json_decode($content, true);
 
         $this->assertEquals(
-            'a firstname',
+            '9527_firstname',
             $content['content']['user']['field_firstname']['und'][0]['value']
         );
 
         $this->assertEquals(
-            'a lastname',
+            '9527_firstname',
             $content['content']['user']['field_lastname']['und'][0]['value']
         );
     }
@@ -198,7 +202,7 @@ class ClipperUserControllerTest extends WebTestCase
         $content = json_decode($content, true);
 
         $this->assertEquals(
-            'Error retrieving the password. Unauthorized : Missing required argument user',
+            'An error has occurred. Please try again.',
             $content['content']['error_message']
         );
 

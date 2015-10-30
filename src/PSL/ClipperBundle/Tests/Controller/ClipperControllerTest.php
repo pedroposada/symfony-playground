@@ -120,6 +120,9 @@ class ClipperControllerTest extends WebTestCase
         // Assert that the response content contains expected format.
         $content = json_decode($client->getResponse()->getContent(), true);
         $content = $content['content'];
+
+        // BUG: The parameter "security_alerts.order_request.counter" must be defined.
+
         $this->assertTrue(!empty($content['product']));
         $this->assertTrue(!empty($content['product']['price']));
         $this->assertTrue(!empty($content['product']['firstq_uuid']));
@@ -173,6 +176,7 @@ class ClipperControllerTest extends WebTestCase
                 ),
                 'launch_date' => '2015-07-22 11:10:33',
                 'timezone_client' => 'Europe/London',
+                'request_counter' => 0,
             ))),
         );
     }
@@ -275,7 +279,7 @@ class ClipperControllerTest extends WebTestCase
 
         $this->assertEquals(
             array(
-                'content' => 'Invalid request - missing parameters',
+                'content' => 'We were unable to complete your order. Please <a href="/">create your project again</a>.',
                 'status' => 400,
                 'headers' => array(),
             ),
@@ -292,7 +296,7 @@ class ClipperControllerTest extends WebTestCase
 
         $this->assertEquals(
             array(
-                'content' => 'Error - FirstQ uuid is invalid',
+                'content' => array('message' => 'We were unable to complete your order. Please <a href="/">create your project again</a>.'),
                 'status' => 400,
                 'headers' => array(),
             ),
