@@ -1,6 +1,6 @@
 # Example
 #uuser:
-#    user_id: 9527
+#    user_id: 250199
 #    email: 'test@example.com'
 #    password: 'userpass'
 #    roles: [ROLE_ADMINUI_USER]

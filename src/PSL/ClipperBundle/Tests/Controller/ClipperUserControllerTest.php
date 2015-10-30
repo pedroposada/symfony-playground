@@ -74,12 +74,6 @@ class ClipperUserControllerTest extends WebTestCase
         $content = $this->authenticatedClient->getResponse()->getContent();
         $content = json_decode($content, true);
 
-        // BUG:
-        // HTTP/1.1 500 Internal Server Error :
-        // An error occurred (23000): SQLSTATE[23000]:
-        // Integrity constraint violation:
-        // 1062 Duplicate entry 'user_1440750926' for key 'name'
-
         $this->assertArrayHasKey('user', $content['content']);
 
         $this->assertEquals(
@@ -182,12 +176,12 @@ class ClipperUserControllerTest extends WebTestCase
         $content = json_decode($content, true);
 
         $this->assertEquals(
-            '9527_firstname',
+            'a firstname',
             $content['content']['user']['field_firstname']['und'][0]['value']
         );
 
         $this->assertEquals(
-            '9527_firstname',
+            'a lastname',
             $content['content']['user']['field_lastname']['und'][0]['value']
         );
     }

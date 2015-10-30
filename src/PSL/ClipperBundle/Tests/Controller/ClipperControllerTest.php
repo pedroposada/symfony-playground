@@ -176,7 +176,7 @@ class ClipperControllerTest extends WebTestCase
                 ),
                 'launch_date' => '2015-07-22 11:10:33',
                 'timezone_client' => 'Europe/London',
-                'request_counter' => 0,
+                'request_counter' => 100,
             ))),
         );
     }
