@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 
-class LimeSurveyResponses extends FqProcess
+class LimeSurveyResponses
 {
   protected $container;
   protected $logger;
@@ -36,11 +36,6 @@ class LimeSurveyResponses extends FqProcess
 
     // serializer
     $this->serializer = $container->get('clipper_serializer');
-  }
-
-  public function main(FirstQProjectEvent $event)
-  {
-
   }
 
   public function refreshResponses(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)

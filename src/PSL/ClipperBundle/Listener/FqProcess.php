@@ -48,10 +48,6 @@ abstract class FqProcess
 
     $fq = $event->getFirstQProject();
 
-    if (empty($this->user)) {
-      $this->user = $this->container->get('security.context')->getToken()->getUser();
-    }
-
     // check state
     if ($fq->getState() == $this->state) {
 

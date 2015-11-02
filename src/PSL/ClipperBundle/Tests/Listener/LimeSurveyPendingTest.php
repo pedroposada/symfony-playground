@@ -44,8 +44,6 @@ class LimeSurveyPendingTest extends WebTestCase
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
         $this->limeSurveyPending= new LimeSurveyPending($this->container, 'limesurvey_pending');
-        $user = $this->container->get('user_service')->getUserById('250348');
-        $this->limeSurveyPending->setUser($user);
     }
 
     public function testOnMain()

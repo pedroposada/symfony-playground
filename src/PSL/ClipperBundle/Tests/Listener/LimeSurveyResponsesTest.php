@@ -43,8 +43,6 @@ class LimeSurveyResponsesTest extends WebTestCase
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
         $this->limeSurveyResponses= new LimeSurveyResponses($this->container, '');
-        $user = $this->container->get('user_service')->getUserById('250348');
-        $this->limeSurveyResponses->setUser($user);
     }
 
     public function testRefreshResponses()
