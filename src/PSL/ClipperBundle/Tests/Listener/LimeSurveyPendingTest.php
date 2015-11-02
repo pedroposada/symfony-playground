@@ -8,7 +8,6 @@ use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\LimeSurveyPending;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use Doctrine\Common\Collections\ArrayCollection;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyPendingTest extends WebTestCase
 {
@@ -44,8 +43,9 @@ class LimeSurveyPendingTest extends WebTestCase
 
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
-        $user = new FWSSOUser('', '', '', '', '', array());
-        $this->limeSurveyPending= new LimeSurveyPending($this->container, 'limesurvey_pending', $user);
+        $this->limeSurveyPending= new LimeSurveyPending($this->container, 'limesurvey_pending');
+        $user = $this->container->get('user_service')->getUserById('250348');
+        $this->limeSurveyPending->setUser($user);
     }
 
     public function testOnMain()

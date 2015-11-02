@@ -7,7 +7,6 @@ namespace PSL\ClipperBundle\Tests\Listener;
 use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\LimeSurveyComplete;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyCompleteTest extends WebTestCase
 {
@@ -43,8 +42,9 @@ class LimeSurveyCompleteTest extends WebTestCase
 
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
-        $user = new FWSSOUser('', '', 'jewei.mak@pslgroup.com', '', '', array());
-        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete', $user);
+        $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete');
+        $user = $this->container->get('user_service')->getUserById('250348');
+        $this->limeSurveyComplete->setUser($user);
     }
 
     public function testOnMain()

@@ -1,7 +1,7 @@
 services:
   clipper_cache:
     class: PSL\ClipperBundle\Service\ClipperCacheService
-    arguments: 
+    arguments:
       - %clipper_cache.config%
       - @service_container
 
@@ -77,6 +77,10 @@ services:
 
   translator_service:
     class: PSL\ClipperBundle\Service\TranslatorService
+    arguments: ["@service_container"]
+
+  user_service:
+    class: PSL\ClipperBundle\Service\UserService
     arguments: ["@service_container"]
 
   # --------------------------- #
