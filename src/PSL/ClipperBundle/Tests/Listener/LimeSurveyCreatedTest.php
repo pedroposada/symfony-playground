@@ -46,8 +46,6 @@ class LimeSurveyCreatedTest extends WebTestCase
 
         $rps = new RPanelService(array());
         $this->limeSurveyCreated= new LimeSurveyCreated($this->container, 'limesurvey_created', $rps);
-        $user = $this->container->get('user_service')->getUserById('250348');
-        $this->limeSurveyCreated->setUser($user);
     }
 
     public function testOnMain()
