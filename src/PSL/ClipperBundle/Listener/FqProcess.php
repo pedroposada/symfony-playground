@@ -7,7 +7,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 abstract class FqProcess
 {
@@ -34,6 +33,9 @@ abstract class FqProcess
     $next_key = array_search($state, array_keys($params['state_codes'])) + 1;
     $this->next_state = isset($keys[$next_key]) ? current(array_slice($params['state_codes'], $next_key, 1)) : $params['state_codes'][$state];
     $this->state = $params['state_codes'][$state];
+
+    // Bind user service.
+    $this->user = $this->container->get('user_service');
 
     self::$timestamp = time();
   }
@@ -62,9 +64,17 @@ abstract class FqProcess
     }
   }
 
-  public function setUser(FWSSOUser $user)
+  /**
+   * Set the user object from user service.
+   */
+  public function setUser(UserService $user)
   {
     $this->user = $user;
+  }
+
+  public function setUserById($uid)
+  {
+    $this->user = '';
   }
 
   abstract protected function main(FirstQProjectEvent $event);

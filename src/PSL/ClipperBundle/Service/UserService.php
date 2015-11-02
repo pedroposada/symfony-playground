@@ -5,9 +5,6 @@
 namespace PSL\ClipperBundle\Service;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
-use \stdClass as stdClass;
-use \Exception as Exception;
 
 /**
  * User Service
@@ -22,23 +19,22 @@ class UserService
   }
 
   /**
-   * Get user by user id
-   *
-   * @param   integer   $uid  User ID
+   * Get current user.
    */
-  public function getUserById($uid)
+  public function getCurrent()
   {
-    // $this->user = $this->container->get('security.context')->getToken()->getUser();
-    $user = $this->getUserObject($uid);
-    return new FWSSOUser($user['uid'], $user['name'], $user['mail'], $user['pass'], '', $user['roles']);
+    return $this->container->get('security.context')->getToken()->getUser();
   }
 
   /**
-   * Returns the user object from the FW SSO
+   * Find an user by user ID.
    *
-   * @param: int $user_id - FW SSO user id
+   * @param   integer   $user_id  User ID
+   *
+   * @return  array
    */
-  private function getUserObject($user_id) {
+  public function findById($user_id)
+  {
     // User info retrieval from the FW SSO
     $settings['fwsso_baseurl'] = $this->container->getParameter('fwsso_api.url');
     $settings['fwsso_app_token'] = $this->container->getParameter('fwsso_api.app_token');
@@ -50,7 +46,7 @@ class UserService
     if ($response->isOk()) {
       $content = @json_decode($response->getContent(), TRUE);
       if (json_last_error() != JSON_ERROR_NONE) {
-        throw new Exception('Get User object - JSON decode error: ' . json_last_error());
+        return NULL;
       }
       else {
         return $content;
