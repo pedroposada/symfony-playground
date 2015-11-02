@@ -17,6 +17,7 @@ abstract class FqProcess
   protected $current_state;
   protected $state;
   protected $dispatcher;
+  protected $user;
   static $timestamp;
   public $result;
 
@@ -47,6 +48,10 @@ abstract class FqProcess
 
     $fq = $event->getFirstQProject();
 
+    if (empty($this->user)) {
+      $this->user = $this->container->get('security.context')->getToken()->getUser();
+    }
+
     // check state
     if ($fq->getState() == $this->state) {
 
@@ -59,6 +64,11 @@ abstract class FqProcess
       // let listeners hook into this event (after action is completed)
       $dispatcher->dispatch(strtolower("AFTER_{$this->state}"), $event);
     }
+  }
+
+  public function setUser(FWSSOUser $user)
+  {
+    $this->user = $user;
   }
 
   abstract protected function main(FirstQProjectEvent $event);

@@ -19,9 +19,8 @@ class LimeSurveyCreated extends FqProcess
 {
   private $rps;
 
-  public function __construct(ContainerInterface $container, $state, FWSSOUser $user, RPanelService $rps)
+  public function __construct(ContainerInterface $container, $state, RPanelService $rps)
   {
-    parent::__construct($container, $state, $user);
     $this->rps = $rps;
   }
 

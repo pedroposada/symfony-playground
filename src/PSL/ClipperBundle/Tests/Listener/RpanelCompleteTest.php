@@ -8,7 +8,6 @@ use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\RpanelComplete;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use Doctrine\Common\Collections\ArrayCollection;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class RpanelCompleteTest extends WebTestCase
 {
@@ -45,8 +44,9 @@ class RpanelCompleteTest extends WebTestCase
 
         $firtQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
-        $user = new FWSSOUser('', '', '', '', '', array());
-        $rpanelComplete = new RpanelComplete($this->container, 'rpanel_complete', $user);
+        $rpanelComplete = new RpanelComplete($this->container, 'rpanel_complete');
+        $user = $this->container->get('user_service')->getUserById('250348');
+        $rpanelComplete->setUser($user);
 
 
         // TODO: call function
