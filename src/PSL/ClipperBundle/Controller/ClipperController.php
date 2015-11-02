@@ -42,6 +42,7 @@ use PSL\ClipperBundle\Entity\FirstQProcessAction as FirstQProcessAction;
 use PSL\ClipperBundle\Service\GoogleSpreadsheetService;
 use PSL\ClipperBundle\Service\SurveyBuilderService;
 use PSL\ClipperBundle\Utils\CountryFWSSO as CountryFWSSO;
+use PSL\ClipperBundle\Security\User\FWSSOQuickLoginUser as FWSSOQuickLoginUser;
 
 use \stdClass as stdClass;
 use \Exception as Exception;
@@ -458,7 +459,17 @@ class ClipperController extends FOSRestController
     // Get user id
     $usr = $this->get('security.context')->getToken()->getUser();
     $userid = $usr->getUserId();
-
+    $userEmail = $usr->getEmail();
+    
+    // Email link components
+    // urls
+    $frontend_url =  $this->container->getParameter('clipper.frontend.url');
+    $backend_url =  $this->container->getParameter('clipper.backend.url');
+    // user quick login hash
+    $user = new FWSSOQuickLoginUser('', $userEmail, $userEmail, '', array());
+    $encKey = $this->container->getParameter('clipper.users.ql_encryptionkey');
+    $ql_hash = $user->getQuickLoginHash($encKey);
+    
     // return error if empty
     if (empty($firstq_group_uuid)) {
       $message = 'We were unable to complete your order. Please <a href="/">create your project again</a>.';
@@ -481,16 +492,31 @@ class ClipperController extends FOSRestController
 
       // Invoice ------------------------------------------------------------------------------------
       if ($method == 'INVOICE') {
-
+        
+        // links
+        $client_link = '';
+        $admin_link = '';
+        
         if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
           $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
           $firstq_group->setUserId($userid);
           $returnObject['message'] = 'Order complete. Your payment will be via invoice.';
+          
+          // link included in client email
+          $client_link['url'] = $frontend_url . '#op=dashboard&tab=active&ql_hash=' . $ql_hash;
+          $client_link['label'] = 'View your order on dashboard';
         }
         else {
           $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
           $firstq_group->setUserId($userid);
           $returnObject['message'] = 'Order pending. The order will be activated after payment.';
+          
+          // link included in client email
+          $client_link['url'] = $frontend_url . '#op=dashboard&tab=pending&ql_hash=' . $ql_hash;
+          $client_link['label'] = 'View your order on dashboard';
+          // link included in admin email
+          $admin_link['url'] = $backend_url;
+          $admin_link['label'] = 'Login to view order';
         }
 
         $em->persist($firstq_group);
@@ -504,12 +530,14 @@ class ClipperController extends FOSRestController
         $this->sendConfirmationEmail(
           $usr->getEmail(),
           $order_state . '.client_copy', // 'invoice.order_complete.client_copy' or 'invoice.order_invoice.client_copy'
-          $sales_info
+          $sales_info,
+          $client_link
         );
         $this->sendConfirmationEmail(
           $this->container->getParameter('confirmation_emails.' . $order_state),
           $order_state . '.admin_copy', // 'invoice.order_complete.admin_copy' or 'invoice.order_invoice.admin_copy'
-          $sales_info
+          $sales_info,
+          $admin_link
         );
 
         return new Response($returnObject, 200);
@@ -545,15 +573,23 @@ class ClipperController extends FOSRestController
         // and order details and include link to Clipper Admin UI
         $order_state = strtolower($method . '.' . $firstq_group->getState());
         $sales_info = $this->formatOrderInfo($firstq_group);
+        // link included in client email
+        $client_link['url'] = $frontend_url . '#op=dashboard&tab=pending&ql_hash=' . $ql_hash;
+        $client_link['label'] = 'View your order on dashboard';
         $this->sendConfirmationEmail(
           $usr->getEmail(),
           $order_state . '.client_copy', // 'points.order_points.client_copy'
-          $sales_info
+          $sales_info,
+          $client_link
         );
+        // link included in admin email
+        $admin_link['url'] = $backend_url;
+        $admin_link['label'] = 'Login to view order';
         $this->sendConfirmationEmail(
           $this->container->getParameter('confirmation_emails.' . $order_state),
           $order_state . '.admin_copy', // 'points.order_points.admin_copy'
-          $sales_info
+          $sales_info,
+          $admin_link
         );
 
         return new Response($returnObject, 200);
@@ -611,15 +647,21 @@ class ClipperController extends FOSRestController
           // Email to FW Finance and others (multi email field)
           $order_state = strtolower($method . '.' . $firstq_group->getState());
           $sales_info = $this->formatOrderInfo($firstq_group);
+          // link included in client email
+          $client_link['url'] = $frontend_url . '#op=dashboard&tab=active&ql_hash=' . $ql_hash;
+          $client_link['label'] = 'View your order on dashboard';
           $this->sendConfirmationEmail(
             $usr->getEmail(),
             $order_state . '.client_copy', // 'credit.order_complete.client_copy'
-            $sales_info
+            $sales_info,
+            $client_link
           );
+          $admin_link = '';
           $this->sendConfirmationEmail(
             $this->container->getParameter('confirmation_emails.' . $order_state),
             $order_state . '.admin_copy', // 'credit.order_complete.admin_copy'
-            $sales_info
+            $sales_info,
+            $admin_link
           );
 
           return new Response($returnObject, 200);
@@ -1164,11 +1206,13 @@ class ClipperController extends FOSRestController
    * @param string  $type         Confirmation type, format as
    * @param array   $sales_info   Passing variables to salesinfo twig template
    */
-  private function sendConfirmationEmail($to = array('recipient@example.com'), $type = '', $sales_info = array())
+  private function sendConfirmationEmail($to = array('recipient@example.com'), $type = '', $sales_info = array(), $link = '')
   {
     // @TODO: Update the text/content when it's ready.
     $subject = '';
-    $from = array('send@example.com' => 'A name');
+    $no_reply_email = $this->container->getParameter('clipper.no_reply_email');
+    $website_name = $this->container->getParameter('clipper.website_name');
+    $from = array($no_reply_email => $website_name);
 
     // Become smart to break emails into array.
     if (is_string($to)) {
@@ -1228,6 +1272,7 @@ class ClipperController extends FOSRestController
           'PSLClipperBundle:Emails:confirmation.' . $type . '.html.twig',
           array(
             'sales_info' => $sales_info,
+            'link' => $link,
           ),
           'text/html'
         )

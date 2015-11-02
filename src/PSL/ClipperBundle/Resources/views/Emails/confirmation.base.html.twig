@@ -16,11 +16,11 @@
 {% endblock %}
 
 {# Link to front end UI /dashboard / active orders #}
+
 {% block links %}
+  {% if link %}
     <div class="links">
-        <ul>
-            <li><a href="#">Link</a></li>
-            <li><a href="#">Link</a></li>
-        </ul>
+      <a href="{{ link.url }}">{{ link.label }}</a>
     </div>
+  {% endif %}
 {% endblock %}
