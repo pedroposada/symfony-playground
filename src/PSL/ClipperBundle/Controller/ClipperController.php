@@ -271,13 +271,11 @@ class ClipperController extends FOSRestController
     $em = $this->getDoctrine()->getManager();
 
     $firstq_groups;
-
-    // @TODO: get orders according to the user's session
-    // either by retrieving a user's ID in the JWT token
-    // or with the FW SSO through loadUserByUsername
-
-    // get user_id from request
-    $user_id = $request->query->get('user_id');
+    
+    // Get user id
+    $usr = $this->get('security.context')->getToken()->getUser();
+    $user_id = $usr->getUserId();
+    
     if (!empty($user_id)) {
       $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
     }
@@ -503,7 +501,7 @@ class ClipperController extends FOSRestController
           $returnObject['message'] = 'Order complete. Your payment will be via invoice.';
           
           // link included in client email
-          $client_link['url'] = $frontend_url . '#op=dashboard&tab=active&ql_hash=' . $ql_hash;
+          $client_link['url'] = $frontend_url . '#quick-login&op=dashboard&tab=active&ql_hash=' . $ql_hash;
           $client_link['label'] = 'View your order on dashboard';
         }
         else {
@@ -512,7 +510,7 @@ class ClipperController extends FOSRestController
           $returnObject['message'] = 'Order pending. The order will be activated after payment.';
           
           // link included in client email
-          $client_link['url'] = $frontend_url . '#op=dashboard&tab=pending&ql_hash=' . $ql_hash;
+          $client_link['url'] = $frontend_url . '#quick-login&op=dashboard&tab=pending&ql_hash=' . $ql_hash;
           $client_link['label'] = 'View your order on dashboard';
           // link included in admin email
           $admin_link['url'] = $backend_url;
@@ -574,7 +572,7 @@ class ClipperController extends FOSRestController
         $order_state = strtolower($method . '.' . $firstq_group->getState());
         $sales_info = $this->formatOrderInfo($firstq_group);
         // link included in client email
-        $client_link['url'] = $frontend_url . '#op=dashboard&tab=pending&ql_hash=' . $ql_hash;
+        $client_link['url'] = $frontend_url . '#quick-login&op=dashboard&tab=pending&ql_hash=' . $ql_hash;
         $client_link['label'] = 'View your order on dashboard';
         $this->sendConfirmationEmail(
           $usr->getEmail(),
@@ -648,7 +646,7 @@ class ClipperController extends FOSRestController
           $order_state = strtolower($method . '.' . $firstq_group->getState());
           $sales_info = $this->formatOrderInfo($firstq_group);
           // link included in client email
-          $client_link['url'] = $frontend_url . '#op=dashboard&tab=active&ql_hash=' . $ql_hash;
+          $client_link['url'] = $frontend_url . '#quick-login&op=dashboard&tab=active&ql_hash=' . $ql_hash;
           $client_link['label'] = 'View your order on dashboard';
           $this->sendConfirmationEmail(
             $usr->getEmail(),
