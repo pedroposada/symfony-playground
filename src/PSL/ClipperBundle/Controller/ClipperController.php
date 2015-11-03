@@ -1323,6 +1323,15 @@ class ClipperController extends FOSRestController
     $sale_info['markets'] = $markets;
     $sale_info['specialties'] = $specialties;
     $sale_info['price'] = $firstq_formatted['price'];
+    
+    if (!empty($firstq_formatted['project_number'])) {
+      $sale_info['project_number'] = $firstq_formatted['project_number'];  
+    }
+
+    if (!empty($firstq_formatted['vat_number'])) {
+      $sale_info['vat_number'] = $firstq_formatted['vat_number'];  
+    }
+
 
     return $sale_info;
   }
