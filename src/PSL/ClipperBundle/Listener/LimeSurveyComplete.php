@@ -42,31 +42,36 @@ class LimeSurveyComplete extends FqProcess
     if ($quota_is_reached || $time_has_expired) {
       // Email to client when quota has been reached and the report is ready.
       // link to project report with quick-login of the user.
-      $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $this->user->getEmail(), '', array());
-      $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
+      $user = $this->user->findById($fqg->getUserId());
+      if (!is_array($user)) {
+        $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $user['mail'], '', array());
+        $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
 
-      // http://external.dev.csb.pslgroup.com/remote/fwreports.html#order_id=B086E0BB-0BB5-4FD8-9CC5-6CEB3B28C0AC&ql_hash=XJhPyUGjKVenxX3s1SNvAJYsmcC3CtArKwenb3omrN0,
-      $link = $this->container->getParameter('clipper.frontend.url')
-            . '#order_id=' . $fqg->getId()
-            . '&ql_hash=' . $hash;
+        // http://localhost:9000/#quick-login&op=select-project&order_id=4db9db84-589f-11e5-bff2-4ffbfe082dc5&ql_hash=GhbXpDS2kh4gRI6QcQmF9nui5UNTydBb_c1_j4STRR2FR8bL58DidYiKOcF9y4YdD1R3qmnI1PXXMEkiH2KAlA,,
+        $link = $this->container->getParameter('clipper.frontend.url')
+              . '#quick-login'
+              . '&op=select-project'
+              . '&order_id=' . $fqg->getId()
+              . '&ql_hash=' . $hash;
 
-      $message = \Swift_Message::newInstance()
-        ->setContentType('text/html')
-        ->setSubject('Quota has been reached')
-        ->setFrom(array('noreply@clipper.com' => 'No reply'))
-        ->setTo(array($this->user->getEmail()))
-        ->setBody(
-          $this->container->get('templating')->render(
-            'PSLClipperBundle:Emails:confirmation_emails.order_close.html.twig',
-            array(
-              'link' => $link,
-            ),
-            'text/html'
+        $message = \Swift_Message::newInstance()
+          ->setContentType('text/html')
+          ->setSubject('Quota has been reached')
+          ->setFrom(array('noreply@clipper.com' => 'No reply'))
+          ->setTo(array($user['mail']))
+          ->setBody(
+            $this->container->get('templating')->render(
+              'PSLClipperBundle:Emails:confirmation_emails.order_close.html.twig',
+              array(
+                'link' => $link,
+              ),
+              'text/html'
+            )
           )
-        )
-      ;
+        ;
 
-      $this->container->get('mailer')->send($message);
+        $this->container->get('mailer')->send($message);
+      }
     }
   }
 

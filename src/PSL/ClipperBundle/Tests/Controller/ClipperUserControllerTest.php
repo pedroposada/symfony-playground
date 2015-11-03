@@ -11,11 +11,9 @@ use PSL\ClipperBundle\Tests\WebTestCase;
  */
 class ClipperUserControllerTest extends WebTestCase
 {
-    public function testPostUsersAction()
+    public function testPostNewuserAction()
     {
-        $uri = $this->getUrl('post_users');
-
-        $this->assertBehindFirewall('POST', $uri);
+        $uri = $this->getUrl('post_newuser');
 
         $postData = array();
 
@@ -198,7 +196,7 @@ class ClipperUserControllerTest extends WebTestCase
         $content = json_decode($content, true);
 
         $this->assertEquals(
-            'Error retrieving the password. Unauthorized : Missing required argument user',
+            'An error has occurred. Please try again.',
             $content['content']['error_message']
         );
 

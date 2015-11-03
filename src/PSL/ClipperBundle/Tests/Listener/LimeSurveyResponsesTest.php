@@ -7,7 +7,6 @@ namespace PSL\ClipperBundle\Tests\Listener;
 use PSL\ClipperBundle\Tests\WebTestCase;
 use PSL\ClipperBundle\Listener\LimeSurveyResponses;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyResponsesTest extends WebTestCase
 {
@@ -43,8 +42,7 @@ class LimeSurveyResponsesTest extends WebTestCase
 
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
-        $user = new FWSSOUser('', '', '', '', '', array());
-        $this->limeSurveyResponses= new LimeSurveyResponses($this->container, '', $user);
+        $this->limeSurveyResponses= new LimeSurveyResponses($this->container, '');
     }
 
     public function testRefreshResponses()

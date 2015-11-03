@@ -21,10 +21,13 @@ class YamlAdminUserProvider implements UserProviderInterface
         $this->users = array();
 
         foreach ((array)$userDefinitions as $username => $attributes) {
+            $user_id = isset($attributes['user_id']) ? $attributes['user_id'] : null;
+            $email = isset($attributes['email']) ? $attributes['email'] : null;
             $password = isset($attributes['password']) ? $attributes['password'] : null;
+            $salt = isset($attributes['salt']) ? $attributes['salt'] : null;
             $roles = isset($attributes['roles']) ? $attributes['roles'] : array();
 
-            $this->users[$username] = new YamlAdminUser($username, $password, $roles);
+            $this->users[$username] = new YamlAdminUser($user_id, $username, $email, $password, $salt, $roles);
         }
     }
 
@@ -36,7 +39,7 @@ class YamlAdminUserProvider implements UserProviderInterface
 
         $user = $this->users[$username];
 
-        return new YamlAdminUser($user->getUsername(), $user->getPassword(), $user->getRoles());
+        return new YamlAdminUser($user->getUserId(), $user->getUsername(), $user->getEmail(), $user->getPassword(), $user->getSalt(), $user->getRoles());
     }
 
     public function refreshUser(UserInterface $user)

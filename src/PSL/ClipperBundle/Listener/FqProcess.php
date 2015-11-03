@@ -7,7 +7,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 abstract class FqProcess
 {
@@ -21,7 +20,7 @@ abstract class FqProcess
   static $timestamp;
   public $result;
 
-  public function __construct(ContainerInterface $container, $state, FWSSOUser $user = null)
+  public function __construct(ContainerInterface $container, $state)
   {
     // this is @service_container
     $this->container = $container;
@@ -35,13 +34,10 @@ abstract class FqProcess
     $this->next_state = isset($keys[$next_key]) ? current(array_slice($params['state_codes'], $next_key, 1)) : $params['state_codes'][$state];
     $this->state = $params['state_codes'][$state];
 
-    self::$timestamp = time();
+    // Bind user service.
+    $this->user = $this->container->get('user_service');
 
-    // Set user as current user.
-    if (is_null($user)) {
-      $user = $this->container->get('security.context')->getToken()->getUser();
-    }
-    $this->user = $user;
+    self::$timestamp = time();
   }
 
   public function onMain(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)
@@ -66,6 +62,19 @@ abstract class FqProcess
       // let listeners hook into this event (after action is completed)
       $dispatcher->dispatch(strtolower("AFTER_{$this->state}"), $event);
     }
+  }
+
+  /**
+   * Set the user object from user service.
+   */
+  public function setUser(UserService $user)
+  {
+    $this->user = $user;
+  }
+
+  public function setUserById($uid)
+  {
+    $this->user = '';
   }
 
   abstract protected function main(FirstQProjectEvent $event);
