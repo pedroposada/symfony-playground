@@ -1,9 +1,12 @@
 <?php
 
+// src/PSL/ClipperBundle/Utils/RPanelProject.php
+
 namespace PSL\ClipperBundle\Utils;
 
-use  PSL\ClipperBundle\Entity\FirstQProject;
-
+use PSL\ClipperBundle\Entity\FirstQProject;
+use DateTime;
+use DateInterval;
 
 /**
  * This is a wrapper object used to transport data from RPanel action to action
@@ -11,77 +14,81 @@ use  PSL\ClipperBundle\Entity\FirstQProject;
  */
 class RPanelProject
 {
-  
+
   protected $fq; // entitiy object
-  
+
   protected $proj_id; // id value is based upon rpanel database row creation
-  
+
   protected $project_sk; // id value is based upon translateapi database row creation
-  
+
   protected $quote_id; // feasibility_project_quota.quota_id // quota_id in a db and quote_id in the other... I know...
-  
+
   protected $proj_name; // has content from user input field 'title', they fill in the title of the project
-  
+
   protected $proj_status;
-  
+
   protected $launch_date; // Y-m-d H:i:s
-  
+
   protected $proj_type;
-  
+
   protected $specialty_id; // mapped with MDMMapping
-  
+
   protected $country_id; // mapped with MDMMapping
-  
+
   protected $incidence_rate;
-  
+
   protected $length;
-  
+
   protected $target_size;
-  
+
   protected $target_list;
-  
+
   protected $feasibility_file;
-  
+
   protected $respondent;
-  
+
   protected $duration;
-  
+
   protected $field_duration;
-  
+
   protected $status_id;
-  
+
   protected $brand_id;
-  
+
   protected $email_template_id;
-  
+
   protected $num_participants;
-  
+
   protected $google_sheet;
-  
+
   protected $estimate_date;
-  
+
   protected $project_type;
-  
+
   protected $ltid; // id value is based upon translateapi database row creation
-  
+
   protected $link_url;
-  
+
   protected $link_type;
-  
+
   protected $created_by;
-  
+
   protected $created_date;
-  
-  function __construct(FirstQProject $fq) 
+
+  protected $expired_date;
+
+  protected $proj_num;
+
+  function __construct(FirstQProject $fq)
   {
     $this->fq = $fq;
   }
-  
+
   function __call($callback, $param_arr)
   {
     return call_user_func_array(array($this->fq, $callback), $param_arr);
   }
-  
+
   /**
    * Set proj_id
    */
@@ -99,7 +106,7 @@ class RPanelProject
   {
       return $this->proj_id;
   }
-  
+
   /**
    * Set project_sk
    */
@@ -245,7 +252,7 @@ class RPanelProject
   {
       return $this->country_id;
   }
-  
+
   /**
    * Set incidence_rate
    */
@@ -263,7 +270,7 @@ class RPanelProject
   {
       return $this->incidence_rate;
   }
-  
+
   /**
    * Set length
    */
@@ -353,7 +360,7 @@ class RPanelProject
   {
       return $this->respondent;
   }
-  
+
   /**
    * Set duration
    */
@@ -461,7 +468,7 @@ class RPanelProject
   {
       return $this->num_participants;
   }
-  
+
   /**
    * Set estimate_date
    */
@@ -479,7 +486,7 @@ class RPanelProject
   {
       return $this->estimate_date;
   }
-  
+
   /**
    * Set project_type
    */
@@ -497,7 +504,7 @@ class RPanelProject
   {
       return $this->project_type;
   }
-  
+
   /**
    * Set ltid
    */
@@ -515,7 +522,7 @@ class RPanelProject
   {
       return $this->ltid;
   }
-  
+
   /**
    * Set link_url
    */
@@ -533,7 +540,7 @@ class RPanelProject
   {
       return $this->link_url;
   }
-  
+
   /**
    * Set link_type
    */
@@ -551,7 +558,7 @@ class RPanelProject
   {
       return $this->link_type;
   }
-  
+
   /**
    * Set created_by
    */
@@ -569,7 +576,7 @@ class RPanelProject
   {
       return $this->created_by;
   }
-  
+
   /**
    * Set created_date
    */
@@ -587,7 +594,7 @@ class RPanelProject
   {
       return $this->created_date;
   }
-  
+
   /**
    * Set client_id
    */
@@ -605,5 +612,39 @@ class RPanelProject
   {
       return $this->client_id;
   }
-  
+
+  /**
+   * Get expired_date
+   *
+   * @return $expired_date
+   */
+  public function getExpiredDate()
+  {
+      return $this->expired_date;
+  }
+
+  /**
+   * Get proj_num
+   *
+   * @return $proj_num
+   */
+  public function getProjNum()
+  {
+      // clipper order id - fqg.id
+      return $this->proj_num;
+  }
+
+  /**
+   * Get interval added duration.
+   *
+   * @param   string  $interval_spec  An interval specification. e.g. P2Y4DT6H8M
+   *
+   * @return  string  UNIX timestamp.
+   */
+  public function getAddedDuration($interval_spec)
+  {
+    $now = new DateTime("now");
+    $added_duration = $now->add(new DateInterval($interval_spec));
+    return $added_duration->format("U");
+  }
 }

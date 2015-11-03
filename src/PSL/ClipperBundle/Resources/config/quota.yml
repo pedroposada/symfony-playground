@@ -37,10 +37,12 @@
 77: # France
   12: 50 # Anaesthesiology
   18: 50 # Cardiology
+  37: 50 # Dermatology
   45: 50 # Endocrinology
   53: 50 # Gastroenterology
   56: 50 # General Surger
   55: 50 # GPs / PCPs
+  69: 50 # Haematology
   78: 50 # IMs
   76: 50 # Infectious Disease
   94: 50 # Neurology
@@ -52,15 +54,18 @@
   152: 50 # Paediatrics
   205: 50 # Physician Assistant
   159: 50 # Psychiatry
+  167: 50 # Respirology/Pulmonology
   168: 50 # Rheumatology
   181: 50 # Urology
 84: # Germany
   12: 50 # Anaesthesiology
   18: 50 # Cardiology
+  37: 50 # Dermatology
   45: 50 # Endocrinology
   53: 50 # Gastroenterology
   56: 50 # General Surger
   55: 50 # GPs / PCPs
+  69: 50 # Haematology
   78: 50 # IMs
   76: 50 # Infectious Disease
   94: 50 # Neurology
@@ -72,15 +77,18 @@
   152: 50 # Paediatrics
   205: 50 # Physician Assistant
   159: 50 # Psychiatry
+  167: 50 # Respirology/Pulmonology
   168: 50 # Rheumatology
   181: 50 # Urology
 110: # Italy
   12: 50 # Anaesthesiology
   18: 50 # Cardiology
+  37: 50 # Dermatology
   45: 50 # Endocrinology
   53: 50 # Gastroenterology
   56: 50 # General Surger
   55: 50 # GPs / PCPs
+  69: 50 # Haematology
   78: 50 # IMs
   76: 50 # Infectious Disease
   94: 50 # Neurology
@@ -92,15 +100,18 @@
   152: 50 # Paediatrics
   205: 50 # Physician Assistant
   159: 50 # Psychiatry
+  167: 50 # Respirology/Pulmonology
   168: 50 # Rheumatology
   181: 50 # Urology
 210: # Spain
   12: 50 # Anaesthesiology
   18: 50 # Cardiology
+  37: 50 # Dermatology
   45: 50 # Endocrinology
   53: 50 # Gastroenterology
   56: 50 # General Surger
   55: 50 # GPs / PCPs
+  69: 50 # Haematology
   78: 50 # IMs
   76: 50 # Infectious Disease
   94: 50 # Neurology
@@ -112,15 +123,18 @@
   152: 50 # Paediatrics
   205: 50 # Physician Assistant
   159: 50 # Psychiatry
+  167: 50 # Respirology/Pulmonology
   168: 50 # Rheumatology
   181: 50 # Urology
 235: # UK
   12: 50 # Anaesthesiology
   18: 50 # Cardiology
+  37: 50 # Dermatology
   45: 50 # Endocrinology
   53: 50 # Gastroenterology
   56: 50 # General Surger
   55: 50 # GPs / PCPs
+  69: 50 # Haematology
   78: 50 # IMs
   76: 50 # Infectious Disease
   94: 50 # Neurology
@@ -132,15 +146,18 @@
   152: 50 # Paediatrics
   205: 50 # Physician Assistant
   159: 50 # Psychiatry
+  167: 50 # Respirology/Pulmonology
   168: 50 # Rheumatology
   181: 50 # Urology
 240: # USA
   12: 100 # Anaesthesiology
   18: 100 # Cardiology
+  37: 100 # Dermatology
   45: 100 # Endocrinology
   53: 100 # Gastroenterology
   56: 100 # General Surger
   55: 100 # GPs / PCPs
+  69: 100 # Haematology
   78: 100 # IMs
   76: 100 # Infectious Disease
   94: 100 # Neurology
@@ -152,5 +169,6 @@
   152: 100 # Paediatrics
   205: 100 # Physician Assistant
   159: 100 # Psychiatry
+  167: 100 # Respirology/Pulmonology
   168: 100 # Rheumatology
   181: 100 # Urology

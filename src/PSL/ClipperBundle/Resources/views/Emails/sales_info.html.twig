@@ -32,6 +32,18 @@
         <td>Price</td>
         <td>{{ sales_info.price }}</td>
       </tr>
+      {% if sales_info.project_number is defined %}
+      <tr>
+        <td>Project Number</td>
+        <td>{{ sales_info.project_number }}</td>
+      </tr>
+      {% endif %}
+      {% if sales_info.vat_number is defined %}
+      <tr>
+        <td>Vat Number</td>
+        <td>{{ sales_info.vat_number }}</td>
+      </tr>
+      {% endif %}
     </tbody>
   </table>
 </div>
