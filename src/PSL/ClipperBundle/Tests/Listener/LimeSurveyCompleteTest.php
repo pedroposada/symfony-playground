@@ -43,7 +43,9 @@ class LimeSurveyCompleteTest extends WebTestCase
         $this->firstQProjectEvent = new FirstQProjectEvent($firstQGroup, $firstQProject);
 
         $this->limeSurveyComplete = new LimeSurveyComplete($this->container, 'limesurvey_complete');
-        $this->limeSurveyComplete->setUser($this->container->get('user_service')->getUserById('250348'));
+        $user_service = $this->container->get('user_service');
+        $user = $user_service->findById('250348');
+        $this->limeSurveyComplete->setUser($user);
     }
 
     public function testOnMain()

@@ -271,11 +271,11 @@ class ClipperController extends FOSRestController
     $em = $this->getDoctrine()->getManager();
 
     $firstq_groups;
-    
+
     // Get user id
     $usr = $this->get('security.context')->getToken()->getUser();
     $user_id = $usr->getUserId();
-    
+
     if (!empty($user_id)) {
       $firstq_groups = $em->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')->findByUserId($user_id);
     }
@@ -458,7 +458,7 @@ class ClipperController extends FOSRestController
     $usr = $this->get('security.context')->getToken()->getUser();
     $userid = $usr->getUserId();
     $userEmail = $usr->getEmail();
-    
+
     // Email link components
     // urls
     $frontend_url =  $this->container->getParameter('clipper.frontend.url');
@@ -467,7 +467,7 @@ class ClipperController extends FOSRestController
     $user = new FWSSOQuickLoginUser('', $userEmail, $userEmail, '', array());
     $encKey = $this->container->getParameter('clipper.users.ql_encryptionkey');
     $ql_hash = $user->getQuickLoginHash($encKey);
-    
+
     // return error if empty
     if (empty($firstq_group_uuid)) {
       $message = 'We were unable to complete your order. Please <a href="/">create your project again</a>.';
@@ -490,16 +490,16 @@ class ClipperController extends FOSRestController
 
       // Invoice ------------------------------------------------------------------------------------
       if ($method == 'INVOICE') {
-        
+
         // links
         $client_link = '';
         $admin_link = '';
-        
+
         if ($this->get('security.context')->isGranted('ROLE_INVOICE_WHITELISTED')) {
           $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
           $firstq_group->setUserId($userid);
           $returnObject['message'] = 'Order complete. Your payment will be via invoice.';
-          
+
           // link included in client email
           $client_link['url'] = $frontend_url . '#quick-login&op=dashboard&tab=active&ql_hash=' . $ql_hash;
           $client_link['label'] = 'View your order on dashboard';
@@ -508,7 +508,7 @@ class ClipperController extends FOSRestController
           $firstq_group->setState($parameters_clipper['state_codes']['order_invoice']);
           $firstq_group->setUserId($userid);
           $returnObject['message'] = 'Order pending. The order will be activated after payment.';
-          
+
           // link included in client email
           $client_link['url'] = $frontend_url . '#quick-login&op=dashboard&tab=pending&ql_hash=' . $ql_hash;
           $client_link['label'] = 'View your order on dashboard';
@@ -1321,13 +1321,13 @@ class ClipperController extends FOSRestController
     $sale_info['markets'] = $markets;
     $sale_info['specialties'] = $specialties;
     $sale_info['price'] = $firstq_formatted['price'];
-    
+
     if (!empty($firstq_formatted['project_number'])) {
-      $sale_info['project_number'] = $firstq_formatted['project_number'];  
+      $sale_info['project_number'] = $firstq_formatted['project_number'];
     }
 
     if (!empty($firstq_formatted['vat_number'])) {
-      $sale_info['vat_number'] = $firstq_formatted['vat_number'];  
+      $sale_info['vat_number'] = $firstq_formatted['vat_number'];
     }
 
 
