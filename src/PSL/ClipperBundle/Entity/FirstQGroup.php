@@ -392,6 +392,7 @@ class FirstQGroup
         $firstq_formatted['specialties'] = $form_data['specialties'];
         $firstq_formatted['brands'] = $form_data['brands'];
         $firstq_formatted['attributes'] = $form_data['attributes'];
+        $firstq_formatted['completion_date'] = $form_data['completion_date'];
         switch ($this->state) {
             case 'ORDER_PENDING':
             case 'ORDER_INVOICE':
