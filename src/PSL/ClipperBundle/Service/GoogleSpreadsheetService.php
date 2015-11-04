@@ -79,8 +79,7 @@ class GoogleSpreadsheetService
   {
     // Feasibility object
     $feasibility = new stdClass();
-
-    // @TODO: might be done somewhere else, maybe in the FeasibilityRequest object
+    
     // Validation of the fields
     $error_string = '';
     if (!is_numeric($form_data->loi)) {

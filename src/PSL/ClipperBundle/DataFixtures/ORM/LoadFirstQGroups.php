@@ -26,7 +26,7 @@ class LoadFirstQGroups extends AbstractFixture implements OrderedFixtureInterfac
         $group->setFormDataRaw('{"survey_type":"nps_plus","loi":10,"ir":10,"title":"a title","name":"a name","name_full":"a name full","patient_type":"sick","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["AA-123","BB-456","CC-789","DD-123","EE-456","FF-789"],"attributes":["it just works","painfull side effects","risk of death","just painful","mildly pointless","kind of cool","not effective","gives headaches"],"launch_date":"2015-07-22 11:10:33","timezone_client":"Europe\/London","price_total":12345}');
         $group->setState('ORDER_COMPLETE');
         $group->setOrderId('test-order-complete');
-        $group->setUserId('250348');
+        $group->setUserId('250199');
         $this->setReference('firstqgroup-1', $group);
         $manager->persist($group);
 

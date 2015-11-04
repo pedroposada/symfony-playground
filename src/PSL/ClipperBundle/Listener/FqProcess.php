@@ -17,6 +17,7 @@ abstract class FqProcess
   protected $state;
   protected $dispatcher;
   protected $user;
+  protected $user_service;
   static $timestamp;
   public $result;
 
@@ -34,9 +35,6 @@ abstract class FqProcess
     $this->next_state = isset($keys[$next_key]) ? current(array_slice($params['state_codes'], $next_key, 1)) : $params['state_codes'][$state];
     $this->state = $params['state_codes'][$state];
 
-    // Bind user service.
-    $this->user = $this->container->get('user_service');
-
     self::$timestamp = time();
   }
 
@@ -49,6 +47,7 @@ abstract class FqProcess
     $this->logger->debug("next_state: {$this->next_state}");
 
     $fq = $event->getFirstQProject();
+    $fqg = $event->getFirstQProjectGroup();
 
     // check state
     if ($fq->getState() == $this->state) {
@@ -62,19 +61,19 @@ abstract class FqProcess
       // let listeners hook into this event (after action is completed)
       $dispatcher->dispatch(strtolower("AFTER_{$this->state}"), $event);
     }
+
+    // Bind user service and set user.
+    $this->user_service = $this->container->get('user_service');
+    $user = $this->user_service->findById($fqg->getUserId());
+    $this->setUser($user);
   }
 
   /**
-   * Set the user object from user service.
+   * Set the user object.
    */
-  public function setUser(UserService $user)
+  public function setUser($user)
   {
     $this->user = $user;
-  }
-
-  public function setUserById($uid)
-  {
-    $this->user = '';
   }
 
   abstract protected function main(FirstQProjectEvent $event);

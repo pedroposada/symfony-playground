@@ -448,14 +448,13 @@ class ClipperUserController extends FOSRestController
       $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
       $ql_hash = $user->getQuickLoginHash($encKey);
       
-      // @TODO Set the correct path
       $fe = $container->getParameter('clipper.frontend.url');
       $link = $fe . '#fpr?ql=' . $ql_hash;
-  
-      // @TODO Set the subject, from and body
+      
+      // @TODO Set the subject and body
       $msg = \Swift_Message::newInstance()
         ->setSubject('Recover password')
-        ->setFrom('noreply@clipper.com')
+        ->setFrom($container->getParameter('clipper.no_reply_email'))
         ->setTo($email)
         ->setBody($this->renderView('PSLClipperBundle:Clipper:forgotpassword.html.twig', array(
             'link' => $link

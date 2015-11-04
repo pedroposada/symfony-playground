@@ -186,21 +186,7 @@ class ClipperControllerTest extends WebTestCase
         $uri = $this->getUrl('get_orders', array('user_id' => 'test-user-id-1'));
         $this->assertBehindFirewall('GET', $uri);
 
-        $uri = $this->getUrl('get_orders', array('user_id' => 'wrong-user-id'));
-        $this->authenticatedClient->request('GET', $uri);
-        $content = $this->authenticatedClient->getResponse()->getContent();
-        $content = json_decode($content, true);
-
-        $this->assertEquals(
-            array(
-                'content' => 'No orders.',
-                'status' => 204,
-                'headers' => array(),
-            ),
-            $content
-        );
-
-        $uri = $this->getUrl('get_orders', array('user_id' => 'test-user-id-1'));
+        $uri = $this->getUrl('get_orders');
         $this->authenticatedClient->request('GET', $uri);
         $content = $this->authenticatedClient->getResponse()->getContent();
         $content = json_decode($content, true);
@@ -209,7 +195,7 @@ class ClipperControllerTest extends WebTestCase
         $record = $this
             ->getObjectManager()
             ->getRepository('\PSL\ClipperBundle\Entity\FirstQGroup')
-            ->findOneBy(array('userId' => 'test-user-id-1'));
+            ->findOneBy(array('userId' => '250199'));
         $this->assertEquals(
             $record->getId(),
             $content['content'][0]['id']
