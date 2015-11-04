@@ -391,7 +391,7 @@ class FirstQGroup
         $firstq_formatted['markets'] = $form_data['markets'];
         $firstq_formatted['specialties'] = $form_data['specialties'];
         $firstq_formatted['brands'] = $form_data['brands'];
-        $firstq['attributes'] = $form_data['attributes'];
+        $firstq_formatted['attributes'] = $form_data['attributes'];
         switch ($this->state) {
             case 'ORDER_PENDING':
             case 'ORDER_INVOICE':
