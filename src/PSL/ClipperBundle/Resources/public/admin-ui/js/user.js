@@ -60,9 +60,8 @@ function login(username, password) {
     data: data,
     contentType: "application/x-www-form-urlencoded",
     success: function(data) {
-      
-      localStorage.setItem('token', data.token);
-      
+      // save token
+      setStoredValue('token', data.token);
       //redirect to pages/invoices.html
       window.location.replace("pending-invoices.html");
     },
@@ -82,7 +81,7 @@ function login(username, password) {
  */
 function logout() {
   // delete storage
-  localStorage.clear();
+  clearAllStoredValues();
   // redirects to front page
   window.location.replace("login.html");
 }
@@ -95,7 +94,7 @@ function logout() {
  * Redirect to login if no session
  */
 function verifyAuthentication() {
-  if (localStorage.getItem('token') === null) {
+  if (getStoredValue('token') === false) {
     window.location.replace("login.html");
   }
 }

@@ -16,8 +16,8 @@ $(document).ready(function() {
  * API call to retrieve all projects
  */
 function getInvoiceList(status) {
-  
-  var tokenValue = localStorage.getItem('token');
+  // get token
+  var tokenValue = getStoredValue('token');
   
   var url = config.apiBaseUrl + "/orders/admin";
   var data = "status=" + status;
@@ -54,8 +54,8 @@ function getInvoiceList(status) {
  * API call to approve or cancel an invoice
  */
 function invoiceAction(fquuid, action) {
-  
-  var tokenValue = localStorage.getItem('token');
+  // get token
+  var tokenValue = getStoredValue('token');
   
   var url = config.apiBaseUrl + "/orders/adminprocesses";
   var data = "task=" + action + "&firstq_uuid=" + fquuid;
