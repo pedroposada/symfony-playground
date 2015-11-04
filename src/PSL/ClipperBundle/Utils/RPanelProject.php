@@ -614,6 +614,14 @@ class RPanelProject
   }
 
   /**
+   * Set expired_date
+   */
+  public function setExpiredDate($expired_date)
+  {
+      $this->expired_date = $expired_date;
+  }
+
+  /**
    * Get expired_date
    *
    * @return $expired_date
@@ -621,6 +629,14 @@ class RPanelProject
   public function getExpiredDate()
   {
       return $this->expired_date;
+  }
+
+  /**
+   * Set proj_num
+   */
+  public function setProjNum($proj_num)
+  {
+      $this->proj_num = $proj_num;
   }
 
   /**
