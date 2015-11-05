@@ -283,7 +283,11 @@ class ClipperController extends FOSRestController
     if (!empty($firstq_groups)) {
       $firstqs_formatted = array();
       foreach ($firstq_groups as $key => $firstq_group) {
-        $firstqs_formatted[] = $firstq_group->getFormattedFirstQGroup();
+        $fqg = $firstq_group->getFormattedFirstQGroup();
+        // Get number of ls responses
+        $lsresponses = $em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($firstq_group);
+        $fqg['current_participants'] = count($lsresponses);
+        $firstqs_formatted[] = $fqg;
       }
       return new Response($firstqs_formatted);
     }
