@@ -26,7 +26,7 @@ abstract class FqProcess
     // this is @service_container
     $this->container = $container;
     $this->logger = $this->container->get('monolog.logger.clipper');
-    $this->serializer = $container->get('clipper_serializer');
+    $this->serializer = $this->container->get('clipper_serializer');
     $params = $this->container->getParameter('clipper');
 
     // find next state
