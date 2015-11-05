@@ -116,6 +116,86 @@ class ClipperController extends FOSRestController
   }
 
   /**
+   * Convert an order price
+   *
+   * @ApiDoc(
+   *   resource=true,
+   *   statusCodes = {
+   *     200 = "Returned when successful",
+   *     400 = "Bad request or invalid data from the form",
+   *   }
+   * )
+   *
+   * The data is coming from an AJAX call performed on the front end
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @requestparam(name="price", default="", description="price of the project.")
+   * @requestparam(name="priceLabel", default="", description="price label of the project.")
+   *
+   * @return \Symfony\Component\BrowserKit\Response
+   */
+  public function postConvertpriceAction(ParamFetcher $paramFetcher)
+  {
+    $this->logger = $this->container->get("monolog.logger.clipper");
+
+    $price = (int)str_replace(',', '', $paramFetcher->get('price'));
+    $price_label = $paramFetcher->get('priceLabel');
+    $this->logger->debug("STEVEN CURRENCY LABEL : {$price_label}");
+    $request_currency_symbol = mb_substr($price_label, 0, 1);
+
+    $user = $this->get('security.context')->getToken()->getUser();
+    $content = $this->getUserObject($user->getUserId());
+
+    $country_id = 0;
+    if ($content) {
+      $country_id = (isset($content['field_country']['und'][0]['tid'])) ? $content['field_country']['und'][0]['tid'] : '';
+    }
+
+    $currency = 'USD';
+    $currency_symbol = "$";
+    $conversion_rate = 1;
+
+    $currencies =  CountryFWSSO::getCurrencies($country_id);
+    if ($currencies) {
+      $currency = array_shift($currencies);
+    }
+
+    switch ($currency) {
+      case 'GBP':
+        $currency_symbol = "£";
+        $conversion_rate = $this->container->getParameter('currency.conversion.usd-gbp');
+        break;
+
+      case 'EUR':
+        $currency_symbol = "€";
+        $conversion_rate = $this->container->getParameter('currency.conversion.usd-eur');
+        break;
+    }
+
+    // Conversion only needed when the request currency is different with user currency
+    if ($request_currency_symbol != $currency_symbol) {
+      $price = $price * $conversion_rate;
+      $price_label = $currency_symbol . number_format($price);  
+    }
+
+    
+    $this->logger->debug("STEVEN CURRENCY : {$request_currency_symbol} :: {$currency_symbol}");
+
+    $test = "€";
+    $this->logger->debug("STEVEN CURRENCY TEST : {$test}");
+
+    $returnObject = array(
+      'price' => $price,
+      'priceLabel' => $price_label,
+      'currency' => $currency,
+      'country' => $country_id
+    );
+
+    return new Response($returnObject);
+  }
+
+  /**
    * Inserts a new FristQ order.
    *
    * @ApiDoc(
@@ -209,8 +289,8 @@ class ClipperController extends FOSRestController
         }
       }
       $form_data->num_participants = $num_participants_total;
-      // Conversion function and return converted price with currency sign
-      $gs_result_total_label = $this->formatPrice($gs_result_total);
+      // Always USD for now, convertion will be a new request from front end.
+      $gs_result_total_label = '$' . number_format($gs_result_total);
       $form_data->price_total = $gs_result_total_label;
 
       // calculate estimated time of completion
@@ -438,6 +518,7 @@ class ClipperController extends FOSRestController
    * @requestparam(name="payment_method_nonce", default="", description="The Braintree payment nonce.")
    * @requestparam(name="firstq_uuid", default="", description="FirstQ project uuid.")
    * @requestparam(name="price", default="", description="price of the project.")
+   * @requestparam(name="priceLabel", default="", description="price of the project.")
    * @requestparam(name="email", default="", description="Email of the client.")
    * @requestparam(name="method", default="", description="Payment method.")
    * @requestparam(name="project_number", default="", description="Project number for paying with points.")
@@ -456,6 +537,8 @@ class ClipperController extends FOSRestController
     $payment_method_nonce = $paramFetcher->get('payment_method_nonce');
 
     $amount = (int)str_replace(',', '', $paramFetcher->get('price'));
+    $amount_label = $paramFetcher->get('priceLabel');
+
     $method = $paramFetcher->get('method');
 
     // Get user id
@@ -492,6 +575,12 @@ class ClipperController extends FOSRestController
         return new Response($returnObject, 400);
       }
 
+      // Update price 
+      $form_raw_data = $firstq_group->getFormDataRaw();
+      $form_raw_data = json_decode($form_raw_data, TRUE);
+      $form_raw_data["price_total"] = $amount_label;
+
+
       // Invoice ------------------------------------------------------------------------------------
       if ($method == 'INVOICE') {
 
@@ -520,6 +609,9 @@ class ClipperController extends FOSRestController
           $admin_link['url'] = $backend_url;
           $admin_link['label'] = 'Login to view order';
         }
+
+        // Update form data
+        $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data, 'json'));
 
         $em->persist($firstq_group);
         $em->flush();
@@ -556,8 +648,6 @@ class ClipperController extends FOSRestController
           return new Response($returnObject, 400); // invalid request
         }
 
-        $form_raw_data = $firstq_group->getFormDataRaw();
-        $form_raw_data = json_decode($form_raw_data, TRUE);
         $form_raw_data["project_number"] = $project_number;
 
         $firstq_group->setState($parameters_clipper['state_codes']['order_points']);
@@ -607,11 +697,8 @@ class ClipperController extends FOSRestController
 
         // VAT number
         $vat_number = $paramFetcher->get('vat_number');
-        $form_raw_data_new = FALSE;
         if (!empty($vat_number)) {
-          $form_raw_data_new = $firstq_group->getFormDataRaw();
-          $form_raw_data_new = json_decode($form_raw_data_new, TRUE);
-          $form_raw_data_new['vat_number'] = $vat_number;
+          $form_raw_data['vat_number'] = $vat_number;
         }
 
         // create the charge on Braintree's servers
@@ -633,9 +720,7 @@ class ClipperController extends FOSRestController
           // Check that it was paid:
           // change status to order complete and return ok for redirect
           $firstq_group->setState($parameters_clipper['state_codes']['order_complete']);
-          if ($form_raw_data_new) {
-            $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data_new, 'json'));
-          }
+          $firstq_group->setFormDataRaw($this->getSerializer()->encode($form_raw_data, 'json'));
           $firstq_group->setOrderId($result->transaction->id);
           $firstq_group->setUserId($userid);
           $em->persist($firstq_group);
@@ -831,63 +916,6 @@ class ClipperController extends FOSRestController
    * HELPERS
    * ----------------------------------------------------------------------------------------
    */
-
-  /**
-   * Convert the amount according to country, with proper currency sign and
-   * format it nicely, e.g. £4995.95
-   *
-   * @param   float   $amout    The price.
-   * @param   string  $country  Country name.
-   *
-   * @return  string
-   */
-  private function formatPrice($amount = 0, $country = 'Canada')
-  {
-    $user = $this->get('security.context')->getToken()->getUser();
-
-    // This shouldn't be happen, user should be logged in.
-    if (is_string($user) && $user == 'anon.') {
-      return '$' . number_format($amount);
-    }
-
-    // User info retrieval from the FW SSO
-    $content = $this->getUserObject($user->getUserId());
-
-    $country_id = 0;
-    if ($content) {
-      $country_id = (isset($content['field_country']['und'][0]['tid'])) ? $content['field_country']['und'][0]['tid'] : '';
-    }
-
-    // get the mapping
-    $currency =  CountryFWSSO::getCurrencies($country_id);
-    if ($currency) {
-      $currency = array_shift($currency);
-    } else {
-      $currency = 'USD';
-    }
-
-    // After we decide the curreny unit, let's do conversion to exchange rate.
-    // TODO. Refactor this with DRY.
-    switch ($currency) {
-      case 'GBP':
-        $rate = $this->container->getParameter('currency.conversion.usd-gbp');
-        $amount = $amount * $rate;
-        $amount = '£' . number_format($amount);
-        break;
-
-      case 'EUR':
-        $rate = $this->container->getParameter('currency.conversion.usd-eur');
-        $amount = $amount * $rate;
-        $amount = '€' . number_format($amount);
-        break;
-
-      default:
-        $amount = '$' . number_format($amount);
-        break;
-    }
-
-    return $amount;
-  }
 
   /**
    * Get BrainTree Object
