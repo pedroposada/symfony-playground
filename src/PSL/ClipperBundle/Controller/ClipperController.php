@@ -141,7 +141,6 @@ class ClipperController extends FOSRestController
 
     $price = (int)str_replace(',', '', $paramFetcher->get('price'));
     $price_label = $paramFetcher->get('priceLabel');
-    $this->logger->debug("STEVEN CURRENCY LABEL : {$price_label}");
     $request_currency_symbol = mb_substr($price_label, 0, 1);
 
     $user = $this->get('security.context')->getToken()->getUser();
@@ -178,13 +177,7 @@ class ClipperController extends FOSRestController
       $price = $price * $conversion_rate;
       $price_label = $currency_symbol . number_format($price);  
     }
-
     
-    $this->logger->debug("STEVEN CURRENCY : {$request_currency_symbol} :: {$currency_symbol}");
-
-    $test = "€";
-    $this->logger->debug("STEVEN CURRENCY TEST : {$test}");
-
     $returnObject = array(
       'price' => $price,
       'priceLabel' => $price_label,
