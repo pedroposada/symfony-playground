@@ -98,7 +98,7 @@ class PPDBrandMessages extends ChartType {
     }
     
     //sort by abstract key
-    asort($dataTable);
+    krsort($dataTable);
     $dataTable = array_values($dataTable);
 
     // "What does my brand represent to Promoters as compared to Detractors?"
