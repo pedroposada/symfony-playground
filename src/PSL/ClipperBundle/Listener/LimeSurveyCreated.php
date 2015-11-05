@@ -21,9 +21,10 @@ class LimeSurveyCreated extends FqProcess
 
   public function __construct(ContainerInterface $container, $state, RPanelService $rps)
   {
+    parent::__construct($container, $state);
     $this->rps = $rps;
   }
-
+  
   protected function main(FirstQProjectEvent $event)
   {
     // get FirstQGroup and FirstQProject objects
