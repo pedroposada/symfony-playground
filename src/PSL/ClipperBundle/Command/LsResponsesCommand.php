@@ -37,12 +37,15 @@ class LsResponsesCommand extends ContainerAwareCommand
   protected function configure()
   {
     $this->setName('clipper:lsresponses')
-      ->setDescription('Get FirstQ Projects and refresh responses from LimeSurvey.')
-      ;
+      ->setDescription('Get FirstQ Projects and refresh responses from LimeSurvey.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    // globals
+    $params = $this->getContainer()->getParameter('clipper');
+    $this->logger = $this->getContainer()->get('monolog.logger.clipper');
+    $em = $this->getContainer()->get('doctrine')->getManager();
     
     // create the lock
     $lock = new LockHandler('clipper:lsresponses');
@@ -50,11 +53,6 @@ class LsResponsesCommand extends ContainerAwareCommand
       $this->logger->debug('The command is already running in another process.');
       return 0;
     }
-    
-    // globals
-    $params = $this->getContainer()->getParameter('clipper');
-    $this->logger = $this->getContainer()->get('monolog.logger.clipper');
-    $em = $this->getContainer()->get('doctrine')->getManager();
     
     // FirstQ Groups
     $fqgs = $em->getRepository('PSLClipperBundle:FirstQGroup')->findByState($params['state_codes']['order_complete']);

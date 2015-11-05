@@ -87,6 +87,11 @@ class LimeSurveyCreated extends FqProcess
       'host' => $this->container->getParameter('rpanel.databases.translateapi.host'),
       'driver' => $this->container->getParameter('rpanel.databases.translateapi.driver'),
     );
+    $dbconfig_validate = array_values($dbconfig);
+    $dbconfig_validate = array_filter($dbconfig_validate);
+    if (empty($dbconfig_validate)) {
+      throw new Exception("rPanel database.translateapi parameters is missing.");
+    }
     $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
@@ -114,7 +119,8 @@ class LimeSurveyCreated extends FqProcess
     }
     catch (\Exception $e) {
       $conn->rollBack();
-      throw $e;
+      $message = $e->getMessage();
+      throw new Exception("rPanel database connection error: (databases.translateapi) [{$message}]");
     }
 
     // connect db
@@ -126,6 +132,11 @@ class LimeSurveyCreated extends FqProcess
       'host' => $this->container->getParameter('rpanel.databases.rpanel.host'),
       'driver' => $this->container->getParameter('rpanel.databases.rpanel.driver'),
     );
+    $dbconfig_validate = array_values($dbconfig);
+    $dbconfig_validate = array_filter($dbconfig_validate);
+    if (empty($dbconfig_validate)) {
+      throw new Exception("rPanel database.rpanel parameters is missing.");
+    }
     $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
     $conn->connect(); // connects and immediately starts a new transaction
     $rps->setConnection($conn);
@@ -161,7 +172,8 @@ class LimeSurveyCreated extends FqProcess
     }
     catch (\Exception $e) {
       $conn->rollBack();
-      throw $e;
+      $message = $e->getMessage();
+      throw new Exception("rPanel database connection error: (databases.rpanel) [{$message}]");
     }
   }
 
