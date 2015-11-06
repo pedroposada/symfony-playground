@@ -113,7 +113,7 @@ class RPanelService
         'r_cr_hono_handling' => 0,                          // 0
         'r_field_duration' => $rp->getAddedDuration('P5D'), // now + 5 days
         'cr_approved' => NULL,                              // null
-        'end_date' => '',                                   // estimated completion date
+        'end_date' => $rp->getEstimateDate(),               // estimated completion date
         'cr_days' => 0,                                     // 0
         'cr_link' => NULL,                                  // null
         'cr_create_date' => NULL,                           // null
@@ -220,7 +220,7 @@ class RPanelService
     $conn = $this->conn;
     $conn->insert('feasibility_link_type',
       array(
-        'project_code' => $rp->getProjId(),               // feasibility_project.projid
+        'proj_id' => $rp->getProjId(),               // feasibility_project.projid
         'quote_id' => $rp->getQuoteId(),                  // feasibility_project_quota.quota_id
         'link_type' => $rp->getLinkType(),                // 'full'
         'created_by' => $rp->getCreatedBy(),              // [UserID created by Guohui]
