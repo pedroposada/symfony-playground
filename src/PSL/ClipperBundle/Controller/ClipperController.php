@@ -284,6 +284,7 @@ class ClipperController extends FOSRestController
       $form_data->num_participants = $num_participants_total;
       // Always USD for now, convertion will be a new request from front end.
       $gs_result_total_label = '$' . number_format($gs_result_total);
+      $form_data->price = $gs_result_total;
       $form_data->price_total = $gs_result_total_label;
 
       // calculate estimated time of completion
@@ -701,7 +702,8 @@ class ClipperController extends FOSRestController
         $this->initBrainTree();
 
         $sale_params = array(
-          'amount' => $amount,
+          // 'amount' => $amount,
+          'amount' => $form_raw_data["price"],
           'paymentMethodNonce' => $payment_method_nonce
         );
 
