@@ -234,9 +234,6 @@ class NPSPlusExcel extends DownloadType
           $this->activeWorkSheet->getCell("A{$ind}")->getHyperlink()->setUrl("sheet://'{$key}'!A1");
           $ind++;
         }
-
-        //styling
-        $this->activeWorkSheet->getStyle("A1")->getFont()->setBold(TRUE);
         break;
 
       // NPS Chart
@@ -266,19 +263,6 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->getColumnDimension('A')->setWidth(20);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
-
-
-        //drilldown
-        foreach ($this->data['filtered'] as $type => $filters) {
-          foreach ($filters as $filter => $filtered_data) {
-            $row += 3; //space between charts
-            $drilldownHeading = ucwords($type);
-            $this->excelDrawTable($sheetname, $filtered_data[$in_sequence], $row, $specific_brand, "Drilldown {$drilldownHeading}: {$filter}");
-          }
-        }
-
-        //styling
-        $this->activeWorkSheet->getStyle("A1")->getFont()->setBold(TRUE);
         break;
 
       // DoctorsPromote Chart
@@ -299,19 +283,6 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->getColumnDimension('B')->setWidth(30);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
-
-
-        //drilldown
-        foreach ($this->data['filtered'] as $type => $filters) {
-          foreach ($filters as $filter => $filtered_data) {
-            $row += 3; //space between charts
-            $drilldownHeading = ucwords($type);
-            $this->excelDrawTable($sheetname, $filtered_data[$in_sequence], $row, $specific_brand, "Drilldown {$drilldownHeading}: {$filter}");
-          }
-        }
-
-        //styling
-        $this->activeWorkSheet->getStyle("A1")->getFont()->setBold(TRUE);
         break;
 
       // PPDBrandMessages Chart
@@ -339,20 +310,27 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->getColumnDimension('A')->setWidth(30);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
-
-        //drilldown
-        foreach ($this->data['filtered'] as $type => $filters) {
-          foreach ($filters as $filter => $filtered_data) {
-            $row += 3; //space between charts
-            $drilldownHeading = ucwords($type);
-            $this->excelDrawTable($sheetname, $filtered_data[$in_sequence], $row, $specific_brand, "Drilldown {$drilldownHeading}: {$filter}");
-          }
-        }
-
-        //styling
-        $this->activeWorkSheet->getStyle("A1")->getFont()->setBold(TRUE);
         break;
     } //switch $sheetname
+    
+    if ($sheetname != 'TOC') {
+      //drilldown - single: CLIP-69
+      foreach ($this->data['filtered'] as $type => $filters) {
+        foreach ($filters as $filter => $filtered_data) {
+          $row += 3; //space between charts
+          $drilldownHeading = ucwords($type);
+          $this->excelDrawTable($sheetname, $filtered_data[$in_sequence], $row, $specific_brand, "Drilldown {$drilldownHeading}: {$filter}");
+        }
+      }
+      //drilldown - dual: CLIP-69:v2
+      foreach ($this->data['combined-filtered'] as $combined_filter) {
+        $row += 3; //space between charts
+        $drilldownHeading = "Drilldown: {$combined_filter['filters']['country']} and {$combined_filter['filters']['specialty']}";
+        $this->excelDrawTable($sheetname, $combined_filter['data'][$in_sequence], $row, $specific_brand, $drilldownHeading);
+      }
+    }
+    //styling
+    $this->activeWorkSheet->getStyle("A1")->getFont()->setBold(TRUE);
 
     //set sheet name
     $this->activeWorkSheet->setTitle($sheetname);
