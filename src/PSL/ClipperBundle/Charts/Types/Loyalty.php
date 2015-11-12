@@ -42,7 +42,10 @@ class Loyalty extends ChartType {
     //prep structure
     $dataTable = array('mean' => 0, 'base' => 0, 'brands' => array());
     
-    //stop if no responses
+    // "How loyal are doctors to my brand?"
+    $event->setTitleLong("How loyal are doctors to my brand?");
+    
+    //STOP if no responses
     if (empty($event->getCountFiltered())) {
       return $dataTable;
     }
@@ -81,9 +84,6 @@ class Loyalty extends ChartType {
       );
     }
 
-    // "How loyal are doctors to my brand?"
-    $event->setTitleLong("How loyal are doctors to my brand?");
-    
     return $dataTable;
   }
 

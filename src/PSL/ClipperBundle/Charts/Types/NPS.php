@@ -53,8 +53,11 @@ class NPS extends ChartType
       'promoters'  => 0,
       'score'      => 0,
     )));
+    
+    // "Net Promoter Score"
+    $event->setTitleLong("Net Promoter Score");
 
-    //stop if no responses
+    //STOP if no responses
     if (empty($event->getCountFiltered())) {
       return $this->dataTable_data;
     }
@@ -90,9 +93,6 @@ class NPS extends ChartType
     
     //remove keys
     $this->dataTable_data = array_values($this->dataTable_data);
-
-    // "Net Promoter Score"
-    $event->setTitleLong("Net Promoter Score");
 
     return $this->dataTable_data;
   }
