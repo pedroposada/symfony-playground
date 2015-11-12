@@ -82,7 +82,7 @@ class ClipperChartsService {
     $this->survey_type = $survey_type;
   }
   
-  public function setDrillDown($drilldown = array(), $apply_to_specific_chart = array()) 
+  public function setDrillDown($drilldown = array(), $apply_to_specific_chart = FALSE) 
   {
     //sanitize drilldown
     $drilldown = array_merge(
@@ -91,12 +91,15 @@ class ClipperChartsService {
         'countries' => array(),
         'region'    => array(),
         'specialty' => array(),
+        'brand'     => array(),
       ),
       $drilldown
     );
     
-    $this->drilldown                   = (array) $drilldown;
-    $this->drilldown_on_specific_chart = (array) $apply_to_specific_chart;
+    $this->drilldown = (array) $drilldown;
+    if (!empty($apply_to_specific_chart)) {
+      $this->drilldown_on_specific_chart = (array) $apply_to_specific_chart;      
+    }
   }
   
   public function setReturnFields($return_survey_fields = array())
