@@ -14,6 +14,7 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 class DoctorsPromote extends ChartType {
 
   private $respondent = array();
+  private $base = array();
 
   private $promoting  = array(
     'ds' => array(  //Dissatisfied
@@ -46,13 +47,16 @@ class DoctorsPromote extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
+    //prep base structure
+    $this->base = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+    
     if ($event->getCountFiltered()) {
       //extract respondent
       foreach ($event->getData() as $response) {
         //update @var $this->respondent
         $this->extractRespondent($response);
       }
-
+      
       //#final-calculation; calculate the aggregated count into parentage
       $total = $this->promoting['ds']['count'] + $this->promoting['sa']['count'];
       if (!empty($this->respondent)) {
@@ -60,11 +64,17 @@ class DoctorsPromote extends ChartType {
           $this->promoting[$ty]['perc'] = $this->roundingUpValue((($set['count'] / $total) * 100));
         }
       }
+      
+      //calc base
+      foreach ($this->brands as $brand) {
+        $this->base[$brand] = array_filter($this->base[$brand]);
+        $this->base[$brand] = count($this->base[$brand]);
+      }
     } // if getCountFiltered()
-
+    
     // "How satisfied is the market?"
     $event->setTitleLong("How satisfied is the market?");
-
+    
     return array(
       'satisfied'    => array(
         'amount' => $this->promoting['sa']['perc'],
@@ -74,6 +84,7 @@ class DoctorsPromote extends ChartType {
       'dissatisfied' => array(
         'amount' => $this->promoting['ds']['perc'],
       ),
+      'base'         => array_sum($this->base),
     );
   }
 
@@ -112,6 +123,7 @@ class DoctorsPromote extends ChartType {
         $this->respondent[$lstoken] = array();
       }
       $this->respondent[$lstoken][$brand] = $answers[$brand];
+      $this->base[$brand][] = $answers[$brand];
     }
 
     //convert brand's answers into score by each respondent
