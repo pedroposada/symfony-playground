@@ -89,7 +89,7 @@ class LimeSurveyPending extends FqProcess
     if (empty($participants_sample)) {
       throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]", 2);
     }
-    
+
     $participants = array();
     for ($i = 0; $i < $participants_sample; $i++) { 
       $participants[] = array(
@@ -167,10 +167,9 @@ class LimeSurveyPending extends FqProcess
     $data = array();
 
     foreach ($response as $r) {
-      foreach ($r as $key => $value) {      
-        if (in_array($key, $fields)) {
-          $data[$key][] = $value;
-        }
+
+      foreach ($fields as $field) {
+        $data[$field][] = isset($r[$field]) ? $r[$field] : '';
       }
 
     }
