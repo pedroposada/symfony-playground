@@ -40,8 +40,8 @@ class LimeSurveyPending extends FqProcess
     
     // Survey data settings
     $survey_data = new stdClass();
-    $survey_data->market = $specialty_id;
-    $survey_data->specialty = $country_id;
+    $survey_data->market = $country_id;
+    $survey_data->specialty = $specialty_id;
     $survey_data->patients = $form_data['patient_type'];
     $survey_data->brands = $form_data['brands'];
     $survey_data->attributes = $form_data['attributes'];
@@ -106,11 +106,25 @@ class LimeSurveyPending extends FqProcess
       throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [add_participants]", 2);
     }
     
+    // @TODO : Proper mapping in MDMMapping / GeoMapper / CountryFWSSO
+    // Language Mapping
+    $languageMap = array(
+      'France' => 'fr',
+      'Germany' => 'de',
+      'Italy' => 'it',
+      'Spain' => 'es',
+    );
+
+    $languageCode = isset($languageMap[$sheet_data['market']]) ? $languageMap[$sheet_data['market']] : 'en';
+
+    // Extract token from limesurvey response, the rest of data are not needed for now.
+    $formatResponse = $this->formatLimesurveyResponse($response, array('token'));
+
     // save limesurvey raw data
     $ls_raw_data = new stdClass();
-    $ls_raw_data->participants = $response;
+    $ls_raw_data->participants = $formatResponse;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response);
+    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response, $languageCode);
     
     $fqp->setLimesurveyDataRaw($this->serializer->encode($ls_raw_data));
     
@@ -125,20 +139,43 @@ class LimeSurveyPending extends FqProcess
    * @param $event FirstQProjectEvent
    * @return array, list of URLs for r-panel participants
    */
-  private function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants)
+  private function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants, $languageCode)
   {
     $urls = array();
 
     foreach ( $participants as $participant ) {
       $urls[] = strtr($baseURL, array(
         '[SID]' => $sid,
-        '[LANG]' => 'en',
+        '[LANG]' => $languageCode,
         '[SLUG]' => $participant['token'],
       ));
       
     }
 
     return $urls;
+  }
+
+  /**
+   * Helper function to extract fields from LimeSurvey response
+   *
+   * @param $response array, successful response array from LimeSurvey
+   * @param $fields array, field name that need to be extracted from response
+   * @return array, extracted fields list with the value
+   */
+  private function formatLimesurveyResponse($response, $fields )
+  {
+    $data = array();
+
+    foreach ($response as $r) {
+      foreach ($r as $key => $value) {      
+        if (in_array($key, $fields)) {
+          $data[$key][] = $value;
+        }
+      }
+
+    }
+
+    return $data;
   }
 
 }
