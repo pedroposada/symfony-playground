@@ -89,7 +89,7 @@ class LimeSurveyPending extends FqProcess
     if (empty($participants_sample)) {
       throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]", 2);
     }
-
+    
     $participants = array();
     for ($i = 0; $i < $participants_sample; $i++) { 
       $participants[] = array(
@@ -124,35 +124,9 @@ class LimeSurveyPending extends FqProcess
     $ls_raw_data = new stdClass();
     $ls_raw_data->participants = $formatResponse;
     $ls_raw_data->sid = $iSurveyID; 
-    $ls_raw_data->urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $iSurveyID, $response, $languageCode);
     
     $fqp->setLimesurveyDataRaw($this->serializer->encode($ls_raw_data));
     
-  }
-
-  /**
-   * Helper function for LimeSurvey URLs
-   *
-   * @param $baseURL string, base URL for limesurvey surveys, settings
-   * @param $sid int, limesurvey survey id, stored in FQ entity
-   * @param $participants int, stored in FormDataRaw in FQ entity
-   * @param $event FirstQProjectEvent
-   * @return array, list of URLs for r-panel participants
-   */
-  private function createlimeSurveyParticipantsURLs($baseURL, $sid, $participants, $languageCode)
-  {
-    $urls = array();
-
-    foreach ( $participants as $participant ) {
-      $urls[] = strtr($baseURL, array(
-        '[SID]' => $sid,
-        '[LANG]' => $languageCode,
-        '[SLUG]' => $participant['token'],
-      ));
-      
-    }
-
-    return $urls;
   }
 
   /**

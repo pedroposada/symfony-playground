@@ -163,7 +163,20 @@ class LimeSurveyCreated extends FqProcess
 
       // Create Feasibility Full Url
       $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
-      $urls = $ls_data['urls'];
+
+      // @TODO : Proper mapping in MDMMapping / GeoMapper / CountryFWSSO
+      // Language Mapping
+      $languageMap = array(
+        'France' => 'fr',
+        'Germany' => 'de',
+        'Italy' => 'it',
+        'Spain' => 'es',
+      );
+
+      $languageCode = isset($languageMap[$sheet_data['market']]) ? $languageMap[$sheet_data['market']] : 'en';
+
+      $urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $ls_data, $languageCode);
+
       $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
 
       // PROJECT_DETAIL_TEXTINVITES
@@ -176,6 +189,30 @@ class LimeSurveyCreated extends FqProcess
       $message = $e->getMessage();
       throw new Exception("rPanel database connection error: (databases.rpanel) [{$message}]");
     }
+  }
+
+  /**
+   * Helper function for LimeSurvey URLs
+   *
+   * @param $baseURL string, base URL for limesurvey surveys, settings
+   * @param $data array, stored in limesurvey_data_raw in FQ entity
+   * @param $languageCode string, language code for limesurvey surveys
+   *
+   * @return array, list of URLs for r-panel participants
+   */
+  private function createlimeSurveyParticipantsURLs($baseURL, $data, $languageCode) {
+    
+    $urls = array();
+
+    foreach ( $data['participants']['token'] as $token ) {
+      $urls[] = strtr($baseURL, array(
+        '[SID]' => $data['sid'],
+        '[LANG]' => $languageCode,
+        '[SLUG]' => $token,
+      ));
+    }
+
+    return $urls;
   }
 
 }
