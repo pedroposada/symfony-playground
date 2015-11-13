@@ -136,7 +136,10 @@ class ClipperChartsService {
     $this->charts = new ArrayCollection();
     foreach ($map['machine_names'] as $index => $machine_name) {
       $drilldown = array();
-      if ((!empty($this->drilldown_on_specific_chart)) && (in_array($machine_name, $this->drilldown_on_specific_chart))) {
+      if ($this->drilldown_on_specific_chart === FALSE) {
+        $drilldown = $this->drilldown;
+      }
+      elseif ((!empty($this->drilldown_on_specific_chart)) && (in_array($machine_name, $this->drilldown_on_specific_chart))) {
         $drilldown = $this->drilldown;
       }
       $chEvent = $assembler->getChartEvent($this->order_id, $machine_name, $this->survey_type, $drilldown);

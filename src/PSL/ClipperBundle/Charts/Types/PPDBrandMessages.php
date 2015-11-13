@@ -33,7 +33,10 @@ class PPDBrandMessages extends ChartType {
     //prep result structure
     $dataTable = array();
     
-    //stop if no responses
+    // "What does my brand represent to Promoters as compared to Detractors?"
+    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
+    
+    //STOP if no responses
     if (empty($event->getCountFiltered())) {
       return $dataTable;
     }
@@ -108,9 +111,6 @@ class PPDBrandMessages extends ChartType {
     krsort($dataTable);
     $dataTable = array_values($dataTable);
 
-    // "What does my brand represent to Promoters as compared to Detractors?"
-    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
-    
     return $dataTable;
   }
 

@@ -75,6 +75,7 @@ class DownloadsControllerTest extends WebTestCase
     $this->assertArrayHasKey('available-charts', $content['data']);
     $this->assertArrayHasKey('charts-table-map', $content['data']);
     $this->assertArrayHasKey('filtered', $content['data']);
+    $this->assertArrayHasKey('combined-filtered', $content['data']);
 
     //Content specific validation
     $this->assertSame($order_id, $content['order-id']);
