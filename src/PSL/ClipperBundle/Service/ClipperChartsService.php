@@ -91,12 +91,13 @@ class ClipperChartsService {
         'countries' => array(),
         'region'    => array(),
         'specialty' => array(),
+        'brand'     => array(),
       ),
       $drilldown
     );
     
     $this->drilldown = (array) $drilldown;
-    if ($apply_to_specific_chart !== FALSE) {
+    if (!empty($apply_to_specific_chart)) {
       $this->drilldown_on_specific_chart = (array) $apply_to_specific_chart;      
     }
   }
