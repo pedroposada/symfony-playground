@@ -64,6 +64,50 @@ final class SurveyChartMap
           'G0015Q001',
         ),
       ), //nps_plus
+      'firstview' => array(
+        //NPS:001
+        'NPS'               => 'G003Q001',
+        //NPS:002
+        'Loyalty'           => 'G003Q001',
+        //NPS:003
+        'DoctorsPromote'    => 'G003Q001',
+        //NPS:004
+        'PromotersPromote'  => 'G003Q001',
+        //NPS:005
+        'DetractorsPromote' => 'G003Q001',
+        //NPS:006
+        'PromVsDetrPromote' => 'G002Q001',
+        //NPS:007; this based number of brands
+        'PPDBrandMessages'  => array(
+          'G0010Q001',
+          'G0011Q001',
+          'G0012Q001',
+          'G0013Q001',
+          'G0014Q001',
+          'G0015Q001',
+        ),
+        //NPS:008; this based number of brands
+        'DNA'               => array(
+          'G004Q001',
+          'G005Q001',
+          'G006Q001',
+          'G007Q001',
+          'G008Q001',
+          'G009Q001'
+        ),
+        //Extra for export
+        //-> Chart 4 / Table 4
+        'PromotersPromoteMean'     => 'G003Q001',
+        //-> Chart X / Table 9-16
+        'PPDBrandMessagesByBrands' => array(
+          'G0010Q001',
+          'G0011Q001',
+          'G0012Q001',
+          'G0013Q001',
+          'G0014Q001',
+          'G0015Q001',
+        ),
+      ), //firstview
     );
 
     //register machine_names
