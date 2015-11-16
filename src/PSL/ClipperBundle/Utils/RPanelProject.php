@@ -657,10 +657,10 @@ class RPanelProject
    *
    * @return  string  UNIX timestamp.
    */
-  public function getAddedDuration($interval_spec)
+  public function getAddedDuration($interval_spec, $format="U")
   {
     $now = new DateTime("now");
     $added_duration = $now->add(new DateInterval($interval_spec));
-    return $added_duration->format("U");
+    return $added_duration->format($format);
   }
 }

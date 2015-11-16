@@ -80,3 +80,5 @@ parameters:
   security_alerts.email_from:                 "[*security_alerts.email_from*]"
   # Project number payment by points
   payment.points.projectnumber:               "[*payment.points.projectnumber*]"
+  # Participants Sample
+  clipper.participants_sample:                "[*clipper.participants_sample*]"

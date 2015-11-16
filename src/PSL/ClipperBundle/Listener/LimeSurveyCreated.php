@@ -62,7 +62,7 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
     $rpanel_project->setNumParticipants($sheet_data['num_participants']);
-    $rpanel_project->setExpiredDate(current($fqg->getFormDataByField('completion_date')));
+    $rpanel_project->setExpiredDate($rpanel_project->getAddedDuration('P5D', 'Y-m-d H:i:s'));
     $rpanel_project->setProjNum($fqg->getId());
 
     // GS object

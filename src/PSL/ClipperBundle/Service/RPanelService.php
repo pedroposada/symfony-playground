@@ -169,7 +169,7 @@ class RPanelService
         'pm_details' => $rp->getProjName(),               // feasibility_project.proj_name
         'brand_id' => $rp->getBrandId(),                  // 1
         'project_type' => $rp->getProjectType(),          // 'jit'
-        'expiry_dttime' => $rp->getAddedDuration('P5D'),  // now + 5 days
+        'expiry_dttime' => $rp->getAddedDuration('P5D', 'Y-m-d H:i:s'),  // now + 5 days
         'client_proposal_number' => $rp->getProjNum(),    // clipper order_id - fqg.id
       )
     );
@@ -200,7 +200,7 @@ class RPanelService
         'email_template_id' => $rp->getEmailTemplateId(), // 0,
         'sample_invites' => $gs->result['F8'],            // feasibility_project_quota.r_sample,
         'quota' => $rp->getNumParticipants(),             // feasibility_project_quota.respondent_req
-        'expiry_dttime' => $rp->getAddedDuration('P5D'),  // now + 5 days
+        'expiry_dttime' => $rp->getAddedDuration('P5D', 'Y-m-d H:i:s'),  // now + 5 days
       )
     );
 
