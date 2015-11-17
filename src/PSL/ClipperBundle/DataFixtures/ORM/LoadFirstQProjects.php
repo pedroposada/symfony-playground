@@ -36,13 +36,6 @@ class LoadFirstQProjects extends AbstractFixture implements OrderedFixtureInterf
         $fqp->setFirstqgroup($this->getReference('firstqgroup-1'));
         $this->setReference('firstqproject-1', $fqp);
         $manager->persist($fqp);
-        
-        $fqp = new FirstQProject();
-        $fqp->setSheetDataRaw('{"market":"USA","specialty":"Cardiology","feasibility":true,"participants_sample":"2500","price":"114,330","num_participants":"100","result":{"F3":"25,541","F5":"34,528","F7":"50","F8":"2500","F10":"0","F12":"GBP","F14":"114584","F15":"57,292","F16":"57,038","F17":"114,330","F20":"0","F21":"$0.00","F22":"$0.00","F24":"114,330","F26":"$18.00","F27":"USD"}}');
-        $fqp->setLimesurveyDataRaw('{"participants":[{"sent":"N","remindersent":"N","remindercount":0,"completed":"N","usesleft":1,"email":"fq0@pslgroup.com","lastname":"fq0","firstname":"fq0","token":"gjkhtj9uen62nim","tid":"5","participant_id":null,"emailstatus":null,"language":null,"blacklisted":null,"validfrom":null,"validuntil":null,"mpid":null},{"sent":"N","remindersent":"N","remindercount":0,"completed":"N","usesleft":1,"email":"fq1@pslgroup.com","lastname":"fq1","firstname":"fq1","token":"gjkhtj9uen62nim","tid":"15","participant_id":null,"emailstatus":null,"language":null,"blgjkhtj9uen62nimacklisted":null,"validfrom":null,"validuntil":null,"mpid":null}],"sid":447241,"urls":["http:\/\/localhost:8000\/clipper\/limesurvey\/447241\/gjkhtj9uen62nim\/en","http:\/\/localhost:8000\/clipper\/limesurvey\/447241\/gjkhtj9uen62nim\/en"]}');
-        $fqp->setState("LIMESURVEY_CREATED");
-        $fqp->setFirstqgroup($this->getReference('firstqgroup-4'));
-        $manager->persist($fqp);
 
         $manager->flush();
     }
