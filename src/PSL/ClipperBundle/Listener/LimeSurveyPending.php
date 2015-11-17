@@ -80,20 +80,18 @@ class LimeSurveyPending extends FqProcess
     }
     
     // get amount of participants to be added for this survey
-    if (!$this->container->hasParameter('clipper.participants_sample')) {
-      $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
-    } else {
-      $participants_sample = $this->container->getParameter('clipper.participants_sample');
-      // use sheet data when it's negative value , eg. -1.
-      if ($participants_sample < 0) {
-        $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
-      }  
+    $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
+    if ($this->container->hasParameter('clipper.participants_sample')) {
+      // only use dev value when the value is greater than zero
+      if ($this->container->getParameter('clipper.participants_sample') > 0) {
+        $participants_sample = $this->container->getParameter('clipper.participants_sample');
+      }
     }
 
     if (empty($participants_sample)) {
       throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]", 2);
     }
-    
+
     $participants = array();
     for ($i = 0; $i < $participants_sample; $i++) { 
       $participants[] = array(
