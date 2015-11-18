@@ -243,7 +243,7 @@ class RPanelService
   {
     $conn = $this->conn;
     foreach ($urls as $url) {
-      $conn->insert('feasibility_link_full_url',
+      $conn->insert('feasibility_full_url',
         array(
           'ltid' => $rp->getLTId(),                       // feasibility_link_type.ltid
           'link_url' => $url,                             // [Link URL from LimeSurvey]

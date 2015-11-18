@@ -15,6 +15,8 @@ class PPDBrandMessages extends ChartType {
 
   private $result = array();
   private $counts = array();
+  
+  private $brand_filter = FALSE;
 
   /**
    * Method call to return chart data.
@@ -31,9 +33,17 @@ class PPDBrandMessages extends ChartType {
     //prep result structure
     $dataTable = array();
     
-    //stop if no responses
+    // "What does my brand represent to Promoters as compared to Detractors?"
+    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
+    
+    //STOP if no responses
     if (empty($event->getCountFiltered())) {
       return $dataTable;
+    }
+    
+    $filters = $event->getFilters();
+    if (!empty($filters['brand'])) {
+      $this->brand_filter = $filters['brand'];
     }
     
     //prep calculation structure
@@ -101,9 +111,6 @@ class PPDBrandMessages extends ChartType {
     krsort($dataTable);
     $dataTable = array_values($dataTable);
 
-    // "What does my brand represent to Promoters as compared to Detractors?"
-    $event->setTitleLong("What does my brand represent to Promoters as compared to Detractors?");
-    
     return $dataTable;
   }
 
@@ -145,10 +152,15 @@ class PPDBrandMessages extends ChartType {
     $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
 
     foreach ($this->brands as $brand) {
+      if ((!empty($this->brand_filter)) && ($this->brand_filter != $brand)) {
+        continue;
+      }
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
       $this->counts[$type]['count']++;
       foreach ($this->qcode as $qindex => $qcode) {
-        $this->result[$qcode][$type]['count'] += $answers_que[$brand][$qindex];
+        if (!empty($answers_que[$brand][$qindex])) {
+          $this->result[$qcode][$type]['count'] += $answers_que[$brand][$qindex];          
+        }
       }
     }
   }

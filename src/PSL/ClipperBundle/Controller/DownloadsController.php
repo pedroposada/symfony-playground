@@ -54,6 +54,7 @@ class DownloadsController extends Controller
         'available-charts'    => array(),
         'charts-table-map'    => array(),
         'filtered'            => array(),
+        'combined-filtered'   => array(),
       );
       $drillbits = array(
         'countries'   => 'country',
@@ -70,6 +71,7 @@ class DownloadsController extends Controller
         }
         $data['available-charts'][$index] = $chart_data['chartmachinename'];
       }
+      // each drilldown (single): @see CLIP-69
       foreach ($drillbits as $drillType => $drillName) {
         if (!empty($data['available-drilldown'][$drillType])) {
           if (!isset($data['filtered'][$drillName])) {
@@ -80,6 +82,22 @@ class DownloadsController extends Controller
             $filter_set = array($drillName => $filter);
             $data['filtered'][$drillName][$filter] = $this->getChartsByOrderId($order_id, $filter_set);
           }
+        }
+      }      
+      // combination drilldown - country & specialty (dual): @see CLIP-69:v2
+      $locations = array_merge($data['available-drilldown']['countries'], $data['available-drilldown']['regions']);
+      $locations = array_filter($locations);
+      $locations = array_unique($locations);
+      foreach ((array) $locations as $location) {
+        foreach ((array) $data['available-drilldown']['specialties'] as $specialty) {
+          $filter_set = array(
+            'country'   => $location,
+            'specialty' => $specialty,
+          );
+          $data['combined-filtered'][] = array(
+            'filters' => $filter_set,
+            'data'    => $this->getChartsByOrderId($order_id, $filter_set),
+          );
         }
       }
       $assembler = $this->container->get('download_assembler');

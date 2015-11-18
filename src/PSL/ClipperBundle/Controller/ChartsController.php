@@ -116,6 +116,7 @@ class ChartsController extends FOSRestController
    *    {"name"="country", "dataType"="string"},
    *    {"name"="region", "dataType"="string"},
    *    {"name"="specialty", "dataType"="string"},
+   *    {"name"="brand", "dataType"="string"},
    *  }
    * )
    *
@@ -137,6 +138,7 @@ class ChartsController extends FOSRestController
         'country'   => $request->request->get('country', ''),
         'region'    => $request->request->get('region', ''),
         'specialty' => $request->request->get('specialty', ''),
+        'brand'     => $request->request->get('brand', ''),
       );
       // getting chart
       $charts_helper = $this->container->get('chart_helper');

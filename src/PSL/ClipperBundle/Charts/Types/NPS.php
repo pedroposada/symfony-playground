@@ -15,21 +15,37 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class NPS extends ChartType
 {
+  private $respondent = array();
+  //All responses who are aware of the brands
+  // $answer > 0
+  private $base       = array();
+  private $brands_results;
+  private $dataTable_data;
+  
   /**
-   * @see ChartType dataTable
+   * Method call to return chart data.
+   * @method dataTable
+   *
+   * @see  ChartType dataTable
+   *
+   * @param  ChartEvent $event
+   *
+   * @return array
+   *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event)
   {
-    $rows = $dataTable = array();
+    //prep other attributes
+    parent::$decimal_point = 2;
 
-    // find Detractors, Passives, Promoters and Score per brand
-    foreach ($event->getData() as $response) {
-      $this->dataRow($event, $response, $rows);
-    }
-    $rows = $this->explode_tree->explodeTree($rows, "/");
-
+    //prep brands_results structure
+    $this->brands_results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+    
+    //prep base structure
+    $this->base = array_combine($this->brands, array_fill(0, count($this->brands), 0));
+    
     //prep structure
-    $dataTable = array_combine($this->brands, array_fill(0, count($this->brands), array(
+    $this->dataTable_data = array_combine($this->brands, array_fill(0, count($this->brands), array(
       'brand'      => '',
       'base'       => 0,
       'detractors' => 0,
@@ -37,73 +53,152 @@ class NPS extends ChartType
       'promoters'  => 0,
       'score'      => 0,
     )));
-
-    array_walk($dataTable, function(&$set, $brand) use (&$rows) {
-      $set['brand'] = $brand;
-      if (!empty($rows[$brand])) {
-        //identify not-aware count
-        //All responses who are aware of the brands; $answer > 0
-        $not_aware = 0;
-        if (!empty($rows[$brand]['detractor'])) {
-          $base = array_values($rows[$brand]['detractor']);
-          $base = array_filter($base);
-          $not_aware = (count($rows[$brand]['detractor']) - count($base));
-        }
-
-        //calculation
-        $detractor = $passive = $promoter = 0;
-        foreach (array('detractor', 'passive', 'promoter') as $type) {
-          $$type  = (isset($rows[$brand][$type]) ? count($rows[$brand][$type]) : 0);
-        }
-        $total = array_sum(array($promoter, $passive, $detractor));
-
-        //update base
-        $set['base'] = ($total - $not_aware);
-
-        //formating
-        foreach (array('detractor', 'passive', 'promoter') as $type) {
-          $plural_var = $type . 's';
-          $set[$plural_var] = $this->roundingUpValue((($$type / $total)) * 100);
-        }
-        $set['score'] = ($set['promoters'] - $set['detractors']);
-
-        unset($rows[$brand]);
-      }
-    });
-    //remove keys
-    $dataTable = array_values($dataTable);
-
+    
     // "Net Promoter Score"
     $event->setTitleLong("Net Promoter Score");
 
-    return $dataTable;
+    //STOP if no responses
+    if (empty($event->getCountFiltered())) {
+      return $this->dataTable_data;
+    }
+
+    //extract respondent
+    foreach ($event->getData() as $response) {
+      //update @var $this->brands_results
+      $this->extractRespondent($response);
+    }
+    
+    $overall_avg = $overall_total = $overall_count = 0;
+    if (!empty($this->respondent)) {
+      //#final-calculation
+      foreach ($this->brands_results as $brand => $respondent) {
+        $total = array_sum($respondent);
+        $overall_total += $total;
+        $count = count($respondent);
+        $overall_count += $count;
+        
+        $this->dataTable_data[$brand]['brand'] = $brand;
+        $this->dataTable_data[$brand]['base']  = $this->base[$brand];
+        foreach (array('detractors', 'passives', 'promoters') as $type) {
+          if (!empty($this->dataTable_data[$brand][$type])) {
+            $this->dataTable_data[$brand][$type] = (($this->dataTable_data[$brand][$type] / $this->base[$brand]) * 100);
+            $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], TRUE);
+          }
+        }
+        $this->dataTable_data[$brand]['score'] = $this->roundingUpValue(($total / $count));
+      }
+      $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));      
+    }
+    $this->respondent = array();
+    
+    //remove keys
+    $this->dataTable_data = array_values($this->dataTable_data);
+
+    return $this->dataTable_data;
+  }
+    
+  /**
+   * Method to extract a respondent answer.
+   * @method extractRespondent
+   *
+   * Process will populate
+   * - @var $this->brands_results
+   * - @var $this->respondent
+   *
+   *
+   * Post-format
+   *   $this->brands_results
+   *     BRAND
+   *       TOKEN => SCORE
+   *       TOKEN => SCORE
+   *     BRAND
+   *       TOKEN => SCORE
+   *     ...
+   *
+   * Note: This format will change once at #final-calculation
+   *   $this->brands_results
+   *     BRAND => SCORE
+   *     BRAND => SCORE
+   *     ...
+   *
+   * Post-format:
+   *   $this->respondent
+   *     TOKEN
+   *       BRAND => ANSWER-VALUE
+   *       BRAND => ANSWER-VALUE
+   *     TOKEN
+   *       BRAND => ANSWER-VALUE
+   *       BRAND => ANSWER-VALUE
+   *     ...
+   *
+   * @param  LimeSurveyResponse $response
+   *
+   * @return void
+   */
+  private function extractRespondent(LimeSurveyResponse $response) {
+    //getting respondent token
+    $lstoken = $response->getLsToken();
+
+    //getting answers
+    $answers = $response->getResponseDecoded();
+    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+
+    //values assignments
+    foreach ($this->brands as $brand) {
+      //brands overall
+      if (!isset($this->brands_results[$brand][$lstoken])) {
+        $this->brands_results[$brand][$lstoken] = 0;
+      }
+      //respondent overall
+      if (!isset($this->respondent[$lstoken])) {
+        $this->respondent[$lstoken] = array();
+      }
+      $this->respondent[$lstoken][$brand] = $answers[$brand];
+      //capture base
+      if (!empty($answers[$brand])) {
+        //capture size
+        $type = $this->identifyRespondentCategory($answers[$brand]);
+        $this->dataTable_data[$brand]["{$type}s"]++;
+        $this->base[$brand]++;
+      }
+    }
+
+    //convert brand into score by each respondent
+    $this->calculateRespondentScore($lstoken, $this->respondent[$lstoken]);
   }
 
   /**
-   * @param $event ChartEvent
-   * @param $response LimeSurveyResponse
-   * @param &$rows array passed by reference
+   * Method to determine Brands Score.
+   * @method calculateRespondentScore
+   *
+   * This process will change value for;
+   * - @var $this->brands_results, based on respondent answers
+   * - @see  parent->identifyRespondentCategory()
+   *
+   * @param  string $lstoken
+   * @param  array $brandsAnswer
+   *
+   * @return void
    */
-  private function dataRow(ChartEvent $event, LimeSurveyResponse $response, &$rows)
-  {
-    // get response for specific respondent
-    $answers = $response->getResponseDecoded();
+  private function calculateRespondentScore($lstoken, $brandsAnswer = array()) {
+    foreach ($brandsAnswer as $brand => $answer) {
+      $brandsAnswer[$brand] = 0;
+      switch ($this->identifyRespondentCategory($answer)) {
+        case 'detractor':
+          $brandsAnswer[$brand] = 1;
+          break;
 
-    // extract answers from response array
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+        case 'passive':
+          $brandsAnswer[$brand] = 2;
+          break;
 
-    // Brand
-    //      Type
-    //          Token
-    //          Token
-    //      Type
-    //          Token
-    foreach ($this->brands as $key => $brand) {
-      // determine category
-      $category = $this->identifyRespondentCategory($answers[$brand]);
-      // set values in rows
-      $lstoken = $response->getLsToken();
-      $rows["{$brand}/{$category}/{$lstoken}"] = $answers[$brand];
-    }
+        case 'promoter':
+          $OtherBrandCount = array_filter($brandsAnswer);
+          $OtherBrandCount = count($OtherBrandCount);
+          $brandsAnswer[$brand] = $this->roundingUpValue((3 + (2 / $OtherBrandCount)));
+          break;
+      } //switch
+      $this->brands_results[$brand][$lstoken] = $brandsAnswer[$brand];
+    } //foreach
   }
 }

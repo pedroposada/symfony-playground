@@ -143,6 +143,7 @@ class ChartsAssemblerTest extends WebTestCase
       $this->assertArrayHasKey('amount', $dt[$nm]);
       $this->assertTrue(is_numeric($dt[$nm]['amount']));
     };
+    $this->assertTrue(is_numeric($data_table['base']));
   }
 
   /**
