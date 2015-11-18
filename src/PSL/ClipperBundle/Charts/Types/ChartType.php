@@ -54,11 +54,16 @@ abstract class ChartType
       $this->logger->debug("eventName: {$eventName}");
 
       //prep generals details
+      $responses = $event->getData();
+      $response_qcode_collection = FALSE;
+      if ($responses->count()) {
+        $response_qcode_collection = $responses->first()->getResponseDecoded();
+        $response_qcode_collection = array_keys($response_qcode_collection);
+      }
       $this->brands = $event->getBrands();
-      $this->map    = $this->survey_chart_map->map($event->getSurveyType());
+      $this->map    = $this->survey_chart_map->map($event->getSurveyType(), $response_qcode_collection);
       $this->qcode  = $this->map[$event->getChartMachineName()];
       
-      $responses = $event->getData();
       //get available drilldown filters
       $drilldown = $this->extractAvailableFilters($responses);
       $event->setDrillDown($drilldown);

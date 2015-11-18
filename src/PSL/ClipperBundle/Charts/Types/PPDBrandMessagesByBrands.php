@@ -98,6 +98,9 @@ class PPDBrandMessagesByBrands extends ChartType {
     $answersType = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
     
     foreach ($this->brands as $brand) {
+      if (empty($answersQue[$brand])) {
+        continue;
+      }
       $type = $this->identifyRespondentCategory($answersType[$brand]);
       foreach ($answersQue[$brand] as $qIndex => $qAnswer) {
         $this->results[$brand][$qIndex][$type]['count']++;
