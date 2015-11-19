@@ -226,10 +226,10 @@ class ChartsAssemblerTest extends WebTestCase
   public function testChartPPDBrandMessages()
   {
     $data_table = self::$assembler->getChartDataTable(self::$order->getId(), self::$map[$this->getCounter()], self::$survey_type);
-    $brands = self::$order->getFormDataByField('brands');
+    $attributes = self::$order->getFormDataByField('attributes');
 
     //each brands have it's own data row
-    $this->assertSame(count($data_table), count($brands));
+    $this->assertSame(count($data_table), count($attributes));
 
     //each row much has this key & value
     $test = array(
