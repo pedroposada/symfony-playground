@@ -16,6 +16,8 @@ class PPDBrandMessages extends ChartType {
   private $result = array();
   private $counts = array();
   
+  private $questions = array();
+  
   private $brand_filter = FALSE;
 
   /**
@@ -58,15 +60,16 @@ class PPDBrandMessages extends ChartType {
     
 
     //get set of question
-    $questions = $event->getAttributes();
-
+    $this->questions = $event->getAttributes();
+    $this->questions = array_combine(array_keys($this->qcode), $this->questions);
+    
     //extract respondent
     foreach ($event->getData() as $response) {
       //update @var $this->result
       //update @var $this->counts
       $this->extractRespondent($response);
     }
-
+    
     //final calculation
     foreach ($this->qcode as $qindex => $qcode) {
       foreach ($this->counts as $type => $info) {
@@ -93,7 +96,7 @@ class PPDBrandMessages extends ChartType {
         $key += 1;
       }
       $dataTable[$key] = array(
-        'message'          => $questions[$qindex],
+        'message'          => $this->questions[$qindex],
         'detractors'       => $this->result[$qcode]['detractor']['perc'],
         'detractors_count' => $this->result[$qcode]['detractor']['count'],
         'passives'         => $this->result[$qcode]['passive']['perc'],
@@ -103,7 +106,7 @@ class PPDBrandMessages extends ChartType {
         'lcl'              => $this->result[$qcode]['confidence']['low'],
         'hcl'              => $this->result[$qcode]['confidence']['high'],
       );
-      unset($questions[$qindex]);
+      unset($this->questions[$qindex]);
       unset($this->result[$qcode]);
     }
     
@@ -146,8 +149,9 @@ class PPDBrandMessages extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers_que = $this->filterAnswersToQuestionMap($answers, 'y/n');
-
+    $answers_que = $this->filterAnswersToQuestionMap($answers, 'y/n', FALSE, $this->questions);
+    $answers_que = $this->kindFolkToBrand($answers_que);
+    
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
 

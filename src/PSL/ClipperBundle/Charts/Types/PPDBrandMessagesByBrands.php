@@ -13,6 +13,7 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class PPDBrandMessagesByBrands extends ChartType {
   private $results = array();
+  private $questions = array();
   
   /**
    * Method call to return chart data.
@@ -30,13 +31,13 @@ class PPDBrandMessagesByBrands extends ChartType {
     $event->setTitleLong('Download: What does my brand represent to Promoters as compared to Detractors by brands?');
 
     //prep result
-    $questions = $event->getAttributes();
+    $this->questions = $event->getAttributes();
     $cats = array_combine(array_keys(parent::$net_promoters_cat_range), array_fill(0, count(parent::$net_promoters_cat_range), array(
       'count' => 0, // type-count
       'base'  => 0, // who are aware of the brand & say yes
       'perc'  => 0,
     )));
-    $default = array_combine(array_keys($questions), array_fill(0, count($questions), $cats));
+    $default = array_combine(array_keys($this->questions), array_fill(0, count($this->questions), $cats));
     $this->results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
     array_walk($this->results, function(&$set, $index) use ($default) {
       $set = $default;
@@ -57,7 +58,7 @@ class PPDBrandMessagesByBrands extends ChartType {
     }
     
     return array(
-      'questions' => $questions,
+      'questions' => $this->questions,
       'brands'    => $this->results,
     );
   }
@@ -92,7 +93,8 @@ class PPDBrandMessagesByBrands extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answersQue = $this->filterAnswersToQuestionMap($answers, 'y/n');
+    $answersQue = $this->filterAnswersToQuestionMap($answers, 'y/n', FALSE, $this->questions);
+    $answersQue = $this->kindFolkToBrand($answersQue);
     
     //filtering answers for promote-scale
     $answersType = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);

@@ -180,22 +180,22 @@ abstract class ChartType
    *    - FALSE; will use class defined @var $this->qcode
    *    - string/array provide the list.
    *
-   * @param  boolean|array $brands
-   *    List of brands within the questions.
+   * @param  boolean|array $kinfolk
+   *    List of next-of-kin within the questions.
    *    - FALSE; will use class defined @var $this->brands / @var $event->getBrands()
    *    - array provide the brand list
    *
    * @return array
    */
-  protected function filterAnswersToQuestionMap($answers, $convert = FALSE, $qcode = FALSE, $brands = FALSE) {
+  protected function filterAnswersToQuestionMap($answers, $convert = FALSE, $qcode = FALSE, $kinfolk = FALSE) {
     if ((empty($qcode)) && (!empty($this->qcode))) {
       $qcode = $this->qcode;
     }
-    if ((empty($brands)) && (!empty($this->brands))) {
-      $brands = $this->brands;
+    if ((empty($kinfolk)) && (!empty($this->brands))) {
+      $kinfolk = $this->brands;
     }
 
-    if ((empty($qcode)) || (empty($brands)) || (empty($answers))) {
+    if ((empty($qcode)) || (empty($kinfolk)) || (empty($answers))) {
       return FALSE;
     }
 
@@ -225,21 +225,27 @@ abstract class ChartType
     unset($cp_answers);
 
     //check if flipped
-    $ids = array_keys($brands);
+    $ids = array_keys($kinfolk);
     $ids = end($ids);
     if (is_string($ids)) {
-      $brands = array_flip($brands);
+      $kinfolk = array_flip($kinfolk);
     }
 
     $result = array();
     if (!$multi_structure) {
-      $result = array_combine($brands, array_values($answers));
+      $result = array_combine($kinfolk, array_values($answers));
       if (!empty($convert)) {
         $result = $this->formatAnswerResult($convert, $result);
       }
     }
     else {
-      $result = array_combine($brands, array_values($answers));
+      // multi level by brand - DNA, PPDBrandMessages & PPDBrandMessagesByBrands
+      // @see variable $kinfolk;
+      // - for DNA it uses brands
+      // - PPDBrandMessages send list of questions 
+      // - PPDBrandMessagesByBrands send list of questions 
+      // - also @see kindFolkToBrand()
+      $result = array_combine($kinfolk, array_values($answers));
       foreach ($result as $brand => $answers) {
         $answers = array_values($answers);
         if (!empty($convert)) {
@@ -417,6 +423,20 @@ abstract class ChartType
     $title = preg_replace('|-+|', '-', $title);
     $title = trim($title, '-');
     return $title;
+  }
+  
+  protected function kindFolkToBrand($kinfolk) {
+    $kinfolk_keys = array_keys($kinfolk); // message
+    $result = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+    
+    foreach ($this->brands as $brand_index => $brand) {
+      foreach ($kinfolk as $kinfolk_index => $kin) {
+        // notice this will result the last answer / more than brand count will be ignore
+        // - this applied to "None of these" answer
+        $result[$brand][] = $kin[$brand_index];
+      }
+    }
+    return $result;
   }
 
   /**
