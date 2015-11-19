@@ -260,7 +260,7 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->setCellValue('A2', self::$text_content['base-who-are-aware']);
 
         //content
-        $this->activeWorkSheet->getColumnDimension('A')->setWidth(20);
+        $this->activeWorkSheet->getColumnDimension('A')->setWidth(31);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
         break;
@@ -307,7 +307,7 @@ class NPSPlusExcel extends DownloadType
         }
 
         //content
-        $this->activeWorkSheet->getColumnDimension('A')->setWidth(30);
+        $this->activeWorkSheet->getColumnDimension('A')->setWidth(38);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
         break;
@@ -371,8 +371,14 @@ class NPSPlusExcel extends DownloadType
         //prep data
         $localDataTable = array();
         array_walk($dataTable['datatable'], function($set, $key) use (&$localDataTable) {
+          if (empty($set['brand'])) {
+            return; // array_walk
+          }
           $localDataTable[$set['brand']] = $set;
-        });
+        });        
+        if (empty($localDataTable)) {
+          break; // switch
+        }
 
         $rowStarts = $row;
 
@@ -423,6 +429,11 @@ class NPSPlusExcel extends DownloadType
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getFont()->setBold(TRUE);
+        $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getAlignment()->setWrapText(TRUE);
+        $this->activeWorkSheet->getRowDimension($rowStarts)->setRowHeight(80);
+        foreach (range($colStarts, $colEnds) as $cl) {
+          $this->activeWorkSheet->getColumnDimension("{$col[$cl]}")->setWidth(15);          
+        }
         $this->activeWorkSheet->getStyle("A{$end_row}:{$col[$colEnds]}{$end_row}")->getFont()->setBold(TRUE);
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
         $this->activeWorkSheet->getStyle("A{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->applyFromArray($styles);
@@ -609,6 +620,11 @@ class NPSPlusExcel extends DownloadType
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getFont()->setBold(TRUE);
+        $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getAlignment()->setWrapText(TRUE);
+        $this->activeWorkSheet->getRowDimension($rowStarts)->setRowHeight(80);
+        foreach (range($colStarts, $colEnds) as $cl) {
+          $this->activeWorkSheet->getColumnDimension("{$col[$cl]}")->setWidth(15);          
+        }
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
         $this->activeWorkSheet->getStyle("A{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->applyFromArray($styles);
         $styles = array('borders' => array('right' => self::$style['def-border']));
