@@ -93,6 +93,15 @@ class LimeSurveyResponses
     // loop through the responses of the survey
     foreach ($responses as $key => $response) {
       $resp = current($response);
+      
+      // validation: must have $resp['token']
+      if (empty($resp['token'])) {
+        $this->logger->error("Response did not containing Token string.", array(
+          'key'  => $key,
+          'resp' => ((array) $resp),
+        ));
+        continue; // foreach
+      }
 
       // try to get by token
       $lsresp = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->find($resp['token']);
@@ -100,7 +109,7 @@ class LimeSurveyResponses
       // if no record found then create new one
       if (!$lsresp) {
         $lsresp = new LimeSurveyResponse();
-
+        
         // $lsresp needs to have "id" before you can call ->persist on it
         $lsresp->setLsToken($resp['token']);
 
