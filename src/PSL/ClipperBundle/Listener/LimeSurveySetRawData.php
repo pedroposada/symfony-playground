@@ -41,7 +41,6 @@ class LimeSurveySetRawData extends FqProcess
       $tokens[] = $participant['token'];
     }
     $ls_raw_data->tokens = $tokens;
-    $ls_raw_data->lang = $fqp->getLimesurveyDataByField('lang');
     $fqp->setLimesurveyDataRaw($this->serializer->encode($ls_raw_data));
   }
 
