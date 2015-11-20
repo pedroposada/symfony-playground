@@ -2,8 +2,10 @@
 
 namespace PSL\ClipperBundle\Utils;
 
-use org\jsonrpcphp\JsonRPCClient;
-use \Exception as Exception;
+use \Exception;
+use Graze\GuzzleHttp\JsonRpc\Client;
+use Graze\GuzzleHttp\JsonRpc\Exception\RequestException;
+
 
 /**
  * helper class to interact with LimeSurvey
@@ -11,37 +13,42 @@ use \Exception as Exception;
   
 class LimeSurvey
 {
+  private $async = false;
   private $session_key;
   private $release_session_key;
   private $ls_baseurl;
   private $ls_user;
   private $ls_password;
+  private $response = null;
+  
   public $client;
-  public $response;
   public $param_arr;
-  
-  
-  public function __construct($ls_baseurl, $ls_user, $ls_password) 
-  {
-    $settings['ls_baseurl'] = $ls_baseurl;
-    $settings['ls_user'] = $ls_user;
-    $settings['ls_password'] = $ls_password;
-    $this->configure($settings);
-  }
   
   /**
    * Configure the API client with the required credentials.
    *
-   * Requires a settings array to be passed in with the following keys:
-   *
-   * - ls_baseurl
-   * - ls_user
-   * - ls_password
-   *
-   * @param array $settings
+   * @param $ls_baseurl string
+   * @param $ls_user string
+   * @param $ls_password string
+   * 
    * @throws \Exception
    */
-  public function configure(array $settings)
+  public function __construct($ls_baseurl, $ls_user, $ls_password) 
+  {
+    // credentials
+    $settings['ls_baseurl'] = $ls_baseurl;
+    $settings['ls_user'] = $ls_user;
+    $settings['ls_password'] = $ls_password;
+    $this->setCredentials($settings);
+    
+    // session key
+    $this->setSessionKey();
+  }
+
+  /**
+   * Set credentials to connect to API
+   */
+  private function setCredentials(array $settings)
   {
     if (!isset($settings['ls_baseurl'])) {
         throw new Exception("'ls_baseurl' must be provided");
@@ -58,31 +65,67 @@ class LimeSurvey
     $this->ls_baseurl = $settings['ls_baseurl'];
     $this->ls_user = $settings['ls_user'];
     $this->ls_password = $settings['ls_password'];
+  }
+
+  /**
+   * RPC client
+   */
+  private function setSessionKey()
+  {
+    // Create the client
+    $this->client = Client::factory($this->ls_baseurl, ['rpc_error' => true]);
     
-    // instanciate a new JsonRPCClient client
-    $this->client = new JsonRPCClient($this->ls_baseurl);
-    
-    // request session key
-    $this->session_key = $this->client->get_session_key($this->ls_user, $this->ls_password);
+    // request session key, once per call
+    $this->session_key = $this->call('get_session_key', array($this->ls_user, $this->ls_password));
   }
   
   /**
-   * @return response from client
+   * set async client
+   * @param GuzzleHttp\Promise\Promise promise
+   * @return \PSL\ClipperBundle\Utils\LimeSurvey
+   */
+  public function doAsync()
+  {
+    $this->async = true;
+    
+    return $this;
+  }
+  
+  /**
+   * Send call to client and get response back
+   * 
+   * @param $callback string, name of rpc method
+   * @param $param_arr array, params to pass to rpc method
+   * 
+   * @return getRpcResult OR nothing
    */
   private function call($callback, $param_arr) 
   {
-    // call $callback and pass $param_arr to it
-    $this->response = call_user_func_array(array($this->client, $callback), $param_arr);
+    $response = null;
+    // for debugging
     $this->param_arr = $param_arr;
     
-    // release session key
-    // $this->release_session_key = $this->client->release_session_key($this->session_key);
+    if ($this->async) {
+      $this->async = false;
+      $client = new \PSL\ClipperBundle\Utils\ClipperHttpClient;
+      $client->jsonRpcNonBlocking($this->ls_baseurl, $callback, $param_arr);
+    }
+    else {
+      try {
+        // returns array from getRpcResult()
+        $request = $this->client->request(123, $callback, $param_arr);
+        $response = $this->client->send($request)->getRpcResult();  
+      }
+      catch (RequestException $e) {
+        throw new Exception($e->getResponse()->getRpcErrorMessage());
+      }
+    }
     
-    return $this->response;
+    return $response;
   }
   
   /**
-   * @return $this as strings
+   * @return \PSL\ClipperBundle\Utils\LimeSurvey as strings
    */
    public function __toString()
    {
@@ -240,21 +283,21 @@ class LimeSurvey
    * The following properties of tokens can be read or set:
    * aTokenProperties
    *  tid             int     Token ID; read-only property
-      completed       string  N or Y
-      participant_id    
-      language        string  
-      usesleft    
-      firstname       String  Participant's first name
-      lastname        String  Participant's last name
-      email           String  Participant's e-mail address
-      blacklisted   
-      validfrom   
-      sent    
-      validuntil    
-      remindersent    
-      mpid    
-      emailstatus   
-      remindercount
+   *   completed       string  N or Y
+   *   participant_id    
+   *   language        string  
+   *   usesleft    
+   *   firstname       String  Participant's first name
+   *   lastname        String  Participant's last name
+   *   email           String  Participant's e-mail address
+   *   blacklisted   
+   *   validfrom   
+   *   sent    
+   *   validuntil    
+   *   remindersent    
+   *   mpid    
+   *   emailstatus   
+   *   remindercount
    */
    public function get_participant_properties($args = array())
    {
@@ -281,17 +324,17 @@ class LimeSurvey
    * 
    * Available properties
    * 
-      Allways:
-        sid
-        language
-        additional_languages
-        active
-      When survey active:
-        anonymized
-        datestamp
-        savetimings
-        ipaddr
-        refurl
+   *   Allways:
+   *     sid
+   *     language
+   *     additional_languages
+   *     active
+   *   When survey active:
+   *     anonymized
+   *     datestamp
+   *     savetimings
+   *     ipaddr
+   *     refurl
    */
   public function set_survey_properties($args = array()) 
   {
@@ -386,14 +429,14 @@ class LimeSurvey
    * 
    *  Available statistics:
    * 
-   *  Survey stats              Token stats
+   *   Survey stats              Token stats
    * 
-      all                       array of all stats
-      completed_responses       token_count
-      incomplete_responses      token_invalid
-      full_responses            token_sent
-                                token_opted_out
-                                token_completed
+   *   all                       array of all stats
+   *   completed_responses       token_count
+   *   incomplete_responses      token_invalid
+   *   full_responses            token_sent
+   *                             token_opted_out
+   *                             token_completed
    * 
    */
   public function get_summary($args = array()) 

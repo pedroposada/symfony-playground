@@ -2,10 +2,9 @@
 
 namespace PSL\ClipperBundle\Listener;
 
-use \Exception as Exception;
-use \stdClass as stdClass;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use \Exception;
+use \stdClass;
+
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
@@ -13,7 +12,6 @@ use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\MDMMapping;
 use PSL\ClipperBundle\Utils\RPanelProject;
 use PSL\ClipperBundle\Service\RPanelService;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
 
 class LimeSurveyCreated extends FqProcess
 {
@@ -64,6 +62,19 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setNumParticipants($sheet_data['num_participants']);
     $rpanel_project->setExpiredDate(current($fqg->getFormDataByField('completion_date')));
     $rpanel_project->setProjNum($fqg->getId());
+    
+    // URLs
+    $redirecturl = $this->container->getParameter('limesurvey.url_redirect');
+    $lsurls = array();
+    foreach ($fqp->getLimesurveyDataByField('tokens') as $lstoken) {
+      $lsurls[] = strtr($redirecturl, array(
+        '[SID]' => current($fqp->getLimesurveyDataByField('sid')),
+        '[LANG]' => 'en', // @todo: find lang by market
+        '[SLUG]' => $lstoken,
+      ));
+    }
+    $rpanel_project->setUrls($lsurls);
+    
 
     // GS object
     $gs_object = new stdClass();
@@ -161,10 +172,8 @@ class LimeSurveyCreated extends FqProcess
       // Create Project Detail (many to one)
       $rps->createProjectDetail($rpanel_project, $gs_object);
 
-      // Create Feasibility Full Url
-      $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
-      $urls = $ls_data['urls'];
-      $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
+      // feasibility_full_url - Create Feasibility Full Urls
+      $rps->feasibilityLinkFullUrl($rpanel_project);
 
       // PROJECT_DETAIL_TEXTINVITES
       $rps->createProjectDetailTextinvites($rpanel_project);
