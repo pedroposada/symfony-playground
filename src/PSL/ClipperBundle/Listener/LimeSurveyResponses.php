@@ -40,18 +40,20 @@ class LimeSurveyResponses
 
   public function refreshResponses(FirstQProjectEvent $event, $eventName, EventDispatcherInterface $dispatcher)
   {
-    $result = array();
-
     $this->logger->debug("eventName: {$eventName}");
-
     $fqg = $event->getFirstQProjectGroup();
     $fqp = $event->getFirstQProject();
     $iSurveyID = current($fqp->getLimesurveyDataByField('sid'));
-
     $this->logger->debug("iSurveyID: [{$iSurveyID}]");
-
+    
+    /**
+     * fetch from limesurvey
+     **/
     $responses = $this->fetchResponses($iSurveyID);
 
+    /**
+     * save responsens in db
+     **/
     $this->saveResponses($responses['responses'], $event);
 
   }
@@ -91,27 +93,19 @@ class LimeSurveyResponses
     $fqp = $event->getFirstQProject();
 
     // loop through the responses of the survey
-    foreach ($responses as $key => $response) {
+    foreach ($responses as $response) {
       $resp = current($response);
       
-      // validation: must have $resp['token']
-      if (empty($resp['token'])) {
-        $this->logger->error("Response did not containing Token string.", array(
-          'key'  => $key,
-          'resp' => ((array) $resp),
-        ));
-        continue; // foreach
-      }
-
-      // try to get by token
-      $lsresp = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->find($resp['token']);
+      // try to find response by token
+      $lstoken = empty($resp['token']) ? uniqid() : $resp['token'];
+      $LimeSurveyResponse = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->find($lstoken);
 
       // if no record found then create new one
-      if (!$lsresp) {
+      if (!$LimeSurveyResponse) {
         $lsresp = new LimeSurveyResponse();
         
         // $lsresp needs to have "id" before you can call ->persist on it
-        $lsresp->setLsToken($resp['token']);
+        $lsresp->setLsToken($lstoken);
 
         // TODO: get mid (member id) from MDM. Default to "1" for now.
         // $lsresp->setMemberId($mid);
@@ -125,7 +119,7 @@ class LimeSurveyResponses
         $this->em->persist($lsresp);
 
         // feedback
-        $this->logger->info("OK processing response, token: [{$resp['token']}]");
+        $this->logger->info("OK processing response, token: [{$lstoken}]");
       }
     }
   }

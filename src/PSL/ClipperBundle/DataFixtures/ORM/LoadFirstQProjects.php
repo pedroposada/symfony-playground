@@ -72,12 +72,5 @@ class LoadFirstQProjects extends AbstractFixture implements OrderedFixtureInterf
 
         $manager->flush();
     }
-
-    /**
-    * {@inheritDoc}
-    */
-    public function getOrder()
-    {
-        return 2; // the order in which fixtures will be loaded
-    }
+}
 
