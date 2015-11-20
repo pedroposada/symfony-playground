@@ -52,6 +52,14 @@ class LoadFirstQGroups extends AbstractFixture implements OrderedFixtureInterfac
     $manager->persist($group);
 
     $group = new FirstQGroup();
+    $group->setFormDataRaw('{"survey_type":"nps_plus","loi":10,"ir":10,"title":"clipper FQG fixture 1 - title","name":"clipper FQG fixture 1 - name","name_full":"clipper FQG fixture 1 - name_full","patient_type":"sick","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["AA-123","BB-456","CC-789","DD-123","EE-456","FF-789"],"attributes":["it just works","painfull side effects","risk of death","just painful","mildly pointless","kind of cool","not effective","gives headaches"],"launch_date":"2015-07-22 11:10:33","completion_date":"2015-07-27 11:10:33","timezone_client":"Europe\/London","price_total":12345,"project_number":"2468","vat_number":"1359"}');
+    $group->setState('ORDER_PENDING');
+    $group->setOrderId('test-order-pending');
+    $group->setUserId('test-user-id-1');
+    $this->setReference('firstqgroup-2', $group);
+    $manager->persist($group);
+
+    $group = new FirstQGroup();
     $group->setFormDataRaw('{"survey_type":"nps_plus","loi":10,"ir":10,"title":"a title","name":"a name","name_full":"a name full","patient_type":"sick","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["AA-123","BB-456","CC-789","DD-123","EE-456","FF-789"],"attributes":["it just works","painfull side effects","risk of death","just painful","mildly pointless","kind of cool","not effective","gives headaches"],"launch_date":"2015-07-22 11:10:33","completion_date":"2015-07-27 11:10:33","timezone_client":"Europe\/London","price_total":12345,"project_number":"2468","vat_number":"1359"}');
     $group->setState('ORDER_COMPLETE');
     $group->setOrderId('test-order-complete');

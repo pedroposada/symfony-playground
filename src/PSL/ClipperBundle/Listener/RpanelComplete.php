@@ -4,9 +4,6 @@ namespace PSL\ClipperBundle\Listener;
 
 use \Exception as Exception;
 use \stdClass as stdClass;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
@@ -32,7 +29,7 @@ class RpanelComplete extends FqProcess
       'sStatName' => 'completed_responses', 
     ));
     if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [get_summary]", 2);
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [get_summary]", parent::LOGWARNING);
     }
     
     $country = current($fqp->getSheetDataByField('market'));
@@ -42,7 +39,7 @@ class RpanelComplete extends FqProcess
     
     // if completed is less than quota, then exit
     if ($quota > $response) {
-      throw new Exception("Quota ({$quota}) has not been reached yet for fqp->id: [{$fqp->getId()}]", 2);
+      throw new Exception("Quota ({$quota}) has not been reached yet.", parent::LOGINFO);
     }
     $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
     
@@ -53,10 +50,9 @@ class RpanelComplete extends FqProcess
         'expires' => parent::$timestamp,
       ), 
     ));
-    
     if (is_array($response) && isset($response['status'])) {
       $this->logger->debug($response['status'], array('rpanel_complete', 'set_survey_properties'));
-      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [set_survey_properties]", 2);
+      throw new Exception("Bad response from LimeSurvey with status [{$response['status']}] on [set_survey_properties]", parent::LOGWARNING);
     }
 
   }

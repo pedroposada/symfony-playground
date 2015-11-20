@@ -43,7 +43,7 @@ class LimeSurveyComplete extends FqProcess
       // Email to client when quota has been reached and the report is ready.
       // link to project report with quick-login of the user.
       if (empty($this->user['mail'])) {
-        throw new Exception("user has no email address for order id: [$fqg->getId()]", 2);
+        throw new Exception("User has no email address for order id: [$fqg->getId()]", parent::LOGERROR);
       }
       $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $this->user['mail'], '', array());
       $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));

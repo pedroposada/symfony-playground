@@ -89,11 +89,23 @@ services:
 
   # Listeners are called in descending order by priority. Highest priority is called first.
 
-  clipper.listener.order_complete:
+  clipper.listener.limesurvey_pending:
     class: PSL\ClipperBundle\Listener\LimeSurveyPending
     arguments: ["@service_container", "limesurvey_pending"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 100 }
+
+  clipper.listener.limesurvey_addparticipants:
+    class: PSL\ClipperBundle\Listener\LimeSurveyAddParticipants
+    arguments: ["@service_container", "limesurvey_addparticipants"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 96 }
+
+  clipper.listener.limesurvey_setrawdata:
+    class: PSL\ClipperBundle\Listener\LimeSurveySetRawData
+    arguments: ["@service_container", "limesurvey_setrawdata"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 93 }
 
   clipper.listener.limesurvey_created:
     class: PSL\ClipperBundle\Listener\LimeSurveyCreated
