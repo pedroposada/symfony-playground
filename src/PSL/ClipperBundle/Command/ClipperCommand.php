@@ -3,8 +3,8 @@
 namespace PSL\ClipperBundle\Command;
 
 // contrib
-use \Exception as Exception;
-use \stdClass as stdClass;
+use \Exception;
+use \stdClass;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\LockHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Doctrine\Common\Util\Debug as Debug;
+use Doctrine\Common\Util\Debug;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
@@ -21,14 +21,15 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 // custom
-use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
-use PSL\ClipperBundle\Entity\FirstQGroup as FirstQGroup;
-use PSL\ClipperBundle\Entity\FirstQProject as FirstQProject;
-use PSL\ClipperBundle\Service\RPanelService as RPanelService;
-use PSL\ClipperBundle\Utils\RPanelProject as RPanelProject;
-use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
+use PSL\ClipperBundle\Utils\LimeSurvey;
+use PSL\ClipperBundle\Entity\FirstQGroup;
+use PSL\ClipperBundle\Entity\FirstQProject;
+use PSL\ClipperBundle\Service\RPanelService;
+use PSL\ClipperBundle\Utils\RPanelProject;
+use PSL\ClipperBundle\Utils\MDMMapping;
 use PSL\ClipperBundle\ClipperEvents;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
+use PSL\ClipperBundle\Listener\FqProcess;
 
 class ClipperCommand extends ContainerAwareCommand
 {
@@ -57,13 +58,16 @@ class ClipperCommand extends ContainerAwareCommand
     // FirstQ Groups
     $fqgs = $em->getRepository('PSLClipperBundle:FirstQGroup')->findByState($params['state_codes']['order_complete']);
 
-    $this->logger->info("Found [{$fqgs->count()}] FirstQGroup(s) for processing.", array('execute'));
+    // $this->logger->info("Found [{$fqgs->count()}] FirstQGroup(s) for processing.", array('execute'));
     foreach ($fqgs as $fqg) {
+      $this->logger->info("Process FQG id: [{$fqg->getId()}]", array('execute'));
       // load all FirstQProjects
-      $fqps = $em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg);
+      $fqps = new ArrayCollection($em->getRepository('PSLClipperBundle:FirstQProject')->findByFirstqgroup($fqg));
+      // $this->logger->info("Found [{$fqps->count()}] FirstQProjects(s) for processing.", array('execute'));
       foreach ($fqps as $fqp) {
+        $this->logger->info("\t");
+        $this->logger->info("*--- FQP [{$fqp->getId()}] - Start ---*");
         try {
-          
           // get dispatcher class
           $dispatcher = $this->getContainer()->get('event_dispatcher'); 
           
@@ -74,20 +78,25 @@ class ClipperCommand extends ContainerAwareCommand
           $dispatcher->dispatch(ClipperEvents::FQ_PROCESS, $event);
           
           // feedback if all is good
-          $this->logger->info("OK processing FirstQProject with id: [{$fqp->getId()}]");
+          $this->logger->info("*--- FQP [{$fqp->getId()}] - Done ---*");
         }
         catch (Exception $e) {
-          $this->logger->debug("File: {$e->getFile()} - Line: {$e->getLine()}");
           switch ($e->getCode()) {
-            case 2:
+            case FqProcess::LOGINFO:
+              $this->logger->info($e->getMessage());
+              break;
+            case FqProcess::LOGWARNING:
               $this->logger->warning($e->getMessage());
               break;
+            case FqProcess::LOGERROR:
             default:
               $this->logger->error($e->getMessage());
               break;
           }
+          $this->logger->debug("File: {$e->getFile()} - Line: {$e->getLine()}");
+          $this->logger->info("*--- FQP [{$fqp->getId()}] - In Progress ---*");
         }
-        
+        $this->logger->info("\t");
       }
     }
     
