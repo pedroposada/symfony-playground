@@ -674,13 +674,14 @@ class RPanelProject
    * Get interval added duration.
    *
    * @param   string  $interval_spec  An interval specification. e.g. P2Y4DT6H8M
+   * @param   string  $format   date() format
    *
    * @return  string  UNIX timestamp.
    */
-  public function getAddedDuration($interval_spec)
+  public function getAddedDuration($interval_spec, $format = "U")
   {
     $now = new DateTime("now");
     $added_duration = $now->add(new DateInterval($interval_spec));
-    return $added_duration->format("U");
+    return $added_duration->format($format);
   }
 }

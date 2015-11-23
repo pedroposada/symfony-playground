@@ -444,7 +444,7 @@ class ClipperUserController extends FOSRestController
       
       $email = $paramFetcher->get('email');
       
-      $user = new FWSSOQuickLoginUser('', $email, '', array());
+      $user = new FWSSOQuickLoginUser('', '', $email, '', array());
       $encKey = $container->getParameter('clipper.users.ql_encryptionkey');
       $ql_hash = $user->getQuickLoginHash($encKey);
       
