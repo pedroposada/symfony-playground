@@ -231,12 +231,19 @@ abstract class ChartType
       $kinfolk = array_flip($kinfolk);
     }
 
-    $result = array();
-    if (!$multi_structure) {
-      $result = array_combine($kinfolk, array_values($answers));
-      if (!empty($convert)) {
-        $result = $this->formatAnswerResult($convert, $result);
+    if (count($kinfolk) != count(array_values($answers))) {
+      $result = array();
+      $answers = array_values($answers);
+      foreach ($kinfolk as $index => $kin) {
+        $result[$kin] = $answers[$index];
       }
+    }
+    else {
+      $result = array_combine($kinfolk, array_values($answers));      
+    }
+    
+    if ((!$multi_structure) && (!empty($convert))) {
+      $result = $this->formatAnswerResult($convert, $result);
     }
     else {
       // multi level by brand - DNA, PPDBrandMessages & PPDBrandMessagesByBrands
@@ -245,7 +252,6 @@ abstract class ChartType
       // - PPDBrandMessages send list of questions 
       // - PPDBrandMessagesByBrands send list of questions 
       // - also @see kindFolkToBrand()
-      $result = array_combine($kinfolk, array_values($answers));
       foreach ($result as $brand => $answers) {
         $answers = array_values($answers);
         if (!empty($convert)) {
