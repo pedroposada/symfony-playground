@@ -51,14 +51,14 @@ final class SurveyChartMap
         //NPS:006
         'PromVsDetrPromote' => 'G002Q001',
         //NPS:007; this based number of brands
-        'PPDBrandMessages'  => '^BRANDASSCG([0-9]{3})Q001',
+        'PPDBrandMessages'  => '^BRAND(ASSC|ASC)G([0-9]{3})Q001',
         //NPS:008; this based number of brands
         'DNA'               => '^BRANDDNAG([0-9]{3})Q001',
         //Extra for export
         //-> Chart 4 / Table 4
         'PromotersPromoteMean'     => 'G003Q001',
         //-> Chart X / Table 9-16
-        'PPDBrandMessagesByBrands' => '^BRANDASSCG([0-9]{3})Q001',
+        'PPDBrandMessagesByBrands' => '^BRAND(ASSC|ASC)G([0-9]{3})Q001',
       ), //nps_plus
     );
     
