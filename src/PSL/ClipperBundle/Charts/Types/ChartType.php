@@ -202,6 +202,11 @@ abstract class ChartType
     $cp_answers = $answers;
     $multi_structure = FALSE;
     $answers = array_filter($cp_answers, function($key) use ($qcode) {
+      
+      /**
+       * @todo: can we avoid this style of coding? 
+       * @todo: Can we not make the name of the method dymamic?
+       **/
       $method = (is_array($qcode) ? 'in_array' : 'strpos');
       return ($method($key, $qcode) !== FALSE);
     }, ARRAY_FILTER_USE_KEY);

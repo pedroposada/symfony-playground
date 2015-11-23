@@ -125,6 +125,10 @@ class ClipperChartsService {
     return $this->survey_type;
   }
 
+  /**
+   * @todo: Document this function
+   * @todo: Can we split this function into shorter functions?
+   **/
   public function getCharts()
   {
     //sanitize
@@ -194,6 +198,9 @@ class ClipperChartsService {
     return $this->container->get('quota_map')->lookupMultiple($markets, $specialties);
   }
   
+  /**
+   * @todo: Document this function
+   **/
   private function prepProperties() 
   {
     //defaulting fields
