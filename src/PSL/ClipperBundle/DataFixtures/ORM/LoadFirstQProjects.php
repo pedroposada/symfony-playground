@@ -36,6 +36,12 @@ class LoadFirstQProjects extends AbstractFixture implements OrderedFixtureInterf
         $fqp->setFirstqgroup($this->getReference('firstqgroup-1'));
         $this->setReference('firstqproject-1', $fqp);
         $manager->persist($fqp);
+        
+        $fqp = new FirstQProject();
+        $fqp->setSheetDataRaw('{"market":"USA","specialty":"Oncology","feasibility":true,"participants_sample":"2500","price":"114,330","num_participants":"100","result":{"F3":"25,541","F5":"34,528","F7":"50","F8":"2500","F10":"0","F12":"GBP","F14":"114584","F15":"57,292","F16":"57,038","F17":"114,330","F20":"0","F21":"$0.00","F22":"$0.00","F24":"114,330","F26":"$18.00","F27":"USD"}}');
+        $fqp->setState("LIMESURVEY_PENDING");
+        $fqp->setFirstqgroup($this->getReference('firstqgroup-1'));
+        $manager->persist($fqp);
 
         $manager->flush();
     }

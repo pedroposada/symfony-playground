@@ -2,18 +2,12 @@
 
 namespace PSL\ClipperBundle\Listener;
 
-use \Exception as Exception;
-use \stdClass as stdClass;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Doctrine\Common\Util\Debug as Debug;
+use \Exception;
+use \stdClass;
 
 use PSL\ClipperBundle\Listener\FqProcess;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
-use PSL\ClipperBundle\Utils\LimeSurvey as LimeSurvey;
-use PSL\ClipperBundle\Utils\MDMMapping as MDMMapping;
-use PSL\ClipperBundle\ClipperEvents;
+use PSL\ClipperBundle\Utils\MDMMapping;
 
 class LimeSurveyPending extends FqProcess
 {
@@ -26,9 +20,6 @@ class LimeSurveyPending extends FqProcess
     
     // get LS
     $ls = $this->container->get('limesurvey');
-    
-    // array for limesurvey data
-    $ls_data_raw_array = array();
     
     // Unserialize form and sheet data
     $form_data = $fqg->getFormDataUnserialized();
@@ -51,7 +42,7 @@ class LimeSurveyPending extends FqProcess
     $sc = $this->container->get('survey_builder');
     $lss = $sc->createSurvey($type, $survey_data);
     
-    // import S into LS
+    // import Survey into LS
     $iSurveyID = $ls->import_survey(array(
       'sImportData' => base64_encode($lss), // BASE 64 encoded data of a lss
       'sImportDataType' => 'lss', 
@@ -59,98 +50,29 @@ class LimeSurveyPending extends FqProcess
     ));
     $this->logger->debug("form_data[title] {$form_data['title']}", array('LimeSurveyPending', 'import_survey'));
     if (!is_int($iSurveyID)) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [import_survey]", 2);
+      throw new Exception("Bad response from LimeSurvey [{$iSurveyID['status']}] on [import_survey]", parent::LOGWARNING);
     }
+    $fqp->setLimesurveyDataRaw($this->serializer->encode(array('iSurveyID' => $iSurveyID)));
+    $this->logger->debug("iSurveyID: [{$iSurveyID}]", array('import_survey'));
     
-    // activate S
+    // activate Survey
     $response = $ls->activate_survey(array(
       'iSurveyID' => $iSurveyID, 
     ));
     $this->logger->debug("iSurveyID [{$iSurveyID}]", array('LimeSurveyPending', 'activate_survey'));
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_survey]", 2);
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] on [activate_survey]", parent::LOGWARNING);
     }
     
-    // activate tokens
+    // activate Tokens
     $response = $ls->activate_tokens(array(
       'iSurveyID' => $iSurveyID, 
     ));
+    
     if (!isset($response['status']) || $response['status'] != 'OK') {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [activate_tokens]", 2);
+      throw new Exception("Bad response from LimeSurvey [{$response['status']}] on [activate_tokens]", parent::LOGWARNING);
     }
     
-    // get amount of participants to be added for this survey
-    $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
-    if ($this->container->hasParameter('clipper.participants_sample')) {
-      // only use dev value when the value is greater than zero
-      if ($this->container->getParameter('clipper.participants_sample') > 0) {
-        $participants_sample = $this->container->getParameter('clipper.participants_sample');
-      }
-    }
-
-    if (empty($participants_sample)) {
-      throw new Exception("Empty 'participants_sample' [{$participants_sample}] for fqp->id: [{$fqp->getId()}]", 2);
-    }
-
-    $participants = array();
-    for ($i = 0; $i < $participants_sample; $i++) { 
-      $participants[] = array(
-        'email' => "fq{$i}@pslgroup.com",
-        'lastname' => "fq{$i}",
-        'firstname' => "fq{$i}",
-      );
-    }
-    $response = $ls->add_participants(array(
-      'iSurveyID' => $iSurveyID, 
-      'participantData' => $participants, 
-    ));
-    if (is_array($response) && isset($response['status'])) {
-      throw new Exception("Bad response from LimeSurvey [{$response['status']}] for fqp->id: [{$fqp->getId()}] on [add_participants]", 2);
-    }
-    
-    // @TODO : Proper mapping in MDMMapping / GeoMapper / CountryFWSSO
-    // Language Mapping
-    $languageMap = array(
-      'France' => 'fr',
-      'Germany' => 'de',
-      'Italy' => 'it',
-      'Spain' => 'es',
-    );
-
-    $languageCode = isset($languageMap[$sheet_data['market']]) ? $languageMap[$sheet_data['market']] : 'en';
-
-    // Extract token from limesurvey response, the rest of data are not needed for now.
-    $formatResponse = $this->formatLimesurveyResponse($response, array('token'));
-
-    // save limesurvey raw data
-    $ls_raw_data = new stdClass();
-    $ls_raw_data->participants = $formatResponse;
-    $ls_raw_data->sid = $iSurveyID; 
-    
-    $fqp->setLimesurveyDataRaw($this->serializer->encode($ls_raw_data));
-    
-  }
-
-  /**
-   * Helper function to extract fields from LimeSurvey response
-   *
-   * @param $response array, successful response array from LimeSurvey
-   * @param $fields array, field name that need to be extracted from response
-   * @return array, extracted fields list with the value
-   */
-  private function formatLimesurveyResponse($response, $fields )
-  {
-    $data = array();
-
-    foreach ($response as $r) {
-
-      foreach ($fields as $field) {
-        $data[$field][] = isset($r[$field]) ? $r[$field] : '';
-      }
-
-    }
-
-    return $data;
   }
 
 }

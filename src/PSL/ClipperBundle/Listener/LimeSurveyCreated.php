@@ -2,10 +2,9 @@
 
 namespace PSL\ClipperBundle\Listener;
 
-use \Exception as Exception;
-use \stdClass as stdClass;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use \Exception;
+use \stdClass;
+
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use PSL\ClipperBundle\Listener\FqProcess;
@@ -13,7 +12,7 @@ use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\MDMMapping;
 use PSL\ClipperBundle\Utils\RPanelProject;
 use PSL\ClipperBundle\Service\RPanelService;
-use PSL\ClipperBundle\Security\User\FWSSOUser;
+use PSL\ClipperBundle\Utils\CountryLanguageMapping as CountryLanguageMapping;
 
 class LimeSurveyCreated extends FqProcess
 {
@@ -64,7 +63,19 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setNumParticipants($sheet_data['num_participants']);
     $rpanel_project->setExpiredDate($rpanel_project->getAddedDuration('P5D', 'Y-m-d H:i:s'));
     $rpanel_project->setProjNum($fqg->getId());
-
+    
+    // URLs
+    $redirecturl = $this->container->getParameter('limesurvey.url_redirect');
+    
+    // Create Feasibility Full Url
+    $baseURL = $this->container->getParameter('limesurvey.url_redirect');
+    $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
+    
+    $languageCode = CountryLanguageMapping::getLanguage($sheet_data['market']);
+    $lsurls = $this->createlimeSurveyParticipantsURLs($baseURL, $ls_data, $languageCode);
+    
+    $rpanel_project->setUrls($lsurls);
+    
     // GS object
     $gs_object = new stdClass();
     $gs_object->specialty_id = MDMMapping::map('specialties', $sheet_data['specialty']);
@@ -160,24 +171,9 @@ class LimeSurveyCreated extends FqProcess
 
       // Create Project Detail (many to one)
       $rps->createProjectDetail($rpanel_project, $gs_object);
-
-      // Create Feasibility Full Url
-      $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
-
-      // @TODO : Proper mapping in MDMMapping / GeoMapper / CountryFWSSO
-      // Language Mapping
-      $languageMap = array(
-        'France' => 'fr',
-        'Germany' => 'de',
-        'Italy' => 'it',
-        'Spain' => 'es',
-      );
-
-      $languageCode = isset($languageMap[$sheet_data['market']]) ? $languageMap[$sheet_data['market']] : 'en';
-
-      $urls = $this->createlimeSurveyParticipantsURLs($this->container->getParameter('limesurvey.url_redirect'), $ls_data, $languageCode);
-
-      $rps->feasibilityLinkFullUrl($rpanel_project, $urls);
+      
+      // feasibility_full_url - Create Feasibility Full Urls
+      $rps->feasibilityLinkFullUrl($rpanel_project);
 
       // PROJECT_DETAIL_TEXTINVITES
       $rps->createProjectDetailTextinvites($rpanel_project);
@@ -203,10 +199,10 @@ class LimeSurveyCreated extends FqProcess
   private function createlimeSurveyParticipantsURLs($baseURL, $data, $languageCode) {
     
     $urls = array();
-
-    foreach ( $data['participants']['token'] as $token ) {
+    $sid = $data['sid'];
+    foreach ( $data['tokens'] as $token ) {
       $urls[] = strtr($baseURL, array(
-        '[SID]' => $data['sid'],
+        '[SID]' => $sid,
         '[LANG]' => $languageCode,
         '[SLUG]' => $token,
       ));

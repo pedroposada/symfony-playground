@@ -163,14 +163,14 @@ class RPanelService
     $conn = $this->conn;
     $conn->insert('PROJECT',
       array(
-        'project_code' => $rp->getProjId(),               // feasibility_project.projid
-        'client_id' => $rp->getClientId(),                // [ClientID provided by Guohui]
-        'status_id' => $rp->getStatusId(),                // 1
-        'pm_details' => $rp->getProjName(),               // feasibility_project.proj_name
-        'brand_id' => $rp->getBrandId(),                  // 1
-        'project_type' => $rp->getProjectType(),          // 'jit'
-        'expiry_dttime' => $rp->getAddedDuration('P5D', 'Y-m-d H:i:s'),  // now + 5 days
-        'client_proposal_number' => $rp->getProjNum(),    // clipper order_id - fqg.id
+        'project_code' => $rp->getProjId(),                                        // feasibility_project.projid
+        'client_id' => $rp->getClientId(),                                         // [ClientID provided by Guohui]
+        'status_id' => $rp->getStatusId(),                                         // 1
+        'pm_details' => $rp->getProjName(),                                        // feasibility_project.proj_name
+        'brand_id' => $rp->getBrandId(),                                           // 1
+        'project_type' => $rp->getProjectType(),                                   // 'jit'
+        'expiry_dttime' => gmdate('Y-m-d H:i:s', $rp->getAddedDuration('P5D')),    // now + 5 days
+        'client_proposal_number' => $rp->getProjNum(),                             // clipper order_id - fqg.id
       )
     );
 
@@ -200,7 +200,7 @@ class RPanelService
         'email_template_id' => $rp->getEmailTemplateId(), // 0,
         'sample_invites' => $gs->result['F8'],            // feasibility_project_quota.r_sample,
         'quota' => $rp->getNumParticipants(),             // feasibility_project_quota.respondent_req
-        'expiry_dttime' => $rp->getAddedDuration('P5D', 'Y-m-d H:i:s'),  // now + 5 days
+        'expiry_dttime' => gmdate('Y-m-d H:i:s', $rp->getAddedDuration('P5D')),  // now + 5 days
       )
     );
 
@@ -239,10 +239,10 @@ class RPanelService
    *
    * @param RPanelProject $rp - a RPanel project object
    */
-  public function feasibilityLinkFullUrl(RPanelProject $rp, $urls)
+  public function feasibilityLinkFullUrl(RPanelProject $rp)
   {
     $conn = $this->conn;
-    foreach ($urls as $url) {
+    foreach ($rp->getUrls() as $url) {
       $conn->insert('feasibility_full_url',
         array(
           'ltid' => $rp->getLTId(),                       // feasibility_link_type.ltid

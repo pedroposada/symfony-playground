@@ -163,12 +163,9 @@ nelmio_cors:
   ######################################
  ## Applications specific parameters ##
 ######################################
-            
 parameters:
-  
   locale: en
   secret: ee6b4573702f917e364633184e3dd4f6bcaf327c
-  
   # clipper
   clipper:
     state_codes:
@@ -181,6 +178,8 @@ parameters:
       order_closed: ORDER_CLOSED # quota is met or time limit reached, whatever comes first
       #firstq_project
       limesurvey_pending: LIMESURVEY_PENDING
+      limesurvey_addparticipants: LIMESURVEY_ADDPARTICIPANTS
+      limesurvey_setrawdata: LIMESURVEY_SETRAWDATA
       limesurvey_created: LIMESURVEY_CREATED
       rpanel_complete: RPANEL_COMPLETE
       limesurvey_complete: LIMESURVEY_COMPLETE
@@ -193,14 +192,13 @@ parameters:
   clipper.brands: Resources/terms/brands.xml
   clipper.conditions: Resources/terms/conditions.xml
   clipper.quota.universal: "1"
-  
-  
   #limeSurvey
   limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]'
   limesurvey.url_exit: '%limesurvey.url_redirect_base%/clipper/limesurvey/exit'
   limesurvey.url_destination: '%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]'
   limesurvey.url_destination_base_sid: '%limesurvey.url_destination_base%/sid/[SID]'
-      
+  limesurvey.add_participants_max_duration: 5 # time in seconds. Determines time limit for batch.
+  limesurvey.add_participants_chunk_size: 100 # number of participants per request. Decrease if exceptions thrown related to fwrite()
   #rpanel
   rpanel:
     user_id: %rpanel.user_id%

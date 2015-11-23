@@ -235,7 +235,7 @@ class ClipperController extends FOSRestController
       // get $_POST values
       $form_data = new stdClass();
       $form_data->loi = 10; // hard coded for now
-      $form_data->ir = 10; // hard coded for now
+      $form_data->ir = 1; // hard coded for now
       $form_data->title = $paramFetcher->get('title');
       $form_data->name = $paramFetcher->get('name'); // used for limesurvey creation
       $form_data->survey_type = $paramFetcher->get('survey_type');
@@ -266,7 +266,7 @@ class ClipperController extends FOSRestController
         foreach ( $form_data->specialties as $specialty_key => $specialty_value ) {
           $form_data_object = new stdClass();
           $form_data_object->loi = 10; // hard coded for now
-          $form_data_object->ir = 10; // hard coded for now
+          $form_data_object->ir = 1; // hard coded for now
           $form_data_object->market = $market_value;
           $form_data_object->specialty = $specialty_value;
           $form_data_object->num_participants = $this->container->get('quota_map')->lookupOne($market_value, $specialty_value);

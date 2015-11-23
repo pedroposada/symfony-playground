@@ -79,6 +79,8 @@ class RPanelProject
 
   protected $proj_num;
 
+  protected $urls;
+
   function __construct(FirstQProject $fq)
   {
     $this->fq = $fq;
@@ -648,6 +650,24 @@ class RPanelProject
   {
       // clipper order id - fqg.id
       return $this->proj_num;
+  }
+
+  /**
+   * Set urls
+   */
+  public function setUrls($urls)
+  {
+      $this->urls = $urls;
+  }
+
+  /**
+   * Get urls
+   *
+   * @return $urls array
+   */
+  public function getUrls()
+  {
+      return $this->urls;
   }
 
   /**
