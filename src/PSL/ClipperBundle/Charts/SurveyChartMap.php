@@ -4,16 +4,50 @@ namespace PSL\ClipperBundle\Charts;
 
 final class SurveyChartMap
 {
-
-  
   /**
+   * Survey to chart types.
+   * @method map_list
+   *
    * map surveys to charts (one to many)
    *  chart to question code
-   *  - string; (one to one) use string - will do partial search of answers' key
+   *  - string; (one to one) use string, or (one/many) REGEX string will do partial search of answers' key
    *  - array; (many) will do string exact comparison to answers' key
    *
-   *  survey to chart types
-   *
+   * @return array
+   */
+  protected static function map_list()
+  {
+    return array(
+      'nps_plus' => array(
+        //NPS:001
+        'NPS'               => 'G003Q001',
+        //NPS:002
+        'Loyalty'           => 'G003Q001',
+        //NPS:003
+        'DoctorsPromote'    => 'G003Q001',
+        //NPS:004
+        'PromotersPromote'  => 'G003Q001',
+        //NPS:005
+        'DetractorsPromote' => 'G003Q001',
+        //NPS:006
+        'PromVsDetrPromote' => 'G002Q001',
+        //NPS:007; this based number of brands
+        'PPDBrandMessages'  => '^BRAND(ASSC|ASC)G([0-9]{3})Q001',
+        //NPS:008; this based number of brands
+        'DNA'               => '^BRANDDNAG([0-9]{3})Q001',
+        //Extra for export
+        //-> Chart 4 / Table 4
+        'PromotersPromoteMean'     => 'G003Q001',
+        //-> Chart X / Table 9-16
+        'PPDBrandMessagesByBrands' => '^BRAND(ASSC|ASC)G([0-9]{3})Q001',
+      ), //nps_plus
+    );
+  }
+  
+  /**
+   * Get list of question-codes by Survey name.
+   * @method map
+   * 
    * @param string $survey_machine_name 
    *    unique name of the survey type
    *    
@@ -36,31 +70,7 @@ final class SurveyChartMap
       return $cache_with_qcode[$survey_machine_name];
     }
             
-    $map = array(
-      'nps_plus' => array(
-        //NPS:001
-        'NPS'               => 'G003Q001',
-        //NPS:002
-        'Loyalty'           => 'G003Q001',
-        //NPS:003
-        'DoctorsPromote'    => 'G003Q001',
-        //NPS:004
-        'PromotersPromote'  => 'G003Q001',        
-        //NPS:005
-        'DetractorsPromote' => 'G003Q001',
-        //NPS:006
-        'PromVsDetrPromote' => 'G002Q001',
-        //NPS:007; this based number of brands
-        'PPDBrandMessages'  => '^BRAND(ASSC|ASC)G([0-9]{3})Q001',
-        //NPS:008; this based number of brands
-        'DNA'               => '^BRANDDNAG([0-9]{3})Q001',
-        //Extra for export
-        //-> Chart 4 / Table 4
-        'PromotersPromoteMean'     => 'G003Q001',
-        //-> Chart X / Table 9-16
-        'PPDBrandMessagesByBrands' => '^BRAND(ASSC|ASC)G([0-9]{3})Q001',
-      ), //nps_plus
-    );
+    $map = self::map_list();
     
     if (!isset($map[$survey_machine_name])) {
       return array();
