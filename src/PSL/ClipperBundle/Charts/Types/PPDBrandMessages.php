@@ -154,15 +154,16 @@ class PPDBrandMessages extends ChartType {
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
     
+    $qcode = array_values($this->qcode);
     foreach ($this->brands as $brand) {
       if ((!empty($this->brand_filter)) && ($this->brand_filter != $brand)) {
         continue;
       }
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
       $this->counts[$type]['count']++;
-      foreach ($this->qcode as $qindex => $qcode) {
+      foreach ($qcode as $qindex => $qcd) {
         if (!empty($answers_que[$brand][$qindex])) {
-          $this->result[$qcode][$type]['count'] += $answers_que[$brand][$qindex];         
+          $this->result[$qcd][$type]['count'] += $answers_que[$brand][$qindex];
         }
       }
     }
