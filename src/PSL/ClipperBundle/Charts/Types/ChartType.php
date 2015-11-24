@@ -50,18 +50,22 @@ abstract class ChartType
   }
 
   public function onDataTable(ChartEvent $event, $eventName, EventDispatcherInterface $dispatcher) {
+    // only apply to request machine name
     if ($event->getChartMachineName() === $this->machine_name) {
       $this->logger->debug("eventName: {$eventName}");
 
-      //prep generals details
+      // get & prep responses
       $responses = $event->getData();
       $response_qcode_collection = FALSE;
       if ($responses->count()) {
         $response_qcode_collection = $responses->first()->getResponseDecoded();
         $response_qcode_collection = array_keys($response_qcode_collection);
       }
+      // get brands
       $this->brands = $event->getBrands();
+      // get map by chart type
       $this->map    = $this->survey_chart_map->map($event->getSurveyType(), $response_qcode_collection);
+      // filter to current map only
       $this->qcode  = $this->map[$event->getChartMachineName()];
       
       //get available drilldown filters
@@ -202,13 +206,12 @@ abstract class ChartType
     $cp_answers = $answers;
     $multi_structure = FALSE;
     $answers = array_filter($cp_answers, function($key) use ($qcode) {
-      
-      /**
-       * @todo: can we avoid this style of coding? 
-       * @todo: Can we not make the name of the method dymamic?
-       **/
-      $method = (is_array($qcode) ? 'in_array' : 'strpos');
-      return ($method($key, $qcode) !== FALSE);
+      if (is_array($qcode)) {
+        return (in_array($key, $qcode) !== FALSE);
+      }
+      else {
+        return (strpos($key, $qcode) !== FALSE);        
+      }
     }, ARRAY_FILTER_USE_KEY);
 
     //if given array but need to get using strpos; use by DNA slide
