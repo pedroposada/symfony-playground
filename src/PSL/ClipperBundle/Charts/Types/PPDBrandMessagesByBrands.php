@@ -93,11 +93,10 @@ class PPDBrandMessagesByBrands extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answersQue = $this->filterAnswersToQuestionMap($answers, 'y/n', FALSE, $this->questions);
-    $answersQue = $this->kindFolkToBrand($answersQue);
+    $answersQue = $this->filterAnswersToQuestionMapIntoViaMessages($answers, $this->questions);
     
     //filtering answers for promote-scale
-    $answersType = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
+    $answersType = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
     
     foreach ($this->brands as $brand) {
       if (empty($answersQue[$brand])) {

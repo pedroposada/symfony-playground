@@ -149,12 +149,11 @@ class PPDBrandMessages extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers_que = $this->filterAnswersToQuestionMap($answers, 'y/n', FALSE, $this->questions);
-    $answers_que = $this->kindFolkToBrand($answers_que);
+    $answers_que = $this->filterAnswersToQuestionMapIntoViaMessages($answers, $this->questions);
     
     //filtering answers for promote-scale
-    $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
-
+    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
+    
     foreach ($this->brands as $brand) {
       if ((!empty($this->brand_filter)) && ($this->brand_filter != $brand)) {
         continue;
@@ -163,7 +162,7 @@ class PPDBrandMessages extends ChartType {
       $this->counts[$type]['count']++;
       foreach ($this->qcode as $qindex => $qcode) {
         if (!empty($answers_que[$brand][$qindex])) {
-          $this->result[$qcode][$type]['count'] += $answers_que[$brand][$qindex];          
+          $this->result[$qcode][$type]['count'] += $answers_que[$brand][$qindex];         
         }
       }
     }

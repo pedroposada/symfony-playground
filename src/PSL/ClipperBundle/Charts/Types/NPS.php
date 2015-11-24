@@ -141,7 +141,7 @@ class NPS extends ChartType
 
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+    $answers = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
 
     //values assignments
     foreach ($this->brands as $brand) {

@@ -101,10 +101,10 @@ class DNA extends ChartType {
     $answers = $response->getResponseDecoded();
 
     //filtering answers to which related question; new - support array
-    $answers_que = $this->filterAnswersToQuestionMap($answers, 'trim');
+    $answers_que = $this->filterAnswersToQuestionMapViaBrand($answers, 'trim');
 
     //filtering answers for promote-scale
-    $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
+    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
     
     foreach ($this->brands as $brand) {
       $type = $this->identifyRespondentCategory($answers_type[$brand]);

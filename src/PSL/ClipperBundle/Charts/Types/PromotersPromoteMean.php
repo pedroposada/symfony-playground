@@ -109,7 +109,7 @@ class PromotersPromoteMean extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+    $answers = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
 
     //values assignments
     foreach ($this->brands as $brand) {
@@ -151,9 +151,9 @@ class PromotersPromoteMean extends ChartType {
     foreach ($this->respondent as $token => $brandsAnswer) {
       $otherBrandPromoterCount = 0;
       foreach ($brandsAnswer as $brandAnswer => $answer) {
-        $otherBrandPromoterCount += (int) $this->identifyRespondentCategory($answer, 'promoter');          
+        $otherBrandPromoterCount += (int) $this->validateRespondentCategory($answer, 'promoter');          
       }      
-      if ($promoting = (int) $this->identifyRespondentCategory($brandsAnswer[$brand], 'promoter')) {
+      if ($promoting = (int) $this->validateRespondentCategory($brandsAnswer[$brand], 'promoter')) {
         $this->base[$brand]++;
       }
       $score += ($otherBrandPromoterCount - $promoting);

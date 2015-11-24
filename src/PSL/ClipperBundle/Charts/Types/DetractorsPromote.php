@@ -97,11 +97,11 @@ class DetractorsPromote extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');    
+    $answers = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');    
     
     //capture base
     foreach ($this->brands as $brand) {
-      if ($this->identifyRespondentCategory($answers[$brand], 'detractor')) {
+      if ($this->validateRespondentCategory($answers[$brand], 'detractor')) {
         $this->base[$brand]++;
       }
     }
@@ -110,10 +110,10 @@ class DetractorsPromote extends ChartType {
     asort($answers);
     
     $answers_keys = array_keys($answers);
-    if (isset($answers_keys[0]) && $this->identifyRespondentCategory($answers[$answers_keys[0]], 'detractor')) {
+    if (isset($answers_keys[0]) && $this->validateRespondentCategory($answers[$answers_keys[0]], 'detractor')) {
       unset($answers[$answers_keys[0]]);
       foreach ($answers as $answer_brand => $answers_value) {
-        if ($this->identifyRespondentCategory($answers_value, 'promoter')) {
+        if ($this->validateRespondentCategory($answers_value, 'promoter')) {
           if (!isset($this->competitors[$answers_keys[0]][$answer_brand])) {
             $this->competitors[$answers_keys[0]][$answer_brand] = 0;
           }

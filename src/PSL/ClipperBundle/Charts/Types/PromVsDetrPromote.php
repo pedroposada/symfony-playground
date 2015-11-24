@@ -132,9 +132,9 @@ class PromVsDetrPromote extends ChartType {
     //getting answers
     $answers = $response->getResponseDecoded();
     //filtering answers to which related question
-    $answers_que  = $this->filterAnswersToQuestionMap($answers, 'int');
+    $answers_que  = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
     //filtering answers for promote-scale
-    $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
+    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
 
     //values assignments
     foreach ($this->brands as $brand) {
