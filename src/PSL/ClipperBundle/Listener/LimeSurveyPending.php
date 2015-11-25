@@ -31,8 +31,8 @@ class LimeSurveyPending extends FqProcess
     
     // Survey data settings
     $survey_data = new stdClass();
-    $survey_data->market = $specialty_id;
-    $survey_data->specialty = $country_id;
+    $survey_data->market = $country_id;
+    $survey_data->specialty = $specialty_id;
     $survey_data->patients = $form_data['patient_type'];
     $survey_data->brands = $form_data['brands'];
     $survey_data->attributes = $form_data['attributes'];
@@ -68,6 +68,7 @@ class LimeSurveyPending extends FqProcess
     $response = $ls->activate_tokens(array(
       'iSurveyID' => $iSurveyID, 
     ));
+    
     if (!isset($response['status']) || $response['status'] != 'OK') {
       throw new Exception("Bad response from LimeSurvey [{$response['status']}] on [activate_tokens]", parent::LOGWARNING);
     }

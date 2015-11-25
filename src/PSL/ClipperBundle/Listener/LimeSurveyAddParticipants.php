@@ -60,11 +60,11 @@ class LimeSurveyAddParticipants extends FqProcess
     if ($count < $participants_sample) {
       
       $delta = $participants_sample - $count;
-      $max_duration = $this->container->getParameter('limesurvey.max_add_participants_duration');
-      $chunk = 100;
+      $max_duration = $this->container->getParameter('limesurvey.add_participants_max_duration');
+      $chunk = $this->container->getParameter('limesurvey.add_participants_chunk_size');;
       $start = microtime(true);
       
-      // make sure we don't send more than max per request
+      // batch processing - make sure we don't send more than chunk per request
       while ($delta > 0) {
         // create chunk
         $subset = $delta < $chunk ? $delta : $chunk;
@@ -73,7 +73,7 @@ class LimeSurveyAddParticipants extends FqProcess
           $participants[] = array('firstname' => "FQPID {$fqpid}");
         }
         // send chunk to LS
-        $ls->add_participants(array(
+        $ls->doAsync()->add_participants(array(
           'iSurveyID' => $iSurveyID, 
           'participantData' => $participants, 
         ));
@@ -85,10 +85,13 @@ class LimeSurveyAddParticipants extends FqProcess
         }
       }
       
-      // Stop processing this FQP. Will resume on next cron job. 
-      // FQP remains in this state until $count >= $participants_sample
-      $precent = ($participants_sample - $delta) / $participants_sample * 100; 
-      throw new Exception("LimeSurvey OK. Processed [{$precent}]% of participants_sample.", parent::LOGINFO);
+      $percent = ($participants_sample - $delta) / $participants_sample * 100;
+      $this->logger->debug("Processed [{$percent}]% of participants_sample.");
+      if ($percent < 100) {
+        // Stop processing this FQP. Will resume on next cron job. 
+        // FQP remains in this state until $count >= $participants_sample
+        throw new Exception("Time limit for batch [{$max_duration} seconds] was reached. Will resume in next cron job.", parent::LOGINFO);
+      } 
     }
   }
 

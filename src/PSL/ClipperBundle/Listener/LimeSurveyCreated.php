@@ -12,6 +12,7 @@ use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Utils\MDMMapping;
 use PSL\ClipperBundle\Utils\RPanelProject;
 use PSL\ClipperBundle\Service\RPanelService;
+use PSL\ClipperBundle\Utils\CountryLanguageMapping as CountryLanguageMapping;
 
 class LimeSurveyCreated extends FqProcess
 {
@@ -60,22 +61,21 @@ class LimeSurveyCreated extends FqProcess
     $rpanel_project->setProjectType($params_rp['default_table_values']['project_type']);
     $rpanel_project->setLinkType($params_rp['default_table_values']['link_type']);
     $rpanel_project->setNumParticipants($sheet_data['num_participants']);
-    $rpanel_project->setExpiredDate(current($fqg->getFormDataByField('completion_date')));
+    $rpanel_project->setExpiredDate($rpanel_project->getAddedDuration('P5D', 'Y-m-d H:i:s'));
     $rpanel_project->setProjNum($fqg->getId());
     
     // URLs
     $redirecturl = $this->container->getParameter('limesurvey.url_redirect');
-    $lsurls = array();
-    foreach ($fqp->getLimesurveyDataByField('tokens') as $lstoken) {
-      $lsurls[] = strtr($redirecturl, array(
-        '[SID]' => current($fqp->getLimesurveyDataByField('sid')),
-        '[LANG]' => 'en', // @todo: find lang by market
-        '[SLUG]' => $lstoken,
-      ));
-    }
+    
+    // Create Feasibility Full Url
+    $baseURL = $this->container->getParameter('limesurvey.url_redirect');
+    $ls_data = $rpanel_project->getLimesurveyDataUnserialized();
+    
+    $languageCode = CountryLanguageMapping::getLanguage($sheet_data['market']);
+    $lsurls = $this->createlimeSurveyParticipantsURLs($baseURL, $ls_data, $languageCode);
+    
     $rpanel_project->setUrls($lsurls);
     
-
     // GS object
     $gs_object = new stdClass();
     $gs_object->specialty_id = MDMMapping::map('specialties', $sheet_data['specialty']);
@@ -171,7 +171,7 @@ class LimeSurveyCreated extends FqProcess
 
       // Create Project Detail (many to one)
       $rps->createProjectDetail($rpanel_project, $gs_object);
-
+      
       // feasibility_full_url - Create Feasibility Full Urls
       $rps->feasibilityLinkFullUrl($rpanel_project);
 
@@ -185,6 +185,30 @@ class LimeSurveyCreated extends FqProcess
       $message = $e->getMessage();
       throw new Exception("rPanel database connection error: (databases.rpanel) [{$message}]");
     }
+  }
+
+  /**
+   * Helper function for LimeSurvey URLs
+   *
+   * @param $baseURL string, base URL for limesurvey surveys, settings
+   * @param $data array, stored in limesurvey_data_raw in FQ entity
+   * @param $languageCode string, language code for limesurvey surveys
+   *
+   * @return array, list of URLs for r-panel participants
+   */
+  private function createlimeSurveyParticipantsURLs($baseURL, $data, $languageCode) {
+    
+    $urls = array();
+    $sid = $data['sid'];
+    foreach ( $data['tokens'] as $token ) {
+      $urls[] = strtr($baseURL, array(
+        '[SID]' => $sid,
+        '[LANG]' => $languageCode,
+        '[SLUG]' => $token,
+      ));
+    }
+
+    return $urls;
   }
 
 }
