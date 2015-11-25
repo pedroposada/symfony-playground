@@ -182,6 +182,17 @@ abstract class ChartType
       $drilldown['countries'] = $this->geoMapper->getCountries($drilldown['region']);
     }
     $drilldown['countries'] = array_merge($drilldown['countries'], array($drilldown['country']));
+    if (empty($drilldown['region'])) {
+      foreach ($drilldown['countries'] as $country) {
+        if ((empty($country)) || (!is_string($country))) {
+          continue;
+        }
+        $found = $this->geoMapper->getCountries($country);
+        if (!empty($found)) {
+          $drilldown['countries'] = array_merge($drilldown['countries'], $found);
+        }
+      }
+    }
     $drilldown['countries'] = array_unique($drilldown['countries']);
     $drilldown['countries'] = array_filter($drilldown['countries']);
     
