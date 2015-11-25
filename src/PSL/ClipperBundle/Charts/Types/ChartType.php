@@ -292,7 +292,8 @@ abstract class ChartType
       if (strpos($key, $nps_map) === FALSE) {
         unset($answers[$key]);
       }
-    } // foreach    
+    } // foreach
+    $answers = array_values($answers);
     
     // Assign to answer to brand.
     //  ignoring other answer
