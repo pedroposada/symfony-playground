@@ -183,6 +183,7 @@ abstract class ChartType
       // NPS+
       case 'nps_plus':
         // G001Q004 - country
+        $drilldown['countries'] = (array) $drilldown['countries'];
         if (!empty($drilldown['countries'])) {
           $answer_country = MDMMapping::reverse_lookup('countries', $answer['G001Q004']);
           if (($answer_country) && (!in_array($answer_country, $drilldown['countries']))) {
@@ -190,10 +191,10 @@ abstract class ChartType
           }
         }          
         // G001Q005 - specialty
+        $drilldown['specialty'] = (array) $drilldown['specialty'];
         if (!empty($drilldown['specialty'])) {
           $answer_specialty = MDMMapping::reverse_lookup('specialties', $answer['G001Q005']);
           if (($answer_specialty) && (!in_array($answer_specialty, $drilldown['specialty']))) {
-            $this->responses->remove($index); 
             return TRUE;
           }
         }
