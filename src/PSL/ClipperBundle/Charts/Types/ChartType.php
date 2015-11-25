@@ -267,10 +267,13 @@ abstract class ChartType
    * @method filterAnswersToQuestionMapViaNetPromoter
    *
    * @param  array $answers
+   * @param  boolean|integer $append
+   *    This param allow if number of brand is more than given answer for NPS,
+   *    Give an Integer value to assigned to orphan brands.
    *
    * @return array
    */
-  protected function filterAnswersToQuestionMapViaNetPromoter($answers)
+  protected function filterAnswersToQuestionMapViaNetPromoter($answers, $append = FALSE)
   {
     // Don't process empty answer
     if (empty($answers)) {
@@ -289,7 +292,7 @@ abstract class ChartType
       if (strpos($key, $nps_map) === FALSE) {
         unset($answers[$key]);
       }
-    } // foreach
+    } // foreach    
     
     // Assign to answer to brand.
     //  ignoring other answer
@@ -298,6 +301,10 @@ abstract class ChartType
     $result = array();
     if (count($this->brands) != count($answers)) {
       foreach ($this->brands as $index => $brand) {
+        if ((!isset($answers[$index])) && ($append !== FALSE)) {
+          $result[$brand] = $append;
+          continue;
+        }
         $result[$brand] = $answers[$index];
       }
     }

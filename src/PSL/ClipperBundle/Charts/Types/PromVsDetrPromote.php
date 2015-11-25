@@ -17,6 +17,13 @@ class PromVsDetrPromote extends ChartType {
   //differences of 'pro' against 'det'
   private $brands_scores_results = array();
   private $answer_set            = array();
+  
+  // Brand [OTHER]
+  // string; "Other" brand label.
+  public static $brand_other        = 'Other';
+  // boolean|integer; flag to skip "Other" brand, Or int value of NPS.
+  public static $ignore_brand_other = 0;
+  
   /**
    * Method call to return chart data.
    * @method dataTable
@@ -31,7 +38,11 @@ class PromVsDetrPromote extends ChartType {
   public function dataTable(ChartEvent $event) {
     //prep other attributes
     parent::$decimal_point = 1;
-
+    
+    if (self::$ignore_brand_other !== FALSE) {
+      $this->brands[] = self::$brand_other;
+    }
+    
     //create basic structure for @var $this->brands_scores
     $score_set = array_combine(
       array_keys(parent::$net_promoters_cat_range), 
@@ -82,7 +93,11 @@ class PromVsDetrPromote extends ChartType {
 
     // "How much more of my brand do Promoters use compared to Detractors?"
     $event->setTitleLong("How much more of my brand do Promoters use compared to Detractors?");
-
+    
+    if (self::$ignore_brand_other !== FALSE) {
+      $this->brands = array_pop($this->brands);
+    }
+    
     return $dataTable;
   }
 
@@ -131,10 +146,13 @@ class PromVsDetrPromote extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
+    
     //filtering answers to which related question
     $answers_que  = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
+    //var_dump($answers_que);
+    
     //filtering answers for promote-scale
-    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
+    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers, self::$ignore_brand_other);
 
     //values assignments
     foreach ($this->brands as $brand) {

@@ -17,6 +17,9 @@ use \Exception;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+// special requirement
+use PSL\ClipperBundle\Charts\Types\PromVsDetrPromote;
+
 class ClipperChartsService {
   private $container;
   private $em;
@@ -294,6 +297,20 @@ class ClipperChartsService {
   {
     if (empty($this->return_charts_extra)) {
       return;
+    }
+    
+    // special requirement
+    if ($this->survey_type == 'nps_plus') {
+      switch ($chart['chartmachinename']) {
+        case 'PromVsDetrPromote':
+          if (PromVsDetrPromote::$ignore_brand_other === FALSE) {
+            break;
+          }
+          $brands = $this->chEvent->getBrands();
+          $brands[] = PromVsDetrPromote::$brand_other;
+          $this->chEvent->setBrands($brands);
+          break;
+      } // switch
     }
     
     foreach ($this->return_charts_extra as $key) {
