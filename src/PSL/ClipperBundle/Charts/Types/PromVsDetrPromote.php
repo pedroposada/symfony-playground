@@ -95,7 +95,7 @@ class PromVsDetrPromote extends ChartType {
     $event->setTitleLong("How much more of my brand do Promoters use compared to Detractors?");
     
     if (self::$ignore_brand_other !== FALSE) {
-      $this->brands = array_pop($this->brands);
+      array_pop($this->brands);
     }
     
     return $dataTable;
@@ -149,7 +149,6 @@ class PromVsDetrPromote extends ChartType {
     
     //filtering answers to which related question
     $answers_que  = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
-    //var_dump($answers_que);
     
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers, self::$ignore_brand_other);
