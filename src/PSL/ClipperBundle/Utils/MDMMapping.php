@@ -543,4 +543,17 @@ class MDMMapping
     }
     return $map;
   }
+  
+  /**
+   * Method to search MDM label string, by it's type & value.
+   * @method reverse_lookup
+   *
+   * @param  string $type
+   * @param  integer $value
+   *
+   * @return boolean|string
+   */
+  public static function reverse_lookup($type, $value) {
+    return array_search($value, self::$mappings[$type]);
+  }
 }

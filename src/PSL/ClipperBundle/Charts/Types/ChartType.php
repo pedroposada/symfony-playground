@@ -1,14 +1,16 @@
 <?php
 namespace PSL\ClipperBundle\Charts\Types;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Charts\SurveyChartMap;
+use PSL\ClipperBundle\Entity\LimeSurveyResponse;
+use PSL\ClipperBundle\Event\ChartEvent;
 use PSL\ClipperBundle\Utils\GeoMapper;
+use PSL\ClipperBundle\Utils\MDMMapping;
 
 abstract class ChartType
 {
@@ -19,6 +21,7 @@ abstract class ChartType
   protected $responses;
   protected $machine_name;
   protected $survey_chart_map;
+  protected $survey_type;
   protected $explode_tree;
   protected $geoMapper;
   public $data_table;
@@ -73,8 +76,9 @@ abstract class ChartType
       $this->brands = $event->getBrands();
       
       // get map by chart type
+      $this->survey_type = $event->getSurveyType();
       $qcode_collection = $this->extractFirstDecodedReponse(TRUE);
-      $this->map = $this->survey_chart_map->map($event->getSurveyType(), $qcode_collection);
+      $this->map = $this->survey_chart_map->map($this->survey_type, $qcode_collection);
       
       // filter to current map only
       $this->qcode  = $this->map[$event->getChartMachineName()];
@@ -163,6 +167,43 @@ abstract class ChartType
   }
   
   /**
+   * Method to identify if response need to be filtered out.
+   * @method identifyReponseForFilter
+   *
+   * @param  LimeSurveyResponse $response
+   * @param  array $drilldown
+   *
+   * @return boolean
+   */
+  private function identifyReponseForFilter(LimeSurveyResponse $response, $drilldown)
+  {
+    $answer = $response->getResponseDecoded();
+    
+    switch ($this->survey_type) {
+      // NPS+
+      case 'nps_plus':
+        // G001Q004 - country
+        if (!empty($drilldown['countries'])) {
+          $answer_country = MDMMapping::reverse_lookup('countries', $answer['G001Q004']);
+          if (($answer_country) && (!in_array($answer_country, $drilldown['countries']))) {
+            return TRUE;
+          }
+        }          
+        // G001Q005 - specialty
+        if (!empty($drilldown['specialty'])) {
+          $answer_specialty = MDMMapping::reverse_lookup('specialties', $answer['G001Q005']);
+          if (($answer_specialty) && (!in_array($answer_specialty, $drilldown['specialty']))) {
+            $this->responses->remove($index); 
+            return TRUE;
+          }
+        }
+        break; // switch
+    } // switch
+    
+    return FALSE;
+  }
+  
+  /**
    * Method to filter down responses.
    * @method filterResponsesDrillDown
    *
@@ -197,26 +238,9 @@ abstract class ChartType
     $drilldown['countries'] = array_filter($drilldown['countries']);
     
     foreach ($this->responses as $index => $response) {
-      $sheet_data = $response->getFirstqproject()->getSheetDataUnserialized();
-      if ((!empty($drilldown['region'])) && ($drilldown['region'] == $sheet_data['market'])) {
-        //selected the same region
+      if ($this->identifyReponseForFilter($response, $drilldown)) {
+        $this->responses->remove($index);
       }
-      elseif ((!empty($drilldown['countries'])) && (in_array($sheet_data['market'], $drilldown['countries']) == FALSE)) {
-        $this->responses->remove($index);
-        continue;
-      } // if      
-      
-      if ( //@todo: review if empty sheet_data
-          (empty($sheet_data['specialty'])) || 
-          (
-            (!empty($drilldown['specialty'])) 
-            && 
-            (strtolower($drilldown['specialty']) != strtolower($sheet_data['specialty']))
-          )
-        )
-      {
-        $this->responses->remove($index);
-      } // if
     } // foreach
   }
   
