@@ -309,6 +309,7 @@ class ClipperController extends FOSRestController
 
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
+      $returnObject['error_code'] = $e->getCode();
       $responseStatus = 400;
       $this->logger->debug("Doctrine exception: {$e}");
     }
@@ -316,6 +317,7 @@ class ClipperController extends FOSRestController
       // Return operation specific error
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
+      $returnObject['error_code'] = $e->getCode();
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
