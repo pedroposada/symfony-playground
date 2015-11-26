@@ -681,7 +681,7 @@ class NPSPlusExcel extends DownloadType
           $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
           $alp = 1;
           foreach (self::$net_promoter_categories as $cat) {
-            $cat = $cat . 's_prec';
+            $cat = $cat . 's';
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$localDataTable[$brand][$cat]}%");
             $alp++;
           }

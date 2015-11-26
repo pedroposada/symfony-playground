@@ -22,7 +22,7 @@ class PromVsDetrPromote extends ChartType {
   // string; "Other" brand label.
   public static $brand_other        = 'Other';
   // boolean|integer; flag to skip "Other" brand, Or int value of NPS.
-  public static $ignore_brand_other = 0;
+  public static $ignore_brand_other = FALSE;
   
   /**
    * Method call to return chart data.
@@ -50,8 +50,7 @@ class PromVsDetrPromote extends ChartType {
         array(
           'c'   => 0, //count / use for base 
           't'   => 0, //total
-          'cal' => 0, //slide calculation
-          'p'   => 0, //percentage
+          'cal' => 0, //slide calculation / percentage
         )
       )
     );
@@ -84,7 +83,6 @@ class PromVsDetrPromote extends ChartType {
       $data = array('brand' => $brand);
       foreach (parent::$net_promoters_cat_range as $type => $et) {
         $data[$type . 's']       = $this->brands_scores[$brand][$type]['cal'];
-        $data[$type . 's_prec']  = $this->brands_scores[$brand][$type]['p'];
         $data[$type . 's_count'] = $this->brands_scores[$brand][$type]['c'];
       }
       $data['diff'] = $result;
@@ -199,19 +197,13 @@ class PromVsDetrPromote extends ChartType {
     foreach ($this->answer_set as $type => $empty) {
       $count = $this->brands_scores[$brand][$type]['c'];
       $count = max(1, $count);
-      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->brands_scores[$brand][$type]['t'] / $count;
+      $$type = ($this->brands_scores[$brand][$type]['t'] / $count);
+      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->roundingUpValue($$type);
       $total_count += $this->brands_scores[$brand][$type]['c'];
     }
-    if (!empty($total_count)) {
-      foreach ($this->answer_set as $type => $empty) {
-        $percentage = (($this->brands_scores[$brand][$type]['c'] / $total_count) * 100);
-        $this->brands_scores[$brand][$type]['p'] = $this->roundingUpValue($percentage);
-      }
-    }
-    $result = ($promoter - $detractor);
-    if (!empty($detractor)) {
-      $result = ($result / $detractor);
-      $result *= 100;
+    $result = 0;
+    if ($detractor) {
+      $result = (($promoter / $detractor) * 100);
     }
     $this->brands_scores_results[$brand] = $this->roundingUpValue($result);
   }

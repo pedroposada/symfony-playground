@@ -201,13 +201,10 @@ class ChartsAssemblerTest extends WebTestCase
     $test = array(
       'brand'            => 'is_string',
       'detractors'       => 'is_numeric',
-      'detractors_prec'  => 'is_numeric',
       'detractors_count' => 'is_numeric',
       'passives'         => 'is_numeric',
-      'passives_prec'    => 'is_numeric',
       'passives_count'   => 'is_numeric',
       'promoters'        => 'is_numeric',
-      'promoters_prec'   => 'is_numeric',
       'promoters_count'  => 'is_numeric',
       'diff'             => 'is_numeric',
     );
