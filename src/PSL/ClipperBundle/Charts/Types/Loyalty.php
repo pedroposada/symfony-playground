@@ -56,31 +56,29 @@ class Loyalty extends ChartType {
       $this->extractRespondent($response);
     }
     
-    $overall_avg = $overall_total = $overall_count = 0;
     if (!empty($this->respondent)) {
-      //#final-calculation
-      foreach ($this->brands_results as $brand => $respondent) {
+      //#final-calculation: loyalty
+     foreach ($this->brands_results as $brand => $respondent) {
+        if (empty($respondent)) {
+          $this->brands_results[$brand] = 0;
+          continue;
+        }
         $total = array_sum($respondent);
-        $overall_total += $total;
         $count = count($respondent);
-        $overall_count += $count;
-        $this->brands_results[$brand] = $this->roundingUpValue(($total / $count));
+        $this->brands_results[$brand] = ($total / $count);
       }
-      $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));
     }
-
     $this->respondent = array();
     
-    //sorting
+    //sorting by avg ASC
     arsort($this->brands_results);
-     
-    $dataTable['mean'] = $this->roundingUpValue($overall_avg, TRUE);
+    
     $dataTable['base'] = array_sum($this->base);
     foreach ($this->brands_results as $brand => $loyalty) {
       $dataTable['brands'][] = array(
         'brand'   => $brand,
         'base'    => $this->base[$brand],
-        'loyalty' => $this->roundingUpValue($loyalty, TRUE),
+        'loyalty' => $this->roundingUpValue($loyalty, 2, FALSE, PHP_ROUND_HALF_DOWN),
       );
     }
 
@@ -135,17 +133,16 @@ class Loyalty extends ChartType {
 
     //values assignments
     foreach ($this->brands as $brand) {
-      //brands overall
-      if (!isset($this->brands_results[$brand][$lstoken])) {
-        $this->brands_results[$brand][$lstoken] = 0;
-      }
       //respondent overall
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = $answers[$brand];
-      //capture base
+      //capture answer
       if (!empty($answers[$brand])) {
+        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);        
+      }
+      if (!is_null($answers[$brand])) {
+        //capture base
         $this->base[$brand]++;
       }
     }
@@ -182,7 +179,7 @@ class Loyalty extends ChartType {
         case 'promoter':
           $OtherBrandCount = array_filter($brandsAnswer);
           $OtherBrandCount = count($OtherBrandCount);
-          $brandsAnswer[$brand] = $this->roundingUpValue((3 + (2 / $OtherBrandCount)));
+          $brandsAnswer[$brand] = (3 + (2 / $OtherBrandCount));
           break;
       } //switch
       $this->brands_results[$brand][$lstoken] = $brandsAnswer[$brand];

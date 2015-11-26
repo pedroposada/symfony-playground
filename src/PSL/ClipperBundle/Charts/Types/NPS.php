@@ -161,7 +161,7 @@ class NPS extends ChartType
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = $answers[$brand];
+      $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
       if (!is_null($answers[$brand])) {
         //capture size
         $type = $this->identifyRespondentCategory($answers[$brand]);
@@ -203,7 +203,7 @@ class NPS extends ChartType
         case 'promoter':
           $OtherBrandCount = array_filter($brandsAnswer);
           $OtherBrandCount = count($OtherBrandCount);
-          $brandsAnswer[$brand] = $this->roundingUpValue((3 + (2 / $OtherBrandCount)));
+          $brandsAnswer[$brand] = (3 + (2 / $OtherBrandCount));
           break;
       } //switch
       $this->brands_results[$brand][$lstoken] = $brandsAnswer[$brand];
