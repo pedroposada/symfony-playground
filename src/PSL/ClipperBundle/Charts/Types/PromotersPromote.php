@@ -103,23 +103,31 @@ class PromotersPromote extends ChartType {
     //capture base
     foreach ($this->brands as $brand) {
       if ($this->validateRespondentCategory($answers[$brand], 'promoter')) {
-        $this->base[$brand]++;
+        $this->extractPromoter($brand, $answers);        
       }
     }
-    
-    $answers = array_filter($answers);
-    arsort($answers);
-    
-    $answers_keys = array_keys($answers);
-    if (isset($answers_keys[0]) && $this->validateRespondentCategory($answers[$answers_keys[0]], 'promoter')) {
-      unset($answers[$answers_keys[0]]);
-      foreach ($answers as $answer_brand => $answers_value) {
-        if ($this->validateRespondentCategory($answers_value, 'promoter')) {
-          if (!isset($this->competitors[$answers_keys[0]][$answer_brand])) {
-            $this->competitors[$answers_keys[0]][$answer_brand] = 0;
-          }
-          $this->competitors[$answers_keys[0]][$answer_brand]++;
+  }
+  
+  /**
+   * Method to get a Promoters promotes.
+   * @method extractPromoter
+   *
+   * @param  string $brand
+   * @param  array $answers
+   *
+   * @return void
+   */
+  private function extractPromoter($brand, $answers) {
+    $this->base[$brand]++;
+    foreach ($answers as $ans_brnd => $answer) {
+      if (($ans_brnd == $brand) || (empty($answer))) {
+        continue;
+      }
+      if ($this->validateRespondentCategory($answer, 'promoter')) {
+        if (!isset($this->competitors[$brand][$ans_brnd])) {
+          $this->competitors[$brand][$ans_brnd] = 0;          
         }
+        $this->competitors[$brand][$ans_brnd]++;
       }
     }
   }
@@ -148,9 +156,9 @@ class PromotersPromote extends ChartType {
     if (empty($this->competitors[$brand])) {
       return;
     }
-    $competitors_count = count($this->competitors[$brand]);
+    $competitors_count = $this->base[$brand];
     array_walk($this->competitors[$brand], function(&$count, $comp_brand) use ($competitors_count) {
-      $count = $this->roundingUpValue((($count / $competitors_count) * 100));
+      $count = $this->roundingUpValue((($count / $competitors_count) * 100), 0);
     });
   }
 }
