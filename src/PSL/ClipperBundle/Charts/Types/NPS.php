@@ -68,28 +68,36 @@ class NPS extends ChartType
       $this->extractRespondent($response);
     }
     
+    $score_order = array();
     $overall_avg = $overall_total = $overall_count = 0;
     if (!empty($this->respondent)) {
       //#final-calculation
       foreach ($this->brands_results as $brand => $respondent) {
-        $total = array_sum($respondent);
-        $overall_total += $total;
-        $count = count($respondent);
-        $overall_count += $count;
-        
         $this->dataTable_data[$brand]['brand'] = $brand;
         $this->dataTable_data[$brand]['base']  = $this->base[$brand];
         foreach (array('detractors', 'passives', 'promoters') as $type) {
           if (!empty($this->dataTable_data[$brand][$type])) {
             $this->dataTable_data[$brand][$type] = (($this->dataTable_data[$brand][$type] / $this->base[$brand]) * 100);
-            $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], TRUE);
+            $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], 0, FALSE, PHP_ROUND_HALF_EVEN);
           }
         }
-        $this->dataTable_data[$brand]['score'] = $this->roundingUpValue(($total / $count));
+        $score = $this->dataTable_data[$brand]['score'] = $this->dataTable_data[$brand]['promoters'] - $this->dataTable_data[$brand]['detractors'];
+        while (isset($score_order[$score])) {
+          $score++;
+        }
+        $score_order[$score] = $brand;
       }
-      $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));      
     }
     $this->respondent = array();
+    
+    // order descending by score
+    $dataTable_data_bk = $this->dataTable_data;
+    $this->dataTable_data = array();
+    krsort($score_order);    
+    foreach ($score_order as $brand_odr) {
+      $this->dataTable_data[$brand_odr] = $dataTable_data_bk[$brand_odr];
+    }
+    unset($dataTable_data_bk, $score_order);
     
     //remove keys
     $this->dataTable_data = array_values($this->dataTable_data);
@@ -154,11 +162,11 @@ class NPS extends ChartType
         $this->respondent[$lstoken] = array();
       }
       $this->respondent[$lstoken][$brand] = $answers[$brand];
-      //capture base
-      if (!empty($answers[$brand])) {
+      if (!is_null($answers[$brand])) {
         //capture size
         $type = $this->identifyRespondentCategory($answers[$brand]);
         $this->dataTable_data[$brand]["{$type}s"]++;
+        //capture base
         $this->base[$brand]++;
       }
     }

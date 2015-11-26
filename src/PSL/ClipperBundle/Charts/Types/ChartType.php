@@ -421,9 +421,15 @@ abstract class ChartType
    * @param  boolean $force_string
    *    Flag to forcing the decimal point, in string.
    *
+   * @param  constants|integer $mode
+   *    PHP_ROUND_HALF_UP   or 1
+   *    PHP_ROUND_HALF_DOWN or 2
+   *    PHP_ROUND_HALF_EVEN or 3
+   *    PHP_ROUND_HALF_ODD  or 4
+   *
    * @return float|string
    */
-  protected function roundingUpValue($value = 0, $decPoint = FALSE, $force_string = FALSE) 
+  protected function roundingUpValue($value = 0, $decPoint = FALSE, $force_string = FALSE, $mode = PHP_ROUND_HALF_UP) 
   {
     if ($decPoint === FALSE) {
       $decPoint = self::$decimal_point;
@@ -431,7 +437,7 @@ abstract class ChartType
     if ($force_string) {
       return number_format($value, $decPoint, '.', ',');
     }
-    return round($value, $decPoint, PHP_ROUND_HALF_UP);
+    return round($value, $decPoint, $mode);
   }
   
   /**
@@ -529,7 +535,13 @@ abstract class ChartType
     switch ($type) {
       case 'int':
       case 'integer':
-        $answers = array_map('intval', $answers);
+        array_walk($answers, function (&$value, $key) {
+          if ($value == '') {
+            $value = NULL;
+            return;
+          }
+          $value = intval($value);
+        });
         break;
 
       case 'str':
