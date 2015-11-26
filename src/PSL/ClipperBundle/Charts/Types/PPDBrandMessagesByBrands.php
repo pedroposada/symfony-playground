@@ -37,6 +37,7 @@ class PPDBrandMessagesByBrands extends ChartType {
       'base'  => 0, // who are aware of the brand & say yes
       'perc'  => 0,
     )));
+    $cats = array_merge($cats, array('diff' => 0));
     $default = array_combine(array_keys($this->questions), array_fill(0, count($this->questions), $cats));
     $this->results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
     array_walk($this->results, function(&$set, $index) use ($default) {
@@ -104,8 +105,10 @@ class PPDBrandMessagesByBrands extends ChartType {
       }
       $type = $this->identifyRespondentCategory($answersType[$brand]);
       foreach ($answersQue[$brand] as $qIndex => $qAnswer) {
-        $this->results[$brand][$qIndex][$type]['count']++;
         if (!empty($qAnswer)) {
+          $this->results[$brand][$qIndex][$type]['count']++;
+        }
+        if (!is_null($qAnswer)) {
           $this->results[$brand][$qIndex][$type]['base']++;          
         }
       }
@@ -124,10 +127,11 @@ class PPDBrandMessagesByBrands extends ChartType {
     foreach ($result as $ques_index => $ques_set) {
       foreach (parent::$net_promoters_cat_range as $type => $val) {
         if (!empty($ques_set[$type]['count'])) {
-          $result[$ques_index][$type]['perc'] = $this->roundingUpValue((($ques_set[$type]['base'] / $ques_set[$type]['count']) * 100));
+          $result[$ques_index][$type]['perc'] = $this->roundingUpValue((($ques_set[$type]['count'] / $ques_set[$type]['base']) * 100), 0);
         }
         unset($result[$ques_index][$type]['count']);
       }
+      $result[$ques_index]['diff'] = ($result[$ques_index]['promoter']['perc'] - $result[$ques_index]['detractor']['perc']);
     }
   }
 }

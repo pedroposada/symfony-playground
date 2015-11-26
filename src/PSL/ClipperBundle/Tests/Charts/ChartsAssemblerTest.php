@@ -348,6 +348,10 @@ class ChartsAssemblerTest extends WebTestCase
       foreach ($data as $type_dt) {
         foreach ($type_dt as $cat => $cat_set) {
           $this->assertTrue(is_string($cat), "Category '{$cat}' is expected as string.");
+          if ($cat == 'diff') {
+            $this->assertTrue(is_numeric($cat_set), "Diff value having wrong data type.");
+            continue;
+          }
           foreach ($test as $key => $ts) {
             $this->assertArrayHasKey($key, $cat_set, "'{$key}' key is missing.");
             $this->assertTrue($ts($cat_set[$key]), "'{$key}' value having wrong data type.");

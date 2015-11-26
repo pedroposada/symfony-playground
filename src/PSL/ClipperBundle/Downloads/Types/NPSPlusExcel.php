@@ -803,10 +803,16 @@ class NPSPlusExcel extends DownloadType
         }
         $row++;
 
-        //base, continue later
+        //base
         $base_row = $row;
-        $base_count = array();
         $this->activeWorkSheet->setCellValue("A{$row}", "Base");
+        $alp = 1;
+        $brand = $dataTable['brands'][$specific_brand];
+        $brandset = end($dataTable['datatable']['brands'][$brand]);
+        foreach (self::$net_promoter_categories as $cat) {
+          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$brandset[$cat]['base']}");
+          $alp++;
+        }
         $row++;
 
         //messages
@@ -815,11 +821,7 @@ class NPSPlusExcel extends DownloadType
           $brand = $dataTable['brands'][$specific_brand];
           $scores = $dataTable['datatable']['brands'][$brand][$questionIndex];
           $alp = 1;
-          foreach (self::$net_promoter_categories as $cat) {
-            if (!isset($base_count[$cat])) {
-              $base_count[$cat] = 0;
-            }
-            $base_count[$cat] += $scores[$cat]['base'];
+          foreach (self::$net_promoter_categories as $cat) {            
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$scores[$cat]['perc']}%");
             $alp++;
           }
@@ -831,14 +833,7 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->getStyle("A{$row}")->applyFromArray(self::$style['def-note']);
         $row--;
 
-        $end_row = $row;
-
-        //base
-        $alp = 1;
-        foreach (self::$net_promoter_categories as $cat) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$base_row}", "{$base_count[$cat]}");
-          $alp++;
-        }
+        $end_row = $row;        
 
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
