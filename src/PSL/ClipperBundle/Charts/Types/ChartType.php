@@ -130,6 +130,18 @@ abstract class ChartType
       }
     }
     
+    //get region by countries
+    if (!empty($markets)) {
+      $map = GeoMapper::getMap();
+      foreach ($map as $region => $countries) {
+        $inter = array_intersect($countries, $markets);
+        $diff = array_diff($inter, $countries);
+        if (empty($diff)) {
+          $regions[] = $region;
+        }
+      }
+    }
+    
     //reorganize in drilldown format
     $drilldown = array();
     $drillset = array(
@@ -235,8 +247,8 @@ abstract class ChartType
         }
       }
     }
-    $drilldown['countries'] = array_unique($drilldown['countries']);
     $drilldown['countries'] = array_filter($drilldown['countries']);
+    $drilldown['countries'] = array_unique($drilldown['countries']);
     
     foreach ($this->responses as $index => $response) {
       if ($this->identifyReponseForFilter($response, $drilldown)) {

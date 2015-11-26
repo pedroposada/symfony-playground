@@ -87,19 +87,22 @@ class DownloadsController extends Controller
         }
       }      
       // combination drilldown - country & specialty (dual): @see CLIP-69:v2
+      // since FirstView: if have more than one specialty
       $locations = array_merge($data['available-drilldown']['countries'], $data['available-drilldown']['regions']);
       $locations = array_filter($locations);
       $locations = array_unique($locations);
-      foreach ((array) $locations as $location) {
-        foreach ((array) $data['available-drilldown']['specialties'] as $specialty) {
-          $filter_set = array(
-            'country'   => $location,
-            'specialty' => $specialty,
-          );
-          $data['combined-filtered'][] = array(
-            'filters' => $filter_set,
-            'data'    => $this->getChartsByOrderId($order_id, $filter_set),
-          );
+      if (count($data['available-drilldown']['specialties']) > 1) {
+        foreach ($locations as $location) {
+          foreach ($data['available-drilldown']['specialties'] as $specialty) {
+            $filter_set = array(
+              'country'   => $location,
+              'specialty' => $specialty,
+            );
+            $data['combined-filtered'][] = array(
+              'filters' => $filter_set,
+              'data'    => $this->getChartsByOrderId($order_id, $filter_set),
+            );
+          }
         }
       }
       $assembler = $this->container->get('download_assembler');
