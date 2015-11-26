@@ -21,7 +21,6 @@ class NPSPlusExcel extends DownloadType
   protected $activeWorkSheet;
 
   //object related
-  protected $file_name;
   protected static $app_name = 'Clipper';
 
   //data related
@@ -106,9 +105,12 @@ class NPSPlusExcel extends DownloadType
    */
   private function prepProcessor($order_id, $survey_type) {
     //filename
-    $this->file_name = explode('-', $order_id);
-    $this->file_name = self::$app_name . "-Export-{$survey_type}-{$this->file_name[0]}";
-
+    if (empty($this->file_name)) {
+      $this->file_name = explode('-', $order_id);
+      $this->file_name = self::$app_name . "-Export-{$survey_type}-{$this->file_name[0]}";     
+    }
+    $this->file_name = $this->sanitizeFileName($this->file_name);
+    
     //prep Excel object
     $this->phpExcelObject = $this->container->get('phpexcel')->createPHPExcelObject();
     if (empty($this->phpExcelObject)) {
@@ -134,6 +136,7 @@ class NPSPlusExcel extends DownloadType
     //prep file
     $order_id    = $event->getOrderId();
     $survey_type = $event->getSurveyType();
+    $this->file_name = $event->getFilename();
     $this->prepProcessor($order_id, $survey_type);
 
     //get data

@@ -26,6 +26,7 @@ class DownloadsController extends Controller
    *
    * @QueryParam(name="order_id", default=false, strict=true, nullable=false, allowBlank=false, description="FirstQGroup UUID")
    * @QueryParam(name="type", default="xls", nullable=true, description="Export file type.")
+   * @QueryParam(name="file", default="", nullable=true, description="Export file name.")
    *
    * @return Symfony\Component\HttpFoundation\Response;
    */
@@ -37,6 +38,7 @@ class DownloadsController extends Controller
 
     $order_id = $paramFetcher->get('order_id');
     $type     = $paramFetcher->get('type');
+    $filename = $paramFetcher->get('file');
 
     if (empty($order_id)) {
       throw new Exception("Missing Order ID.");
@@ -101,7 +103,7 @@ class DownloadsController extends Controller
         }
       }
       $assembler = $this->container->get('download_assembler');
-      return $assembler->getDownloadFile($order_id, $this->survey_type, $type, $data);
+      return $assembler->getDownloadFile($order_id, $this->survey_type, $type, $data, $filename);
     }
     catch(Exception $e) {
       $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";

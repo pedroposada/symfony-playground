@@ -18,6 +18,9 @@ class DownloadEvent extends Event
   //array pool of charts API data with other details
   protected $raw_data;
   
+  //string Filename
+  protected $filename;
+  
   // for validation: add this reference as more SurveyType added
   private static $survey_type_map = array(
     'nps_plus',
@@ -37,6 +40,16 @@ class DownloadEvent extends Event
   public function getOrderId()
   {
     return $this->order_id;
+  }
+  
+  public function setFilename($filename)
+  {
+    $this->filename = $filename;
+  }
+
+  public function getFilename()
+  {
+    return $this->filename;
   }
 
   public function setSurveyType($survey_type)

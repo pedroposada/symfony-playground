@@ -33,10 +33,13 @@ class Assembler
    *
    * @param array   $raw_data string
    *    Associated array data needed for the download processor.
+   *    
+   * @param string  $filename
+   *    File name.
    *
    * @return $event \PSL\ClipperBundle\Event\DownloadEvent
    */
-  private function setDownloadEvent($order_id, $survey_type, $download_type, $raw_data)
+  private function setDownloadEvent($order_id, $survey_type, $download_type, $raw_data, $filename = FALSE)
   {
     $event = new DownloadEvent();
 
@@ -44,6 +47,7 @@ class Assembler
     $event->setSurveyType($survey_type);
     $event->setDownloadType($download_type);
     $event->setRawData($raw_data);
+    $event->setFilename($filename);
     $this->dispatcher->dispatch(ClipperEvents::DOWNLOAD_PROCESS, $event);
 
     return $event;
@@ -54,8 +58,8 @@ class Assembler
    *
    * @see setDownloadEvent()
    */
-  public function getDownloadFile($order_id, $survey_type, $download_type, $raw_data)
+  public function getDownloadFile($order_id, $survey_type, $download_type, $raw_data, $filename = FALSE)
   {
-    return $this->setDownloadEvent($order_id, $survey_type, $download_type, $raw_data)->getFile();
+    return $this->setDownloadEvent($order_id, $survey_type, $download_type, $raw_data, $filename)->getFile();
   }
 }
