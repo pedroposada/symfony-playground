@@ -16,6 +16,7 @@ class PromotersPromoteMean extends ChartType {
   private $respondent_count = 0;
   private $promoting        = array();
   private $base             = array();
+  private $score            = array();
   
   /**
    * Method call to return chart data.
@@ -38,6 +39,7 @@ class PromotersPromoteMean extends ChartType {
     //prep promoting & base structure
     $this->promoting = array_combine($this->brands, array_fill(0, count($this->brands), 0));
     $this->base = array_combine($this->brands, array_fill(0, count($this->brands), 0));
+    $this->score = array_combine($this->brands, array_fill(0, count($this->brands), 0));
     
     //prep results
     $dataTable = array(
@@ -73,10 +75,9 @@ class PromotersPromoteMean extends ChartType {
       );
     }
     
-    $count = max(1, $this->respondent_count);
     $dataTable['overall'] = array(
-      'base' => array_sum($this->base),
-      'mean' => $this->roundingUpValue((array_sum($this->promoting) / $count)),
+      'base' => $this->respondent_count,
+      'mean' => $this->roundingUpValue((array_sum($this->score) / array_sum($this->base))),
     );
         
     return $dataTable;
@@ -147,17 +148,19 @@ class PromotersPromoteMean extends ChartType {
    * @return void
    */
   private function calculateBrandScores($brand) {
-    $score = 0;
     foreach ($this->respondent as $token => $brandsAnswer) {
-      $otherBrandPromoterCount = 0;
-      foreach ($brandsAnswer as $brandAnswer => $answer) {
-        $otherBrandPromoterCount += (int) $this->validateRespondentCategory($answer, 'promoter');          
-      }      
-      if ($promoting = (int) $this->validateRespondentCategory($brandsAnswer[$brand], 'promoter')) {
-        $this->base[$brand]++;
+      if (!$this->validateRespondentCategory($brandsAnswer[$brand], 'promoter')) {
+        continue;
       }
-      $score += ($otherBrandPromoterCount - $promoting);
-    }
-    $this->promoting[$brand] = $this->roundingUpValue(($score / $this->respondent_count));
+      $this->base[$brand]++;
+      foreach ($brandsAnswer as $ans_brand => $answer) {
+        if ($ans_brand != $brand) {
+          $this->score[$brand] += (int) $this->validateRespondentCategory($answer, 'promoter');
+        }
+      } // foreach answer
+    } // foreach responses
+    
+    $this->promoting[$brand] = ($this->score[$brand] / $this->base[$brand]);
+    $this->promoting[$brand] = $this->roundingUpValue($this->promoting[$brand]);
   }
 }
