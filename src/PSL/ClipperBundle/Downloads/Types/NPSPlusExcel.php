@@ -596,12 +596,6 @@ class NPSPlusExcel extends DownloadType
         //brands
         foreach($dataTable['brands'] as $brand) {
           $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
-          //competitors
-          $competitors = array();
-          $localDataTable[$brand]['competitors'] = (array) $localDataTable[$brand]['competitors'];
-          if (!empty($localDataTable[$brand]['competitors'])) {
-            $competitors = array_keys($localDataTable[$brand]['competitors']);
-          }
           $alp = 0;
           foreach($dataTable['brands'] as $compbrand) {
             $alp++;
@@ -610,8 +604,8 @@ class NPSPlusExcel extends DownloadType
               continue;
             }
             $prec = 0;
-            if ((!empty($competitors)) && (in_array($compbrand, $competitors))) {
-              $prec = $localDataTable[$brand]['competitors'][$compbrand];
+            if ((!is_object($localDataTable[$compbrand]['competitors'])) && (!empty($localDataTable[$compbrand]['competitors'][$brand]))) {
+              $prec = $localDataTable[$compbrand]['competitors'][$brand];
             }
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$prec}%");
           }
