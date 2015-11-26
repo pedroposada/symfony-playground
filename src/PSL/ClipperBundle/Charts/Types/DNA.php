@@ -135,7 +135,7 @@ class DNA extends ChartType {
     }
     
     //identify
-    $key = $this->sanitiveComment($comment);
+    $key = $this->sanitizeComment($comment);
     
     //reject if same/almost comment entered before    
     if (isset($this->comments[$brand][$type]['comments'][$key])) {

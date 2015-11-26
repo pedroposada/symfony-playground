@@ -555,7 +555,7 @@ abstract class ChartType
   
   /**
    * Sanitizes a title, replacing whitespace and a few other characters with dashes.
-   * @method sanitiveComment
+   * @method sanitizeComment
    * 
    * Limits the output to alphanumeric characters, underscore (_) and dash (-).
    * Whitespace becomes a dash.
@@ -566,7 +566,7 @@ abstract class ChartType
    *
    * @return string
    */
-  protected function sanitiveComment($title) 
+  protected function sanitizeComment($title) 
   {
     $title = strip_tags($title);
     $title = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '---$1---', $title);
