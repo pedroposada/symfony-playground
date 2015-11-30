@@ -66,9 +66,13 @@ class Loyalty extends ChartType {
           $this->brands_results[$brand] = 0;
           continue;
         }
-        $all_res_total += $total = array_sum($respondent);
-        $all_res_count += $count = count($respondent);
-        $this->brands_results[$brand] = $this->roundingUpValue(($total / $count), FALSE, FALSE, PHP_ROUND_HALF_DOWN);
+        if (!empty($this->base[$brand])) {
+          $all_res_total += $total = array_sum($respondent);
+          $all_res_count += $count = count($respondent);
+          $this->brands_results[$brand] = $this->roundingUpValue(($total / $count), FALSE, FALSE, PHP_ROUND_HALF_DOWN);          
+        } else {
+          $this->brands_results[$brand] = 0;
+        }
       }
     }
     
@@ -140,10 +144,8 @@ class Loyalty extends ChartType {
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
+      $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
       //capture answer
-      if (!empty($answers[$brand])) {
-        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
-      }
       if (!is_null($answers[$brand])) {
         //capture base
         $this->base[$brand]++;
@@ -168,6 +170,14 @@ class Loyalty extends ChartType {
    * @return void
    */
   private function calculateRespondentScore($lstoken, $brandsAnswer = array()) {
+    // get promoting brand count first
+    $promoting_others = 0;
+    foreach ($brandsAnswer as $brand => $answer) {
+      if ($this->validateRespondentCategory($answer, 'promoter')) {
+        $promoting_others++;        
+      }
+    }
+    
     foreach ($brandsAnswer as $brand => $answer) {
       $brandsAnswer[$brand] = 0;
       switch ($this->identifyRespondentCategory($answer)) {
@@ -180,10 +190,11 @@ class Loyalty extends ChartType {
           break;
 
         case 'promoter':
-          $OtherBrandCount = array_filter($brandsAnswer);
-          $OtherBrandCount = count($OtherBrandCount);
-          $OtherBrandCount = max(1, $OtherBrandCount);
-          $brandsAnswer[$brand] = (3 + (2 / $OtherBrandCount));
+          $pregsw = 2;
+          if ($promoting_others) {
+            $pregsw = ($pregsw / $promoting_others);
+          }
+          $brandsAnswer[$brand] = (3 + $pregsw);
           break;
       } //switch
       $this->brands_results[$brand][$lstoken] = $brandsAnswer[$brand];
