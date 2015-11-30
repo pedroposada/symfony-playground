@@ -30,6 +30,13 @@ class PromotersPromoteMean extends ChartType {
    *     Google Chart array in Visualization format
    */
   public function dataTable(ChartEvent $event) {
+    // reset : found issue as the method did not destroyed for multiple drill-down: download
+    $this->respondent       = array();
+    $this->respondent_count = 0;
+    $this->promoting        = array();
+    $this->base             = array();
+    $this->score            = array();
+    
     // copy of PromotersPromote for Download: much details data needed.
     $event->setTitleLong("Download: Amongst my promoters which is the most commonly promoted competitor?");
 
@@ -71,7 +78,7 @@ class PromotersPromoteMean extends ChartType {
     foreach ($this->promoting as $brand => $mean) {
       $dataTable['brands'][$brand] = array(
         'base' => $this->base[$brand],
-        'mean' => $mean,
+        'mean' => $this->roundingUpValue($mean),
       );
     }
     
@@ -159,8 +166,9 @@ class PromotersPromoteMean extends ChartType {
         }
       } // foreach answer
     } // foreach responses
-    
-    $this->promoting[$brand] = ($this->score[$brand] / $this->base[$brand]);
-    $this->promoting[$brand] = $this->roundingUpValue($this->promoting[$brand]);
+    if (!empty($this->base[$brand])) {
+      $this->promoting[$brand] = ($this->score[$brand] / $this->base[$brand]);
+      $this->promoting[$brand] = $this->promoting[$brand];
+    }
   }
 }
