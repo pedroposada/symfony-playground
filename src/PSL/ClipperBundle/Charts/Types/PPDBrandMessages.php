@@ -78,7 +78,7 @@ class PPDBrandMessages extends ChartType {
           continue;  
         }
         $this->result[$qcode][$type]['perc'] = (($this->result[$qcode][$type]['count'] / $info['count']) * 100);
-        $this->result[$qcode][$type]['perc'] = $this->roundingUpValue($this->result[$qcode][$type]['perc'], 0, FALSE, PHP_ROUND_HALF_UP);
+        $this->result[$qcode][$type]['perc'] = $this->roundingUpValue($this->result[$qcode][$type]['perc'], 0, FALSE, PHP_ROUND_HALF_DOWN);
       }
       $this->result[$qcode]['diff'] = ($this->result[$qcode]['promoter']['perc'] - $this->result[$qcode]['detractor']['perc']);
       $this->result[$qcode]['diff'] = $this->roundingUpValue($this->result[$qcode]['diff'], 0);
@@ -160,7 +160,9 @@ class PPDBrandMessages extends ChartType {
         continue;
       }
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      $this->counts[$type]['count']++;
+      if (!is_null($answers_type[$brand])) {
+        $this->counts[$type]['count']++;
+      }
       foreach ($qcode as $qindex => $qcd) {
         if (!empty($answers_que[$brand][$qindex])) {
           $this->result[$qcd][$type]['count'] += $answers_que[$brand][$qindex];
