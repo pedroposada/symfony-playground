@@ -84,7 +84,7 @@ class PromotersPromoteMean extends ChartType {
     
     $dataTable['overall'] = array(
       'base' => $this->respondent_count,
-      'mean' => $this->roundingUpValue((array_sum($this->score) / array_sum($this->base))),
+      'mean' => $this->roundingUpValue((array_sum($this->promoting) / count($this->promoting))),
     );
         
     return $dataTable;
