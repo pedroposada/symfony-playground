@@ -716,7 +716,9 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->mergeCells("{$col[$colStarts]}{$row}:{$col[$alp]}{$row}");
         $this->activeWorkSheet->setCellValue("{$col[$colStarts]}{$row}", "All Brands");
         $row++;
-
+        
+        $base_row = $row;
+        
         //heading 2
         $alp = 1;
         foreach (self::$net_promoter_categories as $cat) {
@@ -728,24 +730,11 @@ class NPSPlusExcel extends DownloadType
         }
         $row++;
 
-        //base, continue later
-        $base_row = $row;
-        $base_count = array();
-        $this->activeWorkSheet->setCellValue("A{$row}", "Base");
-        $row++;
-
         //messages
         foreach ($dataTable['datatable'] as $msgInd => $mesge) {
           $this->activeWorkSheet->setCellValue("A{$row}", "{$mesge['message']}");
           $alp = 1;
-          foreach (self::$net_promoter_categories as $cat) {
-            //get count
-            $count = $cat . 's_count';
-            if (!isset($base_count[$cat])) {
-              $base_count[$cat] = 0;
-            }
-            $base_count[$cat] += $mesge[$count];
-
+          foreach (self::$net_promoter_categories as $cat) {            
             //perc
             $perc = $cat . 's';
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$mesge[$perc]}%");
@@ -757,20 +746,11 @@ class NPSPlusExcel extends DownloadType
 
         $end_row = $row;
 
-        //base
-        $alp = 1;
-        foreach (self::$net_promoter_categories as $cat) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$base_row}", "{$base_count[$cat]}");
-          $alp++;
-        }
-
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
         $styles = array('borders' => array('right' => self::$style['def-border']));
         $this->activeWorkSheet->getStyle("A{$rowStarts}:A{$end_row}")->applyFromArray($styles);
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
-        $this->activeWorkSheet->getStyle("A{$base_row}:{$col[$colEnds]}{$base_row}")->applyFromArray($styles);
-        $base_row--;
         $this->activeWorkSheet->getStyle("A{$base_row}:{$col[$colEnds]}{$base_row}")->applyFromArray($styles);
         break;
 
