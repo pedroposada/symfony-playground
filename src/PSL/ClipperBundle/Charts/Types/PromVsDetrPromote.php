@@ -153,6 +153,9 @@ class PromVsDetrPromote extends ChartType {
 
     //values assignments
     foreach ($this->brands as $brand) {
+      if (is_null($answers_type[$brand])) {
+        continue;
+      }
       //update brands' scores
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
       $this->brands_scores[$brand][$type]['c']++;
@@ -198,13 +201,13 @@ class PromVsDetrPromote extends ChartType {
       $count = $this->brands_scores[$brand][$type]['c'];
       $count = max(1, $count);
       $$type = ($this->brands_scores[$brand][$type]['t'] / $count);
-      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->roundingUpValue($$type);
+      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->roundingUpValue($$type, 1, FALSE, PHP_ROUND_HALF_UP);
       $total_count += $this->brands_scores[$brand][$type]['c'];
     }
     $result = 0;
     if ($detractor) {
       $result = (($promoter / $detractor) * 100);
     }
-    $this->brands_scores_results[$brand] = $this->roundingUpValue($result);
+    $this->brands_scores_results[$brand] = $this->roundingUpValue($result, 1, FALSE, PHP_ROUND_HALF_UP);
   }
 }
