@@ -51,34 +51,37 @@ class Loyalty extends ChartType {
     }
 
     //extract respondent
+    $respondent_count = 0;
     foreach ($event->getData() as $response) {
       //update @var $this->brands_results
       $this->extractRespondent($response);
+      $respondent_count++;
     }
     
-    if (!empty($this->respondent)) {
+    $all_res_count = $all_res_total = 0;
+    if (!empty($respondent_count)) {
       //#final-calculation: loyalty
      foreach ($this->brands_results as $brand => $respondent) {
         if (empty($respondent)) {
           $this->brands_results[$brand] = 0;
           continue;
         }
-        $total = array_sum($respondent);
-        $count = count($respondent);
-        $this->brands_results[$brand] = ($total / $count);
+        $all_res_total += $total = array_sum($respondent);
+        $all_res_count += $count = count($respondent);
+        $this->brands_results[$brand] = $this->roundingUpValue(($total / $count), FALSE, FALSE, PHP_ROUND_HALF_DOWN);
       }
     }
-    $this->respondent = array();
     
     //sorting by avg ASC
     arsort($this->brands_results);
     
-    $dataTable['base'] = array_sum($this->base);
+    $dataTable['base'] = $respondent_count;
+    $dataTable['mean'] = $this->roundingUpValue(($all_res_total / $all_res_count), FALSE, FALSE, PHP_ROUND_HALF_DOWN);
     foreach ($this->brands_results as $brand => $loyalty) {
       $dataTable['brands'][] = array(
         'brand'   => $brand,
         'base'    => $this->base[$brand],
-        'loyalty' => $this->roundingUpValue($loyalty, 2, FALSE, PHP_ROUND_HALF_DOWN),
+        'loyalty' => $loyalty,
       );
     }
 
@@ -139,7 +142,7 @@ class Loyalty extends ChartType {
       }
       //capture answer
       if (!empty($answers[$brand])) {
-        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);        
+        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
       }
       if (!is_null($answers[$brand])) {
         //capture base
@@ -179,6 +182,7 @@ class Loyalty extends ChartType {
         case 'promoter':
           $OtherBrandCount = array_filter($brandsAnswer);
           $OtherBrandCount = count($OtherBrandCount);
+          $OtherBrandCount = max(1, $OtherBrandCount);
           $brandsAnswer[$brand] = (3 + (2 / $OtherBrandCount));
           break;
       } //switch
