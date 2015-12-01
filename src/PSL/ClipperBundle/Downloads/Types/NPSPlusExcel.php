@@ -366,7 +366,13 @@ class NPSPlusExcel extends DownloadType
       $this->activeWorkSheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
       $row++;
     }
-
+    
+    if (empty($dataTable['datatable'])) {
+      $this->activeWorkSheet->setCellValue("A{$row}", "No data.");
+      $row++;
+      return;
+    }
+    
     //draw table
     switch ($sheetname) {
       // NPS Chart

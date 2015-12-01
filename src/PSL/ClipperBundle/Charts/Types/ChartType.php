@@ -40,6 +40,12 @@ abstract class ChartType
     'passive'   => array(7, 8),
     'promoter'  => array(9, 10),
   );
+  
+  /**
+   * Cache
+   */
+  protected $use_cache = FALSE;
+  private static $cache_mapping;
 
   public function __construct(ContainerInterface $container, $machine_name) 
   {
@@ -65,6 +71,9 @@ abstract class ChartType
    */
   public function onDataTable(ChartEvent $event, $eventName, EventDispatcherInterface $dispatcher) 
   {
+    // cache
+    $this->use_cache = $event->getCacheUsage();
+    
     // only apply to request machine name
     if ($event->getChartMachineName() === $this->machine_name) {
       $this->logger->debug("eventName: {$eventName}");
@@ -254,6 +263,60 @@ abstract class ChartType
   }
   
   /**
+   * Method to handle cache during re-mapping process.
+   * @method cacheMapping
+   * 
+   * This method only useful for multi queries, eg: Download feature.
+   * See @var $use_cache to disable for single (React) query.
+   * 
+   * @param  boolean $result
+   *    - FALSE - meant to query cache.
+   *    - mixed - to assigned value to cache.
+   *    
+   * @param  string $method
+   *    - caller method name, or
+   *    - cache-string-id for storage.
+   *    
+   * @param  array|boolean $dual
+   *    - currently not being use.
+   *    
+   * @param  array|boolean $answer
+   *    - array list of response answer which will process.
+   *    
+   * @param  array|boolean $extra
+   *    - mixed any secondary data needed for unique identifier.
+   * 
+   *
+   * @return array
+   *    0 - cache-string-id
+   *    1 - the result / boolean (none)
+   */
+  private function cacheMapping($result = FALSE, $method, $dual = FALSE, $answer = FALSE, $extra = FALSE)
+  {
+    // check controller
+    if (!$this->use_cache) {
+      return array('', FALSE);      
+    }
+    
+    // set cache
+    if ($result !== FALSE) {
+      $this->cache_mapping[$method] = $result;
+      return;
+    }
+    
+    // prep key
+    $set = array($method, $answer, $extra);
+    $set = json_encode($set);
+    $set = hash('sha256', $set, FALSE);
+    
+    // check cache 
+    if (isset($this->cache_mapping[$set])) {
+      return array($set, $this->cache_mapping[$set]);
+    }
+    return array($set, FALSE);
+  }
+  
+  /**
    * Method to extract an answer into Brands.
    * @method filterAnswersToQuestionMapViaBrand
    *
@@ -269,6 +332,13 @@ abstract class ChartType
       return FALSE;
     }
     
+    // cache
+    $answers_ori = $answers;
+    list($cache_str, $cached) = $this->cacheMapping(FALSE, __FUNCTION__, $this->qcode, $answers_ori, $convert);
+    if ($cached !== FALSE) {
+      return $cached;
+    }
+        
     // Realign answer to qCode. 
     $qcode = $this->qcode;
     foreach ($answers as $key => $answer) {
@@ -303,6 +373,9 @@ abstract class ChartType
       $result = $this->formatAnswerResult($convert, $result);
     }
     
+    // cache
+    $this->cacheMapping($result, $cache_str);
+        
     return $result;
   }
   
@@ -322,6 +395,13 @@ abstract class ChartType
     // Don't process empty answer
     if (empty($answers)) {
       return FALSE;
+    }
+    
+    // cache
+    $answers_ori = $answers;
+    list($cache_str, $cached) = $this->cacheMapping(FALSE, __FUNCTION__, $this->map[self::$net_promoters], $answers_ori, $append);
+    if ($cached !== FALSE) {
+      return $cached;
     }
     
     // Realign answer to NPS categories. 
@@ -360,6 +440,9 @@ abstract class ChartType
     // Convert answers of NPS categories into integer
     $result = $this->formatAnswerResult('int', $result);
     
+    // cache
+    $this->cacheMapping($result, $cache_str);
+    
     return $result;
   }
   
@@ -377,6 +460,13 @@ abstract class ChartType
     // Don't process empty answer or messages
     if ((empty($answers)) || (empty($messages))) {
       return FALSE;
+    }
+    
+    // cache
+    $answers_ori = $answers;
+    list($cache_str, $cached) = $this->cacheMapping(FALSE, __FUNCTION__, $this->qcode, $answers_ori, $messages);
+    if ($cached !== FALSE) {
+      return $cached;
     }
     
     // get related answers
@@ -406,7 +496,10 @@ abstract class ChartType
         $result[$brand][] = $answers[$msg_index][$brand_index];
       }
     }
-        
+    
+    // cache
+    $this->cacheMapping($result, $cache_str);
+
     return $result;
   }
 

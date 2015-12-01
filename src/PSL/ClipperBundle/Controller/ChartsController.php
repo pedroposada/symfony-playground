@@ -163,6 +163,9 @@ class ChartsController extends FOSRestController
         'header'    => 'Maecenas faucibus mollis interdum.',
         'footer'    => 'Cras mattis consectetur purus sit amet fermentum.',
       ));
+      // cache setting; disable on chart
+      $charts_helper->setCacheUsageOnAssembler(TRUE);
+      $charts_helper->setCacheUsageOnChart(FALSE);
       // process charts & field required
       $content = $charts_helper->getCharts();
       $this->survey_type = $content['fields']['survey_type'];

@@ -64,6 +64,12 @@ class ClipperChartsService {
     'filter'        => 'getFilters',
     'titleLong'     => 'getTitleLong',
   );
+  
+  /**
+   * Cache
+   */
+  public $use_cache_assember = FALSE;
+  public $use_cache_chart = FALSE;
 
   public function __construct(ContainerInterface $container) 
   {
@@ -155,6 +161,28 @@ class ClipperChartsService {
   }
   
   /**
+   * Method to set Cache on Chart assembler level, defaulting to No.
+   * @method setCacheUsageOnAssembler
+   *
+   * @param  boolean $yes
+   */
+  public function setCacheUsageOnAssembler($yes) {
+    
+    $this->use_cache_assember = (!empty($yes));
+  }
+  
+  /**
+   * Method to set Cache on Chart Type level, defaulting to No.
+   * @method setCacheUsageOnChart
+   *
+   * @param  boolean $yes
+   */
+  public function setCacheUsageOnChart($yes) {
+    
+    $this->use_cache_chart = (!empty($yes));
+  }
+  
+  /**
    * Method to get selected order survey type.
    * @method getSurveyType
    *
@@ -183,12 +211,14 @@ class ClipperChartsService {
     // get map
     $map = $this->container->get('survey_chart_map')->map($this->survey_type);
     
-    // get assember
+    // get assembler
     $assembler = $this->container->get('chart_assembler');
-    
+    // apply cache setting
+    $assembler->use_cache = $this->use_cache_assember;
+    $assembler->setCacheUsage($this->use_cache_chart);
+        
     // loop to each charts
     foreach ($map['machine_names'] as $index => $machine_name) {
-      
       // drilldown
       $drilldown = array();
       // get drill down if:

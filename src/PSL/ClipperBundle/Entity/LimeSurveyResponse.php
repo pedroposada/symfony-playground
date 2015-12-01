@@ -43,9 +43,17 @@ class LimeSurveyResponse
      */
     public function getResponseDecoded()
     {
-      $raw = $this->getResponseRaw();
+      static $cache_decoded_reponse;
+      if (isset($cache_decoded_reponse[$this->ls_token])) {
+        return $cache_decoded_reponse[$this->ls_token];
+      }
       
-      return $this->decodeRaw($raw);
+      $raw = $this->getResponseRaw();      
+      $result = $this->decodeRaw($raw);
+      
+      $cache_decoded_reponse[$this->ls_token] = $result;
+      
+      return $result;
     }
     
     /**

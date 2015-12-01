@@ -47,6 +47,13 @@ class DownloadsController extends Controller
     try {
       //@TODO review cache strategies
       $charts = $this->getChartsByOrderId($order_id);
+      
+      // check if empty
+      foreach ($charts as $chart) {
+        if (empty($chart['datatable'])) {
+          throw new Exception("Requested Order-ID did not have any responses.");     
+        }
+      }
 
       //prep data structure
       $data = array(
@@ -131,6 +138,9 @@ class DownloadsController extends Controller
     if (empty($this->survey_type)) {
       $this->survey_type = $charts_helper->getSurveyType();
     }
+    // cache setting; enable both
+    $charts_helper->setCacheUsageOnAssembler(TRUE);
+    $charts_helper->setCacheUsageOnChart(TRUE);
     $charts_data = $charts_helper->getCharts();
     return $charts_data['charts'];
   }

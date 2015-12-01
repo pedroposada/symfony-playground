@@ -48,6 +48,8 @@ class PPDBrandMessages extends ChartType {
       $this->brand_filter = $filters['brand'];
     }
     
+    $this->qcode_clean = array_values($this->qcode);
+    
     //prep calculation structure
     $set = array_keys(parent::$net_promoters_cat_range);
     $set = array_flip($set);
@@ -150,11 +152,11 @@ class PPDBrandMessages extends ChartType {
     //getting answers
     $answers = $response->getResponseDecoded();
     $answers_que = $this->filterAnswersToQuestionMapIntoViaMessages($answers, $this->questions);
+    $answers_que = array_map('array_filter', $answers_que);
     
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
     
-    $qcode = array_values($this->qcode);
     foreach ($this->brands as $brand) {
       if ((!empty($this->brand_filter)) && ($this->brand_filter != $brand)) {
         continue;
@@ -162,11 +164,9 @@ class PPDBrandMessages extends ChartType {
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
       if (!is_null($answers_type[$brand])) {
         $this->counts[$type]['count']++;
-      }
-      foreach ($qcode as $qindex => $qcd) {
-        if (!empty($answers_que[$brand][$qindex])) {
-          $this->result[$qcd][$type]['count'] += $answers_que[$brand][$qindex];
-        }
+      }      
+      foreach ($answers_que[$brand] as $valindex => $val) {
+        $this->result[$this->qcode_clean[$valindex]][$type]['count'] += $val;          
       }
     }
   }
