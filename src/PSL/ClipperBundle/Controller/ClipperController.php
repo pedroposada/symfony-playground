@@ -318,6 +318,7 @@ class ClipperController extends FOSRestController
       $returnObject['product'] = FALSE;
       $returnObject['error_message'] = $e->getMessage();
       $returnObject['error_code'] = $e->getCode();
+      $returnObject['error_full'] = "General exception: {$e}";
       $responseStatus = 400;
       $this->logger->debug("General exception: {$e}");
     }
