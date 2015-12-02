@@ -102,6 +102,8 @@ class GoogleSpreadsheetService
 
     // mapping of cell to data to send
     $data = array(
+      // FirstQ
+      'C3' => 'FirstQ',
       'C10' => $form_data->loi,
       'C18' => $form_data->ir,
       'C7' => $form_data->market,

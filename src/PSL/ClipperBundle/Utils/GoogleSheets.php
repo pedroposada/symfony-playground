@@ -199,6 +199,8 @@ class GoogleSheets {
       // no need for an error here. It's handled in the service function
       return FALSE;
     }
+    
+    // @TODO: cache the ID of the sheet
 
     $sheets = $this->getSheets($reset);
     $sheets_by_name = array_flip($sheets);
@@ -323,33 +325,30 @@ class GoogleSheets {
   /**
    * Get the cellfeed for a single spreadsheet.
    *
-   * @param object $spreadsheet    - The spreadsheet object
-   * @param string $worksheet_name - The worksheet name
-   * @param        boolean         boolean         - Rset the cache
+   * @param object $worksheet    - The worksheet object
    *
    * @return CellFeed - The cell feed for the worksheet
    *
    */
-  public function getCellFeed($spreadsheet, $worksheet_name, $reset = FALSE)
+  public function getCellFeed($worksheet)
   {
-    $worksheet  = $this->getWorksheet($spreadsheet, $worksheet_name);
-    $worksheet_id = $worksheet->getWorksheetId();
-    return $this->getCellFeedByID($worksheet_name, $reset);
+    $cellFeed = $worksheet->getCellFeed();
+    
+    return $cellFeed;
   }
 
   /**
    * Batch send values to a worksheet.
    *
-   * @param string $spreadsheet_name - The name of the spreadsheet
-   * @param string $worksheet_id     - the ID of the worksheet.
+   * @param string $worksheet        - the worksheet object
    * @param array  $data             - The data to send to the spreadsheet. Example
    *                                 array('A1' => 'hello', 'A2' => 'world')
    */
-  public function batchSetData($spreadsheet_name, $worksheet_id, $data)
+  public function batchSetData($worksheet, $data)
   {
     $batch_request = new BatchRequest();
-
-    $cell_feed = $this->getCellFeedByID($worksheet_id);
+    
+    $cell_feed = $this->getCellFeed($worksheet);
 
     foreach ($data as $pos => $value) {
       // Convert position from Sheet format to indexes A2 => 1, 2
@@ -363,16 +362,14 @@ class GoogleSheets {
   }
 
   /**
-   * @param string  $spreadsheet_name - The name of the spreadsheet
-   * @param string  $worksheet_id     - The name of the worksheet ID
+   * @param string  $worksheet        - The worksheet object
    * @param array   $cell_return      - The values to return
-   * @param boolean $reset            - Reste the cellFeed
    *
    * @return array - The cell values requested
    */
-  public function batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, $reset = FALSE)
+  public function batchGetCells($worksheet, $cell_return)
   {
-    $cell_feed = $this->getCellFeedByID($worksheet_id, $reset);
+    $cell_feed = $this->getCellFeed($worksheet);
     $return = array();
     foreach ($cell_return as $pos) {
       $pos_idx = $this->convertAlphaNumPos($pos);
@@ -395,18 +392,13 @@ class GoogleSheets {
    */
   public function batchSetGet($spreadsheet_name, $worksheet_name, $data, $cell_return)
   {
-    $worksheet_id = $this->worksheetIdCache($spreadsheet_name, $worksheet_name);
-
-    try {
-      $this->batchSetData($spreadsheet_name, $worksheet_id, $data);
-      $results = $this->batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, TRUE);
-    }
-    catch (\Google\Spreadsheet\Exception $e) {
-      $worksheet_id = $this->worksheetIdCache($spreadsheet_name, $worksheet_name, TRUE);
-      $this->batchSetData($spreadsheet_name, $worksheet_id, $data);
-      $results = $this->batchGetCells($spreadsheet_name, $worksheet_id, $cell_return, TRUE);
-    }
-
+    // set up worksheet for getCellFeed()
+    $spreadsheet = $this->getSpreadsheet($spreadsheet_name, TRUE);
+    $worksheet = $this->getWorksheet($spreadsheet, $worksheet_name);
+    
+    $this->batchSetData($worksheet, $data);
+    $results = $this->batchGetCells($worksheet, $cell_return);
+    
     return $results;
   }
 
