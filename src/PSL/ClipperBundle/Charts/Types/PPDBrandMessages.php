@@ -152,7 +152,7 @@ class PPDBrandMessages extends ChartType {
     //getting answers
     $answers = $response->getResponseDecoded();
     $answers_que = $this->filterAnswersToQuestionMapIntoViaMessages($answers, $this->questions);
-    $answers_que = array_map('array_filter', $answers_que);
+    // $answers_que = array_map('array_filter', $answers_que);
     
     //filtering answers for promote-scale
     $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
@@ -166,7 +166,8 @@ class PPDBrandMessages extends ChartType {
         $this->counts[$type]['count']++;
       }      
       foreach ($answers_que[$brand] as $valindex => $val) {
-        $this->result[$this->qcode_clean[$valindex]][$type]['count'] += $val;          
+        $val = (int) $val;
+        $this->result[$this->qcode_clean[$valindex]][$type]['count'] += $val;
       }
     }
   }

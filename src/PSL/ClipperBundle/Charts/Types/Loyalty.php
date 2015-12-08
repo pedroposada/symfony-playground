@@ -144,11 +144,11 @@ class Loyalty extends ChartType {
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
-      //capture answer
       if (!is_null($answers[$brand])) {
         //capture base
         $this->base[$brand]++;
+        //capture answer
+        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
       }
     }
 

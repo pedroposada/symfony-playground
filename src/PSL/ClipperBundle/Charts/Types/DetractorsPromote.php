@@ -101,6 +101,9 @@ class DetractorsPromote extends ChartType {
     
     //capture base
     foreach ($this->brands as $brand) {
+      if (is_null($answers[$brand])) {
+        continue;
+      }
       if ($this->validateRespondentCategory($answers[$brand], 'detractor')) {
         $this->extractPromoter($brand, $answers);        
       }
@@ -157,7 +160,7 @@ class DetractorsPromote extends ChartType {
     }
     $competitors_count = $this->base[$brand];
     array_walk($this->competitors[$brand], function(&$count, $comp_brand) use ($competitors_count) {
-      $count = $this->roundingUpValue((($count / $competitors_count) * 100), 0);
+      $count = $this->roundingUpValue((($count / $competitors_count) * 100), 0, FALSE, PHP_ROUND_HALF_UP);
     });
   }
 }

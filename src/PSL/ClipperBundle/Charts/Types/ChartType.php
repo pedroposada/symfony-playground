@@ -73,6 +73,7 @@ abstract class ChartType
   {
     // cache
     $this->use_cache = $event->getCacheUsage();
+    $this->use_cache = FALSE;
     
     // only apply to request machine name
     if ($event->getChartMachineName() === $this->machine_name) {
@@ -493,7 +494,7 @@ abstract class ChartType
       // notice this will result the last answer / more than brand count will be ignore
       // - this applied to "None of these" answer
       foreach ($messages as $msg_index => $message) {
-        $result[$brand][] = $answers[$msg_index][$brand_index];
+        $result[$brand][$msg_index] = $answers[$msg_index][$brand_index];
       }
     }
     
@@ -647,6 +648,10 @@ abstract class ChartType
         $answers = array_map('strtolower', $answers);
         $answers = array_map('trim', $answers);
         array_walk($answers, function(&$value,  $key) {
+          if (($value == "n/a") || ($value == '')) {
+            $value = NULL;
+            return;
+          }
           $value = ($value == 'yes' ? 1 : 0);
         });
         break;

@@ -105,12 +105,10 @@ class PPDBrandMessagesByBrands extends ChartType {
       }
       $type = $this->identifyRespondentCategory($answersType[$brand]);
       foreach ($answersQue[$brand] as $qIndex => $qAnswer) {
-        if (!empty($qAnswer)) {
-          $this->results[$brand][$qIndex][$type]['count']++;
+        if (!is_null($answersType[$brand])) {
+          $this->results[$brand][$qIndex][$type]['base']++;
         }
-        if (!is_null($qAnswer)) {
-          $this->results[$brand][$qIndex][$type]['base']++;          
-        }
+        $this->results[$brand][$qIndex][$type]['count'] += (int) $qAnswer;
       }
     }
   }
@@ -127,11 +125,22 @@ class PPDBrandMessagesByBrands extends ChartType {
     foreach ($result as $ques_index => $ques_set) {
       foreach (parent::$net_promoters_cat_range as $type => $val) {
         if (!empty($ques_set[$type]['count'])) {
-          $result[$ques_index][$type]['perc'] = $this->roundingUpValue((($ques_set[$type]['count'] / $ques_set[$type]['base']) * 100), 0);
+          $calc = (($ques_set[$type]['count'] / $ques_set[$type]['base']) * 100);
+          $result[$ques_index][$type]['perc'] = $this->roundingUpValue($calc, 0, FALSE, PHP_ROUND_HALF_UP);
         }
         unset($result[$ques_index][$type]['count']);
+      } // nps
+      
+      $result[$ques_index]['question'] = $this->questions[$ques_index];
+      $diff = ($result[$ques_index]['promoter']['perc'] - $result[$ques_index]['detractor']['perc']);
+      $result[$ques_index]['diff'] = $this->roundingUpValue($diff, 2, FALSE, PHP_ROUND_HALF_UP);
+    } // $result
+    
+    usort($result, function ($a, $b) {
+      if ($a['diff'] == $b['diff']) {
+        return 0;
       }
-      $result[$ques_index]['diff'] = ($result[$ques_index]['promoter']['perc'] - $result[$ques_index]['detractor']['perc']);
-    }
+      return (($a['diff'] > $b['diff']) ? -1 : 1);
+    });
   }
 }

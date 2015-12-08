@@ -201,13 +201,13 @@ class PromVsDetrPromote extends ChartType {
       $count = $this->brands_scores[$brand][$type]['c'];
       $count = max(1, $count);
       $$type = ($this->brands_scores[$brand][$type]['t'] / $count);
-      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->roundingUpValue($$type, 1, FALSE, PHP_ROUND_HALF_UP);
+      $this->brands_scores[$brand][$type]['cal'] = $this->roundingUpValue($$type, 1, FALSE, PHP_ROUND_HALF_DOWN);
       $total_count += $this->brands_scores[$brand][$type]['c'];
     }
     $result = 0;
     if ($detractor) {
       $result = (($promoter / $detractor) * 100);
     }
-    $this->brands_scores_results[$brand] = $this->roundingUpValue($result, 1, FALSE, PHP_ROUND_HALF_UP);
+    $this->brands_scores_results[$brand] = $this->roundingUpValue($result, 1, FALSE, PHP_ROUND_HALF_DOWN);
   }
 }

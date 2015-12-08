@@ -78,7 +78,6 @@ class NPS extends ChartType
         foreach (array('detractors', 'passives', 'promoters') as $type) {
           if (!empty($this->dataTable_data[$brand][$type])) {
             $this->dataTable_data[$brand][$type] = (($this->dataTable_data[$brand][$type] / $this->base[$brand]) * 100);
-            $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], 0, FALSE, PHP_ROUND_HALF_EVEN);
           }
         }
         $score = $this->dataTable_data[$brand]['score'] = $this->dataTable_data[$brand]['promoters'] - $this->dataTable_data[$brand]['detractors'];
@@ -86,6 +85,11 @@ class NPS extends ChartType
           $score++;
         }
         $score_order[$score] = $brand;
+        // rounding up last
+        $this->dataTable_data[$brand]['score'] = $this->roundingUpValue($this->dataTable_data[$brand]['score'], 0, FALSE, PHP_ROUND_HALF_DOWN);
+        foreach (array('detractors', 'passives', 'promoters') as $type) {
+          $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], 0, FALSE, PHP_ROUND_HALF_DOWN);
+        }
       }
     }
     $this->respondent = array();
@@ -161,8 +165,8 @@ class NPS extends ChartType
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
       if (!is_null($answers[$brand])) {
+        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
         //capture size
         $type = $this->identifyRespondentCategory($answers[$brand]);
         $this->dataTable_data[$brand]["{$type}s"]++;
