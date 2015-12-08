@@ -46,11 +46,8 @@ class LimeSurveyAddParticipants extends FqProcess
      **/
     $participants_sample = current($fqp->getSheetDataByField('participants_sample'));
     if ($this->container->hasParameter('clipper.participants_sample')) {
-      // use DEV value from config_dev.yml if exists and if > 0
-      $default_participants_sample = $this->container->getParameter('clipper.participants_sample');
-      if ($default_participants_sample > 0) {
-        $participants_sample = $default_participants_sample;
-      }
+      // use DEV value from config_dev.yml
+      $participants_sample = $this->container->getParameter('clipper.participants_sample');
     }
     $this->logger->debug("Sample has [{$participants_sample}] participants");
     if (empty($participants_sample)) {
