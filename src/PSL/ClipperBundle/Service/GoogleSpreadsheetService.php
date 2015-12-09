@@ -123,6 +123,16 @@ class GoogleSpreadsheetService
       $result = $this->sheet->batchSetGet($this->spreadsheet_name, $this->worksheet_name, $data, $return);
 
       if ($result) {
+        
+        // Clean numbers except F12, F21, F22, F26, F27
+        $arrayToFormat = array('F3', 'F5', 'F7', 'F8', 'F10', 'F14', 'F15', 'F16', 'F17', 'F20', 'F24');
+        foreach ($result as $key => $value) {
+          if (in_array($key, $arrayToFormat)) {
+            // returns 
+            $result[$key] = $this->returnInteger($value);
+          }
+        }
+        
         $feasibility->market = $form_data->market;
         $feasibility->specialty = $form_data->specialty;
         $feasibility->feasibility = TRUE;
@@ -222,5 +232,18 @@ class GoogleSpreadsheetService
   public function get_auth_cache_key() {
 
     return $this->auth_cache_key;
+  }
+
+  /**
+   * ----------------------------------------------------------------------------------------
+   * Helpers
+   * ----------------------------------------------------------------------------------------
+   */
+
+  /**
+   * Returns an int
+   */
+  function returnInteger($numberString) {
+    return (int)preg_replace("/[^0-9]/", "", $numberString);
   }
 }

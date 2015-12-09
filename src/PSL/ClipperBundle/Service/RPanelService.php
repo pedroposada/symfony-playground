@@ -198,7 +198,7 @@ class RPanelService
         'hono_currency' => $gs->result['F27'],            // feasibility_project_quota.r_hono_cur,
         'interview_length' => $rp->getLength(),           // feasibility_project_quota.length,
         'email_template_id' => $rp->getEmailTemplateId(), // 0,
-        'sample_invites' => $gs->result['F8'],            // feasibility_project_quota.r_sample,
+        'sample_invites' => (int)$gs->result['F8'],       // feasibility_project_quota.r_sample,
         'quota' => $rp->getNumParticipants(),             // feasibility_project_quota.respondent_req
         'expiry_dttime' => $rp->getAddedDuration('P5D', 'Y-m-d H:i:s'),  // now + 5 days
       )
