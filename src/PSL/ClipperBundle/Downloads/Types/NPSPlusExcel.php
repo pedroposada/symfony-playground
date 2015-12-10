@@ -602,7 +602,7 @@ class NPSPlusExcel extends DownloadType
         $rowStarts = $row;
 
         // brand list
-        $colStarts = $alp = 1;
+        $colStarts = $colEnds = $alp = 1;
         foreach($dataTable['brands'] as $brand) {
           // new requirement since FirstView: hide brand with no base (hidden)
           if (!isset($localDataTable[$brand])) {

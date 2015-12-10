@@ -23,21 +23,13 @@ class LoadFirstQGroups extends AbstractFixture implements OrderedFixtureInterfac
   public function load(ObjectManager $manager)
   {
     // new version NPS+ (FirstView NOV 2015)
+    // FQ-GROUP-RH001
     $group = new FirstQGroup();
-    $group->setFormDataRaw('{"survey_type":"nps_plus","loi":10,"ir":10,"title":"FirstView NOV 2015","name":"FirstView NOV 2015","name_full":"FirstView NOV 2015","patient_type":"sick","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["Avonex (interferon beta-1a)", "Rebif (interferon beta-1a)", "Copaxone (glatiramer acetate)", "Glatopa (glatiramer acetate injection)", "Gilenya (fingolimod)", "Betaseron (interferon beta-1b)", "Tecfidera (dimethyl fumarate)", "Aubagio (teriflunomide)", "Tysabri (natalizumab)"],"attributes":["Reduces the number/severity of relapses", "Slows the progression of disease", "Provides long term efficacy", "Provides long term safety", "A positive risk-benefit profile", "Positively impacts quality of life", "Has few side effects", "Allows for good patient compliance", "Has convenient administration", "Is cost effective", "Has novel mechanism of action"],"launch_date":"2015-07-22 11:10:33","completion_date":"2015-07-27 11:10:33","timezone_client":"Europe\/London","price_total":12345,"project_number":"2468","vat_number":"1359"}');
-    $group->setState('ORDER_COMPLETE');
-    $group->setOrderId('test-order-complete-firstview');
     $group->setUserId('250199');
-    $this->setReference('firstqgroup-1', $group);
-    $manager->persist($group);
-    
-    // previous version NPS+
-    $group = new FirstQGroup();
-    $group->setFormDataRaw('{"survey_type":"nps_plus","loi":10,"ir":10,"title":"a title","name":"a name","name_full":"a name full","patient_type":"sick","num_participants":35,"timestamp":"1436452135","markets":["USA"],"specialties":["Oncology","Cardiology"],"brands":["AA-123","BB-456","CC-789","DD-123","EE-456","FF-789"],"attributes":["it just works","painfull side effects","risk of death","just painful","mildly pointless","kind of cool","not effective","gives headaches"],"launch_date":"2015-07-22 11:10:33","completion_date":"2015-07-27 11:10:33","timezone_client":"Europe\/London","price_total":12345,"project_number":"2468","vat_number":"1359"}');
+    $group->setOrderId('test-order-complete-firstview');
+    $group->setFormDataRaw('{"survey_type":"nps_plus","loi":10,"ir":10,"title":"FirstView NOV 2015","name":"FirstView NOV 2015","name_full":"FirstView NOV 2015","patient_type":"sick","num_participants":250,"timestamp":"1436452135","markets":["USA","Germany","Italy","Spain","France","UK"],"specialties":["Neurology"],"brands":["Avonex (interferon beta-1a)","Rebif (interferon beta-1a)","Copaxone (glatiramer acetate)","Glatopa (glatiramer acetate injection)","Gilenya (fingolimod)","Betaseron (interferon beta-1b)","Tecfidera (dimethyl fumarate)","Aubagio (teriflunomide)","Tysabri (natalizumab)"],"attributes":["Reduces the number/severity of relapses","Slows the progression of disease","Provides long term efficacy","Provides long term safety","A positive risk-benefit profile","Positively impacts quality of life","Has few side effects","Allows for good patient compliance","Has convenient administration","Is cost effective","Has novel mechanism of action"],"launch_date":"2015-07-22 11:10:33","completion_date":"2015-07-27 11:10:33","timezone_client":"Europe/London","price_total":12345,"project_number":"2468","vat_number":"1359"}');
     $group->setState('ORDER_COMPLETE');
-    $group->setOrderId('test-order-complete');
-    $group->setUserId('user-1');
-    $this->setReference('firstqgroup-2', $group);
+    $this->setReference('FQ-GROUP-RH001', $group);
     $manager->persist($group);
     
     /**

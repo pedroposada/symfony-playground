@@ -353,6 +353,9 @@ class ChartsAssemblerTest extends WebTestCase
             continue;
           }
           foreach ($test as $key => $ts) {
+            if (!is_array($cat_set)) {
+              continue;
+            }
             $this->assertArrayHasKey($key, $cat_set, "'{$key}' key is missing.");
             $this->assertTrue($ts($cat_set[$key]), "'{$key}' value having wrong data type.");
           }
