@@ -143,8 +143,7 @@ abstract class ChartType
     if (!empty($markets)) {
       $map = GeoMapper::getMap();
       foreach ($map as $region => $countries) {
-        $inter = array_intersect($countries, $markets);
-        $diff = array_diff($inter, $countries);
+        $diff = array_diff($countries, $markets);
         if (empty($diff)) {
           $regions[] = $region;
         }
