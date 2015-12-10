@@ -73,7 +73,6 @@ abstract class ChartType
   {
     // cache
     $this->use_cache = $event->getCacheUsage();
-    $this->use_cache = FALSE;
     
     // only apply to request machine name
     if ($event->getChartMachineName() === $this->machine_name) {
