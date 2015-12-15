@@ -39,7 +39,7 @@ class LimeSurveyCreated extends FqProcess
     // set up the RPanel Project object
     // and add other values
     $rpanel_project = new RPanelProject($fqp);
-    $rpanel_project->setProjName('FirstQ Project ' . self::$timestamp);
+    $rpanel_project->setProjName($form_data['title'] . ' ' . self::$timestamp);
     $rpanel_project->setProjStatus($params_rp['default_table_values']['proj_status']);
     $rpanel_project->setLaunchDate($form_data['launch_date']); // Y-m-d H:i:s
     $rpanel_project->setProjType($params_rp['default_table_values']['proj_type']);
