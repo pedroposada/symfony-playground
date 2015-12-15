@@ -85,7 +85,7 @@ class RPanelService
         'target_list' => $rp->getTargetList(),            // 0,
         'feasibility_file' => $rp->getFeasibilityFile(),  // 0,
         'respondent' => $rp->getRespondent(),             // 0,
-        'duration' => $rp->getAddedDuration('P5D'),       // now + 5 days,
+        'duration' => 0,                                  // now + 5 days, $rp->getAddedDuration('P5D')
         // 'field_duration' => $rp->getFieldDuration(),   // @TODO: remove, [Field Duration in days, most likely 1],
         'r_uni_size' => (int)$gs->result['F3'],           // [Col F Row 3 in Google Sheet],
         'r_uni_feasible' => (int)$gs->result['F5'],       // [Col F Row 5 in Google Sheet],
@@ -107,11 +107,11 @@ class RPanelService
         'r_panel_usage' => (int)$gs->result['F14'],       // [Col F Row 14 in Google Sheet],
         'r_hono_handling' => (int)$gs->result['F15'],     // [Col F Row 15 in Google Sheet],
         'r_client_cur' => $gs->result['F12'],             // [Col F Row 12 in Google Sheet]);
-        'sheet_name' => NULL,                               // null
+        'sheet_name' => 0,                                  // 0
         'r_cr_proj_mgmt' => 0,                              // 0
         'r_cr_cpi' => 0,                                    // 0
         'r_cr_hono_handling' => 0,                          // 0
-        'r_field_duration' => $rp->getAddedDuration('P5D'), // now + 5 days
+        'r_field_duration' => 5,                            // now + 5 days $rp->getAddedDuration('P5D')
         'cr_approved' => NULL,                              // null
         'end_date' => $rp->getEstimateDate(),               // estimated completion date
         'cr_days' => 0,                                     // 0
@@ -243,7 +243,7 @@ class RPanelService
   {
     $conn = $this->conn;
     foreach ($rp->getUrls() as $url) {
-      $conn->insert('feasibility_full_url',
+      $conn->insert('feasibility_link_full_url',
         array(
           'ltid' => $rp->getLTId(),                       // feasibility_link_type.ltid
           'link_url' => $url,                             // [Link URL from LimeSurvey]
