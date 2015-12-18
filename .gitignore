@@ -9,6 +9,8 @@
 /composer.phar
 /vendor/
 /web/bundles/
+!web/bundles/pslclipper/zip/.gitkeep
+!web/bundles/pslclipper/pdf/.gitkeep
 src/PSL/ClipperBundle/Command/TestCommand.php
 app/config/parameters.ymlsrc/PSL/ClipperBundle/Resources/public/images/fwreports-second-orig.png
 src/PSL/ClipperBundle/Resources/public/images/fwreports-second.xcf
