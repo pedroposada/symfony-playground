@@ -43,7 +43,8 @@
         "symfony/serializer": "^2.7",
         "liuggio/excelbundle": "^2.0",
         "braintree/braintree_php" : "3.5.0",
-        "graze/guzzle-jsonrpc": "~3.0"
+        "graze/guzzle-jsonrpc": "~3.0",
+        "knplabs/knp-snappy-bundle": "dev-master"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3",

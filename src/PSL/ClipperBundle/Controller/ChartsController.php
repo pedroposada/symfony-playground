@@ -33,6 +33,7 @@ use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
 use Doctrine\Common\Collections\ArrayCollection;
 
+
 // custom
 
 
@@ -195,5 +196,50 @@ class ChartsController extends FOSRestController
     }
 
     return new Response($content, $code);
+  }
+  
+  /**
+   * PDF download
+   * /clipper/charts/pdfs
+   *
+   * @param ParamFetcher $paramFetcher
+   *
+   * @QueryParam(name="order_id", default="(empty)", description="collection of objects to generate multipage pdf")
+   * 
+   * @return \Symfony\Component\HttpFoundation\Response
+   */
+  public function pdfAction(ParamFetcher $paramFetcher)
+  {
+    $logger = $this->container->get('monolog.logger.clipper');
+    $order_id = $paramFetcher->get('order_id', ''); // FQG order_id
+    $filepath = $this->container->get('kernel')->getRootDir() . '/../web/bundles/pslclipper/zip/';
+    $filename = 'charts.zip';
+    $filefull = $filepath . $filename;
+
+    $archive = new \ZipArchive();
+    $archive->open($filefull, \ZipArchive::CREATE|\ZipArchive::OVERWRITE);
+    
+    try {
+      // get array of pdf filenames from service
+      $pdfs = $this->container->get('charts_pdf_service')->getFiles($order_id);
+      foreach ($pdfs as $key => $filename) {
+        $archive->addFile($filename);
+      }  
+    }
+    catch (Exception $e) {
+      $logger->debug('Pdf files error', array('exception' => $e));
+      $archive->addFromString('empty.txt', 'empty');
+    }
+    
+    $archive->close(); // write file to system, ensure 'file_get_contents' works
+    
+    $response = new \Symfony\Component\HttpFoundation\Response(file_get_contents($filefull));
+    $d = $response->headers->makeDisposition(\Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
+    $response->headers->set('Content-Disposition', $d);
+    $response->headers->set('Content-Type', 'application/zip');
+    $response->headers->set('Content-Length', filesize($filefull));
+    
+    
+    return $response;
   }
 }
