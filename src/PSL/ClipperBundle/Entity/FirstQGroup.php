@@ -342,7 +342,7 @@ class FirstQGroup
     /**
      * Get specific value from FormDataRaw array
      *
-     * @return mixed string|int|array
+     * @return array
      */
     public function getFormDataByField($field_name)
     {

@@ -38,6 +38,7 @@ final class ClipperEvents
      * @var string
      */
     const CHART_PROCESS                 = 'chart_process';
+    const CHART_PDF                     = 'chart_pdf';
 
     /**
      * The event listeners receive an instance of

@@ -1,0 +1,533 @@
+/* charts sample data */
+
+{
+   "content": {
+      "meta":{
+         "projectTitle":"NPS+ Multiple Sclerosis", 
+         "totalResponses":3,
+         "quota":50,
+         "finalReportReady": "Oct. 13, 2015 9:00pm EST",
+         "introduction": "<p><strong>Congratulations on purchasing your FirstQ NPS+ Report for Multiple Sclerosis!</strong></p><p>The table below shows when your report will be complete. You'll be notified by email when it is ready.</p><p>Visit this page anytime to see the results in easy to use interactive charts. Please note the numbers will continue to update until the survey is finished. After that, you can return here anytime to see the final results.</p><p><a href='mailto:contact@fwfirstq.com'>Contact us</a> with any questions.</p><p>Thank you for choosing FirstQ. Enjoy your report!</p>",
+         "reportDescriptionTitle": "About NPS+",
+         "reportDescription": "<p>The Net Promoter Score (NPS) measures overall brand satisfaction. Higher scores point to greater brand usage and are a sign of growth potential.</p><p><a href='#appendix-nps' class='scroll report-link'>Net Promoter Score<sup>&reg;</sup> (NPS) what it is and why it’s important</a></p><p>By itself, NPS helps you <strong><em>measure</em></strong> overall brand health, but doesn’t tell you how to <strong><em>improve</em></strong> it.</p><p>NPS+ adds much needed detail, giving you insight into:</p><ul><li>The prescribing value of Promoters.</li><li>Messages Promoters associate with brands.</li><li>Brand DNA and how Detractors perceive it compared to Promoters.</li><li>Brand loyalty.</li></ul><p>NPS+ does more than measure your brand’s overall health—it shows you what drives brand satisfaction so you can take action to improve it.</p>"
+      },
+      "charts":[
+         {
+            "chartmachinename":"NPS",
+            "charttype":"NPS_Chart",
+            "drilldown":{
+               "countries":[
+                  "United Kingdom",
+                  "United States"
+               ],
+               "specialties":[
+                  "GPs / PCPs",
+                  "Neurology"
+               ],
+               "regions":[
+
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":[
+              {
+                "brand": "Tecfidera",
+                "detractors": 27,
+                "passives": 40,
+                "promoters": 34,
+                "score": 7
+              },
+              {
+                "brand": "Tysabri",
+                "detractors": 37,
+                "passives": 34,
+                "promoters": 29,
+                "score": -8
+              },
+              {
+                "brand": "Copaxone",
+                "detractors": 35,
+                "passives": 39,
+                "promoters": 26,
+                "score": -9
+              },
+              {
+                "brand": "Rebif",
+                "detractors": 42,
+                "passives": 38,
+                "promoters": 20,
+                "score": -22
+              },
+              {
+                "brand": "Gilenya",
+                "detractors": 45,
+                "passives": 40,
+                "promoters": 15,
+                "score": -29
+              }
+            ],
+            "header": "<p>For each brand, this chart shows the % of doctors in each NPS segment: Detractors, Passives and Promoters.</p><p>The rightmost column shows the NPS score, calculated as: % Promoters - % Detractors</p>",
+            "interpretation": "<p>NPS measures overall brand health. The higher the score, the healthier the brand.</p>",
+            "titleLong": "Chart 1: Net Promoter Score"
+         },
+         {
+            "chartmachinename":"Loyalty",
+            "charttype":"Loyalty_Chart",
+            "drilldown":{
+               "countries":[
+                  "United Kingdom",
+                  "United States"
+               ],
+               "specialties":[
+                  "GPs / PCPs",
+                  "Neurology"
+               ],
+               "regions":[
+
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":{
+               "mean": 2.05,
+               "brands":[
+                  {
+                    "brand": "Tecfidera",
+                    "loyalty": 2.38
+                  },
+                  {
+                    "brand": "Tysabri",
+                    "loyalty": 2.14
+                  },
+                  {
+                    "brand": "Copaxone",
+                    "loyalty": 2.08
+                  },
+                  {
+                    "brand": "Rebif",
+                    "loyalty": 1.88
+                  },
+                  {
+                    "brand": "Gilenya",
+                    "loyalty": 1.78
+                  }
+               ]
+            },
+            "header": "<p>This chart shows each brand’s loyalty score as a circle on a scale from 1 to 5. The <span style='color: #ff2a1a; opacity: 0.8;'><strong>red</strong></span> circle shows the mean score for all brands surveyed.</p><p><a href='#appendix-loyalty' class='scroll report-link'>Learn how it's calculated</a></p>",
+            "interpretation": "<p>Scores < 3.0 indicate low loyalty. Doctors are more likely to switch to competing brands.<br/>Scores > 4.0 indicate high loyalty. Doctors are less likely to switch to competing brands.</p>",
+            "titleLong": "Chart 2: How loyal are doctors to my brand?"
+         },
+         {
+            "chartmachinename":"DoctorsPromote",
+            "charttype":"DoctorsPromote_Chart",
+            "drilldown":{
+               "countries":[
+                  "United Kingdom",
+                  "United States"
+               ],
+               "specialties":[
+                  "GPs / PCPs",
+                  "Neurology"
+               ],
+               "regions":[
+
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":{
+               "satisfied":{
+                  "amount":52,
+                  "exclusive":{
+                     "amount":15
+                  },
+                  "shared":{
+                     "amount":36
+                  }
+               },
+               "dissatisfied":{
+                  "amount":48
+               }
+            },
+            "header": "<p>This chart shows doctor satisfaction with available drugs. It gives the % of:</p><ul><li><strong>Dissatisfied</strong> doctors i.e. those who promote no drugs.</li><li><strong>Satisfied</strong> doctors i.e. those who promote at least 1 drug. For these doctors it shows the % that are:<ul><li>Exclusive i.e. promote only 1 drug.</li><li>Shared i.e. promote more than 1 drug.</li></ul></ul>",
+            "interpretation": "<p>This chart tells you how satisfied a market is with available drugs.</p><ul><li>A high % of Dissatisfied doctors suggests a high level of unmet needs.</li><li>A high % of Shared Promoters suggests that the market is satisfied, but may also indicate that:<ul><li>Brands are not well differentiated.</li><li>Each brand has a niche use.</li></ul></ul>",
+            "titleLong": "Chart 3: How satisfied is the market?"
+         },
+         {
+            "chartmachinename":"PromotersPromote",
+            "charttype":"PromotersPromote_Chart",
+            "drilldown":{
+               "countries":[
+               ],
+               "specialties":[
+               ],
+               "regions":[
+                  "EU",
+                  "US"
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":[
+               {
+                 "brand": "Tysabri",
+                 "competitors": {
+                   "Tecfidera": 67
+                 }
+               },
+               {
+
+                 "brand": "Tecfidera",
+                 "competitors": {
+                   "Tysabri": 58
+                 }
+               },
+               {
+                 "brand": "Rebif",
+                 "competitors": {
+                   "Copaxone": 87
+                 }
+               },
+               {
+                 "brand": "Copaxone",
+                 "competitors": {
+                   "Rebif": 68
+                 }
+               },
+               {
+                 "brand": "Gilenya",
+                 "competitors": {
+                   "Tecfidera": 83
+                 }
+               }
+            ],
+            "header": "<p>This chart shows the competitor most promoted by each brand’s Promoters.</p><ul><li>Shaded cells indicate the most commonly promoted competitor for each brand.</li><li>The degree of shading indicates the percentage of brand Promoters who promote that competitor.</li></ul>",
+            "interpretation": "<p>If Promoters of one brand also tend to promote another brand, it suggests that the two brands are considered interchangeable.</p><p>Alternatively, the two brands may be used for different patient types.</p>",
+            "titleLong": "Chart 4: Which other brand is most promoted by my Promoters?"
+         },
+         {
+            "chartmachinename":"DetractorsPromote",
+            "charttype":"DetractorsPromote_Chart",
+            "drilldown":{
+               "countries":[
+               ],
+               "specialties":[
+               ],
+               "regions":[
+                  "EU",
+                  "US"
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":[
+               {
+                 "brand": "Tysabri",
+                 "competitors": {
+                   "Tecfidera": 12,
+                   "Rebif": 7,
+                   "Copaxone": 11,
+                   "Gilenya": 5
+                 }
+               },
+               {
+                 "brand": "Tecfidera",
+                 "competitors": {
+                   "Tysabri": 7,
+                   "Rebif": 17,
+                   "Copaxone": 22,
+                   "Gilenya": 2
+                 }
+               },
+               {
+                 "brand": "Rebif",
+                 "competitors": {
+                   "Tysabri": 22,
+                   "Tecfidera": 25,
+                   "Copaxone": 9,
+                   "Gilenya": 6
+                 }
+               },
+               {
+                 "brand": "Copaxone",
+                 "competitors": {
+                   "Tysabri": 20,
+                   "Tecfidera": 20,
+                   "Rebif": 2,
+                   "Gilenya": 4
+                 }
+               },
+               {
+                 "brand": "Gilenya",
+                 "competitors": {
+                   "Tecfidera": 16,
+                   "Tysabri": 22,
+                   "Copaxone": 6,
+                   "Rebif": 12
+                 }
+               }
+            ],
+            "header": "<p>This chart shows which other brands are promoted by each brand’s Detractors.</p><p>Cell shading indicates the percentage of Detractors who promote the competitor in each column.</p>",
+            "interpretation": "<p>When Detractors of your brand promote competing brand(s), they are more likely to switch.</p>",
+            "titleLong": "Chart 5: Which other brands are promoted by my Detractors?"
+         },
+         {
+            "chartmachinename":"PromVsDetrPromote",
+            "charttype":"PromVsDetrPromote_Chart",
+            "drilldown":{
+               "countries":[
+               ],
+               "specialties":[
+               ],
+               "regions":[
+                  "EU",
+                  "US"
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":[
+               {
+                  "brand":"Tysabri",
+                  "promoters": 11.8,
+                  "detractors": 2.6,
+                  "diff": 354
+               },
+               {
+                  "brand":"Tecfidera",
+                  "promoters": 16.1,
+                  "detractors": 4.4,
+                  "diff": 266
+               },
+               {
+                  "brand":"Gilenya",
+                  "promoters": 7.3,
+                  "detractors": 2.7,
+                  "diff": 170
+               },
+               {
+                  "brand":"Rebif",
+                  "promoters": 24.5,
+                  "detractors": 9.4,
+                  "diff": 161
+               },
+               {
+                  "brand":"Copaxone",
+                  "promoters": 33,
+                  "detractors": 18.5,
+                  "diff": 78
+               }
+            ],
+            "header": "<p><span style='color: #CC6633;'><strong>Orange</strong></span> circles show each brand’s market share among Detractors.</p><p><span style='color: #08488c;'><strong>Blue</strong></span> circles show each brand’s market share among Promoters.</p><p>The values at the bottom of each brand section show the Promoter share as a % of the Detractor share. This tells you how much more of a brand Promoters prescribe than Detractors.</p>",
+            "titleLong": "Chart 6: What is my brand's market share among Promoters and Detractors?"
+         },
+         {
+            "chartmachinename":"PPDBrandMessages",
+            "charttype":"PPDBrandMessages_Chart",
+            "drilldown":{
+               "countries":[
+                  "United Kingdom",
+                  "United States"
+               ],
+               "specialties":[
+                  "GPs / PCPs",
+                  "Neurology"
+               ],
+               "regions":[
+
+               ],
+               "brands":[
+                  "Copaxone",
+                  "Gilenya",
+                  "Rebif",
+                  "Tecfidera",
+                  "Tysabri"
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":[
+               {
+                  "message":"Is cost effective",
+                  "detractors":46,
+                  "passives":68,
+                  "promoters":81
+               },
+               {
+                  "message":"Has few side effects",
+                  "detractors":44,
+                  "passives":68,
+                  "promoters":78
+               },
+               {
+                  "message":"Good overall benefits v risk profile",
+                  "detractors":67,
+                  "passives":92,
+                  "promoters":94
+               },
+               {
+                  "message":"Has convenient administration",
+                  "detractors":53,
+                  "passives":64,
+                  "promoters":80
+               },
+               {
+                  "message":"Provides long term safety",
+                  "detractors":61,
+                  "passives":76,
+                  "promoters":86
+               },
+               {
+                  "message":"Allows for good patient compliance",
+                  "detractors":70,
+                  "passives":73,
+                  "promoters":92
+               },
+               {
+                  "message":"Has novel mechanism of action",
+                  "detractors":62,
+                  "passives":65,
+                  "promoters":83
+               },
+               {
+                  "message":"Sustains long term efficacy",
+                  "detractors":72,
+                  "passives":79,
+                  "promoters":89
+               },
+               {
+                  "message":"Positively impacts quality of life",
+                  "detractors":81,
+                  "passives":90,
+                  "promoters":97
+               },
+               {
+                  "message":"Is well tolerated",
+                  "detractors":68,
+                  "passives":84,
+                  "promoters":84
+               },
+               {
+                  "message":"Slows the progression of disability",
+                  "detractors":80,
+                  "passives":87,
+                  "promoters":94
+               },
+               {
+                  "message":"Reduces the number / severity of relapses",
+                  "detractors":93,
+                  "passives":94,
+                  "promoters":99
+               }
+            ],
+            "header": "<p>This chart shows the % of Detractors, Passives and Promoters who associate brands with each of the brand messages. It summarises results across all brands.</p><p>Cell shading highlights the difference between groups. The darker the cell, the higher the percentage of group members that associate brands with the message.</p><p>Messages are listed in descending order of importance.</p>",
+            "interpretation": "<p>Associating your brand with messages linked to existing Promoters can increase the chances that other doctors will become Promoters.</p>",
+            "titleLong": "Chart 7: What messages do Promoters, Passives, and Detractors associate with my brand?"
+         },
+         {
+            "chartmachinename":"DNA",
+            "charttype":"DNA_Chart",
+            "drilldown":{
+               "countries":[
+                  "United Kingdom",
+                  "United States"
+               ],
+               "specialties":[
+                  "GPs / PCPs",
+                  "Neurology"
+               ],
+               "regions":[
+
+               ]
+            },
+            "filter":[
+
+            ],
+            "countTotal":3,
+            "countFiltered":3,
+            "datatable":[
+               {
+                  "brand":"Tecfidera",
+                  "detractors":[
+                     "Expensive now old-fashioned inhaler",
+                     "Second/third line treatment for more difficult patients",
+                     "Expensive and sometimes helps",
+                     "Expensive, been around long time",
+                     "2nd line treatment some cons as high steroid"
+                  ],
+                  "promoters":[
+                     "A trusted first line therapy",
+                     "Prevention of symptoms and improvement in lung function",
+                     "Gold standard",
+                     "Treats symptoms and reduces exacerbations",
+                     "Keeps patients out of hospital"
+                  ]
+               },
+               {
+                  "brand":"Tysabri",
+                  "detractors":[
+                     "Expensive now old-fashioned inhaler",
+                     "Second/third line treatment for more difficult patients",
+                     "Expensive and sometimes helps",
+                     "Expensive, been around long time",
+                     "2nd line treatment some cons as high steroid"
+                  ],
+                  "promoters":[
+                     "A trusted first line therapy",
+                     "Prevention of symptoms and improvement in lung function",
+                     "Gold standard",
+                     "Treats symptoms and reduces exacerbations",
+                     "Keeps patients out of hospital"
+                  ]
+               },
+               {
+                  "brand":"Copaxone",
+                  "detractors":[
+                     "Expensive now old-fashioned inhaler",
+                     "Second/third line treatment for more difficult patients",
+                     "Expensive and sometimes helps",
+                     "Expensive, been around long time",
+                     "2nd line treatment some cons as high steroid"
+                  ],
+                  "promoters":[
+                     "A trusted first line therapy",
+                     "Prevention of symptoms and improvement in lung function",
+                     "Gold standard",
+                     "Treats symptoms and reduces exacerbations",
+                     "Keeps patients out of hospital"
+                  ]
+               }
+            ],
+            "header": "<p>This chart shows doctors’ answers to the question:</p><p><strong>&quot;How would you summarise in a short phrase of no more than 10 words what this brand means to you?&quot;</strong></p>",
+            "interpetation": "<p>Swipe/scroll to go through the list of answers.</p>",
+            "titleLong": "Chart 8: What does my brand represent to Promoters and Detractors?"
+         }
+      ]
+   },
+   "status":200,
+   "headers":[
+
+   ]
+}

@@ -8,6 +8,13 @@
             "SymfonyStandard": "app/"
         }
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "http://stash.pslgroup.com/scm/clip/clipper-charts.git",
+            "vendor-alias": "clipper/charts"
+        }
+    ],
     "require": {
         "php": ">=5.3.3",
         "symfony/symfony": "2.6.*",
@@ -44,7 +51,8 @@
         "liuggio/excelbundle": "^2.0",
         "braintree/braintree_php" : "3.5.0",
         "graze/guzzle-jsonrpc": "~3.0",
-        "knplabs/knp-snappy-bundle": "dev-master"
+        "knplabs/knp-snappy-bundle": "dev-master",
+        "clipper/charts": "*"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3",

@@ -33,6 +33,9 @@ use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\View\View;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use PSL\ClipperBundle\ClipperEvents;
+use PSL\ClipperBundle\Event\ChartEvent;
+
 
 // custom
 
@@ -199,7 +202,7 @@ class ChartsController extends FOSRestController
   }
   
   /**
-   * PDF download
+   * PDF download in zip compressed file
    * /clipper/charts/pdfs
    *
    * @param ParamFetcher $paramFetcher
@@ -220,8 +223,17 @@ class ChartsController extends FOSRestController
     $archive->open($filefull, \ZipArchive::CREATE|\ZipArchive::OVERWRITE);
     
     try {
+      // dispatch charts event
+      $event = new ChartEvent();
+      $event->setOrderId($order_id);
+      $this
+        ->container
+        ->get('event_dispatcher')
+        ->dispatch(ClipperEvents::CHART_PDF, $event);
+      
+      
       // get array of pdf filenames from service
-      $pdfs = $this->container->get('charts_pdf_service')->getFiles($order_id);
+      $pdfs = $event->getPdfFiles();
       foreach ($pdfs as $key => $filename) {
         $archive->addFile($filename);
       }  

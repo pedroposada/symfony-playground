@@ -83,9 +83,9 @@ services:
     class: PSL\ClipperBundle\Service\UserService
     arguments: ["@service_container"]
 
-  # --------------------------- #
-  #   Clipper event listeners   #
-  # --------------------------- #
+  # -------------------------------- #
+  #   Clipper FQ process listeners   #
+  # -------------------------------- #
 
   # Listeners are called in descending order by priority. Highest priority is called first.
 
@@ -140,7 +140,10 @@ services:
     tags:
       - { name: kernel.event_listener, event: limesurvey_translation, method: onTranslate, priority: 0 }
 
-  # types of charts
+  # ------------------------------ #
+  #   Clipper Charts listeners     #
+  # ------------------------------ #
+
   #NPS: 001
   clipper.chart.nps:
     class: PSL\ClipperBundle\Charts\Types\NPS
@@ -203,9 +206,9 @@ services:
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
 
-  # --------------------------- #
-  #   Clipper event listeners   #
-  # --------------------------- #
+  # ------------------------------ #
+  #   Clipper Download listeners   #
+  # ------------------------------ #
 
   #@TODO: remove this
   clipper.download.nps_plus_dev:
@@ -219,3 +222,13 @@ services:
     arguments: ["@service_container", "nps_plus", "xls"]
     tags:
        - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }
+
+  # --------------------------- #
+  #   Charts PDF listeners      #
+  # --------------------------- #
+
+  clipper.charts.pdf.nps_plus:
+    class: PSL\ClipperBundle\Charts\Pdf\Types\NpsPlusPdf
+    arguments: ["@service_container", "nps_plus"]
+    tags:
+       - { name: kernel.event_listener, event: chart_pdf, method: onPdf, priority: 0 }
