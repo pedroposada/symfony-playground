@@ -5,6 +5,42 @@ namespace PSL\ClipperBundle\Charts;
 final class SurveyChartMap
 {
   /**
+   * Survey main item map.
+   * @method core_map
+   *
+   * @param  boolean|string $survey_type
+   *    Survey machine name.
+   *    
+   * @param  boolean|string $field
+   *    Field name
+   *
+   * @return boolean|string|array mixed
+   */
+  public static function core_map($survey_type = FALSE, $field = FALSE)
+  {
+    $map = array(
+      'nps_plus' => array(
+        'country'   => 'G001Q004',
+        'specialty' => 'G001Q005',
+      ),
+    );
+    
+    if (empty($survey_type)) {
+      return $map;
+    }
+    
+    if ((empty($field)) && (!empty($map[$survey_type]))) {
+      return $map[$survey_type];
+    }
+    
+    if ((!empty($field)) && (!empty($map[$survey_type][$field]))) {
+      return $map[$survey_type][$field];
+    }
+    
+    return FALSE;
+  }
+  
+  /**
    * Survey to chart types.
    * @method map_list
    *

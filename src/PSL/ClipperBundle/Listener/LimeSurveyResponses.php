@@ -15,6 +15,9 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use PSL\ClipperBundle\Event\FirstQProjectEvent;
 use PSL\ClipperBundle\Entity\LimeSurveyResponse;
 
+use PSL\ClipperBundle\Charts\SurveyChartMap;
+use PSL\ClipperBundle\Utils\MDMMapping;
+
 class LimeSurveyResponses
 {
   protected $container;
@@ -60,15 +63,23 @@ class LimeSurveyResponses
 
   public function fetchResponses($iSurveyID)
   {
+    // setup static
+    static $cache_responses;
+    if (!isset($cache_responses)) {
+      $cache_responses = array();
+    }
+    if (!empty($cache_responses[$iSurveyID])) {
+      return $cache_responses[$iSurveyID];
+    }
     $responses = array();
 
     // get LS
     $ls = $this->container->get('limesurvey');
     $responses = $ls->export_responses(array(
-      'iSurveyID' => $iSurveyID,
-      'sHeadingType' => 'code',
+      'iSurveyID'         => $iSurveyID,
+      'sHeadingType'      => 'code',
       'sCompletionStatus' => 'complete',
-      'sDocumentType' => 'json',
+      'sDocumentType'     => 'json',
     ));
 
     // stop if errors from request
@@ -83,7 +94,11 @@ class LimeSurveyResponses
     if (!is_array($responses['responses']) || empty($responses['responses'])) {
       throw new Exception("LS export_responses empty for iSurveyID: [{$iSurveyID}]");
     }
-
+      
+    // apply static
+    $cache_responses[$iSurveyID] = $responses;
+    
+    // return
     return $responses;
   }
 
@@ -91,12 +106,56 @@ class LimeSurveyResponses
   {
     $fqg = $event->getFirstQProjectGroup();
     $fqp = $event->getFirstQProject();
-
+      
+    // check filters
+    $project_id = $fqp->getId();    
+    static $filters;
+    if (!isset($filters)) {
+      $filters = array();
+    }
+    
+    // get filters
+    if (isset($filters[$project_id])) {
+      list($group_survey_type, $project_market, $project_specialty, $survey_map) = $filters[$project_id];
+    }
+    else {
+      // get response filters    
+      $group_survey_type = $fqg->getFormDataByField('survey_type');
+      $group_survey_type = current($group_survey_type);
+      $project_market    = $fqp->getSheetDataByField('market');
+      $project_market    = current($project_market);
+      $project_specialty = $fqp->getSheetDataByField('specialty');
+      $project_specialty = current($project_specialty);
+      
+      // get survey map
+      $survey_map = SurveyChartMap::core_map($group_survey_type);
+      
+      // store static
+      $filters[$project_id] = array(
+        $group_survey_type,
+        $project_market,
+        $project_specialty,
+        $survey_map,
+      );
+    }
+                    
     // loop through the responses of the survey
     foreach ($responses as $response) {
       $resp = current($response);
       
+      // filter by market
+      $res_market = MDMMapping::reverse_lookup('countries', $resp[$survey_map['country']]);
+      if (strtolower($res_market) != strtolower($project_market)) {
+        continue; //skip
+      }
+      // filter by specialty
+      $res_specialty = MDMMapping::reverse_lookup('specialties', $resp[$survey_map['specialty']]);
+      if (strtolower($res_specialty) != strtolower($project_specialty)) {
+        continue; //skip
+      }
+      
       // try to find response by token
+      // NOTICE: this may cause duplication, if responses did not have token (test data); it generate new ID on the fly
       $lstoken = empty($resp['token']) ? uniqid() : $resp['token'];
       $LimeSurveyResponse = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->find($lstoken);
 
@@ -122,5 +181,8 @@ class LimeSurveyResponses
         $this->logger->info("OK processing response, token: [{$lstoken}]");
       }
     }
+    
+    // commit
+    $this->em->flush();
   }
 }
