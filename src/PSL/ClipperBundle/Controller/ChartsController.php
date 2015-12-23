@@ -152,6 +152,133 @@ class ChartsController extends FOSRestController
 
     return new Response($content, $code);
   }
+
+  /**
+   * Preview the PDF to be downloaded
+   * clipper/charts/pdfpreview
+   *
+   * @param ParamFetcher $paramFetcher
+   *
+   * @QueryParam(name="order_id", default="(empty)", description="collection of objects to generate multipage pdf")
+   * @QueryParam(name="page", default="1", description="current page to render")
+   * @QueryParam(name="drilldown", default="", description="drilldown options")
+   * 
+   * @return \Symfony\Component\HttpFoundation\Response
+   */
+  public function previewPdfAction(ParamFetcher $paramFetcher)
+  {
+    $content = null;
+    $code = 200;
+
+    try {
+      $order_id = $paramFetcher->get('order_id');
+      $page = $paramFetcher->get('page');
+      $drilldown = $paramFetcher->get('drilldown');
+
+      // Parse drilldown
+      $f_arr = split(',', $drilldown);
+      $filters = array();
+      foreach ($f_arr as $value) {
+        $f_tmp = split(':', $value);
+        if (count($f_tmp) > 1) {
+          $filters[$f_tmp[0]] = $f_tmp[1];
+        } else if (count($f_tmp) > 0) {
+          $filters[$f_tmp[0]] = true;
+        }
+      }
+
+      // Parse page number
+      // @TODO Use #.# notation maybe
+      $page = intval($page);
+
+      // @TODO Uncomment when NpsPlusPdf is ready
+      // dispatch charts event
+      // $event = new ChartEvent();
+      // $event->setOrderId($order_id);
+      // $this
+      //   ->container
+      //   ->get('event_dispatcher')
+      //   ->dispatch(ClipperEvents::CHART_PDF, $event);
+      // get array map of twigs and placeholders from service
+      // $map = $event->getPdfMap();
+      
+      // Hardcoded twig map. Remove when prev. section is ready
+      $map = array(
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/introduction.html.twig',
+          'placeholders' => array(
+            'main_title' => 'NPS+ Multiple Sclerosis',
+            'section_title' => 'About NPS+',
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart01.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '[
+                                    {
+                                      "brand": "Tecfidera",
+                                      "detractors": 27,
+                                      "passives": 40,
+                                      "promoters": 34,
+                                      "score": 7
+                                    },
+                                    {
+                                      "brand": "Tysabri",
+                                      "detractors": 37,
+                                      "passives": 34,
+                                      "promoters": 29,
+                                      "score": -8
+                                    },
+                                    {
+                                      "brand": "Copaxone",
+                                      "detractors": 35,
+                                      "passives": 39,
+                                      "promoters": 26,
+                                      "score": -9
+                                    },
+                                    {
+                                      "brand": "Rebif",
+                                      "detractors": 42,
+                                      "passives": 38,
+                                      "promoters": 20,
+                                      "score": -22
+                                    },
+                                    {
+                                      "brand": "Gilenya",
+                                      "detractors": 45,
+                                      "passives": 40,
+                                      "promoters": 15,
+                                      "score": -29
+                                    }
+                                  ]'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/appendix.html.twig',
+          'placeholders' => array()
+        ),
+      );
+
+      if ($page > count($map) || $page <= 0) {
+        throw new Exception("Page does not exist");
+      }
+      $idx = $page - 1;
+
+      $twig = $map[$idx]['twig'];
+      $placeholders = $map[$idx]['placeholders'];
+
+      $response = new \Symfony\Component\HttpFoundation\Response();
+      $response->headers->set('Content-Type', 'text/html');
+      return $this->render($twig, $placeholders, $response);
+
+    }
+    catch(Exception $e) {
+      $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
+      $code = 204;
+    }
+
+    return new Response($content, $code);
+  }
   
   /**
    * PDF download in zip compressed file
@@ -202,9 +329,7 @@ class ChartsController extends FOSRestController
     $response->headers->set('Content-Disposition', $d);
     $response->headers->set('Content-Type', 'application/zip');
     $response->headers->set('Content-Length', filesize($filefull));
-    
-    
+       
     return $response;
   }
- 
 }

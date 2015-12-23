@@ -1,0 +1,38 @@
+{#
+	Placeholders:
+		- main_title
+		- section_title
+#}
+
+{% extends 'PSLClipperBundle:Charts:nps_plus/base.html.twig' %}
+
+{% block header %}
+	<header class="main-header">
+		<img src="http://placehold.it/200x80" class="main-logo" />
+		<h1 class="main-title">{{ main_title|e('html') }}</h1>
+	</header>
+	{{ parent() }}
+{% endblock %}
+
+{% block content %}
+	<p>Congratulations on purchasing your FirstView NPS+ Report for Multiple Sclerosis (EU5).</p>
+
+	<p>The Net Promoter Score® (NPS) measures overall brand satisfaction. Higher scores point to greater brand usage and are a sign of growth potential.</p>
+
+	<p>By itself, NPS helps you measure overall brand health, but doesn't tell you how to improve it.</p>
+
+	<p>NPS+ adds much needed detail, giving you insight into:</p>
+
+	<ul>
+	  <li>The prescribing value of Promoters.</li>
+	  <li>Messages Promoters associate with brands.</li>
+	  <li>Brand DNA and how Detractors perceive it compared to Promoters.</li>
+	  <li>Brand loyalty.</li>
+	</ul>
+
+	<p>NPS+ does more than measure your brand’s overall health—it shows you what drives brand satisfaction so you can take action to improve it.</p>
+
+	<p>See Appendix for details of Net Promoter Score® (NPS) and why it's important.</p>
+
+	<p>This report is based on a survey of 150 EU5 (France, Italy, Germany, Spain, UK) Neurologists surveyed between 2 to 6 November 2015.</p>
+{% endblock %}
