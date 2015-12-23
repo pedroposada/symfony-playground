@@ -174,10 +174,10 @@ class ChartsController extends FOSRestController
       $order_id = $paramFetcher->get('order_id');
       $page = $paramFetcher->get('page');
       $drilldown = $paramFetcher->get('drilldown');
+      $filters = array();
 
       // Parse drilldown
       $f_arr = split(',', $drilldown);
-      $filters = array();
       foreach ($f_arr as $value) {
         $f_tmp = split(':', $value);
         if (count($f_tmp) > 1) {
@@ -202,7 +202,8 @@ class ChartsController extends FOSRestController
       // get array map of twigs and placeholders from service
       // $map = $event->getPdfMap();
       
-      // Hardcoded twig map. Remove when prev. section is ready
+      // Hardcoded twig map.
+      // @TODO Remove when prev. section is ready
       $map = array(
         array(
           'twig' => 'PSLClipperBundle:Charts:nps_plus/introduction.html.twig',
@@ -215,42 +216,72 @@ class ChartsController extends FOSRestController
           'twig' => 'PSLClipperBundle:Charts:nps_plus/chart01.html.twig',
           'placeholders' => array(
             'chart_datatable' => '[
-                                    {
-                                      "brand": "Tecfidera",
-                                      "detractors": 27,
-                                      "passives": 40,
-                                      "promoters": 34,
-                                      "score": 7
-                                    },
-                                    {
-                                      "brand": "Tysabri",
-                                      "detractors": 37,
-                                      "passives": 34,
-                                      "promoters": 29,
-                                      "score": -8
-                                    },
-                                    {
-                                      "brand": "Copaxone",
-                                      "detractors": 35,
-                                      "passives": 39,
-                                      "promoters": 26,
-                                      "score": -9
-                                    },
-                                    {
-                                      "brand": "Rebif",
-                                      "detractors": 42,
-                                      "passives": 38,
-                                      "promoters": 20,
-                                      "score": -22
-                                    },
-                                    {
-                                      "brand": "Gilenya",
-                                      "detractors": 45,
-                                      "passives": 40,
-                                      "promoters": 15,
-                                      "score": -29
-                                    }
-                                  ]'
+              {
+                "brand": "Tecfidera",
+                "detractors": 27,
+                "passives": 40,
+                "promoters": 34,
+                "score": 7
+              },
+              {
+                "brand": "Tysabri",
+                "detractors": 37,
+                "passives": 34,
+                "promoters": 29,
+                "score": -8
+              },
+              {
+                "brand": "Copaxone",
+                "detractors": 35,
+                "passives": 39,
+                "promoters": 26,
+                "score": -9
+              },
+              {
+                "brand": "Rebif",
+                "detractors": 42,
+                "passives": 38,
+                "promoters": 20,
+                "score": -22
+              },
+              {
+                "brand": "Gilenya",
+                "detractors": 45,
+                "passives": 40,
+                "promoters": 15,
+                "score": -29
+              }
+            ]'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart02.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '{
+               "mean": 2.05,
+               "brands":[
+                  {
+                    "brand": "Tecfidera",
+                    "loyalty": 2.38
+                  },
+                  {
+                    "brand": "Tysabri",
+                    "loyalty": 2.14
+                  },
+                  {
+                    "brand": "Copaxone",
+                    "loyalty": 2.08
+                  },
+                  {
+                    "brand": "Rebif",
+                    "loyalty": 1.88
+                  },
+                  {
+                    "brand": "Gilenya",
+                    "loyalty": 1.78
+                  }
+               ]
+            }'
           )
         ),
         array(
@@ -264,8 +295,8 @@ class ChartsController extends FOSRestController
       }
       $idx = $page - 1;
 
-      $twig = $map[$idx]['twig'];
-      $placeholders = $map[$idx]['placeholders'];
+      $twig = isset($map[$idx]['twig']) ? $map[$idx]['twig'] : '';
+      $placeholders = isset($map[$idx]['placeholders']) ? $map[$idx]['placeholders'] : array();
 
       $response = new \Symfony\Component\HttpFoundation\Response();
       $response->headers->set('Content-Type', 'text/html');
