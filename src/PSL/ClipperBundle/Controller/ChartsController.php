@@ -145,53 +145,104 @@ class ChartsController extends FOSRestController
         'brand'     => $request->request->get('brand', ''),
       );
       // getting chart
-      $charts_helper = $this->container->get('chart_helper');
-      $charts_helper->setOrderID($order_id);
-      $charts_helper->setDrillDown($filters, $chartmachinename);
-      $charts_helper->setReturnFields(array(
-        'survey_type',
-        'name_full',
-      ));
-      $charts_helper->setReturnChartExtras(array(
-        'chartmachinename',
-        'drilldown',
-        'filter',
-        'countTotal',
-        'countFiltered',
-        'datatable',
-        'titleLong',
-      ));
-      $charts_helper->setReturnChartCustoms(array(
-        'charttype' => '%%machine_name%%' . self::$js_charttype_postfix,
-        // TODO: [static] this should be within chart helper
-        'header'    => 'Maecenas faucibus mollis interdum.',
-        'footer'    => 'Cras mattis consectetur purus sit amet fermentum.',
-      ));
-      // process charts & field required
-      $content = $charts_helper->getCharts();
-      $this->survey_type = $content['fields']['survey_type'];
-      // calculate "Estimated responses at completion" or global quota
-      $quotas = $charts_helper->getQuotas();
-      // TODO: [static] this should be within chart helper
-      $first = $content['charts']->first();
-      $content['meta'] = array(
-        "projectTitle"      => $content['fields']['name_full'], 
-        "totalResponses"    => $first['countTotal'],
-        "quota"             => array_sum($quotas),
-        "finalReportReady"  => "2015-10-13 9:00pm EST",
-        "introduction"      => "Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.",
-        "introImage"        => "/images/nps-calculation.png",
-        "conclusion"        => "Sed posuere consectetur est at lobortis.",
-        "reportDescriptionTitle" => "NPS - Why it's important and how it's calculated.",
-        "reportDescription" => "<ul><li>NPS is a customer loyalty metric developed by (and a registered trademark of) Fred Reichheld, Bain & Company, and Satmetrix. It was introduced by Reichheld in his 2003 Harvard Business Review article \"One Number You Need to Grow\"</li><li>NPS gauges the overall satisfaction and loyalty to a brand</li><li>It is derived by asking one quantitative question: “How likely are you to recommend this brand to a colleague” It is asked on an 11 point scale from 0 (not at all likely) to 10 (extremely likely)</li><li>Based on their rating, customers are then classified into 3 categories:<ul><li>those scoring 0 – 6 are \"detractors\"</li><li>those scoring 7 – 8 are \"passives\"</li><li>those scoring 9-10 are \"promoters\"</li></ul></li><li>NPS is calculated as the difference between the percentage of “promoters” and “detractors” (please see next slide for calculation)</li><li>NPS is expressed as an absolute number lying between -100 (everybody is a detractor) and +100 (everybody is a promoter)</li><li>If you have for example 25% Promoters, 55% Passives and 20% Detractors, the NPS will be +5. A positive NPS (>0) is generally considered as good</li><li>Benefits of using NPS are simplicity, ease of use, quick follow up and can be an indicator of a brands future growth.</li></ul>",
-        "appendix" => array(
-          array(
-            "appendixTitle" => "Loyalty Score - What is it and why it's important",
-            "appendixContent" => "<ul><li>The loyalty scores on the following slide are calculated as follows:</li><li>They are derived from the recommendation question, measured on a scale from 0-10<ul><li>a 1 is awarded to all brands which score a 0 - 6 on the recommendation scale</li><li>a 2 is awarded to all brands which score a 7 - 8 on the recommendation scale</li><li>a 3 is awarded to all brands which score a 9 - 10 on the recommendation scale</li><li>Brands which score a 9 or a 10 are awarded additional points. This is due to the idea that loyalty diffuses when a doctor scores multiple brands high on the recommendation scale. So in order to compensate for multiple loyalty, as well as the 3 points awarded as mentioned above, they are awarded up to a further 2 additional points, dependent upon how many other brands are also scored 9 or 10 by that doctor on the recommendation scale.</li><li>If a doctor scores only one brand a 9 or a 10, then we add 2 points divided by 1 ie 2 points to the initial 3. In this case the brand scores 3+2 ie 5</li><li>If a doctor scores only one other brand a 9 or a 10 then we add another 2 points divided by 2 ie 1 point to the initial 3. In this case the brand scores 3+1 ie 4</li><li>and so on for each additional brand promoted</li></ul></li><li>The loyalty score therefore adds insight to the NPS suite.</li><li>This is important as it indicates both the doctors willingness to recommend drugs to colleagues as well as the extent to which this is exclusive to one brand or multiple brands. In effect, a measure of brand loyalty.</li><li>The loyalty scores can range from 1 to 5. Brands with low scores, particularly under 3.0 , will have low loyalty amongst the doctors, and are therefore vulnerable to switching.</li><li>Brands with high scores, especially over 4.0 have high loyalty and are less vulnerable to brand switching</li></ul>"
-          ),
-        ),
-      );  
+      $content = $this->getChartsData($order_id, $chartmachinename, $filters);
+
       unset($content['fields']);
+    }
+    catch(Exception $e) {
+      $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
+      $code = 204;
+    }
+
+    return new Response($content, $code);
+  }
+
+  /**
+   * Preview the PDF to be downloaded
+   * clipper/charts/pdfpreview
+   *
+   * @param ParamFetcher $paramFetcher
+   *
+   * @QueryParam(name="order_id", default="(empty)", description="collection of objects to generate multipage pdf")
+   * @QueryParam(name="page", default="1", description="current page to render")
+   * @QueryParam(name="drilldown", default="", description="drilldown options")
+   * 
+   * @return \Symfony\Component\HttpFoundation\Response
+   */
+  public function previewPdfAction(ParamFetcher $paramFetcher)
+  {
+    $content = null;
+    $code = 200;
+
+    try {
+      $order_id = $paramFetcher->get('order_id');
+      $page = $paramFetcher->get('page');
+      $drilldown = $paramFetcher->get('drilldown');
+
+      // Parse drilldown
+      $f_arr = split(',', $drilldown);
+      $filters = array();
+      foreach ($f_arr as $value) {
+        $f_tmp = split(':', $value);
+        if (count($f_tmp) > 1) {
+          $filters[$f_tmp[0]] = $f_tmp[1];
+        } else if (count($f_tmp) > 0) {
+          $filters[$f_tmp[0]] = true;
+        }
+      }
+
+      // Parse page number
+      // @TODO Use #.# notation maybe
+      $page = intval($page);
+
+      // @TODO Uncomment when NpsPlusPdf is ready
+      // dispatch charts event
+      // $event = new ChartEvent();
+      // $event->setOrderId($order_id);
+      // $this
+      //   ->container
+      //   ->get('event_dispatcher')
+      //   ->dispatch(ClipperEvents::CHART_PDF, $event);
+      // get array map of twigs and placeholders from service
+      // $map = $event->getPdfMap();
+      
+      // Hardcoded twig map. Remove when prev. section is ready
+      $map = array(
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/introduction.html.twig',
+          'placeholders' => array(
+            'main_title' => 'NPS+ Multiple Sclerosis',
+            'section_title' => 'About NPS+',
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart01.html.twig',
+          'placeholders' => array(
+            'main_title' => 'NPS+ Multiple Sclerosis',
+            'section_title' => 'About NPS+',
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/appendix.html.twig',
+          'placeholders' => array(
+            'main_title' => 'NPS+ Multiple Sclerosis',
+            'section_title' => 'About NPS+',
+          )
+        ),
+      );
+
+      if ($page > count($map) || $page <= 0) {
+        throw new Exception("Page does not exist");
+      }
+      $idx = $page - 1;
+
+      $twig = $map[$idx]['twig'];
+      $placeholders = $map[$idx]['placeholders'];
+
+      $response = new \Symfony\Component\HttpFoundation\Response();
+      $response->headers->set('Content-Type', 'text/html');
+      return $this->render($twig, $placeholders, $response);
+
     }
     catch(Exception $e) {
       $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
@@ -253,5 +304,64 @@ class ChartsController extends FOSRestController
     
     
     return $response;
+  }
+
+  /**
+   * Retrieves the actual data for the charts
+   * @param String $order_id
+   * @param String $chartmachinename
+   * @param Struct $filters
+   * 
+   * @return Struct Charts datatables, meta, etc.
+   */
+  private function getChartsData($order_id, $chartmachinename, $filters)
+  {
+    $charts_helper = $this->container->get('chart_helper');
+    $charts_helper->setOrderID($order_id);
+    $charts_helper->setDrillDown($filters, $chartmachinename);
+    $charts_helper->setReturnFields(array(
+      'survey_type',
+      'name_full',
+    ));
+    $charts_helper->setReturnChartExtras(array(
+      'chartmachinename',
+      'drilldown',
+      'filter',
+      'countTotal',
+      'countFiltered',
+      'datatable',
+      'titleLong',
+    ));
+    $charts_helper->setReturnChartCustoms(array(
+      'charttype' => '%%machine_name%%' . self::$js_charttype_postfix,
+      // TODO: [static] this should be within chart helper
+      'header'    => 'Maecenas faucibus mollis interdum.',
+      'footer'    => 'Cras mattis consectetur purus sit amet fermentum.',
+    ));
+    // process charts & field required
+    $content = $charts_helper->getCharts();
+    $this->survey_type = $content['fields']['survey_type'];
+    // calculate "Estimated responses at completion" or global quota
+    $quotas = $charts_helper->getQuotas();
+    // TODO: [static] this should be within chart helper
+    $first = $content['charts']->first();
+    $content['meta'] = array(
+      "projectTitle"      => $content['fields']['name_full'], 
+      "totalResponses"    => $first['countTotal'],
+      "quota"             => array_sum($quotas),
+      "finalReportReady"  => "2015-10-13 9:00pm EST",
+      "introduction"      => "Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.",
+      "introImage"        => "/images/nps-calculation.png",
+      "conclusion"        => "Sed posuere consectetur est at lobortis.",
+      "reportDescriptionTitle" => "NPS - Why it's important and how it's calculated.",
+      "reportDescription" => "<ul><li>NPS is a customer loyalty metric developed by (and a registered trademark of) Fred Reichheld, Bain & Company, and Satmetrix. It was introduced by Reichheld in his 2003 Harvard Business Review article \"One Number You Need to Grow\"</li><li>NPS gauges the overall satisfaction and loyalty to a brand</li><li>It is derived by asking one quantitative question: “How likely are you to recommend this brand to a colleague” It is asked on an 11 point scale from 0 (not at all likely) to 10 (extremely likely)</li><li>Based on their rating, customers are then classified into 3 categories:<ul><li>those scoring 0 – 6 are \"detractors\"</li><li>those scoring 7 – 8 are \"passives\"</li><li>those scoring 9-10 are \"promoters\"</li></ul></li><li>NPS is calculated as the difference between the percentage of “promoters” and “detractors” (please see next slide for calculation)</li><li>NPS is expressed as an absolute number lying between -100 (everybody is a detractor) and +100 (everybody is a promoter)</li><li>If you have for example 25% Promoters, 55% Passives and 20% Detractors, the NPS will be +5. A positive NPS (>0) is generally considered as good</li><li>Benefits of using NPS are simplicity, ease of use, quick follow up and can be an indicator of a brands future growth.</li></ul>",
+      "appendix" => array(
+        array(
+          "appendixTitle" => "Loyalty Score - What is it and why it's important",
+          "appendixContent" => "<ul><li>The loyalty scores on the following slide are calculated as follows:</li><li>They are derived from the recommendation question, measured on a scale from 0-10<ul><li>a 1 is awarded to all brands which score a 0 - 6 on the recommendation scale</li><li>a 2 is awarded to all brands which score a 7 - 8 on the recommendation scale</li><li>a 3 is awarded to all brands which score a 9 - 10 on the recommendation scale</li><li>Brands which score a 9 or a 10 are awarded additional points. This is due to the idea that loyalty diffuses when a doctor scores multiple brands high on the recommendation scale. So in order to compensate for multiple loyalty, as well as the 3 points awarded as mentioned above, they are awarded up to a further 2 additional points, dependent upon how many other brands are also scored 9 or 10 by that doctor on the recommendation scale.</li><li>If a doctor scores only one brand a 9 or a 10, then we add 2 points divided by 1 ie 2 points to the initial 3. In this case the brand scores 3+2 ie 5</li><li>If a doctor scores only one other brand a 9 or a 10 then we add another 2 points divided by 2 ie 1 point to the initial 3. In this case the brand scores 3+1 ie 4</li><li>and so on for each additional brand promoted</li></ul></li><li>The loyalty score therefore adds insight to the NPS suite.</li><li>This is important as it indicates both the doctors willingness to recommend drugs to colleagues as well as the extent to which this is exclusive to one brand or multiple brands. In effect, a measure of brand loyalty.</li><li>The loyalty scores can range from 1 to 5. Brands with low scores, particularly under 3.0 , will have low loyalty amongst the doctors, and are therefore vulnerable to switching.</li><li>Brands with high scores, especially over 4.0 have high loyalty and are less vulnerable to brand switching</li></ul>"
+        ),
+      ),
+    ); 
+    return $content; 
   }
 }

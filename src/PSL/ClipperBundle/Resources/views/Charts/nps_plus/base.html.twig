@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{% block head_title %}PDF preview{% endblock %}</title>
+	<style>
+		html, body {
+			width: 100%;
+			height: 100%;
+			font-family: sans-serif;
+			font-size: 62.5%;
+			margin: 0px;
+			padding: 0px;
+		}
+		#wrapper {
+			margin: 2% auto 2% auto;
+			width: 95%;
+			min-height: 96%;
+		}
+		.main-logo {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.main-title {
+			font-size: 5em;
+			font-weight: 100;
+			text-align: center;
+		}
+		.section-header {
+			background-color: #949494;
+			color: #ffffff;
+			padding: 1em;
+		}
+		.section-header h2 {
+			font-size: 3em;
+			font-weight: 100;
+			margin: 0px;
+		}
+		.section-content {
+			font-size: 2.3em;
+		}
+		.footnote {
+			width: 80%;
+			margin-left: auto;
+			margin-right: auto;
+			font-size: 0.8em;
+			background-color: #ccc;
+			padding: 0.2em 0.5em 0.2em 0.5em;
+			box-sizing: border-box;
+		}
+	</style>
+	<script>
+		/**
+		 * Takes the params sent by wkhtmltopdf and inserts them on the
+		 * elements that contain the correct classes.
+		 *
+		 * Accepts:
+		 *   .frompage 		First page to be printed
+		 *   .topage 		Total pages
+		 *   .page 			Current page
+		 *   .webpage 		URL of the page
+		 *   .section 		Name of the current section
+		 *   .subsection 	Name of the current subsection
+		 *   .subsubsection	Name of current subsubsection
+		 *
+		 * @see http://madalgo.au.dk/~jakobt/wkhtmltoxdoc/wkhtmltopdf-0.9.9-doc.html §Footers And Headers
+		 */
+		function wkhtmltopdf_replace() {
+			var vars={};
+			var x=document.location.search.substring(1).split('&');
+			for(var i in x) {var z=x[i].split('=',2);vars[z[0]] = unescape(z[1]);}
+			var x=['frompage','topage','page','webpage','section','subsection','subsubsection'];
+			for(var i in x) {
+				var y = document.getElementsByClassName(x[i]);
+				for(var j=0; j<y.length; ++j) y[j].textContent = vars[x[i]];
+			}
+		}
+	</script>
+</head>
+<body>
+
+	<div id="wrapper">
+		{% block section %}
+			{% block header %}
+				<header class="section-header">
+					<h2>{{ section_title|e('html') }}</h2>
+				</header>
+			{% endblock %}
+			<div class="section-content">
+				{% block content %}
+					{{ content|raw }}
+				{% endblock %}
+			</div>
+		{% endblock %}
+		<footer class="main-footer">
+			{% block footer %}
+				<span class="page"></span>
+			{% endblock %}
+		</footer>
+	</div>
+	
+</body>
+</html>
