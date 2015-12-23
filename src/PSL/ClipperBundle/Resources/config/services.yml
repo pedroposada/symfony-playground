@@ -22,7 +22,6 @@ services:
 
   survey_builder:
     class: PSL\ClipperBundle\Service\SurveyBuilderService
-    # @TODO: only get @templating service
     arguments: [@service_container]
 
   limesurvey:
@@ -62,26 +61,29 @@ services:
 
   fw_sso_user_provider:
     class: PSL\ClipperBundle\Security\User\FWSSOUserProvider
-    arguments: ["@service_container", "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
+    arguments: [@service_container, "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
 
   fw_sso_quick_login_user_provider:
     class: PSL\ClipperBundle\Security\User\FWSSOQuickLoginUserProvider
-    arguments: ["@service_container", "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
+    arguments: [@service_container, "%kernel.root_dir%/Resources/invoice_whitelist.yml"]
 
   fw_sso_webservice:
     class: PSL\ClipperBundle\Service\FWSSOWebservice
 
   drupal_password_encoder:
     class: PSL\ClipperBundle\Service\DrupalPasswordEncoder
-    arguments: ["@service_container"]
+    arguments: [@service_container]
 
   translator_service:
     class: PSL\ClipperBundle\Service\TranslatorService
-    arguments: ["@service_container"]
+    arguments: [@service_container]
 
   user_service:
     class: PSL\ClipperBundle\Service\UserService
-    arguments: ["@service_container"]
+    arguments: [@service_container]
+
+  geo_mapper:
+    class: PSL\ClipperBundle\Utils\GeoMapper
 
   # -------------------------------- #
   #   Clipper FQ process listeners   #
@@ -91,44 +93,44 @@ services:
 
   clipper.listener.limesurvey_pending:
     class: PSL\ClipperBundle\Listener\LimeSurveyPending
-    arguments: ["@service_container", "limesurvey_pending"]
+    arguments: [@service_container, "limesurvey_pending"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 100 }
 
   clipper.listener.limesurvey_addparticipants:
     class: PSL\ClipperBundle\Listener\LimeSurveyAddParticipants
-    arguments: ["@service_container", "limesurvey_addparticipants"]
+    arguments: [@service_container, "limesurvey_addparticipants"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 96 }
 
   clipper.listener.limesurvey_setrawdata:
     class: PSL\ClipperBundle\Listener\LimeSurveySetRawData
-    arguments: ["@service_container", "limesurvey_setrawdata"]
+    arguments: [@service_container, "limesurvey_setrawdata"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 93 }
 
   clipper.listener.limesurvey_created:
     class: PSL\ClipperBundle\Listener\LimeSurveyCreated
-    arguments: ["@service_container", "limesurvey_created", "@rpanel"]
+    arguments: [@service_container, "limesurvey_created", "@rpanel"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 90 }
 
   clipper.listener.rpanel_complete:
     class: PSL\ClipperBundle\Listener\RpanelComplete
-    arguments: ["@service_container", "rpanel_complete"]
+    arguments: [@service_container, "rpanel_complete"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 80 }
 
   clipper.listener.limesurvey_complete:
     class: PSL\ClipperBundle\Listener\LimeSurveyComplete
-    arguments: ["@service_container", "limesurvey_complete"]
+    arguments: [@service_container, "limesurvey_complete"]
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 70 }
 
   # refresh responses
   clipper.listener.limesurvey_responses:
     class: PSL\ClipperBundle\Listener\LimeSurveyResponses
-    arguments: ["@service_container"]
+    arguments: [@service_container]
     tags:
       - { name: kernel.event_listener, event: ls_refresh_responses, method: refreshResponses, priority: 0 }
       - { name: kernel.event_listener, event: after_limesurvey_complete, method: refreshResponses, priority: 0 }
@@ -136,7 +138,7 @@ services:
   # Limesurvey Translator
   clipper.limesurvey.translator:
     class: PSL\ClipperBundle\Listener\LimeSurveyTranslator
-    arguments: ["@service_container"]
+    arguments: [@service_container]
     tags:
       - { name: kernel.event_listener, event: limesurvey_translation, method: onTranslate, priority: 0 }
 
@@ -147,62 +149,62 @@ services:
   #NPS: 001
   clipper.chart.nps:
     class: PSL\ClipperBundle\Charts\Types\NPS
-    arguments: ["@service_container", "NPS"]
+    arguments: [@service_container, "NPS"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 002
   clipper.chart.loyalty:
     class: PSL\ClipperBundle\Charts\Types\Loyalty
-    arguments: ["@service_container", "Loyalty"]
+    arguments: [@service_container, "Loyalty"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 003
   clipper.chart.doctorspromote:
     class: PSL\ClipperBundle\Charts\Types\DoctorsPromote
-    arguments: ["@service_container", "DoctorsPromote"]
+    arguments: [@service_container, "DoctorsPromote"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 004
   clipper.chart.promoterspromote:
     class: PSL\ClipperBundle\Charts\Types\PromotersPromote
-    arguments: ["@service_container", "PromotersPromote"]
+    arguments: [@service_container, "PromotersPromote"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 005
   clipper.chart.detractorspromote:
     class: PSL\ClipperBundle\Charts\Types\DetractorsPromote
-    arguments: ["@service_container", "DetractorsPromote"]
+    arguments: [@service_container, "DetractorsPromote"]
     tags:
       - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 006
   clipper.chart.promvsdetrpromote:
     class: PSL\ClipperBundle\Charts\Types\PromVsDetrPromote
-    arguments: ["@service_container", "PromVsDetrPromote"]
+    arguments: [@service_container, "PromVsDetrPromote"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 007
   clipper.chart.ppdbrandmessages:
     class: PSL\ClipperBundle\Charts\Types\PPDBrandMessages
-    arguments: ["@service_container", "PPDBrandMessages"]
+    arguments: [@service_container, "PPDBrandMessages"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #NPS: 008
   clipper.chart.dna:
     class: PSL\ClipperBundle\Charts\Types\DNA
-    arguments: ["@service_container", "DNA"]
+    arguments: [@service_container, "DNA"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #Extra for export
   #Table 4
   clipper.chart.promoterspromotemean:
     class: PSL\ClipperBundle\Charts\Types\PromotersPromoteMean
-    arguments: ["@service_container", "PromotersPromoteMean"]
+    arguments: [@service_container, "PromotersPromoteMean"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
   #Table 9-16
   clipper.chart.ppdbrandmessagesbybrands:
     class: PSL\ClipperBundle\Charts\Types\PPDBrandMessagesByBrands
-    arguments: ["@service_container", "PPDBrandMessagesByBrands"]
+    arguments: [@service_container, "PPDBrandMessagesByBrands"]
     tags:
        - { name: kernel.event_listener, event: chart_process, method: onDataTable, priority: 0 }
 
@@ -213,13 +215,13 @@ services:
   #@TODO: remove this
   clipper.download.nps_plus_dev:
     class: PSL\ClipperBundle\Downloads\Types\NPSPlusDev
-    arguments: ["@service_container", "nps_plus", "dev"]
+    arguments: [@service_container, "nps_plus", "dev"]
     tags:
        - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }
 
   clipper.download.nps_plus_excel:
     class: PSL\ClipperBundle\Downloads\Types\NPSPlusExcel
-    arguments: ["@service_container", "nps_plus", "xls"]
+    arguments: [@service_container, "nps_plus", "xls"]
     tags:
        - { name: kernel.event_listener, event: download_process, method: onDownload, priority: 0 }
 
@@ -229,6 +231,6 @@ services:
 
   clipper.charts.pdf.nps_plus:
     class: PSL\ClipperBundle\Charts\Pdf\Types\NpsPlusPdf
-    arguments: ["@service_container", "nps_plus"]
+    arguments: [@service_container, "nps_plus"]
     tags:
        - { name: kernel.event_listener, event: chart_pdf, method: onPdf, priority: 0 }

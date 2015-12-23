@@ -25,6 +25,8 @@ class ChartEvent extends Event
   protected $data_table = array();
   // srting long title
   protected $titleLong;
+  // ArrayCollection pdfFiles
+  protected $pdfFiles;
   
   //available "drilldown" option by survey_type
   protected static $drilldown_keys = array('countries', 'specialties', 'regions');
@@ -197,5 +199,15 @@ class ChartEvent extends Event
   public function getTitleLong()
   {
     return $this->titleLong;
+  }
+
+  public function setPdfFiles(ArrayCollection $pdfs)
+  {
+    $this->pdfs = $pdfFiles;
+  }
+
+  public function getPdfFiles()
+  {
+    return $this->pdfFiles;
   }
 }

@@ -249,4 +249,20 @@ abstract class WebTestCase extends BaseWebTestCase
 
         return $output;
     }
+    
+    /**
+     * getPrivateMethod
+     *
+     * @param   string $className
+     * @param   string $methodName
+     * @return  ReflectionMethod
+     */
+    public function getPrivateMethod($className, $methodName) 
+    {
+        $reflector = new \ReflectionClass($className);
+        $method = $reflector->getMethod($methodName);
+        $method->setAccessible(true);
+ 
+        return $method;
+    }
 }
