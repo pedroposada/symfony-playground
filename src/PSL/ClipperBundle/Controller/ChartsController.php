@@ -218,16 +218,48 @@ class ChartsController extends FOSRestController
         array(
           'twig' => 'PSLClipperBundle:Charts:nps_plus/chart01.html.twig',
           'placeholders' => array(
-            'main_title' => 'NPS+ Multiple Sclerosis',
-            'section_title' => 'About NPS+',
+            'chart_datatable' => '[
+                                    {
+                                      "brand": "Tecfidera",
+                                      "detractors": 27,
+                                      "passives": 40,
+                                      "promoters": 34,
+                                      "score": 7
+                                    },
+                                    {
+                                      "brand": "Tysabri",
+                                      "detractors": 37,
+                                      "passives": 34,
+                                      "promoters": 29,
+                                      "score": -8
+                                    },
+                                    {
+                                      "brand": "Copaxone",
+                                      "detractors": 35,
+                                      "passives": 39,
+                                      "promoters": 26,
+                                      "score": -9
+                                    },
+                                    {
+                                      "brand": "Rebif",
+                                      "detractors": 42,
+                                      "passives": 38,
+                                      "promoters": 20,
+                                      "score": -22
+                                    },
+                                    {
+                                      "brand": "Gilenya",
+                                      "detractors": 45,
+                                      "passives": 40,
+                                      "promoters": 15,
+                                      "score": -29
+                                    }
+                                  ]'
           )
         ),
         array(
           'twig' => 'PSLClipperBundle:Charts:nps_plus/appendix.html.twig',
-          'placeholders' => array(
-            'main_title' => 'NPS+ Multiple Sclerosis',
-            'section_title' => 'About NPS+',
-          )
+          'placeholders' => array()
         ),
       );
 

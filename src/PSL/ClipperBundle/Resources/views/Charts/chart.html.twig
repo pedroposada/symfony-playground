@@ -1,0 +1,13 @@
+{% set id = random() %}
+<div id="chart_{{ id }}" class="chart"></div>
+<script type="text/javascript">
+	clipper.charts.initialize(function() {
+		try {
+		  var settings = ChartsSettings.settings.{{ chart_type }};
+		  settings.formatter = '{{ chart_type }}';
+	      var chart = clipper.charts.factory('{{ chart_type }}', 'chart_{{ id }}', settings, {{ chart_datatable|raw }});
+	    } catch(e) {
+	      console.error('Error:' + e);
+	    }
+	});
+</script>

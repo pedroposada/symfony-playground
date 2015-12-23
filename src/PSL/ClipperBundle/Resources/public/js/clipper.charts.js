@@ -7,6 +7,7 @@
 var clipper = clipper || {};
 clipper.charts = clipper.charts || {};
 
+
 /**
  * Initialize the Google Visualization API. You DO can call this function multiple
  * times. It will check the previous states of initialization and just wait for the
@@ -61,15 +62,28 @@ clipper.charts = clipper.charts || {};
 /**
  * Chart Base object
  */
-	clipper.charts.Chart = function(id, settings, data) {
+	clipper.charts.Chart = function(DOMContainer, settings, data) {
 		// Check dependencies
 		if (typeof google == 'undefined' && typeof google.visualization == 'undefined') {
 			throw 'Google Visualization API must be loaded before creating charts.';
 		}
 
-		if (typeof id == 'string' && document.getElementById(id) == null) throw 'DOM element ID "' + id + '" not found.';
+		if (clipper.charts.tools.isDOMelement(DOMContainer)) {
+			this.container = DOMContainer;
+		} else if (typeof DOMContainer === 'string' && document.getElementById(DOMContainer) !== null) {
+			this.container = document.getElementById(DOMContainer);
+		} else {
+			throw 'Providen DOMContainer is not a valid HTMLElement. DOMContainer typeof is ' + (typeof DOMContainer);
+		}
 
-		this.id = id;
+		// Add class to the wrapper
+		var wrapper = this.container,
+			type = this.type;
+		if (wrapper) {
+			var machineName = type.replace('_', '');
+			machineName = machineName.toLowerCase();
+			clipper.charts.tools.injectClass('clipper-charts-' + machineName, wrapper);
+		}
 
 		var defaultSettings = {
 			logo: {
@@ -78,10 +92,20 @@ clipper.charts = clipper.charts || {};
 				height: '0px',
 				opacity: 0.3,
 				position: 'bottom right'
-			}
+			},
+			copyright: {
+				opacity: 1,
+				fontSize: 12,
+				fontWeight: 500,
+				fontColor: '#333333',
+				fontFamily: 'sans-serif',
+				position: 'bottom left'
+			},
+			textWeight_brand: 600,
+			textWeight_labels : 500
 		};
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
@@ -129,8 +153,13 @@ clipper.charts = clipper.charts || {};
 		if (rd) this.draw();
 	};
 
+	clipper.charts.Chart.prototype.hasLogo = function() {
+		return (this.settings.logo.image !== 'none');
+	}
+
 	clipper.charts.Chart.prototype.getLogo = function() {
-		var logo = document.createElement('div');
+		var me = this.container;
+		var logo = me.ownerDocument.createElement('div');
 		logo.style.position = 'absolute';
 		logo.style.opacity = this.settings.logo.opacity;
 		logo.style.filter = 'alpha(opacity=' + (parseFloat(this.settings.logo.opacity) * 100) + ')';
@@ -151,40 +180,143 @@ clipper.charts = clipper.charts || {};
 			logo.style.right = '10px';
 		}
 		return logo;
+	};
+
+	clipper.charts.Chart.prototype.hasCopyrightNotice = function () {
+		return !(this.settings.copyright.position.indexOf('none') > -1);
+	}
+
+	clipper.charts.Chart.prototype.getCopyrightNotice = function () {
+		var me = this.container;
+		var notice = me.ownerDocument.createElement('div');
+		var y = new Date();
+		y = y.getFullYear();
+		notice.appendChild(me.ownerDocument.createTextNode('© Copyright ' + y + ' Doctor\'s Guide Publishing Limited.'));
+		notice.style.position = 'absolute';
+		notice.style.opacity = this.settings.copyright.opacity;
+		notice.style.filter = 'alpha(opacity=' + (parseFloat(this.settings.copyright.opacity) * 100) + ')';
+		notice.style.fontFamily = this.settings.copyright.fontFamily;
+		notice.style.fontSize = this.settings.copyright.fontSize + 'px';
+		notice.style.fontWeight = this.settings.copyright.fontWeight;
+		notice.style.color = this.settings.copyright.color;
+		if (this.settings.copyright.position.indexOf('top') > -1) {
+			notice.style.top = '10px';
+		} else {
+			notice.style.bottom = '10px';
+		}
+		if (this.settings.copyright.position.indexOf('left') > -1) {
+			notice.style.left = '10px';
+		} else {
+			notice.style.right = '10px';
+		}
+		return notice;
+	};
+
+	clipper.charts.Chart.prototype.getTooltip = function() {
+		var machineName = this.type.replace('_', '');
+			machineName = machineName.toLowerCase();
+
+		var doc = this.container.ownerDocument;
+		var tt = doc.createElement('div');
+		tt.className = 'clipper-charts-' + machineName + '-tooltip'
+		tt.style.position = 'absolute';
+		tt.style.top = '0px';
+		tt.style.left = '0px';
+		tt.style.display = 'none';
+		tt.style.backgroundColor = '#ffffff';
+		tt.style.padding = '0.25em 0.5em';
+		tt.style.fontSize = '14px';
+		tt.style.fontWeight = '500';
+		if (tt.style.hasOwnProperty('boxShadow')) tt.style.boxShadow = '0px 2px 5px 1px rgba(51,51,51,0.4)';
+		if (tt.style.hasOwnProperty('webkitBoxShadow')) tt.style.webkitBoxShadow = '0px 2px 5px 1px rgba(51,51,51,0.4)';
+		if (tt.style.hasOwnProperty('mozBoxShadow')) tt.style.mozBoxShadow = '0px 2px 5px 1px rgba(51,51,51,0.4)';
+		var tto = doc.createElement('div');
+		tto.className = 'clipper-charts-' + machineName + '-tooltip-over';
+		tto.style.display = 'none';
+		tto.style.position = 'absolute';
+		tto.style.width = '100%';
+		tto.style.height = '100%';
+		tto.style.top = '0px';
+		tto.style.left = '0px';
+
+		return {
+			tooltip: tt,
+			overlay: tto
+		};
+	};
+
+	clipper.charts.Chart.prototype.setTooltipListeners = function(btns) {
+		var machineName = this.type.replace('_', '');
+			machineName = machineName.toLowerCase();
+
+		for (var bi = 0; bi < btns.length; bi++) {
+			var b = btns[bi];
+			var self = this;
+			b.addEventListener('touchstart', function (e) {
+				var tt = self.container.getElementsByClassName('clipper-charts-' + machineName+ '-tooltip')[0];
+				var tto = self.container.getElementsByClassName('clipper-charts-' + machineName + '-tooltip-over')[0];
+				if (this.getAttribute('data-tooltip-content')){
+					tt.innerHTML = this.getAttribute('data-tooltip-content');
+				} else {
+					tt.innerHTML = this.innerHTML;
+				}
+				tto.style.display = 'block';
+				tt.style.display = 'inline';
+				var x = e.clientX || e.touches[0].clientX,
+					y = e.clientY || e.touches[0].clientY,
+					tx = (window.scrollX - self.container.offsetLeft - self.container.offsetParent.offsetLeft) + x,
+					ty = (window.scrollY - self.container.offsetTop - self.container.offsetParent.offsetTop) + y;
+				tt.style.left = tx + 'px';
+				tt.style.top = ty + 'px';
+			});
+		}
+		var tto = this.container.getElementsByClassName('clipper-charts-' + machineName + '-tooltip-over')[0];
+		tto.addEventListener('touchstart', function (e) {
+			var tt = self.container.getElementsByClassName('clipper-charts-' + machineName + '-tooltip')[0];
+			tt.style.display = 'none';
+			this.style.display = 'none';
+		});
+	};
+
+	clipper.charts.Chart.prototype.getEmptyNotice = function() {
+		var wrapper = this.container.ownerDocument.createElement('div'),
+			el = this.container.ownerDocument.createElement('div'),
+			ws = wrapper.style,
+			els = el.style,
+			tel = this.container.ownerDocument.createTextNode('Not enough data');
+		ws.position = 'relative';
+		ws.width = '100%';
+		ws.height = '100%';
+		wrapper.appendChild(el);
+		el.appendChild(tel);
+		els.position = 'absolute';
+		els.top = '0px';
+		els.left = '0px';
+		els.padding = '1em';
+		els.color = '#fc0';
+		return wrapper;
 	}
 
 	// Abstract method
 	clipper.charts.Chart.prototype.draw = function() { throw 'Draw method must be overriden by child class.'; };
 // END Chart Base object
 
-clipper.charts.factory = function(type, id, settings, data) {
+clipper.charts.factory = function(type, DOMContainer, settings, data) {
 	if (!clipper.charts.hasOwnProperty(type)) throw 'Chart type "' + type + '" does not exist.';
 
-	if (settings != null && settings.hasOwnProperty('formatter')) {
+	if (settings !== null && settings.hasOwnProperty('formatter')) {
 		if (!clipper.charts.formatters.hasOwnProperty(settings.formatter)) throw 'Chart data formatter "' + setting.formatter + '" does not exist.';
 		data = clipper.charts.formatters[settings.formatter](data);
 	}
 
-	// Add class to the wrapper
-	var wrapper = document.getElementById(id);
-	if (wrapper) {
-		var machineName = type.replace('_', '');
-		machineName = machineName.toLowerCase();
-		clipper._injectClass('clipper-charts-' + machineName, wrapper);
-	}
-
-	return new clipper.charts[type](id, settings, data);
+	return new clipper.charts[type](DOMContainer, settings, data);
 };
-
 /**
  * NPS Chart
  */
-	clipper.charts.NPS_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
-
-		if (typeof google.visualization.BarChart == 'undefined') {
-			throw 'Google Visualization API must be loaded with the BarChart module before creating charts.';
-		}
+	clipper.charts.NPS_Chart = function(DOMContainer, settings, data) {
+		this.type = 'NPS_Chart';
+		clipper.charts.Chart.call(this, DOMContainer, settings, data);
 
 		var defaultSettings = {
 			detractorsBar: {
@@ -205,20 +337,31 @@ clipper.charts.factory = function(type, id, settings, data) {
 				strokeOpacity: 1,
 				strokeColor: '#cccccc'
 			},
+			scoreBars: {
+				positive: {
+					fill: '#cddcab'
+				},
+				negative: {
+					fill: '#e2a8a5'
+				},
+				zero: {
+					fill: '#7f7f7f'
+				}
+			},
 			textColor: '#aaa',
 			textFont: 'sans-serif'
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
 
 		this.draw();
-	}
+	};
 	clipper.charts.NPS_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
 	clipper.charts.NPS_Chart.constructor = clipper.charts.NPS_Chart;
 
@@ -232,228 +375,153 @@ clipper.charts.factory = function(type, id, settings, data) {
 			if (this._data[i].promoters > max) {
 				max = this._data[i].promoters;
 			}
-		};
+		}
 		return {
 			min: min * -1,
 			max: max
+		};
+	};
+
+	clipper.charts.NPS_Chart.prototype.getPercentage = function(value, max) {
+		return Math.round((value / max) * 100);
+	};
+
+	clipper.charts.NPS_Chart.prototype.getBoundaries = function() {
+		var dmax = 0,
+			pmax = 0;
+
+		for (var i = 0; i < this._data.length; i++) {
+			var b = this._data[i];
+			if (b.detractors > dmax) dmax = b.detractors;
+			if (b.promoters > pmax) pmax = b.promoters;
 		}
+
+		return {
+			promoters: pmax,
+			detractors: dmax
+		};
+	};
+
+	clipper.charts.NPS_Chart.prototype.drawBar = function(value, max, height, setting, outsideLabel) {
+		max *= 1.05; // Add 5% padding.
+		var outsideLabel = (outsideLabel) ? outsideLabel : 'left';
+			bheight = height * 0.7, // Use 70% of the cell for the bar
+			percentage = this.getPercentage(value, max),
+			showOutside = !(percentage > 10); // 10% is the min. width for inner label.
+
+		bheight -= setting.strokeWidth * 2; // Substract the bar border.
+
+		var html = '';
+		var label = (showOutside) ? '&nbsp;' : Math.round(value * 100) + '%';
+		if (showOutside && outsideLabel === 'left') {
+			html += '<div style="display: inline-block; height: ' + bheight + 'px; line-height: ' + bheight + 'px; margin: 0px 10px 0px 10px; color: ' + setting.fill + '; font-weight: ' + this.settings.textWeight_brand + '">' + Math.round(value * 100) + '%</div>';
+		}
+		html += '<div style="display: inline-block; text-align: center; height:' + bheight + 'px; line-height:' + bheight + 'px; width:' + percentage + '%; background-color:' + setting.fill + '; color: #ffffff; font-weight: ' + this.settings.textWeight_brand + '; border: ' + setting.strokeWidth + 'px solid ' + setting.strokeColor + ';">' + label + '</div>';
+		if (showOutside && outsideLabel === 'right') {
+			html += '<div style="display: inline-block; height: ' + bheight + 'px; line-height: ' + bheight + 'px; margin: 0px 10px 0px 10px; color: ' + setting.fill + '; font-weight: ' + this.settings.textWeight_brand + '">' + Math.round(value * 100) + '%</div>';
+		}
+
+		return html;
+	};
+
+	clipper.charts.NPS_Chart.prototype.drawScoreBar = function(value, height) {
+		var bheight = height * 0.7, // Use only 70% of the height
+			bwidth = (value !== 0) ? Math.round(Math.abs(value) / 2) : 1,
+			showOutside = !(bwidth > 10),
+			bgc = '', // Bar color. Depends on value.
+			left = '', // Bar left position. Depends on value.
+			labelPos = ''; // Label position. Depends on value.
+
+		if (value === 0) {
+			bgc = this.settings.scoreBars.zero.fill;
+			left = '50%';
+			labelPos = 'left: 55%';
+		} else if (value > 0) {
+			bgc = this.settings.scoreBars.positive.fill;
+			left = '50%';
+			labelPos = 'left: ' + (55 + bwidth) + '%';
+		} else if (value < 0) {
+			bgc = this.settings.scoreBars.negative.fill;
+			left = (50 - bwidth) + '%';
+			labelPos = 'right: ' + (55 + bwidth) + '%';
+		}
+
+		var html = '';
+
+		html += '<div style="margin-left: 24%; width:52%; height:100%; position:relative; font-weight:'+this.settings.textWeight_brand+'">';
+		html += '<div style="position:absolute;'+labelPos+';height:'+bheight+'px;line-height:'+bheight+'px; ">' + value + '</div>';
+		html += '<div style="position:absolute;height: ' + bheight + 'px; width: ' + bwidth + '%; background-color: ' + bgc + '; left: ' + left + '">';
+		html += '</div>';
+
+		return html;
 	};
 
 	clipper.charts.NPS_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.BarChart(document.getElementById(this.id));
+		var me = this.container;
+		me.innerHTML = '';
 
-		var boundaries = this.getValueBoundaries();
-
-		var options = {
-			isStacked: 'true',
-			bar: {
-				groupWidth: '80%'
-			},
-			colors: [
-				this.settings.detractorsBar.fill,
-				this.settings.passivesBar.fill,
-				this.settings.promotersBar.fill
-			],
-			hAxis: {
-				textPosition: 'none',
-				gridlines: {
-					count: 0
-				},
-				viewWindow: {
-					min: boundaries.min - 0.05,
-					max: boundaries.max + 0.05 + 0.3
-				}
-			},
-			vAxis: {
-				textStyle: {
-					color: this.settings.textColor,
-					fontSize: '13'
-				}
-			},
-			legend: {
-				position: 'none',
-				textStyle: {
-					color: this.settings.textColor
-				}
-			},
-			annotations: {
-				highContrast: true,
-				textStyle: {
-					fontSize: '13',
-				}
-			},
-			tooltip: {
-				trigger: 'select'
-			}
-		};
-
-		// Create Data Table.
-		var dt = new google.visualization.DataTable({
-			cols: [
-				{ id: 'brand', label: 'brand', type: 'string' },
-				{ id: 'detractors', label: 'detractors', type: 'number' },
-				{ type: 'string', role: 'annotation' },
-				{ type: 'string', role: 'tooltip' },
-				{ type: 'string', role: 'style' },
-				{ id: 'passives', label: 'passives', type: 'number' },
-				{ type: 'string', role: 'annotation' },
-				{ type: 'string', role: 'tooltip' },
-				{ type: 'string', role: 'style' },
-				{ id: 'promoters', label: 'promoters', type: 'number' },
-				{ type: 'string', role: 'annotation' },
-				{ type: 'string', role: 'tooltip' },
-				{ type: 'string', role: 'style' }
-			]
-		});
-
-		// Populate Data.
-		for (var idx = 0; idx < this._data.length; idx++) {
-			// Defaults.
-			if (!this._data[idx].brand) { this._data[idx].brand = 'undefined'; }
-			if (!this._data[idx].detractors) { this._data[idx].detractors = 0; }
-			if (!this._data[idx].passives) { this._data[idx].passives = 0; }
-			if (!this._data[idx].promoters) { this._data[idx].promoters = 0; }
-
-			dt.addRow([
-				this._data[idx].brand,
-				this._data[idx].detractors * -1,
-				(this._data[idx].detractors * 100) + '%',
-				this._data[idx].brand + "\n" + (this._data[idx].detractors * 100) + '%',
-				'stroke-width: ' + this.settings.detractorsBar.strokeWidth + '; stroke-color: ' + this.settings.detractorsBar.strokeColor + '; stroke-opacity: ' + this.settings.detractorsBar.strokeOpacity,
-				//this._data[idx].passives,
-				0.3,
-				(this._data[idx].passives * 100) + '%',
-				this._data[idx].brand + "\n" + (this._data[idx].passives * 100) + '%',
-				'stroke-width: ' + this.settings.passivesBar.strokeWidth + '; stroke-color: ' + this.settings.passivesBar.strokeColor + '; stroke-opacity: ' + this.settings.passivesBar.strokeOpacity,
-				this._data[idx].promoters,
-				(this._data[idx].promoters * 100) + '%',
-				this._data[idx].brand + "\n" + (this._data[idx].promoters * 100) + '%',
-				'stroke-width: ' + this.settings.promotersBar.strokeWidth + '; stroke-color: ' + this.settings.promotersBar.strokeColor + '; stroke-opacity: ' + this.settings.promotersBar.strokeOpacity
-			]);
+		if (this._data.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
 		}
 
-		this._gchart.draw(dt, options);
+		var wrapper = me.ownerDocument.createElement('div');
+		wrapper.style.position = 'relative';
+		wrapper.style.height = '100%';
+		wrapper.style.width = '100%';
 
-		// Create Score labels.
-		var cli = this._gchart.getChartLayoutInterface();
-		var chartArea = cli.getChartAreaBoundingBox();
-		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
-		var overlay = document.createElement('div');
-		var overlay_bar = null;
-		var overlay_text = document.createTextNode('Score');
+		me.appendChild(wrapper);
 
-		var overlay_style = overlay.style;
-		overlay_style.left = (chartArea.left + chartArea.width) + 'px';
-		overlay_style.top = chartArea.top - 20 + "px";
-		overlay_style.position = 'absolute';
-		overlay_style.width = wrapper.offsetWidth - (chartArea.left + chartArea.width) + 'px';
-		overlay_style.color = this.settings.textColor;
-		overlay_style.fontFamily = this.settings.textFont;
-		overlay_style.textAlign = 'center';
-		overlay_style.fontSize = '13px';
-		overlay.appendChild(overlay_text);
-		wrapper.appendChild(overlay);
+		var cHeight = me.clientHeight;
+		var cWidth = me.clientWidth;
+		var cellSpacing = 0; // Cell spacing is set to 0 to show the vertical black lines with no gaps.
+		var cellHeight = (this.container.clientHeight > 0) ? Math.round(((cHeight - (cellSpacing * (this._data.length + 2)) - 50) / this._data.length)) : 33; // Calculate the cell height based on the brand number and the available height.
+		if (cellHeight < 33) cellHeight = 33; // Never use a value smaller than 23 for the cellHeight or the text will be overflowed.
+		var fontSize = 14;
+		var boundaries = this.getBoundaries();
 
-		var b2 = cli.getBoundingBox('bar#1#0');
-		overlay = document.createElement('div');
-		overlay_style = overlay.style;
-		overlay_style.left = chartArea.left + 'px';
-		overlay_style.top = chartArea.top - 20 + "px";
-		overlay_style.position = 'absolute';
-		overlay_style.width = (b2.left - chartArea.left) + 'px';
-		overlay_style.color = this.settings.textColor;
-		overlay_style.fontFamily = this.settings.textFont;
-		overlay_style.textAlign = 'center';
-		overlay_style.fontSize = '13px';
-		overlay_text = document.createTextNode('Detractors');
-		overlay.appendChild(overlay_text);
-		wrapper.appendChild(overlay);
+		// Draw chart
+		var html = '';
 
-		var b3 = cli.getBoundingBox('bar#2#0');
-		overlay = document.createElement('div');
-		overlay_style = overlay.style;
-		overlay_style.left = b2.left + 'px';
-		overlay_style.top = chartArea.top - 20 + "px";
-		overlay_style.position = 'absolute';
-		overlay_style.width = (b3.left - b2.left) + 'px';
-		overlay_style.color = this.settings.textColor;
-		overlay_style.fontFamily = this.settings.textFont;
-		overlay_style.textAlign = 'center';
-		overlay_style.fontSize = '13px';
-		overlay_text = document.createTextNode('Passives');
-		overlay.appendChild(overlay_text);
-		wrapper.appendChild(overlay);
+		html += '<table border="0" width="98%" cellspacing="'+cellSpacing+'px" cellpadding="0" style="margin-left: 1%; table-layout:fixed; margin-bottom: 30px; font-size:' + fontSize + 'px; font-family:' + this.settings.textFont + '"><tr style="height:30px">';
+		html += '<th width="20%">&nbsp;</th>';
+		html += '<th width="23%" style="font-size:' + (fontSize-1) + 'px;font-weight:' + this.settings.textWeight_labels + '" align="center">Detractors</th>';
+		html += '<th width="14%" style="font-size:' + (fontSize-1) + 'px;font-weight:' + this.settings.textWeight_labels + '" align="center">Passives</th>';
+		html += '<th width="23%" style="font-size:' + (fontSize-1) + 'px;font-weight:' + this.settings.textWeight_labels + '" align="center">Promoters</th>';
+		html += '<th width="20%" style="font-size:' + (fontSize-1) + 'px;font-weight:' + this.settings.textWeight_labels + '" align="center">Score</th>';
+		html += '</tr>';
 
-		overlay = document.createElement('div');
-		overlay_style = overlay.style;
-		overlay_style.left = b2.left + b2.width + 'px';
-		overlay_style.top = chartArea.top - 20 + "px";
-		overlay_style.position = 'absolute';
-		overlay_style.width = (chartArea.width + chartArea.left - (b2.left + b2.width)) + 'px';
-		overlay_style.color = this.settings.textColor;
-		overlay_style.fontFamily = this.settings.textFont;
-		overlay_style.textAlign = 'center';
-		overlay_style.fontSize = '13px';
-		overlay_text = document.createTextNode('Promoters');
-		overlay.appendChild(overlay_text);
-		wrapper.appendChild(overlay);
+		for (var i = 0; i < this._data.length; i++) {
+			var b = this._data[i];
+			// Brand label
+			html += '<tr style="height:'+cellHeight+'px"><td style="font-weight:' + this.settings.textWeight_brand + '" align="right" title="' + b.brand + '"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="clipper-charts-npschart-hastooltip">' + b.brand + '</div></td>';
 
-		var overlay_bar_label = null;
+			// Detractors bar
+			html += '<td align="right" style="border-right: 1px solid #333;">' + this.drawBar(b.detractors, boundaries.detractors, cellHeight, this.settings.detractorsBar) + '</td>';
 
-		for (var idx = 0; idx < this._data.length; idx++) {
-			if (!this._data[idx].score) { this._data[idx].score = 0; }
-			overlay = document.createElement('div');
-			overlay_bar = document.createElement('div');
-			overlay_bar_label = document.createElement('div');
-			overlay_style = overlay.style;
-			overlay_style.position = 'absolute';
-			overlay_style.left = (chartArea.left + chartArea.width) + 'px';
-			overlay_style.top = Math.floor(cli.getBoundingBox('bar#0#' + idx).top) + "px";
-			overlay_style.height = Math.floor(cli.getBoundingBox('bar#0#' + idx).height) + "px";
-			overlay_style.width = wrapper.offsetWidth - (chartArea.left + chartArea.width) + 'px';
-			overlay_style.color = this.settings.textColor;
-			overlay_style.fontFamily = this.settings.textFont;
-			overlay_style.textAlign = 'center';
-			overlay_style.fontSize = '13px';
-			overlay_style.backgroundColor = '#ffffff';
-			var scoreText = (this._data[idx].score.toString());
-			if (scoreText.indexOf('.') > -1) {
-				scoreText = scoreText.substring(0, scoreText.indexOf('.') + 3);
-			}
-			overlay_text = document.createTextNode(scoreText);
-			overlay_bar.style.position = 'absolute';
-			overlay_bar.style.height = '100%';
-			if (this._data[idx].score > 0) {
-				overlay_bar.style.width = (this._data[idx].score * 0.5) + '%';
-				overlay_bar.style.backgroundColor = '#cddcab';
-				overlay_bar.style.left = '50%';
-				overlay_bar_label.style.position = 'absolute';
-				overlay_bar_label.style.top = '50%';
-				overlay_bar_label.style.transform = 'translateY(-50%)';
-				overlay_bar_label.style.right = '-25px';
-			} else if (this._data[idx].score == 0) {
-				overlay_bar.style.width = '1px';
-				overlay_bar.style.backgroundColor = '#7f7f7f';	
-				overlay_bar.style.left = '50%';
-				overlay_bar_label.style.transform = 'translateY(-50%)';
-				overlay_bar_label.style.position = 'absolute';
-				overlay_bar_label.style.top = '50%';
-				overlay_bar_label.style.right = '-25px';
-			} else {
-				overlay_bar.style.width = (this._data[idx].score * -1 * 0.5) + '%';
-				overlay_bar.style.backgroundColor = '#e2a8a5';
-				overlay_bar.style.right = '50%';
-				overlay_bar_label.style.position = 'absolute';
-				overlay_bar_label.style.top = '50%';
-				overlay_bar_label.style.transform = 'translateY(-50%)';
-				overlay_bar_label.style.left = '-25px';
-			}
-			overlay.appendChild(overlay_bar);
-			overlay_bar_label.appendChild(overlay_text);
-			overlay_bar.appendChild(overlay_bar_label);
-			wrapper.appendChild(overlay);
+			// Passives bar
+			html += '<td align="center" style="font-weight:' + this.settings.textWeight_brand + '">' + Math.round(b.passives * 100) + '%</td>';
+
+			// Promoters bar
+			html += '<td style="border-left: 1px solid #333;">' + this.drawBar(b.promoters, boundaries.promoters, cellHeight, this.settings.promotersBar, 'right') + '</td>';
+
+			// Score bars
+			html += '<td style="height:'+cellHeight+'px">' + this.drawScoreBar(b.score, cellHeight) + '</td>';
+
+			html += '</tr>';
 		}
+
+		html += '</table>';
+
+		wrapper.innerHTML = html;
+
+		// Tooltip
+		var tooltip = this.getTooltip();
+		wrapper.appendChild(tooltip.tooltip);
+		wrapper.appendChild(tooltip.overlay);
+		var btns = wrapper.getElementsByClassName('clipper-charts-npschart-hastooltip');
+		this.setTooltipListeners(btns);
 
 		// Logo
 		if (this.settings.logo.image !== 'none') {
@@ -461,14 +529,20 @@ clipper.charts.factory = function(type, id, settings, data) {
 			wrapper.appendChild(logo);
 		}
 
-	}
-// END NPS Chart
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
 
+	};
+// END NPS Chart
 /**
  * How loyal are doctors to my brand Chart
  */
-	clipper.charts.Loyalty_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+	clipper.charts.Loyalty_Chart = function(DOMContainer, settings, data) {
+		this.type = 'Loyalty_Chart';
+		clipper.charts.Chart.call(this, DOMContainer, settings, data);
 
 		if (typeof google.visualization.BubbleChart == 'undefined') {
 			throw 'Google Visualization API must be loaded with the BubbleChart module before creating charts.';
@@ -485,15 +559,24 @@ clipper.charts.factory = function(type, id, settings, data) {
 			meanBubble: {
 				fill: '#ff2a1a',
 			},
+			boundaries: {
+				mode: 'manual', // (manual | auto)
+				marginMin: 0,
+				marginMax: 1,
+				min: 1,
+				max: 4
+			},
 			textColor: '#aaa',
 			textFont: 'sans-serif',
 			textWeight: 'normal',
+			textWeight_mean: 900,
+			verticalAdjustment: true
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
@@ -510,16 +593,36 @@ clipper.charts.factory = function(type, id, settings, data) {
 		for (var i = 0; i < this._data.brands.length; i++) {
 			var cv = this._data.brands[i].loyalty;
 			if (cv > max) max = cv;
+		}
+
+		min = max;
+
+		for (var i = 0; i < this._data.brands.length; i++) {
+			var cv = this._data.brands[i].loyalty;
 			if (cv < min) min = cv;
 		}
 
+		if (this.settings.boundaries.mode === 'manual') {
+			var ret = {
+				min: this.settings.boundaries.min - this.settings.boundaries.marginMin,
+				max: this.settings.boundaries.max + this.settings.boundaries.marginMax
+			};
+			if (min < this.settings.boundaries.min) {
+				// console.warn('Loyalty_Chart: The min value set is higher than the lowest value in the DataTable. Using this value instead.');
+				ret.min = min - this.settings.boundaries.marginMin;
+			}
+			if (max > this.settings.boundaries.max) {
+				// console.warn('Loyalty_Chart: The max value set is lower than the highest value in the DataTable. Using this value instead.');
+				ret.max = max + this.settings.boundaries.marginMax;
+			}
+			return ret;
+		}
+
 		return {
-			// min: min,
-			// max: max
-			min: 1,
-			max: 5
+			min: min - this.settings.boundaries.marginMin,
+			max: max + this.settings.boundaries.marginMax
 		};
-	};	
+	};
 
 	clipper.charts.Loyalty_Chart.prototype.getMean = function() {
 		if (this._data.hasOwnProperty('mean')) return this._data.mean;
@@ -532,18 +635,51 @@ clipper.charts.factory = function(type, id, settings, data) {
 	};
 
 	clipper.charts.Loyalty_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.BubbleChart(document.getElementById(this.id));
+		var me = this.container;
+		me.innerHTML = '';
+
+		if (!this._data.hasOwnProperty('brands') || this._data.brands.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
+		}
+
+		var height = null;
+		var bottomHeight = 120; // Pixels left for bottom ticks and labels
+
+		// Adjust height
+		if (this.settings.verticalAdjustment) {
+			height = (this._data.brands.length) * 40 * 2;
+			me.style.minHeight = height + 'px';
+		}
+
+		// Set font size
+		var containerRect = me.getClientRects()[0];
+		var fontSize = 14;
+		// if (containerRect.width <= 375) fontSize = '11';
+		// if (containerRect.width > 375 && containerRect.width <= 568) fontSize = '12';
+		// if (containerRect.width > 568 && containerRect.width <= 667) fontSize = '13';
+		// if (containerRect.width > 667 && containerRect.width <= 700) fontSize = '13';
+		// if (containerRect.width > 700 && containerRect.width <= 1024) fontSize = '13';
+
+		this._gchart = new google.visualization.BubbleChart(me);
 
 		var brands = this._data.brands;
 
+		// If portrait, 60%; if not, 70%
+		var ww = window.innerWidth, wh = window.innerHeight;
+		var chartWidth = (wh > ww) ? '60%' : '70%';
+		var chartLeft = (wh > ww) ? '20%' : '15%';
+
 		var boundaries = this.getBoundaries();
-		var max = Math.ceil(boundaries.max);
-		var min = Math.floor(boundaries.min);
+		var max = Math.round(boundaries.max);
+		var min = Math.round(boundaries.min);
 		var ticks = [];
 		for (var t = min; t <= max; t++) {
 			ticks.push(t);
 		}
+
+		var chartHeightPercentage = (height === null || height === 0) ? '75%' : ( 100 - (bottomHeight / height) * 100) + '%';
 
 		var options = {
 			colors: [this.settings.brandBubble.fill, this.settings.meanBubble.fill],
@@ -564,8 +700,9 @@ clipper.charts.factory = function(type, id, settings, data) {
 			legend: {
 				position: 'none'
 			},
+			titlePosition: 'none',
 			sizeAxis: {
-				maxSize: 13
+				maxSize: 11
 			},
 			tooltip: {
 				trigger: 'none'
@@ -573,6 +710,13 @@ clipper.charts.factory = function(type, id, settings, data) {
 			bubble: {
 				opacity: this.settings.bubbles.opacity,
 				stroke: this.settings.bubbles.strokeColor
+			},
+			chartArea: {
+				top: 0,
+				left: chartLeft,
+				right: '10%',
+				height: chartHeightPercentage,
+				width: chartWidth
 			}
 		};
 
@@ -627,11 +771,14 @@ clipper.charts.factory = function(type, id, settings, data) {
 		// Create Score labels.
 		var cli = this._gchart.getChartLayoutInterface();
 		var chartArea = cli.getChartAreaBoundingBox();
-		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
+		var wrapper = me.querySelector('div:first-child');
+		//wrapper.style.marginTop = "-8%";
+		me.style.overflow = "hidden";
 		var overlay = null;
 		var overlay_values = null;
 		for (var idx = 0; idx < data.length; idx++) {
-			var overlay = document.createElement('div');
+			var overlay = me.ownerDocument.createElement('div');
+			overlay.className = 'clipper-charts-loyaltychart-hastooltip';
 			var overlay_style = overlay.style;
 			overlay_style.textAlign = 'right';
 			overlay_style.width = (chartArea.left - 15) + "px";
@@ -640,38 +787,50 @@ clipper.charts.factory = function(type, id, settings, data) {
 			overlay_style.position = 'absolute';
 			overlay_style.color = this.settings.textColor;
 			overlay_style.fontFamily = this.settings.textFont;
-			overlay_style.fontSize = '13px';
-			overlay_style.fontWeight = this.settings.textWeight;
-			var overlay_text = document.createTextNode(data[idx].brand);
+			overlay_style.fontSize = fontSize + 'px';
+			if (data[idx].brand === 'Mean') {
+				overlay_style.fontWeight = this.settings.textWeight_mean;
+			} else {
+				overlay_style.fontWeight = this.settings.textWeight_brand;	
+			}
+			overlay_style.whiteSpace = 'nowrap';
+			overlay_style.overflow = 'hidden';
+			overlay_style.textOverflow = 'ellipsis';
+			var overlay_text = me.ownerDocument.createTextNode(data[idx].brand);
 			overlay.appendChild(overlay_text);
 			wrapper.appendChild(overlay);
 
-			overlay_values = document.createElement('div');
+			overlay_values = me.ownerDocument.createElement('div');
 			overlay_values.style.position = 'absolute';
 			overlay_values.style.color = this.settings.textColor;
 			overlay_values.style.fontFamily = this.settings.textFont;
-			overlay_values.style.fontSize = '13px';
-			overlay_values.style.fontWeight = this.settings.textWeight;
+			overlay_values.style.fontSize = fontSize + 'px';
+			if (data[idx].brand === 'Mean') {
+				overlay_values.style.fontWeight = this.settings.textWeight_mean;
+			} else {
+				overlay_values.style.fontWeight = this.settings.textWeight_brand;
+			}
 			overlay_values.style.left = chartArea.width + chartArea.left + 10 + 'px';
 			overlay_values.style.top = cli.getBoundingBox('vAxis#0#gridline#' + (data.length - idx)).top - 9 + 'px';
 			var txt = data[idx].loyalty.toString();
+			if (txt.indexOf('.') === -1) {
+				txt += '.00';
+			}
 			if (txt.indexOf('.') > txt.length - 3) {
 				for (var i = 0; i < txt.indexOf('.') - (txt.length-3); i++) {
 					txt += '0';
 				}
 			} else if (txt.indexOf('.') < txt.length - 3) {
 				txt = txt.substring(0, txt.indexOf('.') + 3);
-			} else if (txt.indexOf('.') == -1) {
-				txt += '.00';
 			}
-			overlay_text = document.createTextNode(txt);
+			overlay_text = me.ownerDocument.createTextNode(txt);
 			overlay_values.appendChild(overlay_text);
 			wrapper.appendChild(overlay_values);
 		}
 
 		// Create tick lines
 		for (var i = 0; i < ticks.length; i++) {
-			overlay = document.createElement('div');
+			overlay = me.ownerDocument.createElement('div');
 			overlay_style = overlay.style;
 			overlay_style.position = 'absolute';
 			overlay_style.left = cli.getBoundingBox('hAxis#0#gridline#' + i).left + "px";
@@ -682,8 +841,60 @@ clipper.charts.factory = function(type, id, settings, data) {
 			wrapper.appendChild(overlay);
 		}
 
+		// Create low label
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = (cli.getBoundingBox('hAxis#0#gridline#0').left - 8) + "px";
+		overlay_style.top = (chartArea.top + chartArea.height + 25) + "px";
+		overlay_style.width = '30px';
+		overlay_style.height = '15px';
+		overlay_style.color = this.settings.textColor;
+		overlay_style.fontFamily = this.settings.textFont;
+		overlay_style.fontSize = (fontSize - 1) + 'px';
+		// overlay_style.fontWeight = this.settings.textWeight;
+		overlay_style.fontWeight = this.settings.textWeight_labels;
+		overlay_text = me.ownerDocument.createTextNode('low');
+		overlay.appendChild(overlay_text);
+		wrapper.appendChild(overlay);
+		// Create high label
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = (cli.getBoundingBox('hAxis#0#gridline#' + (max - min)).left - 12) + "px";
+		overlay_style.top = (chartArea.top + chartArea.height + 25) + "px";
+		overlay_style.width = '30px';
+		overlay_style.height = '15px';
+		overlay_style.color = this.settings.textColor;
+		overlay_style.fontFamily = this.settings.textFont;
+		overlay_style.fontSize = (fontSize - 1) + 'px';
+		// overlay_style.fontWeight = this.settings.textWeight;
+		overlay_style.fontWeight = this.settings.textWeight_labels;
+		overlay_text = me.ownerDocument.createTextNode('high');
+		overlay.appendChild(overlay_text);
+		wrapper.appendChild(overlay);
+
+		// Create "loyalty score" label
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = (Math.floor(chartArea.width / 2) - 50 + chartArea.left) + "px";
+		overlay_style.top = (chartArea.top + chartArea.height + 50) + "px";
+		overlay_style.width = '100px';
+		overlay_style.height = '15px';
+		overlay_style.color = this.settings.textColor;
+		overlay_style.lineHeight = '20px';
+		overlay_style.fontFamily = this.settings.textFont;
+		overlay_style.fontSize = (fontSize - 1) + 'px';
+		overlay_style.textAlign = 'center';
+		// overlay_style.fontWeight = this.settings.textWeight;
+		overlay_style.fontWeight = this.settings.textWeight_labels;
+		overlay_text = me.ownerDocument.createTextNode('Loyalty score');
+		overlay.appendChild(overlay_text);
+		wrapper.appendChild(overlay);
+
 		// Delete top line
-		overlay = document.createElement('div');
+		overlay = me.ownerDocument.createElement('div');
 		overlay_style = overlay.style;
 		overlay_style.position = 'absolute';
 		overlay_style.left = chartArea.left + 'px';
@@ -693,20 +904,33 @@ clipper.charts.factory = function(type, id, settings, data) {
 		overlay_style.backgroundColor = '#ffffff';
 		wrapper.appendChild(overlay);
 
+		// Tooltip
+		var tooltip = this.getTooltip();
+		wrapper.appendChild(tooltip.tooltip);
+		wrapper.appendChild(tooltip.overlay);
+		var btns = wrapper.getElementsByClassName('clipper-charts-loyaltychart-hastooltip');
+		this.setTooltipListeners(btns);
+
 		// Logo
 		if (this.settings.logo.image !== 'none') {
 			var logo = this.getLogo();
 			wrapper.appendChild(logo);
 		}
 
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
+
 	};
 // END How loyal are doctors to my brand Chart
-
 /**
  * How many brands does a doctor promote Chart
  */
-	clipper.charts.DoctorsPromote_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+	clipper.charts.DoctorsPromote_Chart = function(DOMContainer, settings, data) {
+		this.type = 'DoctorsPromote_Chart';
+		clipper.charts.Chart.call(this, DOMContainer, settings, data);
 
 		if (typeof google.visualization.OrgChart == 'undefined') {
 			throw 'Google Visualization API must be loaded with the OrgChart module before creating charts.';
@@ -736,10 +960,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 			textFont: 'sans-serif'
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
@@ -750,8 +974,16 @@ clipper.charts.factory = function(type, id, settings, data) {
 	clipper.charts.DoctorsPromote_Chart.constructor = clipper.charts.DoctorsPromote_Chart;
 
 	clipper.charts.DoctorsPromote_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.OrgChart(document.getElementById(this.id));
+		var me = this.container;
+		me.innerHTML = '';
+
+		if (!this._data.hasOwnProperty('satisfied') || !this._data.hasOwnProperty('dissatisfied')) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
+		}
+
+		this._gchart = new google.visualization.OrgChart(me);
 
 		var options = {
 			size: 'medium',
@@ -766,38 +998,55 @@ clipper.charts.factory = function(type, id, settings, data) {
 
 		// Populate Data.
 		dt.addRow([ {v:'All Doctors', f:'All doctors'}, '', 0 ]);
-		dt.setRowProperty(0, 'style', 'padding: 1em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.allDoctors.color + '; background: ' + this.settings.allDoctors.fill + '; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Dissatisfied', f:'<big style="font-size:2em">' + (this._data.dissatisfied.amount * 100) + '%</big><br><strong>Dissatisfied</strong><br><small>(0 brands promoted)</small>'}, 'All Doctors', this._data.dissatisfied.amount ]);
-		dt.setRowProperty(1, 'style', 'padding: 1em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.dissatisfied.color + '; background: ' + this.settings.dissatisfied.fill + '; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Satisfied', f:'<big style="font-size:2em">' + (this._data.satisfied.amount * 100) + '%</big><br><strong>Satisfied</strong><br><small>(&gt;0 brands promoted)</small>'}, 'All Doctors', this._data.satisfied.amount ]);
-		dt.setRowProperty(2, 'style', 'padding: 1em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.satisfied.color + '; background: ' + this.settings.satisfied.fill + '; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Exclusive', f:'<big style="font-size:2em">' + (this._data.satisfied.exclusive.amount * 100) + '%</big><br><strong>Exclusive</strong><br><small>(1 brand promoted)</small>'}, 'Satisfied', this._data.satisfied.exclusive.amount ]);
-		dt.setRowProperty(3, 'style', 'padding: 1em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.exclusive.color + '; background: ' + this.settings.exclusive.fill + '; border: 0px; box-shadow: none');
-		dt.addRow([ {v:'Shared', f:'<big style="font-size:2em">' + (this._data.satisfied.shared.amount * 100) + '%</big><br><strong>Shared</strong><br><small>(&gt;1 brand promoted)</small><br>'}, 'Satisfied', this._data.satisfied.shared.amount ]);
-		dt.setRowProperty(4, 'style', 'padding: 1em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.shared.color + '; background: ' + this.settings.shared.fill + '; border: 0px; box-shadow: none');
+		dt.setRowProperty(0, 'style', 'padding: 0.25em 0.5em; font-family: ' + this.settings.textFont + '; font-weight: 700; color: ' + this.settings.allDoctors.color + '; background: ' + this.settings.allDoctors.fill + '; border: 0px; box-shadow: none');
+		dt.addRow([ {v:'Dissatisfied', f:'<big style="font-size:17px;font-weight:bold">' + Math.round(this._data.dissatisfied.amount * 100) + '%</big><br><strong style="font-size:17px">Dissatisfied</strong><br>(0 brands promoted)'}, 'All Doctors', this._data.dissatisfied.amount ]);
+		dt.setRowProperty(1, 'style', 'padding: 0.25em 0.5em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.dissatisfied.color + '; background: ' + this.settings.dissatisfied.fill + '; border: 0px; box-shadow: none');
+		dt.addRow([ {v:'Satisfied', f:'<big style="font-size:17px;font-weight:bold">' + Math.round(this._data.satisfied.amount * 100) + '%</big><br><strong style="font-size:17px">Satisfied</strong><br>(&gt;0 brands promoted)'}, 'All Doctors', this._data.satisfied.amount ]);
+		dt.setRowProperty(2, 'style', 'padding: 0.25em 0.5em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.satisfied.color + '; background: ' + this.settings.satisfied.fill + '; border: 0px; box-shadow: none');
+		dt.addRow([ {v:'Exclusive', f:'<big style="font-size:17px;font-weight:bold">' + Math.round(this._data.satisfied.exclusive.amount * 100) + '%</big><br><strong style="font-size:17px">Exclusive</strong><br>(1 brand promoted)'}, 'Satisfied', this._data.satisfied.exclusive.amount ]);
+		dt.setRowProperty(3, 'style', 'padding: 0.25em 0.5em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.exclusive.color + '; background: ' + this.settings.exclusive.fill + '; border: 0px; box-shadow: none');
+		dt.addRow([ {v:'Shared', f:'<big style="font-size:17px;font-weight:bold">' + Math.round(this._data.satisfied.shared.amount * 100) + '%</big><br><strong style="font-size:17px">Shared</strong><br>(&gt;1 brand promoted)<br>'}, 'Satisfied', this._data.satisfied.shared.amount ]);
+		dt.setRowProperty(4, 'style', 'padding: 0.25em 0.5em; font-family: ' + this.settings.textFont + '; font-weight: normal; color: ' + this.settings.shared.color + '; background: ' + this.settings.shared.fill + '; border: 0px; box-shadow: none');
 
 		this._gchart.draw(dt, options);
 
+		var wrapper = me;
+
+		// Adjust position and size
+		var table = wrapper.getElementsByClassName('google-visualization-orgchart-table')[0];
+		if (table.clientWidth > wrapper.clientWidth) {
+			var ratio = wrapper.clientWidth / table.clientWidth;
+			table.style.transform = 'scale(' + ratio + ',' + ratio + ')';
+		}
+		if (wrapper.clientHeight > table.clientHeight) {
+			table.style.paddingTop = Math.floor((wrapper.clientHeight - table.clientHeight) / 2) + 'px';
+		}
+
 		// Logo
 		if (this.settings.logo.image !== 'none') {
-			var wrapper = document.getElementById(this.id);
 			wrapper.style.position = 'relative';
 			var logo = this.getLogo();
 			wrapper.appendChild(logo);
+			table.style.paddingBottom = (logo.clientHeight + 5) + 'px';
 		}
 
-	}
-// END How many brands does a doctor promote Chart
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
 
+	};
+// END How many brands does a doctor promote Chart
 /**
- * Amongst my Promoters, how many other brands do they promote 
- *  and which other brand is most promoted Chart
+ * Heatmap base class
  */
-	clipper.charts.PromotersPromote_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+ 	clipper.charts.Heatmap_Chart = function(DOMContainer, settings, data) {
+ 		clipper.charts.Chart.call(this, DOMContainer, settings, data);
 
 		var defaultSettings = {
 			valueType: 'absolute',
+			showLabels: true,
 			heatmap: {
 				lowerColor: [255, 255, 255], // R, G, B
 				higherColor: [0, 0, 0] // R, G, B
@@ -806,22 +1055,24 @@ clipper.charts.factory = function(type, id, settings, data) {
 			textFont: 'sans-serif'
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
 
-		this._brand_index = [];
+		// Add class to the wrapper
+		var wrapper = this.container;
+		if (wrapper) {
+			clipper.charts.tools.injectClass('clipper-charts-heatmap', wrapper);
+		}
+ 	};
+ 	clipper.charts.Heatmap_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.Heatmap_Chart.constructor = clipper.charts.Heatmap_Chart;
 
-		this.draw();
-	};
-	clipper.charts.PromotersPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
-	clipper.charts.PromotersPromote_Chart.constructor = clipper.charts.PromotersPromote_Chart;
-
-	clipper.charts.PromotersPromote_Chart.prototype.getBoundaries = function() {
+	clipper.charts.Heatmap_Chart.prototype.getBoundaries = function() {
 		var max = 0;
 		var min = 0;
 		if (this.settings.valueType === 'absolute') {
@@ -840,24 +1091,27 @@ clipper.charts.factory = function(type, id, settings, data) {
 		return {
 			min: min,
 			max: max
-		}
+		};
 	};
 
-	clipper.charts.PromotersPromote_Chart.prototype.getPercent = function(value, max, min) {
+	clipper.charts.Heatmap_Chart.prototype.getPercent = function(value, max, min) {
+		if (value === null) return null;
 		min = min || 0;
 		var v = value - min;
 		var M = max - min;
 		return (v / M);
 	};
 
-	clipper.charts.PromotersPromote_Chart.prototype.getColorHex = function(percent, min, max) {
+	clipper.charts.Heatmap_Chart.prototype.getColorHex = function(percent, min, max) {
 		var val = Math.abs(Math.floor(min + ((max - min) * percent)));
 		var hex = val.toString(16);
 		if (hex.length < 2) hex = '0' + hex;
 		return hex;
 	};
 
-	clipper.charts.PromotersPromote_Chart.prototype.getColor = function(percent) {
+	clipper.charts.Heatmap_Chart.prototype.getColor = function(percent) {
+		if (percent === null) percent = 0;
+
 		var heatmap = this.settings.heatmap;
 
 		var r = this.getColorHex(percent, heatmap.lowerColor[0], heatmap.higherColor[0]);
@@ -867,156 +1121,259 @@ clipper.charts.factory = function(type, id, settings, data) {
 		return '#' + r + g + b;
 	};
 
-	clipper.charts.PromotersPromote_Chart.prototype.getTopMargin = function() {
-		var el = document.createElement('div');
-		el.style.display = 'block';
-		el.style.maxWidth = '85px';
-		el.style.overflow = 'hidden';
-		var txt = '';
-		for (var i = 0; i < this._data.length; i++) {
-			if (txt.length < this._data[i].brand.length) {
-				txt = this._data[i].brand;
-			}
-		}
-		var el_txt = document.createTextNode(txt);
-		el.appendChild(el_txt);
-		document.getElementsByTagName('body')[0].appendChild(el);
-		var width = el.offsetWidth;
-		document.getElementsByTagName('body')[0].removeChild(el);
-		//return width * 0.7071; // * sin(45º)
-		return width; // * sin(90º)
+	clipper.charts.Heatmap_Chart.prototype.getCellTextColor = function(percent) {
+		var heatmap = this.settings.heatmap;
+
+		var rv = Math.abs(Math.floor(heatmap.lowerColor[0] + ((heatmap.higherColor[0] - heatmap.lowerColor[0]) * percent))),
+			gv = Math.abs(Math.floor(heatmap.lowerColor[1] + ((heatmap.higherColor[1] - heatmap.lowerColor[1]) * percent))),
+			bv = Math.abs(Math.floor(heatmap.lowerColor[2] + ((heatmap.higherColor[2] - heatmap.lowerColor[2]) * percent)));
+
+		// Perceptive luminance
+		var rl = (rv * 0.299), // red: 29.9%
+			gl = (gv * 0.587), // green: 58.7%
+			bl = (gv * 0.114), // blue: 11.4%
+			tl = rl + gl + bl; // Total luminance (0-255)
+
+		var al = 1 - (tl / 255); // Absolute luminance (0 - 1)
+
+		// This is where we can set our boundary. 50% is the intuitive limit for
+		// dark / bright change of text color, but I found out that 40% is actually
+		// better.
+		return (al > 0.4) ? '#f9f9f9' : '#333333';
 	};
 
-	clipper.charts.PromotersPromote_Chart.prototype.draw_note = function(brand, value, x, y) {
-		var note = document.createElement('div');
-		if (this.settings.valueType === 'absolute') {
-			value = (value * 100) + '%';
-		}
-		note.id = this.id + '-note';
-		note.style.position = 'absolute';
-		note.style.left = x - 65 + 'px';
-		note.style.top = y - 70 + 'px';
-		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
-		noteSVG += '<g>';
-		noteSVG += '  <g>';
-		noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
-		noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
-		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
-		noteSVG += '   <g>';
-		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
-		noteSVG += '   </g>';
-		noteSVG += '  </g>';
-		noteSVG += ' </g>';
-		noteSVG += '</svg>';
-		note.innerHTML = noteSVG;
-		return note;
-	}
-
-	clipper.charts.PromotersPromote_Chart.prototype.hnd_touch = function(e) {
-		var self = e.target;
-		var idx = self.getAttribute('data-brand-i');
-		var j = self.getAttribute('data-brand-j');
-		var cStatus = (this._data[idx].hasOwnProperty('touchStatus')) ? this._data[idx].touchStatus : '';
-		if (cStatus == 'touchstart' && e.type == 'touchend') {
-			var brand = this._brand_index[idx];
-			var value = (this._data[idx].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[idx].competitors[this._brand_index[j]] : 0;
-			if (value == 0) return;
-			var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
-			var x = Math.floor(e.changedTouches[0].clientX) - wrapper.getBoundingClientRect().left;
-			var y = Math.floor(e.changedTouches[0].clientY) - wrapper.getBoundingClientRect().top;
-			var oldNote = document.getElementById(this.id + '-note');
-			if (oldNote) {
-				oldNote.parentNode.removeChild(oldNote);
+	clipper.charts.Heatmap_Chart.prototype.getLegend = function(orientation) {
+		var o = orientation || 'vertical';
+		var machineName = this.type.replace('_', '');
+			machineName = machineName.toLowerCase();
+		var colorH = this.getColor(1),
+			colorL = this.getColor(0);
+		var ts = (!Date.now) ? new Date().getTime() : Date.now();
+		if (orientation === 'vertical') {
+			html = '<svg width="75" height="200" class="clipper-charts-' + machineName + '-legend-svg">';
+			html += '<defs><linearGradient id="clipper-charts-heatmap-gradient-' + ts + '" x1="50%" x2="50%" y1="0%" y2="100%"><stop stop-color="' + colorL + '" offset="0" /><stop stop-color="' + colorH + '" offset="1" /></linearGradient></defs>';
+			html += '<g><rect height="90%" width="45%" x="0%" y="7%" fill="url(#clipper-charts-heatmap-gradient-'+ ts +')"/></g>';
+			html += '<g>';
+			for (var i = 0; i <= 100; i = i + 20) {
+				var y = (i * 0.88) + 10;
+				html += '<text font-size="13px" font-weight="600" x="55%" y="' + y + '%">' + i + '%</text>';
 			}
-			wrapper.appendChild(this.draw_note(brand, value, x, y));
+			html += '</g>';
+			html += '</svg>';
+		} else {
+			html = '<svg width="200" height="75" class="clipper-charts-' + machineName + '-legend-svg">';
+			html += '<defs><linearGradient id="clipper-charts-heatmap-gradient-' + ts + '" x1="0%" y1="50%" x2="100%" y2="50%"><stop stop-color="' + colorL + '" offset="0" /><stop stop-color="' + colorH + '" offset="1" /></linearGradient></defs>';
+			html += '<g><rect width="83%" height="50%" y="0%" x="5%" fill="url(#clipper-charts-heatmap-gradient-'+ ts +')"/></g>';
+			html += '<g>';
+			for (var i = 0; i <= 100; i = i + 20) {
+				var y = (i * 0.83) + 5;
+				html += '<text text-anchor="middle" font-weight="600" font-size="13px" y="75%" x="' + y + '%">' + i + '%</text>';
+			}
+			html += '</g>';
+			html += '</svg>';
 		}
-		this._data[idx].touchStatus = e.type;
+
+		return html;
+
+		// Old table saved just in case
+		// <table style="position:absolute;font-family: ' + this.settings.textFont + '; font-size: ' + fontSize + 'px; text-align: center" cellspacing="2" cellpadding="0">';
+		// for (var i = 0; i <= 10; i = i + 2) {
+		// 	html += '<tr>';
+		// 	color = this.getColor(i / 10);
+		// 	border = (i == 0) ? 'border:1px solid #eee;' : 'border:1px solid ' + color + ';';
+		// 	html += '<td style="width: 30px;"><div style="width:30px;height:30px;background-color: ' + color + ';' + border +'"></div></td>';
+		// 	html += '<td style="width: 30px; height: 30px; font-weight:500;">' + (i * 10) + '%</td>';
+		// 	html += '</tr>';
+		// }
+		// html += '</tr></table>';
 	};
 
-	clipper.charts.PromotersPromote_Chart.prototype.hnd_mouse = function(e) {
-		if (e.type == 'mouseleave') {
-			var oldNote = document.getElementById(this.id + '-note');
-			if (oldNote) {
-				oldNote.parentNode.removeChild(oldNote);
-			}
-		}
-		if (e.type == 'mouseenter') {
-			var self = e.target;
-			var idx = self.getAttribute('data-brand-i');
-			var j = self.getAttribute('data-brand-j');
-			var brand = this._brand_index[idx];
-			var value = (this._data[idx].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[idx].competitors[this._brand_index[j]] : 0;
-			if (value == 0) return;
-			var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
-			var x = Math.floor(e.clientX) - wrapper.getBoundingClientRect().left;
-			var y = Math.floor(e.clientY) - wrapper.getBoundingClientRect().top;
-			var oldNote = document.getElementById(this.id + '-note');
-			if (oldNote) {
-				oldNote.parentNode.removeChild(oldNote);
-			}
-			wrapper.appendChild(this.draw_note(brand, value, x, y));
-		}
+	// Deprecated. Doesn't work
+	// clipper.charts.Heatmap_Chart.prototype.draw_note = function(brand, value, x, y) {
+	// 	var note = this.container.ownerDocument.createElement('div');
+	// 	if (this.settings.valueType === 'absolute') {
+	// 		value = (value * 100) + '%';
+	// 	}
+	// 	note.id = this.id + '-note';
+	// 	note.style.position = 'absolute';
+	// 	note.style.left = x - 65 + 'px';
+	// 	note.style.top = y - 70 + 'px';
+	// 	var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
+	// 	noteSVG += '<g>';
+	// 	noteSVG += '  <g>';
+	// 	noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
+	// 	noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+	// 	noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
+	// 	noteSVG += '   <g>';
+	// 	noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
+	// 	noteSVG += '   </g>';
+	// 	noteSVG += '  </g>';
+	// 	noteSVG += ' </g>';
+	// 	noteSVG += '</svg>';
+	// 	note.innerHTML = noteSVG;
+	// 	return note;
+	// };
+
+	// Deprecated. Doesn't work
+	// clipper.charts.Heatmap_Chart.prototype.hnd_touch = function(e) {
+	// 	var me = this.container;
+	// 	var self = e.target;
+	// 	var idx = self.getAttribute('data-brand-i');
+	// 	var j = self.getAttribute('data-brand-j');
+	// 	var cStatus = (this._data[idx].hasOwnProperty('touchStatus')) ? this._data[idx].touchStatus : '';
+	// 	if (cStatus == 'touchstart' && e.type == 'touchend') {
+	// 		var brand = this._brand_index[idx];
+	// 		var value = (this._data[idx].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[idx].competitors[this._brand_index[j]] : 0;
+	// 		if (value === 0) return;
+	// 		var wrapper = me.getElementsByTagName('div')[0];
+	// 		var x = Math.floor(e.changedTouches[0].clientX) - wrapper.getBoundingClientRect().left;
+	// 		var y = Math.floor(e.changedTouches[0].clientY) - wrapper.getBoundingClientRect().top;
+	// 		var oldNote = document.getElementById(this.id + '-note');
+	// 		if (oldNote) {
+	// 			oldNote.parentNode.removeChild(oldNote);
+	// 		}
+	// 		wrapper.appendChild(this.draw_note(brand, value, x, y));
+	// 	}
+	// 	this._data[idx].touchStatus = e.type;
+	// };
+
+	// Deprecated. Doesn't work.
+	// clipper.charts.Heatmap_Chart.prototype.hnd_mouse = function(e) {
+	// 	if (e.type == 'mouseleave') {
+	// 		var oldNote = document.getElementById(this.id + '-note');
+	// 		if (oldNote) {
+	// 			oldNote.parentNode.removeChild(oldNote);
+	// 		}
+	// 	}
+	// 	if (e.type == 'mouseenter') {
+	// 		var self = e.target;
+	// 		var idx = self.getAttribute('data-brand-i');
+	// 		var j = self.getAttribute('data-brand-j');
+	// 		var brand = this._brand_index[idx];
+	// 		var value = (this._data[idx].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[idx].competitors[this._brand_index[j]] : 0;
+	// 		if (value === 0) return;
+	// 		var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
+	// 		var x = Math.floor(e.clientX) - wrapper.getBoundingClientRect().left;
+	// 		var y = Math.floor(e.clientY) - wrapper.getBoundingClientRect().top;
+	// 		var oldNote = document.getElementById(this.id + '-note');
+	// 		if (oldNote) {
+	// 			oldNote.parentNode.removeChild(oldNote);
+	// 		}
+	// 		wrapper.appendChild(this.draw_note(brand, value, x, y));
+	// 	}
+	// };
+
+// END Heatmap base class
+/**
+ * Amongst my Promoters, how many other brands do they promote 
+ *  and which other brand is most promoted Chart
+ */
+	clipper.charts.PromotersPromote_Chart = function(DOMContainer, settings, data) {
+		this.type = 'PromotersPromote_Chart';
+		clipper.charts.Heatmap_Chart.call(this, DOMContainer, settings, data);
+
+		this._brand_index = [];
+
+		this.draw();
 	};
+	clipper.charts.PromotersPromote_Chart.prototype = Object.create(clipper.charts.Heatmap_Chart.prototype);
+	clipper.charts.PromotersPromote_Chart.constructor = clipper.charts.PromotersPromote_Chart;
 
 	clipper.charts.PromotersPromote_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		var wrapper = document.createElement('div');
+		var me = this.container;
+		me.innerHTML = '';
+
+		if (this._data.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
+		}
+
+		var wrapper = me.ownerDocument.createElement('div');
 		wrapper.style.position = 'relative';
 		wrapper.style.height = '100%';
 		wrapper.style.width = '100%';
 
-		document.getElementById(this.id).appendChild(wrapper);
+		me.appendChild(wrapper);
+
+		// Set font size
+		var containerRect = me.getClientRects()[0];
+		var fontSize = 14;
+		// if (containerRect.width <= 375) fontSize = 11;
+		// if (containerRect.width > 375 && containerRect.width <= 568) fontSize = 12;
+		// if (containerRect.width > 568 && containerRect.width <= 667) fontSize = 13;
+		// if (containerRect.width > 667 && containerRect.width <= 700) fontSize = 13;
+		// if (containerRect.width > 700 && containerRect.width <= 1024) fontSize = 13;
 
 		this._brand_index = [];
 		var value = 0;
 		var boundaries = this.getBoundaries();
 		var color = '';
+		var textColor = '';
+		var percent = '';
+		var border = '';
 
 		var html = '';
 
-		var topMarg = this.getTopMargin();
-
-		//var overflow = (this._data.length > Math.floor((wrapper.clientHeight - topMarg) / 50)) ? 'scroll' : 'auto';
 		var overflow = 'auto';
 
-		html += '<div style="float: left; margin-top:0px;max-width:85%;overflow-x: ' + overflow + '; ">';
-		html += '<table cellspacing="0" style="margin-left: 10px; margin-bottom: 15px; font-size: 12px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '">';
+		html += '<div style="text-align:center;width:98%;padding:1%;font-size:' + (fontSize - 1) + 'px;font-family:' + this.settings.textFont + ';font-weight:'+this.settings.textWeight_labels+';line-height:1.5em">Also most commonly promote...</div>';
 
-		html += '<tr><td rowspan="' + (this._data.length + 2) + '"><svg width="18" height="60"><g><text fill="' + this.settings.textColor + '" stroke-width="0" x="50%" y="50%" font-size="13" font-family="' + this.settings.textFont + '" font-weight="bold" text-anchor="middle" transform="rotate(-90 9,30) ">Brands</text></g></svg></td><td>&nbsp;</td><th colspan="' + this._data.length + '" style="padding:5px; padding-bottom: ' + topMarg + 'px;">Most Commonly Promoted Competitor</th></tr>';
+		html += '<div style="margin-top:0px;max-width:79%;overflow-x: ' + overflow + '; ">';
+		
+		html += '<table cellspacing="0" style="table-layout:fixed;margin-left: auto;margin-right:auto; margin-bottom: 15px; font-size: ' + fontSize + 'px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '">';
 
-		html += '<tr><td>&nbsp;</td>';
+		// html += '<tr><th colspan="' + (this._data.length + 2) + '" style="padding:5px;">Promoted brand</th></tr>';
+
+		html += '<tr><td>&nbsp;</td><td>&nbsp;</td>';
+
+		var brandtext = '';
 		for (var i = 0; i < this._data.length; i++) {
-			html += '<th><div style="font-weight: normal; text-overflow: ellipsis; white-space: nowrap; overflow:hidden; max-width: 85px; text-align: left; position:absolute; transform: rotate(-90deg) translateX(5%) translateY(0%); transform-origin: 0% 0%" title="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
+			brandtext = this._data[i].brand;
+			brandtext = (brandtext.length < 13) ? brandtext : brandtext.substring(0, 10) + '...';
+			html += '<th align="center"><div title="' + this._data[i].brand + '" class="clipper-charts-promoterspromotechart-hastooltip" data-tooltip-content="' + this._data[i].brand + '" style="width:40px"><svg width="20" height="80"><g><text fill="' + this.settings.textColor + '" font-size="' + fontSize + '" font-family="' + this.settings.textFont + '" font-weight="'+this.settings.textWeight_brand+'" text-anchor="left" x="14" y="80" transform="rotate(-90 14,80)">' + brandtext + '</text></g></svg></div></th>';
 			this._brand_index.push(this._data[i].brand);
 		}
 		html += '</tr>';
+
+		var label = '';
 		
 		for (var i = 0; i < this._data.length; i++) {
 			html += '<tr>';
-			html += '<th style="font-weight: normal; text-align:right; padding-right: 5px" title="' + this._data[i].brand + '">' + this._data[i].brand + '</th>';
-			for (var j = 0; j < this._data.length; j++) {
-				value = (this._data[i].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[i].competitors[this._brand_index[j]] : 0;
-				var percent = this.getPercent(value, boundaries.max, boundaries.min);
-				color = this.getColor(percent);
-				html += '<td style="width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '" class="clipper-charts-promoterspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">&nbsp;</td>';
+			if (i === 0) {
+				html += '<td rowspan="' + (this._data.length + 1) + '"><svg width="20" height="180"><g><text fill="' + this.settings.textColor + '" stroke-width="0" x="50%" y="50%" font-size="' + (fontSize - 1)+ '" font-family="' + this.settings.textFont + '" font-weight="'+this.settings.textWeight_labels+'" text-anchor="middle" transform="rotate(-90 10,90) ">Promoters of these brands...</text></g></svg></td>';
 			}
-			html += '</tr>';
-		}
-		html += '</table></div>';
+			html += '<th style="font-weight: '+this.settings.textWeight_brand+'; text-align:right; padding: 5px 5px 5px 0px; line-height: 18px" title="' + this._data[i].brand + '"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100px" class="clipper-charts-promoterspromotechart-hastooltip" data-tooltip-content="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
+			for (var j = 0; j < this._data.length; j++) {
+				value = (this._data[i].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[i].competitors[this._brand_index[j]] : null;
+				percent = this.getPercent(value, boundaries.max, boundaries.min);
+				color = this.getColor(percent);
+				// txtColor = this.getCellTextColor(percent);
+				txtColor = '#333333';
+				label = (this.settings.showLabels && percent !== null) ? Math.round(percent * 100) + '%' : '&nbsp;';
+				html += '<td style="font-weight: 600; font-size: 13px; width: 50px; height: 50px; border: 1px solid #eee; color: ' + txtColor + '; background-color: ' + color + '" class="clipper-charts-promoterspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">' + label + '</td>';
+			}
+			html += '</tr>';}
 
-		html += '<div class="clipper-charts-promoterspromotechart-legend" style="float: left; margin-top:' + topMarg + 'px;margin-left: 5%; width:10%;"><table style="font-family: ' + this.settings.textFont + '; font-size: 12px; text-align: center">';
-		for (var i = 0; i <= 10; i++) {
-			html += '<tr>';
-			color = this.getColor(i / 10);
-			html += '<td style="width: 30px; background-color: ' + color + ';"><div style="width:30px;height:30px;"></div></td>';
-			html += '<td style="width: 30px; height: 30px">' + (i * 10) + '%</td>';
-			html += '</tr>';
-		}
-		html += '</tr></table></div>';
+			html += '</table></div>';
+
+		// Legend
+		html += '<div class="clipper-charts-promoterspromotechart-legend" style="position:absolute;top:0px;right:0px;margin-left: 5%; width:20%;height:100%">';
+
+		html += this.getLegend('vertical');
+		
+		html += '</div>'
 
 		html += '<div style="clear:both"></div>';
 
 		wrapper.innerHTML = html;
+
+		// Tooltip
+		var tooltip = this.getTooltip();
+		wrapper.appendChild(tooltip.tooltip);
+		wrapper.appendChild(tooltip.overlay);
+		var btns = wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-hastooltip');
+		this.setTooltipListeners(btns);
 
 		// Logo
 		if (this.settings.logo.image !== 'none') {
@@ -1024,260 +1381,410 @@ clipper.charts.factory = function(type, id, settings, data) {
 			wrapper.appendChild(logo);
 		}
 
-		var cells = wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-cell');
-		if (cells) {
-			for (var i = 0; i < cells.length; i++) {
-				cells[i].addEventListener('touchstart', this.hnd_touch.bind(this));
-				cells[i].addEventListener('touchmove', this.hnd_touch.bind(this));
-				cells[i].addEventListener('touchend', this.hnd_touch.bind(this));
-				cells[i].addEventListener('mouseenter', this.hnd_mouse.bind(this));
-				cells[i].addEventListener('mouseleave', this.hnd_mouse.bind(this));
-			}
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
 		}
+
+		// var cells = wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-cell');
+		// if (cells) {
+		// 	for (var i = 0; i < cells.length; i++) {
+		// 		cells[i].addEventListener('touchstart', this.hnd_touch.bind(this));
+		// 		cells[i].addEventListener('touchmove', this.hnd_touch.bind(this));
+		// 		cells[i].addEventListener('touchend', this.hnd_touch.bind(this));
+		// 		cells[i].addEventListener('mouseenter', this.hnd_mouse.bind(this));
+		// 		cells[i].addEventListener('mouseleave', this.hnd_mouse.bind(this));
+		// 	}
+		// }
 
 		var tables = wrapper.getElementsByTagName('table');
 		var tbl = tables[0];
 		var tblh = tbl.clientHeight;
-		var legend = tables[1];
+		var legend = wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-legend-svg')[0];
 		var lh = legend.clientHeight;
+		legend.style.position = 'absolute';
 		if (wrapper.clientHeight <= window.innerHeight && tblh > lh) {
-			var ltopmarg = Math.floor((tblh / 2) - (lh / 2));
-			wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-legend')[0].style.marginTop = ltopmarg + 'px';
+			var rows = tbl.querySelectorAll('tr');
+			var gh = tblh - (rows[0].clientHeight + rows[1].clientHeight);
+			var ltop = Math.floor((gh / 2) - (lh / 2));
+			legend.style.top = (rows[0].clientHeight + rows[1].clientHeight + ltop) + 'px';
+		} else {
+			legend.style.bottom = '50px';
 		}
 
 	};
 // END Amongst my Promoters, how many other brands do they promote and which other brand is most promoted Chart
-
 /**
- * Amongst my Detractors, which other brands do they promote Chart
+ * Amongst doctors promoting my brand, how many other brands do they also promote
  */
-	clipper.charts.DetractorsPromote_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+	clipper.charts.PromotersPromoteMean_Chart = function(DOMContainer, settings, data) {
+		this.type = 'PromotersPromoteMean_Chart';
+		clipper.charts.Chart.call(this, DOMContainer, settings, data);
+
+		if (typeof google.visualization.BubbleChart == 'undefined') {
+			throw 'Google Visualization API must be loaded with the BubbleChart module before creating charts.';
+		}
 
 		var defaultSettings = {
-			valueType: 'absolute',
-			heatmap: {
-				lowerColor: [255, 255, 255], // R, G, B		
-				higherColor: [0, 0, 0] // R, G, B		
-			},		
-			labelTextColor: '#aaa',		
-			textColor: '#aaa',		
-			textFont: 'sans-serif'
+			bubbles: {
+				opacity: 1,
+				strokeColor: '#ffffff'
+			},
+			brandBubble: {
+				fill: '#919191'
+			},
+			meanBubble: {
+				fill: '#ff2a1a',
+			},
+			boundaries: {
+				mode: 'manual', // (manual | auto)
+				marginMin: 0,
+				marginMax: 1,
+				min: 0,
+				max: 4
+			},
+			textColor: '#aaa',
+			textFont: 'sans-serif',
+			textWeight: 'normal',
+			textWeight_mean: 900,
+			verticalAdjustment: true
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
 
-		this._brand_index = [];
-
 		this.draw();
 	};
-	clipper.charts.DetractorsPromote_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
-	clipper.charts.DetractorsPromote_Chart.constructor = clipper.charts.DetractorsPromote_Chart;
+	clipper.charts.PromotersPromoteMean_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.PromotersPromoteMean_Chart.constructor = clipper.charts.PromotersPromoteMean_Chart;
 
-	clipper.charts.DetractorsPromote_Chart.prototype.getBoundaries = function() {
-		var max = 0;
-		var min = 0;
-		if (this.settings.valueType === 'absolute') {
-			return {
-				min: 0,
-				max: 1
+	clipper.charts.PromotersPromoteMean_Chart.prototype.getBoundaries = function() {
+		var min = 0,
+			max = 0;
+
+		var brands = [];
+		for (var b in this._data.brands) {
+			var tmp = this._data.brands[b];
+			tmp.brand = b;
+			brands.push(tmp);
+		}
+
+		for (var i = 0; i < brands.length; i++) {
+			var cv = brands[i].mean;
+			if (cv > max) max = cv;
+		}
+
+		min = max;
+
+		for (var i = 0; i < brands.length; i++) {
+			var cv = brands[i].mean;
+			if (cv < min) min = cv;
+		}
+
+		if (this.settings.boundaries.mode === 'manual') {
+			var ret = {
+				min: this.settings.boundaries.min - this.settings.boundaries.marginMin,
+				max: this.settings.boundaries.max + this.settings.boundaries.marginMax
 			};
-		}
-		for (var i = 0; i < this._data.length; i++) {
-			if (!this._data[i].hasOwnProperty('competitors')) continue;
-			for (var j in this._data[i].competitors) {
-				if (this._data[i].competitors[j] > max) max = this._data[i].competitors[j];
-				if (this._data[i].competitors[j] < min) min = this._data[i].competitors[j];
+			if (min < this.settings.boundaries.min) {
+				// console.warn('Loyalty_Chart: The min value set is higher than the lowest value in the DataTable. Using this value instead.');
+				ret.min = min - this.settings.boundaries.marginMin;
 			}
+			if (max > this.settings.boundaries.max) {
+				// console.warn('Loyalty_Chart: The max value set is lower than the highest value in the DataTable. Using this value instead.');
+				ret.max = max + this.settings.boundaries.marginMax;
+			}
+			return ret;
 		}
+
 		return {
-			min: min,
-			max: max
+			min: min - this.settings.boundaries.marginMin,
+			max: max + this.settings.boundaries.marginMax
+		};
+	};
+
+	clipper.charts.PromotersPromoteMean_Chart.prototype.getMean = function() {
+		if (this._data.hasOwnProperty('overall') && this._data.overall.hasOwnProperty('mean')) return this._data.overall.mean;
+		if (this._data.brands.length < 1) return 0;
+		var total = 0,
+			len = 0;
+		for (var b in this._data.brands) {
+			var tmp = this._data.brands[b];
+			total += tmp.mean;
+			len++;
 		}
+		return total / len;
 	};
 
-	clipper.charts.DetractorsPromote_Chart.prototype.getPercent = function(value, max, min) {
-		min = min || 0;
-		var v = value - min;
-		var M = max - min;
-		return (v / M);
-	};
+	clipper.charts.PromotersPromoteMean_Chart.prototype.draw = function() {
+		var me = this.container;
+		me.innerHTML = '';
 
-	clipper.charts.DetractorsPromote_Chart.prototype.getColorHex = function(percent, min, max) {
-		var val = Math.abs(Math.floor(min + ((max - min) * percent)));
-		var hex = val.toString(16);
-		if (hex.length < 2) hex = '0' + hex;
-		return hex;
-	};
-
-	clipper.charts.DetractorsPromote_Chart.prototype.getColor = function(percent) {
-		var heatmap = this.settings.heatmap;
-
-		var r = this.getColorHex(percent, heatmap.lowerColor[0], heatmap.higherColor[0]);
-		var g = this.getColorHex(percent, heatmap.lowerColor[1], heatmap.higherColor[1]);
-		var b = this.getColorHex(percent, heatmap.lowerColor[2], heatmap.higherColor[2]);
-
-		return '#' + r + g + b;
-	};
-
-	clipper.charts.DetractorsPromote_Chart.prototype.getTopMargin = function() {
-		var el = document.createElement('div');
-		el.style.display = 'block';
-		el.style.maxWidth = '85px';
-		el.style.overflow = 'hidden';
-		var txt = '';
-		for (var i = 0; i < this._data.length; i++) {
-			if (txt.length < this._data[i].brand.length) {
-				txt = this._data[i].brand;
-			}
+		var brands = [];
+		for (var b in this._data.brands) {
+			var tmp = this._data.brands[b];
+			tmp.brand = b;
+			brands.push(tmp);
 		}
-		var el_txt = document.createTextNode(txt);
-		el.appendChild(el_txt);
-		document.getElementsByTagName('body')[0].appendChild(el);
-		var width = el.offsetWidth;
-		document.getElementsByTagName('body')[0].removeChild(el);
-		//return width * 0.7071; // * sin(45º)
-		return width; // * sin(90º)
-	};
 
-	clipper.charts.DetractorsPromote_Chart.prototype.hnd_touch = function(e) {
-		var self = e.target;
-		var idx = self.getAttribute('data-brand-i');
-		var j = self.getAttribute('data-brand-j');
-		var cStatus = (this._data[idx].hasOwnProperty('touchStatus')) ? this._data[idx].touchStatus : '';
-		if (cStatus == 'touchstart' && e.type == 'touchend') {
-			var brand = this._brand_index[idx];
-			var value = (this._data[idx].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[idx].competitors[this._brand_index[j]] : 0;
-			if (value == 0) return;
-			var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
-			var x = Math.floor(e.changedTouches[0].clientX) - wrapper.getBoundingClientRect().left;
-			var y = Math.floor(e.changedTouches[0].clientY) - wrapper.getBoundingClientRect().top;
-			var oldNote = document.getElementById(this.id + '-note');
-			if (oldNote) {
-				oldNote.parentNode.removeChild(oldNote);
-			}
-			wrapper.appendChild(this.draw_note(brand, value, x, y));
+		if (brands.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
 		}
-		this._data[idx].touchStatus = e.type;
-	};
 
-	clipper.charts.DetractorsPromote_Chart.prototype.hnd_mouse = function(e) {
-		if (e.type == 'mouseleave') {
-			var oldNote = document.getElementById(this.id + '-note');
-			if (oldNote) {
-				oldNote.parentNode.removeChild(oldNote);
-			}
+		// Set font size
+		var containerRect = me.getClientRects()[0];
+		var fontSize = 14;
+
+		this._gchart = new google.visualization.BubbleChart(me);
+
+		// Adjust height
+		var height = null;
+		var bottomHeight = 120; // Pixels left for bottom ticks and labels
+
+		if (this.settings.verticalAdjustment) {
+			height = (brands.length) * 40 * 2;
+			me.style.minHeight = height + 'px';
 		}
-		if (e.type == 'mouseenter') {
-			var self = e.target;
-			var idx = self.getAttribute('data-brand-i');
-			var j = self.getAttribute('data-brand-j');
-			var brand = this._brand_index[idx];
-			var value = (this._data[idx].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[idx].competitors[this._brand_index[j]] : 0;
-			if (value == 0) return;
-			var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
-			var x = Math.floor(e.clientX) - wrapper.getBoundingClientRect().left;
-			var y = Math.floor(e.clientY) - wrapper.getBoundingClientRect().top;
-			var oldNote = document.getElementById(this.id + '-note');
-			if (oldNote) {
-				oldNote.parentNode.removeChild(oldNote);
-			}
-			wrapper.appendChild(this.draw_note(brand, value, x, y));
-		}
-	};
 
-	clipper.charts.DetractorsPromote_Chart.prototype.draw_note = function(brand, value, x, y) {
-		var note = document.createElement('div');
-		if (this.settings.valueType === 'absolute') {
-			value = (value * 100) + '%';
-		}
-		note.id = this.id + '-note';
-		note.style.position = 'absolute';
-		note.style.left = x - 65 + 'px';
-		note.style.top = y - 70 + 'px';
-		var noteSVG = '<svg width="112" height="57" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">';
-		noteSVG += '<g>';
-		noteSVG += '  <g>';
-		noteSVG += '   <path stroke="null" fill="#cccccc" fill-opacity="0.4" stroke-width="0" d="m1.93805,31.00885a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39824,8.39823l-16.79647,-8.39823l-26.48675,0l0.00001,0z"/>';
-		noteSVG += '<path stroke="null" fill="#cccccc" fill-opacity="0.6" stroke-width="0" d="m1.29204,30.36283a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
-		noteSVG += '    <path stroke="#cccccc" fill="#ffffff" d="m0.64602,29.71682a0.64602,0.64602 0 0 1 -0.64602,-0.64602l0,-28.42478a0.64602,0.64602 0 0 1 0.64602,-0.64602l70.41595,0a0.64602,0.64602 0 0 1 0.64602,0.64602l0,28.42478a0.64602,0.64602 0 0 1 -0.64602,0.64602l-35.53098,0l8.39823,8.39823l-16.79646,-8.39823l-26.48674,0z"/>';
-		noteSVG += '   <g>';
-		noteSVG += '    <text fill="#000000" stroke-width="0" font-weight="bold" font-size="13" font-family="Arial" y="18.55" x="7.500001" text-anchor="start">' + value + '</text>';
-		noteSVG += '   </g>';
-		noteSVG += '  </g>';
-		noteSVG += ' </g>';
-		noteSVG += '</svg>';
-		note.innerHTML = noteSVG;
-		return note;
-	}
+		// If portrait, 60%; if not, 70%
+		var ww = window.innerWidth, wh = window.innerHeight;
+		var chartWidth = (wh > ww) ? '60%' : '65%';
+		var chartLeft = (wh > ww) ? '25%' : '20%';
 
-	clipper.charts.DetractorsPromote_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		var wrapper = document.createElement('div');
-		wrapper.style.position = 'relative';
-		wrapper.style.height = '100%';
-		wrapper.style.width = '100%';
-
-		document.getElementById(this.id).appendChild(wrapper);
-
-		this._brand_index = [];
-		var value = 0;
 		var boundaries = this.getBoundaries();
-		var color = '';
-
-		var html = '';
-
-		var topMarg = this.getTopMargin();
-
-		//var overflow = (this._data.length > Math.floor((wrapper.clientHeight - topMarg) / 50)) ? 'scroll' : 'auto';
-		var overflow = 'auto';
-
-		html += '<div style="float: left; margin-top:0px;max-width:85%;overflow-x: ' + overflow + '; ">';
-
-		html += '<table cellspacing="0" style="margin-left: 10px; margin-bottom: 15px; font-size: 12px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '">';
-
-		html += '<tr><td rowspan="' + (this._data.length + 2) + '"><svg width="18" height="200"><g><text fill="' + this.settings.textColor + '" stroke-width="0" x="50%" y="50%" font-size="13" font-family="' + this.settings.textFont + '" font-weight="bold" text-anchor="middle" transform="rotate(-90 9,100) ">Detractors of these brands...</text></g></svg></td><td>&nbsp;</td><th colspan="' + this._data.length + '" style="padding:5px; padding-bottom: ' + topMarg + 'px;">...promote these brands</th></tr>';
-
-		html += '<tr><td>&nbsp;</td>';
-		for (var i = 0; i < this._data.length; i++) {
-			html += '<th><div style="font-weight: normal; text-overflow: ellipsis; white-space: nowrap; overflow:hidden; max-width: 85px; text-align: left; position:absolute; transform: rotate(-90deg) translateX(5%) translateY(0%); transform-origin: 0% 0%" title="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
-			this._brand_index.push(this._data[i].brand);
+		var max = Math.round(boundaries.max);
+		var min = Math.round(boundaries.min);
+		var ticks = [];
+		for (var t = min; t <= max; t++) {
+			ticks.push(t);
 		}
-		html += '</tr>';
-		for (var i = 0; i < this._data.length; i++) {
-			html += '<tr>';
-			
-			html += '<th style="font-weight: normal; text-align:right; padding-right: 5px" title="' + this._data[i].brand + '">' + this._data[i].brand + '</th>';
-			for (var j = 0; j < this._data.length; j++) {
-				value = (this._data[i].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[i].competitors[this._brand_index[j]] : 0;
-				var percent = this.getPercent(value, boundaries.max, boundaries.min);
-				var color = (i == j) ? '#ffffff' : this.getColor(percent);
-				var label = (i == j) ? 'X' : '&nbsp;';
-				html += '<td style="width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '; color: ' + this.settings.labelTextColor + '" class="clipper-charts-detractorspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">' + label + '</td>';
+
+		var chartHeightPercentage = (height === null || height === 0) ? '75%' : ( 100 - (bottomHeight / height) * 100) + '%';
+
+		var options = {
+			colors: [this.settings.brandBubble.fill,this.settings.meanBubble.fill],
+			hAxis: {
+				ticks: ticks,
+				gridlines: {
+					count: max - min + 2,
+					color: '#ffffff'
+				}
+			},
+			vAxis: {
+				minValue: 0,
+				textPosition: 'none',
+				gridlines: {
+					count: brands.length + 3
+				}
+			},
+			legend: {
+				position: 'none'
+			},
+			titlePosition: 'none',
+			sizeAxis: {
+				maxSize: 11
+			},
+			tooltip: {
+				trigger: 'none'
+			},
+			bubble: {
+				opacity: this.settings.bubbles.opacity,
+				stroke: this.settings.bubbles.strokeColor
+			},
+			chartArea: {
+				top: 0,
+				left: chartLeft,
+				right: '10%',
+				height: chartHeightPercentage,
+				width: chartWidth
 			}
-			html += '</tr>';
+		};
+
+		// Create Data Table.
+		var dt = new google.visualization.DataTable({
+			cols: [
+				{ id: 'brand', label: 'brand', type: 'string' },
+				{ id: 'mean', label: 'mean', type: 'number' },
+				{ id: 'count', label: 'count', type: 'number' },
+				{ type: 'string', role: 'style' },
+			]
+		});
+
+		var data = Object.create(brands);
+		var mean = this.getMean();
+		data.push({
+			brand: 'Mean',
+			mean: parseFloat(mean.toFixed(2))
+		});
+
+		data.sort(function(a, b) {
+			return a.mean - b.mean;
+		});
+
+		for (var idx = 0; idx < data.length; idx++) {
+			// Defaults.
+			if (!data[idx].brand) { data[idx].brand = 'undefined'; }
+			if (!data[idx].mean) { data[idx].mean = 0; }
+
+			if (data[idx].brand == 'Mean') {
+				dt.addRow([
+					'',
+					data[idx].mean,
+					(data.length - idx),
+					'color: ' + this.settings.meanBubble.fill + ';'
+				]);
+			} else {
+				dt.addRow([
+					'',
+					data[idx].mean,
+					(data.length - idx),
+					'color: ' + this.settings.brandBubble.fill + ';'
+				]);
+			}
 		}
-		html += '</table></div>';
+		
 
-		html += '<div class="clipper-charts-detractorspromotechart-legend" style="margin-top:' + topMarg + 'px;margin-left: 5%; width:10%; float:left"><table style="font-family: ' + this.settings.textFont + '; font-size: 12px; text-align: center">';
-		for (var i = 0; i <= 10; i++) {
-			html += '<tr>';
-			color = this.getColor(i / 10);
-			html += '<td style="width: 30px; background-color: ' + color + ';"><div style="width:30px;height:30px;"></div></td>';
-			html += '<td style="width: 30px; height: 30px">' + (i * 10) + '%</td>';
-			html += '</tr>';
+		this._gchart.draw(dt, options);
+
+		// Create Score labels.
+		var cli = this._gchart.getChartLayoutInterface();
+		var chartArea = cli.getChartAreaBoundingBox();
+		var wrapper = me.querySelector('div:first-child');
+		//wrapper.style.marginTop = "-8%";
+		me.style.overflow = "hidden";
+		var overlay = null;
+		var overlay_values = null;
+		for (var idx = 0; idx < data.length; idx++) {
+			var overlay = me.ownerDocument.createElement('div');
+			overlay.className = 'clipper-charts-loyaltychart-hastooltip';
+			var overlay_style = overlay.style;
+			overlay_style.textAlign = 'right';
+			overlay_style.width = Math.round(chartArea.left - 30) + "px";
+			overlay_style.left = "30px";
+			overlay_style.top = Math.floor(cli.getYLocation((data.length - idx))) - 9 + "px";
+			overlay_style.position = 'absolute';
+			overlay_style.color = this.settings.textColor;
+			overlay_style.fontFamily = this.settings.textFont;
+			overlay_style.fontSize = fontSize + 'px';
+			if (data[idx].brand === 'Mean') {
+				overlay_style.fontWeight = this.settings.textWeight_mean;
+			} else {
+				overlay_style.fontWeight = this.settings.textWeight_brand;	
+			}
+			overlay_style.whiteSpace = 'nowrap';
+			overlay_style.overflow = 'hidden';
+			overlay_style.textOverflow = 'ellipsis';
+			var overlay_text = me.ownerDocument.createTextNode(data[idx].brand);
+			overlay.appendChild(overlay_text);
+			wrapper.appendChild(overlay);
+
+			overlay_values = me.ownerDocument.createElement('div');
+			overlay_values.style.position = 'absolute';
+			overlay_values.style.color = this.settings.textColor;
+			overlay_values.style.fontFamily = this.settings.textFont;
+			overlay_values.style.fontSize = fontSize + 'px';
+			if (data[idx].brand === 'Mean') {
+				overlay_values.style.fontWeight = this.settings.textWeight_mean;
+			} else {
+				overlay_values.style.fontWeight = this.settings.textWeight_brand;
+			}
+			overlay_values.style.left = chartArea.width + chartArea.left + 10 + 'px';
+			overlay_values.style.top = cli.getBoundingBox('vAxis#0#gridline#' + (data.length - idx)).top - 9 + 'px';
+			var txt = data[idx].mean.toString();
+			if (txt.indexOf('.') === -1) {
+				txt += '.00';
+			}
+			if (txt.indexOf('.') > txt.length - 3) {
+				for (var i = 0; i < txt.indexOf('.') - (txt.length-3); i++) {
+					txt += '0';
+				}
+			} else if (txt.indexOf('.') < txt.length - 3) {
+				txt = txt.substring(0, txt.indexOf('.') + 3);
+			}
+			overlay_text = me.ownerDocument.createTextNode(txt);
+			overlay_values.appendChild(overlay_text);
+			wrapper.appendChild(overlay_values);
 		}
-		html += '</tr></table></div>';
 
-		html += '<div style="clear:both"></div>';
+		// Create tick lines
+		for (var i = 0; i < ticks.length; i++) {
+			overlay = me.ownerDocument.createElement('div');
+			overlay_style = overlay.style;
+			overlay_style.position = 'absolute';
+			overlay_style.left = cli.getBoundingBox('hAxis#0#gridline#' + i).left + "px";
+			overlay_style.top = chartArea.top + chartArea.height - 15 + "px";
+			overlay_style.width = '1px';
+			overlay_style.height = '15px';
+			overlay_style.backgroundColor = '#333';
+			wrapper.appendChild(overlay);
+		}
 
-		wrapper.innerHTML = html;
+		// Create y axis label
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = "10px";
+		overlay_style.top = Math.round(chartArea.top + (chartArea.height / 2) - 90) + "px";
+		overlay_style.width = '20px';
+		overlay_style.height = '180px';
+		wrapper.appendChild(overlay);
+		overlay.innerHTML = '<svg width="20" height="180"><g><text fill="' + this.settings.textColor + '" stroke-width="0" x="50%" y="50%" font-size="' + (fontSize - 1) + '" font-family="' + this.settings.textFont + '" font-weight="500" text-anchor="middle" transform="rotate(-90 10,90) ">Promoters of these brands...</text></g></svg>';
+
+		// Create "other brands promoted" label
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = (Math.floor(chartArea.width / 2) - 100 + chartArea.left) + "px";
+		overlay_style.top = (chartArea.top + chartArea.height + 50) + "px";
+		overlay_style.width = '200px';
+		overlay_style.height = '15px';
+		overlay_style.color = this.settings.textColor;
+		overlay_style.fontFamily = this.settings.textFont;
+		overlay_style.fontSize = (fontSize - 1) + 'px';
+		overlay_style.textAlign = 'center';
+		// overlay_style.fontWeight = this.settings.textWeight;
+		overlay_style.fontWeight = this.settings.textWeight_labels;
+		overlay_style.lineHeight = '20px';
+		overlay_text = me.ownerDocument.createTextNode('# of other brands promoted');
+		overlay.appendChild(overlay_text);
+		wrapper.appendChild(overlay);
+
+		// Delete top line
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = chartArea.left + 'px';
+		overlay_style.top = chartArea.top + 'px';
+		overlay_style.height = '5px';
+		overlay_style.width = chartArea.width + 'px';
+		overlay_style.backgroundColor = '#ffffff';
+		wrapper.appendChild(overlay);
+
+		// Delete left line
+		overlay = me.ownerDocument.createElement('div');
+		overlay_style = overlay.style;
+		overlay_style.position = 'absolute';
+		overlay_style.left = chartArea.left + 'px';
+		overlay_style.top = chartArea.top + 'px';
+		overlay_style.width = '2px';
+		overlay_style.height = (chartArea.height - 15) + 'px';
+		overlay_style.backgroundColor = '#ffffff';
+		wrapper.appendChild(overlay);
+
+		// Tooltip
+		var tooltip = this.getTooltip();
+		wrapper.appendChild(tooltip.tooltip);
+		wrapper.appendChild(tooltip.overlay);
+		var btns = wrapper.getElementsByClassName('clipper-charts-loyaltychart-hastooltip');
+		this.setTooltipListeners(btns);
 
 		// Logo
 		if (this.settings.logo.image !== 'none') {
@@ -1285,35 +1792,181 @@ clipper.charts.factory = function(type, id, settings, data) {
 			wrapper.appendChild(logo);
 		}
 
-		var cells = wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-cell');
-		if (cells) {
-			for (var i = 0; i < cells.length; i++) {
-				cells[i].addEventListener('touchstart', this.hnd_touch.bind(this));
-				cells[i].addEventListener('touchmove', this.hnd_touch.bind(this));
-				cells[i].addEventListener('touchend', this.hnd_touch.bind(this));
-				cells[i].addEventListener('mouseenter', this.hnd_mouse.bind(this));
-				cells[i].addEventListener('mouseleave', this.hnd_mouse.bind(this));
-			}
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
 		}
+
+	};
+// END Amongst doctors promoting my brand, how many other brands do they also promote
+/**
+ * Amongst my Detractors, which other brands do they promote Chart
+ */
+	clipper.charts.DetractorsPromote_Chart = function(DOMContainer, settings, data) {
+		this.type = 'DetractorsPromote_Chart';
+		clipper.charts.Heatmap_Chart.call(this, DOMContainer, settings, data);
+
+		this._brand_index = [];
+
+		this.draw();
+	};
+	clipper.charts.DetractorsPromote_Chart.prototype = Object.create(clipper.charts.Heatmap_Chart.prototype);
+	clipper.charts.DetractorsPromote_Chart.constructor = clipper.charts.DetractorsPromote_Chart;
+
+	clipper.charts.DetractorsPromote_Chart.prototype.draw = function() {
+		var me = this.container;
+		me.innerHTML = '';
+
+		if (this._data.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
+		}
+
+		var wrapper = me.ownerDocument.createElement('div');
+		wrapper.style.position = 'relative';
+		wrapper.style.height = '100%';
+		wrapper.style.width = '100%';
+
+		me.appendChild(wrapper);
+
+		// Set font size
+		var containerRect = me.getClientRects()[0];
+		var fontSize = 14;
+		// if (containerRect.width <= 375) fontSize = 11;
+		// if (containerRect.width > 375 && containerRect.width <= 568) fontSize = 12;
+		// if (containerRect.width > 568 && containerRect.width <= 667) fontSize = 13;
+		// if (containerRect.width > 667 && containerRect.width <= 700) fontSize = 13;
+		// if (containerRect.width > 700 && containerRect.width <= 1024) fontSize = 13;
+
+		this._brand_index = [];
+		var value = 0;
+		var boundaries = this.getBoundaries();
+		var color = '';
+		var txtcolor = '';
+		var percent = 0;
+		var border = '';
+
+		var html = '';
+
+		var overflow = 'auto';
+
+		html += '<div style="text-align:center;width:98%;padding:1%;font-size:' + (fontSize - 1) + 'px;font-family:' + this.settings.textFont + ';font-weight:'+this.settings.textWeight_labels+';line-height:1.5em">Also promote...</div>';
+
+		html += '<div style="margin-top:0px;max-width:79%;overflow-x: ' + overflow + '; ">';
+
+		html += '<table cellspacing="0" style="table-layout:fixed;margin-left:auto;margin-right:auto; margin-bottom: 15px; font-size: ' + fontSize + 'px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '">';
+
+		//html += '<tr><th colspan="' + (this._data.length + 2) + '" style="padding:5px;">Promoted brand</th></tr>';
+
+		html += '<tr><td>&nbsp;</td><td>&nbsp;</td>';
+
+		// html += '<tr><td>&nbsp;</td><th colspan="' + this._data.length + '" style="padding:5px;">...promote these brands</th></tr>';
+
+		var brandtext = '';
+		for (var i = 0; i < this._data.length; i++) {
+			brandtext = this._data[i].brand;
+			brandtext = (brandtext.length < 13) ? brandtext : brandtext.substring(0, 10) + '...';
+			html += '<th align="center"><div title="' + this._data[i].brand + '" class="clipper-charts-detractorspromotechart-hastooltip" data-tooltip-content="' + this._data[i].brand + '" style="width:40px"><svg width="20" height="80"><g><text fill="' + this.settings.textColor + '" font-size="' + fontSize + '" font-weight="'+this.settings.textWeight_brand+'" font-family="' + this.settings.textFont + '" text-anchor="left" x="14" y="80" transform="rotate(-90 14,80)">' + brandtext + '</text></g></svg></div></th>';
+			this._brand_index.push(this._data[i].brand);
+		}
+		html += '</tr>';
+
+		var label = '';
+
+		for (var i = 0; i < this._data.length; i++) {
+			html += '<tr>';
+			if (i === 0) {
+				html += '<td rowspan="' + (this._data.length + 2) + '"><svg width="20" height="200"><g><text fill="' + this.settings.textColor + '" stroke-width="0" x="50%" y="50%" font-size="' + (fontSize - 1)+ '" font-family="' + this.settings.textFont + '" font-weight="'+this.settings.textWeight_labels+'" text-anchor="middle" transform="rotate(-90 10,100) ">Detractors of these brands...</text></g></svg></td>';
+			}
+			
+			html += '<th style="font-weight: '+this.settings.textWeight_brand+'; text-align:right; padding: 5px 5px 5px 0px; line-height: 18px" title="' + this._data[i].brand + '"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100px" class="clipper-charts-detractorspromotechart-hastooltip" data-tooltip-content="' + this._data[i].brand + '">' + this._data[i].brand + '</div></th>';
+			for (var j = 0; j < this._data.length; j++) {
+				value = (this._data[i].competitors.hasOwnProperty(this._brand_index[j])) ? this._data[i].competitors[this._brand_index[j]] : 0;
+				percent = this.getPercent(value, boundaries.max, boundaries.min);
+				color = (i == j) ? '#ffffff' : this.getColor(percent);
+				// txtcolor = this.getCellTextColor(percent);
+				txtColor = '#333333';
+				if (i == j) {
+					label = 'X';
+				} else {
+					if (this.settings.showLabels) {
+						label = Math.round(percent * 100) + '%';
+					} else {
+						label = '&nbsp;';
+					}
+				}
+				html += '<td style="font-weight:600; font-size:13px; width: 50px; height: 50px; border: 1px solid #eee; background-color: ' + color + '; color: ' + txtcolor + '" class="clipper-charts-detractorspromotechart-cell" data-brand-i="' + i + '" data-brand-j="' + j + '">' + label + '</td>';
+			}
+			html += '</tr>';
+		}
+		html += '</table></div>';
+
+		// Legend
+		html += '<div class="clipper-charts-promoterspromotechart-legend" style="position:absolute;top:0px;right:0px;margin-left: 5%; width:20%;height:100%">';
+
+		html += this.getLegend('vertical');
+		
+		html += '</div>'
+
+		html += '<div style="clear:both"></div>';
+
+		wrapper.innerHTML = html;
+
+		// Tooltip 
+		var tooltip = this.getTooltip();
+		wrapper.appendChild(tooltip.tooltip);
+		wrapper.appendChild(tooltip.overlay);
+		var btns = wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-hastooltip');
+		this.setTooltipListeners(btns);
+
+		// Logo
+		if (this.settings.logo.image !== 'none') {
+			var logo = this.getLogo();
+			wrapper.appendChild(logo);
+		}
+
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
+
+		// var cells = wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-cell');
+		// if (cells) {
+		// 	for (var i = 0; i < cells.length; i++) {
+		// 		cells[i].addEventListener('touchstart', this.hnd_touch.bind(this));
+		// 		cells[i].addEventListener('touchmove', this.hnd_touch.bind(this));
+		// 		cells[i].addEventListener('touchend', this.hnd_touch.bind(this));
+		// 		cells[i].addEventListener('mouseenter', this.hnd_mouse.bind(this));
+		// 		cells[i].addEventListener('mouseleave', this.hnd_mouse.bind(this));
+		// 	}
+		// }
 
 		var tables = wrapper.getElementsByTagName('table');
 		var tbl = tables[0];
 		var tblh = tbl.clientHeight;
-		var legend = tables[1];
+		var legend = wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-legend-svg')[0];
 		var lh = legend.clientHeight;
+		legend.style.position = 'absolute';
 		if (wrapper.clientHeight <= window.innerHeight && tblh > lh) {
-			var ltopmarg = Math.floor((tblh / 2) - (lh / 2));
-			wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-legend')[0].style.marginTop = ltopmarg + 'px';
+			var rows = tbl.querySelectorAll('tr');
+			var gh = tblh - (rows[0].clientHeight + rows[1].clientHeight);
+			var ltop = Math.floor((gh / 2) - (lh / 2));
+			legend.style.top = (rows[0].clientHeight + rows[1].clientHeight + ltop) + 'px';
+		} else {
+			legend.style.bottom = '50px';
 		}
 
 	};
 // END Amongst my Detractors, which other brands do they promote Chart
-
 /**
  * How much more of my brand do Promoters use compared to Detractors Chart
  */
-	clipper.charts.PromVsDetrPromote_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+	clipper.charts.PromVsDetrPromote_Chart = function(DOMContainer, settings, data) {
+		this.type = 'PromVsDetrPromote_Chart';
+		clipper.charts.Chart.call(this, DOMContainer, settings, data);
 
 		var defaultSettings = {
 			brandContainer: {
@@ -1339,10 +1992,10 @@ clipper.charts.factory = function(type, id, settings, data) {
 			textFont: 'sans-serif'
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
 		}
@@ -1367,8 +2020,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 	};
 
 	clipper.charts.PromVsDetrPromote_Chart.prototype.getContainerRect = function() {
-		var wrapper = document.getElementById(this.id).getElementsByTagName('div')[0];
-		var dummy = document.createElement('div');
+		var wrapper = this.container.getElementsByTagName('div')[0];
+		var dummy = this.container.ownerDocument.createElement('div');
 		dummy.className = this.settings.brandContainer.className;
 		dummy.style.position = 'relative';
 		wrapper.appendChild(dummy);
@@ -1381,58 +2034,103 @@ clipper.charts.factory = function(type, id, settings, data) {
 	};
 
 	clipper.charts.PromVsDetrPromote_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		var wrapper = document.createElement('div');
+		var me = this.container;
+		me.innerHTML = '';
+
+		if (this._data.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
+		}
+		
+		var wrapper = me.ownerDocument.createElement('div');
 		wrapper.style.position = 'relative';
 		wrapper.style.width = '100%';
-		document.getElementById(this.id).appendChild(wrapper);
+		me.appendChild(wrapper);
 
 		var containerRect = this.getContainerRect();
-		// 8px * 100% / 2 (is radius)
-		var minPercent = (containerRect.width == 0) ? 0 : ((8 * 100) / 2) / containerRect.width;
+		// This calculates the minimum visible percentage value taking into
+		// account 40px (the width of a XX% label).
+		// 40px * 100% / 2 (is radius)
+		var minPercent = (containerRect.width === 0) ? 0 : ((60 * 100) / 2) / containerRect.width;
 
-		var fHtml = '<div style="font-family:' + this.settings.textFont + ';font-size:13px;margin-bottom:10px;color:' + this.settings.textColor + '">';
-		fHtml += '	<div style="background-color:' + this.settings.detractorsBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Detractors';
-		fHtml += '	<div style="background-color:' + this.settings.promotersBubble.fill + ';width:26px;height:13px;display:inline-block;"></div> Promoters';
+		// Set font size
+		var fontSize = 14;
+		// if (containerRect.width <= 375) fontSize = 11;
+		// if (containerRect.width > 375 && containerRect.width <= 568) fontSize = 12;
+		// if (containerRect.width > 568 && containerRect.width <= 667) fontSize = 13;
+		// if (containerRect.width > 667 && containerRect.width <= 700) fontSize = 13;
+		// if (containerRect.width > 700 && containerRect.width <= 1024) fontSize = 13;
+
+		var fHtml = '<div style="font-weight: '+this.settings.textWeight_labels+'; font-family:' + this.settings.textFont + ';font-size:' + (fontSize - 1) + 'px;margin-bottom:10px;color:' + this.settings.textColor + '">';
+		fHtml += '	<div style="background-color:' + this.settings.detractorsBubble.fill + ';width:1.3em;height:1.3em;display:inline-block;border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%;vertical-align:middle"></div> Detractors market share';
+		fHtml += '	<div style="background-color:' + this.settings.promotersBubble.fill + ';width:1.3em;height:1.3em;display:inline-block;border-radius:50%;-webkit-border-radius:50%;-moz-border-radius:50%;vertical-align:middle"></div> Promoters market share';
 		fHtml += '</div>';
 		var itm = null,
-			Pv = 0,
 			Dv = 0,
+			Pv = 0,
+			Dx = 0,
 			Px = 0,
-			Dx = 0;
+			Dfv = 0,
+			Pfv = 0;
 		for (var idx = 0; idx < this._data.length; idx++) {
-			var maxValue = this.getMax(this._data[idx]),
-				minValue = this.getMin(this._data[idx]);
+			// This was used for maxSized rendering where maxVal = 100% on render
+			// var maxValue = this.getMax(this._data[idx]),
+			// 	minValue = this.getMin(this._data[idx]);
+			// 	Set maxVal to 100% both on data and on render.
+			var maxValue = 1;
 			itm = this._data[idx];
 			// If maxValue is zero, we assume the value is zero and prevent div by zero.
-			Pv = (maxValue != 0) ? ((itm.promoters * 0.25) / maxValue) * 100 : 0;
-			Dv = (maxValue != 0) ? ((itm.detractors * 0.25) / maxValue) * 100 : 0;
-			// Px = ((itm.promoters * 40) / maxValue) + 10;
-			// Dx = ((itm.detractors * -40) / maxValue) + 90;
-			Px = 25;
-			Dx = 75;
+			// Dv = (maxValue !== 0) ? ((itm.detractors * 0.25) / maxValue) * 100 : 0;
+			// Pv = (maxValue !== 0) ? ((itm.promoters * 0.25) / maxValue) * 100 : 0;
+			// Dfv = (Dv > minPercent) ? Dv : minPercent;
+			// Pfv = (Pv > minPercent) ? Pv : minPercent;
+			
+			Dv = (maxValue !== 0) ? ((50 - minPercent) * itm.detractors) + minPercent : 0;
+			Dfv = Dv / 2;
+			Pv = (maxValue !== 0) ? ((50 - minPercent) * itm.promoters) + minPercent : 0;
+			Pfv = Pv / 2;
+			Dx = 25;
+			Px = 75;
 			var svg = '<div class="' + this.settings.brandContainer.className + '" style="position:relative;">';
-			svg += '	<h2 style="font-size:13px;font-family:' + this.settings.textFont + ';">' + itm.brand + '</h2>';
+			svg += '	<h2 style="font-size:' + (fontSize + 2) + 'px;font-family:' + this.settings.textFont + ';">' + itm.brand + '</h2>';
 			svg += '	<svg width="100%" height="100%">';
 			svg += '		<g>';
-			svg += '			<circle cx="' + Px + '%" cy="45%" r="' + Pv + '%" fill="' + this.settings.promotersBubble.fill + '" />';
-			svg += '			<circle cx="' + Dx + '%" cy="45%" r="' + Dv + '%" fill="' + this.settings.detractorsBubble.fill + '" />';
+			// if (Dv > minPercent) {
+				svg += '			<circle cx="' + Dx + '%" cy="45%" r="' + Dfv + '%" fill="' + this.settings.detractorsBubble.fill + '" />';
+			// }
+			// if (Pv > minPercent) {
+				svg += '			<circle cx="' + Px + '%" cy="45%" r="' + Pfv + '%" fill="' + this.settings.promotersBubble.fill + '" />';
+			// }
 			svg += '		</g>';
 			svg += '		<g>';
-			var color = (Pv <= minPercent) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
-			var shadow = (Pv <= minPercent) ? 'none' : this.settings.bubbles.textShadow;
-			svg += '			<text x="' + Px + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.promoters * 100)) + '%</text>';
-			var color = (Dv <= minPercent) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
-			var shadow = (Dv <= minPercent) ? 'none' : this.settings.bubbles.textShadow;
-			svg += '			<text x="' + Dx + '%" y="45%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.floor((itm.detractors * 100)) + '%</text>';
-			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + Math.floor((itm.diff * 100)) + '%</text>';
+			// var color = (Dv <= minPercent) ? this.settings.detractorsBubble.fill : this.settings.detractorsBubble.textColor;
+			var color = this.settings.detractorsBubble.textColor;
+			// var shadow = (Dv <= minPercent) ? 'none' : this.settings.bubbles.textShadow;
+			var shadow = this.settings.bubbles.textShadow;
+			svg += '			<text x="' + Dx + '%" y="48%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.round((itm.detractors * 100)) + '%</text>';
+			// color = (Pv <= minPercent) ? this.settings.promotersBubble.fill : this.settings.promotersBubble.textColor;
+			color = this.settings.promotersBubble.textColor;
+			// shadow = (Pv <= minPercent) ? 'none' : this.settings.bubbles.textShadow;
+			shadow = this.settings.bubbles.textShadow;
+			svg += '			<text x="' + Px + '%" y="48%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + color + ';stroke-width:0;text-anchor:middle;font-weight:' + this.settings.bubbles.fontWeight + '; text-shadow: ' + shadow + '">' + Math.round((itm.promoters * 100)) + '%</text>';
+			var diffLabel = '',
+				d = Math.round((itm.diff * 100));
+			if (d > 0) {
+				diffLabel = '+' + d;
+ 			} else if (d < 0) {
+ 				diffLabel = d;
+			} else if (d === 0) {
+				diffLabel = '0';
+			}
+			svg += '			<text x="50%" y="93%" font-size="16" font-family="' + this.settings.textFont + '" style="fill:' + this.settings.difference.textColor + ';text-anchor:middle;stroke-width:0;font-weight:' + this.settings.difference.fontWeight + '">' + diffLabel + '%</text>';
 			svg += '		</g>';
 			svg += '	</svg>';
 			svg += '</div>';
 			fHtml += svg;
-		}	
+		}
 
-		fHtml += '<div style="clear:both;"></div>';	
+		fHtml += '<div class="clipper-charts-promvsdetrpromotechart-divider" style="clear:both;"></div>';
 
 		wrapper.innerHTML = fHtml;
 
@@ -1451,8 +2149,8 @@ clipper.charts.factory = function(type, id, settings, data) {
 				svg = containers[i].getElementsByTagName('svg');
 				svg = svg[0] || null;
 				if (svg) {
-					svg.setAttribute('height', Math.floor(containerWidth * 0.85) + 'px');
-					//containers[i].style.height = Math.floor(containerWidth * 0.85) + 'px';
+					svg.setAttribute('height', Math.round(containerWidth * 0.85) + 'px');
+					//containers[i].style.height = Math.round(containerWidth * 0.85) + 'px';
 				}
 			}
 		}
@@ -1461,162 +2159,260 @@ clipper.charts.factory = function(type, id, settings, data) {
 		if (this.settings.logo.image !== 'none') {
 			var logo = this.getLogo();
 			wrapper.appendChild(logo);
+		}
+
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
+
+		// Adjust bottom divider to hold logo and / or copyright notice
+		if (this.hasLogo() || this.hasCopyrightNotice()) {
+			var divider = wrapper.getElementsByClassName('clipper-charts-promvsdetrpromotechart-divider');
+			if (divider.length > 0) {
+				var bottomPad = 0;
+				if (this.hasLogo()) {
+					bottomPad = parseInt(this.settings.logo.height)
+				}
+				if (this.hasCopyrightNotice() && bottomPad < this.settings.copyright.fontSize) {
+					bottomPad = this.settings.copyright.fontSize;
+				}
+				divider[0].style.paddingBottom = (bottomPad + 10) + 'px';
+			}
 		}
 
 	};
 // END How much more of my brand do Promoters use compared to Detractors Chart
-
 /**
  * What brand messages are associated with Promoters, Passives and Detractors Chart
  */
-	clipper.charts.PPDBrandMessages_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+	clipper.charts.PPDBrandMessages_Chart = function(DOMContainer, settings, data) {
+		this.type = 'PPDBrandMessages_Chart';
+		clipper.charts.Heatmap_Chart.call(this, DOMContainer, settings, data);
 
 		this.draw();
 	};
-	clipper.charts.PPDBrandMessages_Chart.prototype = Object.create(clipper.charts.Chart.prototype);
+	clipper.charts.PPDBrandMessages_Chart.prototype = Object.create(clipper.charts.Heatmap_Chart.prototype);
 	clipper.charts.PPDBrandMessages_Chart.constructor = clipper.charts.PPDBrandMessages_Chart;
 
 	clipper.charts.PPDBrandMessages_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
-		this._gchart = new google.visualization.LineChart(document.getElementById(this.id));
+		var me = this.container;
+		me.innerHTML = '';
 
-		var options = {
-			legend: 'none',
-			lineWidth: 0,
-			pointSize: 10,
-			orientation: 'vertical',
-			hAxis: {
-				minValue: 0,
-				maxValue: 100,
-				gridlines: {
-					color: '#ffffff',
-					count: 11
-				}
-			},
-			series: {
-				0: { pointShape: 'triangle', color: 'red' },
-				1: { pointShape: 'square', color: 'darkgrey' },
-				2: { pointShape: 'circle', color: 'green' },
-				3: { pointShape: 'diamond', color: '#fefefe', pointSize: 1 },
-				4: { pointShape: 'diamond', color: '#fefefe', pointSize: 1 }
+		if (this._data.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
+		}
+
+		var wrapper = me.ownerDocument.createElement('div');
+		wrapper.style.position = 'relative';
+		wrapper.style.height = '100%';
+		wrapper.style.width = '100%';
+
+		me.appendChild(wrapper);
+
+		// Set font size
+		var containerRect = me.getClientRects()[0];
+		var fontSize = 14;
+		// if (containerRect.width <= 375) fontSize = 11;
+		// if (containerRect.width > 375 && containerRect.width <= 568) fontSize = 12;
+		// if (containerRect.width > 568 && containerRect.width <= 667) fontSize = 13;
+		// if (containerRect.width > 667 && containerRect.width <= 700) fontSize = 13;
+		// if (containerRect.width > 700 && containerRect.width <= 1024) fontSize = 13;
+
+		var value = 0;
+		var boundaries = this.getBoundaries();
+		var color = '';
+		var txtcolor = '';
+		var percent = 0;
+		var label = '';
+		var border = '';
+
+		var isLandscape = (window.innerWidth > window.innerHeight) ? true : false;
+
+		var html = '';
+
+		var w = (isLandscape) ? '80%' : '100%';
+
+		html += '<div class="clipper-charts-ppdbrandmessageschart-main" style="display:inline-block; width:' + w + '; min-height:100%; vertical-align:top;">';
+
+		html += '<div style="height: 80%; width: 100%;" class="clipper-charts-ppdbrandmessageschart-body">';
+
+		html += '<table class="clipper-charts-ppdbrandmessageschart-maintable" cellspacing="0" cellpadding="5" style="table-layout:fixed;margin-left:auto;margin-right:auto; margin-bottom: 15px; font-size: ' + fontSize + 'px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '" width="98%">';
+
+		html += '<tr><th width="35%">&nbsp;</th><th style="font-weight: '+this.settings.textWeight_labels+'; font-size: ' + (fontSize - 1) + 'px">Detractors</th><th style="font-weight: '+this.settings.textWeight_labels+'; font-size: ' + (fontSize - 1) + 'px">Passives</th><th style="font-weight: '+this.settings.textWeight_labels+'; font-size: ' + (fontSize - 1) + 'px">Promoters</th></tr>';
+
+		var m = null;
+		for (var i = 0; i < this._data.length; i++) {
+			m = this._data[i];
+			html += '<tr>';
+			html += '<th align="right" height="30px" style="position: relative;" title="' + m.message + '"><div style="line-height: 30px; font-weight: '+this.settings.textWeight_brand+'; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="clipper-charts-ppdbrandmessageschart-ellipsis">' + m.message + '</div></th>';
+
+			value = m.detractors;
+			label = Math.round(value * 100);
+			percent = this.getPercent(value, boundaries.max, boundaries.min);
+			color = this.getColor(percent);
+			// txtcolor = this.getCellTextColor(percent);
+			txtColor = '#333333';
+			html += '<td align="center" style="font-weight: 600; font-size:13px; background-color: ' + color + '; color: ' + txtcolor + ';">' + Math.round(value * 100) + '%</td>';
+
+			value = m.passives;
+			label = (this.settings.showLabels) ? Math.round(value * 100) : '&nbsp;';
+			percent = this.getPercent(value, boundaries.max, boundaries.min);
+			color = this.getColor(percent);
+			// txtcolor = this.getCellTextColor(percent);
+			txtColor = '#333333';
+			html += '<td align="center" style="font-weight: 600; font-size:13px; background-color: ' + color + '; color: ' + txtcolor + ';">' + Math.round(value * 100) + '%</td>';
+
+			value = m.promoters;
+			label = (this.settings.showLabels) ? Math.round(value * 100) : '&nbsp;';
+			percent = this.getPercent(value, boundaries.max, boundaries.min);
+			color = this.getColor(percent);
+			// txtcolor = this.getCellTextColor(percent);
+			txtColor = '#333333';
+			html += '<td align="center" style="font-weight: 600; font-size:13px; background-color: ' + color + '; color: ' + txtcolor + ';">' + Math.round(value * 100) + '%</td>';
+			
+			html += '</tr>';
+		}
+
+		html += '</table></div>';
+
+		// Legend
+		
+		var legend_margins = '';
+		// if (isLandscape) {
+		// 	legend_margins = 'margin-left: auto; margin-right: 1%;';
+		// } else {
+			legend_margins = 'margin-left: auto; margin-right: auto;';
+		// }
+		
+		var legend_div_style = 'width:60%; height:20%; margin-left: 40%';
+		// Center to 100% if width is not enough
+		if (containerRect.width < 340) {
+			legend_div_style = 'width:100%; height:20%; margin-left: 0%';
+		}
+
+		html += '<div class="clipper-charts-ppdbrandmessageschart-legend" style="' + legend_div_style + '"><div style="text-align:center;padding-top:1%; ' + legend_margins + '">';
+		html += this.getLegend('horizontal');
+		html += '</div></div>';
+
+		// html += '<div class="clipper-charts-ppdbrandmessageschart-legend" style="' + legend_div_style + '"><table style="padding-top:1%; ' + legend_margins + 'font-family: ' + this.settings.textFont + '; font-size: ' + fontSize + 'px; text-align: center" cellspacing="2" cellpadding="0">';
+		// html += '<tr>';
+		// for (var i = 0; i <= 10; i = i + 2) {
+		// 	color = this.getColor(i / 10);
+		// 	border = (i == 0) ? 'border:1px solid #eee;' : 'border:1px solid ' + color + ';';
+		// 	html += '<td style="width: 30px;"><div style="width:30px;height:30px;background-color: ' + color + ';' + border +'"></div></td>';
+		// }
+		// html += '</tr><tr>';
+		// for (var i = 0; i <= 10; i = i + 2) {
+		// 	color = this.getColor(i / 10);
+		// 	html += '<td style="width: 30px; height: 30px; font-weight:500;">' + (i * 10) + '%</td>';
+		// }
+		// html += '</tr></table></div>';
+
+		html += '</div>'; //main
+
+		if (isLandscape) {
+			html += '<div class="clipper-charts-ppdbrandmessageschart-side" style="position:relative; display:inline-block; width:20%; min-height:100%; vertical-align:top;">';
+			html += '-- Labels --';
+			html += '</div>';
+		}
+
+		// html += '<div class="clipper-charts-ppdbrandmessageschart-tooltip" style="position:absolute;top:0px;left:0px;display:none;background-color:#ffffff;padding:0.5em;font-size:0.7em;-webkit-box-shadow: 0px 2px 5px 1px rgba(51,51,51,0.4);-moz-box-shadow: 0px 2px 5px 1px rgba(51,51,51,0.4);box-shadow: 0px 2px 5px 1px rgba(51,51,51,0.4);">Tooltip with a very long content blah blah</div>';
+		// html += '<div class="clipper-charts-ppdbrandmessageschart-tooltip-over" style="display:none;position:absolute;width:100%;height:100%;top:0px;left:0px;"></div>';
+
+		wrapper.innerHTML = html;
+
+		// Add labels
+		if (isLandscape) {
+			var sideHtml = '';
+			var mainTable = wrapper.getElementsByClassName('clipper-charts-ppdbrandmessageschart-maintable')[0];
+			var firstRow = mainTable.querySelectorAll('tr')[0];
+			var legend = wrapper.getElementsByClassName('clipper-charts-ppdbrandmessageschart-legend')[0];
+			var heatmapHeight = mainTable.clientHeight - firstRow.clientHeight;
+			
+			sideHtml += '<div style="position:relative; margin-top: ' + (firstRow.clientHeight) + 'px; height:' + heatmapHeight + 'px; width:100%;">';
+			
+			sideHtml += '<svg width="100%" height="100%"><g>';
+			sideHtml += '<text x="50%" y="20" text-anchor="middle" fill="' + this.settings.textColor + '" font-size="' + (fontSize - 1) + '" font-family="' + this.settings.textFont + '" font-weight="'+this.settings.textWeight_labels+'">highest</text>';
+			if (heatmapHeight >= 165) {
+				var sideW = Math.floor(wrapper.clientWidth * 0.20);
+				sideHtml += '<text x="50%" y="50%" font-size="' + (fontSize - 1) + '" font-family="' + this.settings.textFont + '" fill="' + this.settings.textColor + '" text-anchor="middle" transform="rotate(-90, ' + Math.floor(sideW / 2) + ', ' + Math.floor(heatmapHeight / 2) + ')" font-weight="'+this.settings.textWeight_labels+'">Rank of NPS Drivers</text>';
 			}
-		};
+			sideHtml += '<text x="50%" y="95%" text-anchor="middle" fill="' + this.settings.textColor + '" font-size="' + (fontSize - 1) + '" font-family="' + this.settings.textFont + '" font-weight="'+this.settings.textWeight_labels+'">lowest</text>';
+			sideHtml += '</g></svg>';
 
-		// Create Data Table.
-		var dt = new google.visualization.DataTable({
-			cols: [
-				{ id: 'message', label: 'message', type: 'string' },
-				{ id: 'promoters', label: 'promoters', type: 'number' },
-				{ id: 'passives', label: 'passives', type: 'number' },
-				{ id: 'detractors', label: 'detractors', type: 'number' },
-				{ id: 'LCL', label: 'Lowest confidence level', type: 'number' },
-				{ id: 'HCL', label: 'Highest confidence level', type: 'number' },
-			]
-		});
+			sideHtml += '</div>';
 
-		// Populate Data.
-		for (var idx = 0; idx < this._data.length; idx++) {
-			// Defaults.
-			if (!this._data[idx].message) { this._data[idx].message = 'undefined'; }
-			if (!this._data[idx].detractors) { this._data[idx].detractors = 0; }
-			if (!this._data[idx].passives) { this._data[idx].passives = 0; }
-			if (!this._data[idx].promoters) { this._data[idx].promoters = 0; }
-			if (!this._data[idx].lcl) { this._data[idx].lcl = 0; }
-			if (!this._data[idx].hcl) { this._data[idx].hcl = 0; }
-
-			dt.addRow([
-				this._data[idx].message,
-				this._data[idx].detractors * 100,
-				this._data[idx].passives * 100,
-				this._data[idx].promoters * 100,
-				this._data[idx].lcl * 100,
-				this._data[idx].hcl * 100
-			]);
+			wrapper.getElementsByClassName('clipper-charts-ppdbrandmessageschart-side')[0].innerHTML = sideHtml;
 		}
 
-		this._gchart.draw(dt, options);
-
-		// Create Score labels.
-		var cli = this._gchart.getChartLayoutInterface();
-		var wrapper = document.querySelector('[id="' + this.id + '"] > div:first-child');
-		var overlay = null;
-		var ci = null;
-		var Atop = 0;
-		var Aleft = 0;
-		var Bleft = 0;
-		var Awidth = 0;
-		var clcTop = 0;
-		var clcLeft = 0;
-		var hlcLeft = 0;
-		var ciWidth = 0;
-		for (var idx = 0; idx < this._data.length; idx++) {
-			// Calculate horizontal line
-			Atop = Math.floor(cli.getBoundingBox('point#0#' + idx).top);
-			Aleft = Math.floor(cli.getBoundingBox('point#0#' + idx).left);
-			Bleft = Math.floor(cli.getBoundingBox('point#2#' + idx).left);;
-			Awidth = (Bleft >= Aleft) ? Bleft - Aleft : Aleft - Bleft;
-			// Create horizontal line overlay
-			overlay = document.createElement('div');
-			var overlay_style = overlay.style;
-			overlay_style.position = 'absolute';
-			overlay_style.left = ((Bleft >= Aleft) ? Aleft : Bleft) + 5 + "px";
-			overlay_style.top = Atop + 6 + "px";
-			overlay_style.width = Awidth + "px";
-			overlay_style.height = '1px';
-			overlay_style.backgroundColor = '#ccc';
-			wrapper.appendChild(overlay);
-			// Calculate confidence interval lines
-			clcTop = Math.floor(cli.getBoundingBox('point#3#' + idx).top);
-			clcLeft = Math.floor(cli.getBoundingBox('point#3#' + idx).left);
-			hlcLeft = Math.floor(cli.getBoundingBox('point#4#' + idx).left);;
-			ciWidth = (clcLeft >= hlcLeft) ? clcLeft - hlcLeft : hlcLeft - clcLeft;
-			// Create confidence interval lines
-			ci = document.createElement('div');
-			ci.style.position = 'absolute';
-			ci.style.left = ((clcLeft >= hlcLeft) ? hlcLeft : clcLeft) + 5 + "px";
-			ci.style.top = clcTop - 5 + "px";
-			ci.style.height = "20px";
-			ci.style.width = ciWidth - 2 + "px";
-			ci.style.borderLeft = "1px dashed #f00";
-			ci.style.borderRight = "1px dashed #f00";
-			wrapper.appendChild(ci);
-		}
+		// Tooltip 
+		var tooltip = this.getTooltip();
+		wrapper.appendChild(tooltip.tooltip);
+		wrapper.appendChild(tooltip.overlay);
+		var btns = wrapper.getElementsByClassName('clipper-charts-ppdbrandmessageschart-ellipsis');
+		this.setTooltipListeners(btns);
 
 		// Logo
 		if (this.settings.logo.image !== 'none') {
 			var logo = this.getLogo();
 			wrapper.appendChild(logo);
 		}
+
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
+
+		// Adjust manual minheight
+		if (wrapper.clientHeight < me.clientHeight) {
+			wrapper.style.height = me.clientHeight + 'px';
+		} else {
+			var body = wrapper.getElementsByClassName('clipper-charts-ppdbrandmessageschart-main')[0];
+			body.style.paddingBottom = (logo.clientHeight + 10) + 'px';
+		}
 	};
 // END What brand messages are associated with Promoters, Passives and Detractors Chart
-
 /**
  * What does my brand represent to Promoters as compared to Detractors Chart
  */
-	clipper.charts.DNA_Chart = function(id, settings, data) {
-		clipper.charts.Chart.call(this, id, settings, data);
+	clipper.charts.DNA_Chart = function(DOMContainer, settings, data) {
+		this.type = 'DNA_Chart';
+		clipper.charts.Chart.call(this, DOMContainer, settings, data);
 
 		var defaultSettings = {
 			promotersSection: {
 				textColor: '#558ed5',
-				image: 'data:image/png;base64,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',
+				image: 'data:image/svg+xml;charset=utf-8,%3C?xml%20version=%221.0%22?%3E%0A%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2224%22%20height=%2224%22%20fill=%22%2308488c%22%20stroke=%22none%22%3E%0A%20%20%3Cpath%20d=%22M1%2021h4v-12h-4v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06l-1.06-1.05-6.58%206.59c-.37.36-.59.86-.59%201.41v10c0%201.1.9%202%202%202h9c.83%200%201.54-.5%201.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01.01-.08z%22/%3E%0A%3C/svg%3E',
 				backgroundColor: 'transparent'
 			},
 			detractorsSection: {
 				textColor: '#a04e4e',
-				image: 'data:image/png;base64,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',
+				image: 'data:image/svg+xml;charset=utf-8,%3C?xml%20version=%221.0%22?%3E%0A%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2224%22%20height=%2224%22%20fill=%22%23CC6633%22%20stroke=%22none%22%3E%0A%20%20%20%20%3Cpath%20d=%22M15%203h-9c-.83%200-1.54.5-1.84%201.22l-3.02%207.05c-.09.23-.14.47-.14.73v1.91l.01.01-.01.08c0%201.1.9%202%202%202h6.31l-.95%204.57-.03.32c0%20.41.17.79.44%201.06l1.06%201.05%206.59-6.59c.36-.36.58-.86.58-1.41v-10c0-1.1-.9-2-2-2zm4%200v12h4v-12h-4z%22/%3E%0A%3C/svg%3E%0A',
 				backgroundColor: 'transparent'
 			},
-			textFont: 'sans-serif'
+			textFont: 'sans-serif',
+			animation: {
+				easing: 'cubicInOut',
+				duration: 400,
+				framerate: 50
+			}
 		};
 
-		defaultSettings = clipper._merge(this.settings, defaultSettings);
+		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
 
 		if (settings) {
-			this.settings = clipper._merge(settings, defaultSettings);
+			this.settings = clipper.charts.tools.merge(settings, defaultSettings);
 		} else {
 			this.settings = defaultSettings;
+		}
+
+		if (!clipper.charts.easing.hasOwnProperty(this.settings.animation.easing)) {
+			throw 'Easing "' + this.settings.easing + '" does not exist.';
 		}
 
 		this.draw();
@@ -1625,56 +2421,69 @@ clipper.charts.factory = function(type, id, settings, data) {
 	clipper.charts.DNA_Chart.constructor = clipper.charts.DNA_Chart;
 
 	clipper.charts.DNA_Chart.prototype.slideUp = function(item) {
-		var height = item.clientHeight;
+		if (item.hasAttribute('data-animated')) return;
 		if (!item.hasAttribute('data-initialHeight')) {
-			item.setAttribute('data-initialHeight', height);
+			item.setAttribute('data-initialHeight', item.clientHeight);
 		}
-		var fHeight = 0;
+		var bHeight = parseInt(item.getAttribute('data-initialHeight'));
+		var eHeight = 0;
+		var easingFunc = clipper.charts.easing[this.settings.animation.easing];
 
-		var duration = 400;
-		var framerate = 20;
-		var interval = duration / framerate;
-		var frames = Math.ceil(duration / interval);
-		var hIncrement = height / frames;
-		var initialOverflow = item.style.overflow;
-		item.style.overflow = 'hidden';
-		var tween = function() {
-			height -= hIncrement;
-			item.style.height = Math.floor(height) + 'px';
-			if (height > fHeight) {
-				setTimeout(tween, interval);
-			} else {
-				item.style.display = 'none';
-				item.style.overflow = initialOverflow;
+		var duration = this.settings.animation.duration, // Duration in milliseconds
+			framerate = this.settings.animation.framerate, // Framerate in frames per second
+			totalFrames = (duration / 1000) * framerate, // Total frames
+			interval = duration / totalFrames, // Tween inteval in milliseconds
+			currentFrame = 0; // Current frame
+
+			var initialOverflow = item.style.overflow;
+			item.style.overflow = 'hidden';
+			item.setAttribute('data-animated', 'true');
+
+			var tween = function () {
+				var h = Math.floor(easingFunc(currentFrame, bHeight, eHeight, totalFrames));
+				item.style.height = h + 'px';
+				currentFrame++;
+				if (currentFrame <= totalFrames) {
+					setTimeout(tween, interval);
+				} else {
+					item.style.display = 'none';
+					item.style.overflow = initialOverflow;
+					item.removeAttribute('data-animated');
+				}
 			}
-		}
-		tween();
+			tween();
 	};
 
 	clipper.charts.DNA_Chart.prototype.slideDown = function(item) {
-		var height = 0;
-		var fHeight = parseInt(item.getAttribute('data-initialHeight'));
+		if (item.hasAttribute('data-animated')) return;
+		var bHeight = 0;
+		var eHeight = parseInt(item.getAttribute('data-initialHeight'));
+		var easingFunc = clipper.charts.easing[this.settings.animation.easing];
 
-		var duration = 400;
-		var framerate = 20;
-		var interval = duration / framerate;
-		var frames = Math.ceil(duration / interval);
-		var hIncrement = fHeight / frames;
+		var duration = this.settings.animation.duration, // Duration in milliseconds
+			framerate = this.settings.animation.framerate, // Framerate in frames per second
+			totalFrames = (duration / 1000) * framerate, // Total frames
+			interval = duration / totalFrames, // Tween inteval in milliseconds
+			currentFrame = 0; // Current frame
 
-		var initialOverflow = item.style.overflow;
-		item.style.overflow = 'hidden';
-		item.style.display = 'block';
-		var tween = function() {
-			height += hIncrement;
-			item.style.height = Math.floor(height) + 'px';
-			if (height < fHeight) {
-				setTimeout(tween, interval);
-			} else {
-				item.style.overflow = initialOverflow;
+			var initialOverflow = item.style.overflow;
+			item.style.overflow = 'hidden';
+			item.style.display = 'block';
+			item.setAttribute('data-animated', 'true');
+
+			var tween = function () {
+				var h = Math.floor(easingFunc(currentFrame, bHeight, eHeight, totalFrames));
+				item.style.height = h + 'px';
+				currentFrame++;
+				if (currentFrame <= totalFrames) {
+					setTimeout(tween, interval);
+				} else {
+					item.style.overflow = initialOverflow;
+					item.removeAttribute('data-animated');
+				}
 			}
-		}
-		tween();
-	}
+			tween();
+	};
 
 	clipper.charts.DNA_Chart.prototype.slideToggle = function(item) {
 		var h = item.clientHeight;
@@ -1683,21 +2492,21 @@ clipper.charts.factory = function(type, id, settings, data) {
 		} else {
 			this.slideDown(item);
 		}
-	}
+	};
 
 	clipper.charts.DNA_Chart.prototype.getCSS = function() {
 		var css = '.clipper-charts-dnachart-wrapper {' +
 			'	font-family: sans-serif;' +
-			'	width: 100%;' + 
-			'}' + 
-			'.clipper-charts-dnachart-brand {' + 
-			'	width: 100%;' + 
+			'	width: 100%;' +
+			'}' +
+			'.clipper-charts-dnachart-brand {' +
+			'	width: 100%;' +
 			'}' +
 			'.clipper-charts-dnachart-brand > h3 {' +
-			'	cursor: pointer;' + 
-			'	height: 8%;' + 
-			'	margin: 0px;' + 
-			'	padding-top: 2%;' + 
+			'	cursor: pointer;' +
+			'	height: 8%;' +
+			'	margin: 0px;' +
+			'	padding-top: 2%;' +
 			'}' +
 			'.clipper-charts-dnachart-brand > h3.clipper-charts-dnachart-title-open:before {' +
 			'	content: \'▲ \'' +
@@ -1706,27 +2515,40 @@ clipper.charts.factory = function(type, id, settings, data) {
 			'	content: \'▼ \'' +
 			'}' +
 			'.clipper-charts-dnachart-body {' +
-			'	height: 88%;' + 
-			'	padding-bottom: 2%;' +
+			'	height: 88%;' +
+			'}' +
+			'.clipper-charts-dnachart-body h4 {' +
+			'   padding-left: 40px;' +
+			'	height: 30px;' +
+			'	line-height: 30px;' +
 			'}' +
 			'.clipper-charts-dnachart-promoters, .clipper-charts-dnachart-detractors {' +
-			'	width: 98%;' +
+			'	display: inline-block;' +
+			'	vertical-align: top;' +
+			'	width: 48%;' +
 			'	margin: 0%;' +
 			'	padding: 1%;' +
-			'	padding-top: 70px;' +
-			'	background-size: 50px;' +
-			'	background-repeat: no-repeat;' +
-			'	background-position: top left' +
+			'	padding-top: 3px;' +
 			'}' +
 			'.clipper-charts-dnachart-promoters {' +
 			'	background-color: ' + this.settings.promotersSection.backgroundColor + ';' +
+			'	color: ' + this.settings.promotersSection.textColor + ';' +
+			'}' +
+			'.clipper-charts-dnachart-promoters h4 {' +
 			'	background-image: url(' + this.settings.promotersSection.image + ');' +
-			'	color: ' + this.settings.promotersSection.textColor + '' +
+			'	background-size: 30px;' +
+			'	background-repeat: no-repeat;' +
+			'	background-position: top left' +
 			'}' +
 			'.clipper-charts-dnachart-detractors {' +
 			'	background-color: ' + this.settings.detractorsSection.backgroundColor + ';' +
-			'	background-image: url(' + this.settings.detractorsSection.image + ');' +
 			'	color: ' + this.settings.detractorsSection.textColor + ';' +
+			'}' +
+			'.clipper-charts-dnachart-detractors h4 {' +
+			'	background-image: url(' + this.settings.detractorsSection.image + ');' +
+			'	background-size: 30px;' +
+			'	background-repeat: no-repeat;' +
+			'	background-position: top left' +
 			'}' +
 			'.clipper-charts-dnachart-promoters ul, .clipper-charts-dnachart-detractors ul {' +
 			'	font-size: 12px;' +
@@ -1741,20 +2563,27 @@ clipper.charts.factory = function(type, id, settings, data) {
 	};
 
 	clipper.charts.DNA_Chart.prototype.draw = function() {
-		document.getElementById(this.id).innerHTML = '';
+		var me = this.container;
+		me.innerHTML = '';
 
-		if (document.getElementById('clipper-charts-dnachart-style') === null) {
-			var style = document.createElement('style');
-			style.id = 'clipper-charts-dnachart-style';
-			style.innerHTML = this.getCSS();
-			document.getElementsByTagName('head')[0].appendChild(style);
+		if (this._data.length === 0) {
+			var en = this.getEmptyNotice();
+			this.container.appendChild(en);
+			return;
 		}
 
-		var wrapper = document.createElement('div');
+		if (me.ownerDocument.getElementById('clipper-charts-dnachart-style') === null) {
+			var style = me.ownerDocument.createElement('style');
+			style.id = 'clipper-charts-dnachart-style';
+			style.innerHTML = this.getCSS();
+			me.ownerDocument.getElementsByTagName('head')[0].appendChild(style);
+		}
+
+		var wrapper = me.ownerDocument.createElement('div');
 		wrapper.style.position = 'relative';
 		wrapper.style.height = '100%';
 
-		document.getElementById(this.id).appendChild(wrapper);
+		me.appendChild(wrapper);
 
 		var html = '<div class="clipper-charts-dnachart-wrapper">'; // Wrapper
 		for (var i = 0; i < this._data.length; i++) {
@@ -1766,7 +2595,11 @@ clipper.charts.factory = function(type, id, settings, data) {
 					html += '<h4>Promoters</h3>';
 					html += '<ul>';
 						for (var j = 0; j < this._data[i].promoters.length; j++) {
-							html += '<li>"' + this._data[i].promoters[j] + '"</li>';
+							var text = this._data[i].promoters[j];
+							if (text.match(/^<br\s*\/?>$/i) === null) {
+								text = '"' + text + '"';
+							}
+							html += '<li>' + text + '</li>';
 						}
 					html += '</ul>';
 				html += '</div>';
@@ -1776,7 +2609,11 @@ clipper.charts.factory = function(type, id, settings, data) {
 					html += '<h4>Detractors</h3>';
 					html += '<ul>';
 						for (var j = 0; j < this._data[i].detractors.length; j++) {
-							html += '<li>"' + this._data[i].detractors[j] + '"</li>';
+							var text = this._data[i].detractors[j];
+							if (text.match(/^<br\s*\/?>$/i) === null) {
+								text = '"' + text + '"';
+							}
+							html += '<li>' + text + '</li>';
 						}
 					html += '</ul>';
 				html += '</div>';
@@ -1793,9 +2630,18 @@ clipper.charts.factory = function(type, id, settings, data) {
 		if (this.settings.logo.image !== 'none') {
 			var logo = this.getLogo();
 			wrapper.appendChild(logo);
+			if (this.settings.logo.position.indexOf('bottom') > -1) {
+				wrapper.style.paddingBottom = (logo.clientHeight + 5) + 'px';
+			}
 		}
 
-		var titles = document.querySelectorAll('[id="' + this.id + '"] .clipper-charts-dnachart-brand > h3');
+		// Copyright notice
+		if (this.settings.copyright.position.indexOf('none') === -1) {
+			var copyright = this.getCopyrightNotice();
+			wrapper.appendChild(copyright);
+		}
+
+		var titles = me.querySelectorAll('.clipper-charts-dnachart-brand > h3');
 		for (var t = 0; t < titles.length; t++) {
 			titles[t].addEventListener('click', function(e) {
 				if (e.target.classList.contains('clipper-charts-dnachart-title-open')) {
@@ -1813,12 +2659,13 @@ clipper.charts.factory = function(type, id, settings, data) {
 	};
 
 // END What does my brand represent to Promoters as compared to Detractors Chart
-
-/***** DATA FORMATTING **************************************************************/
 clipper.charts.formatters = {
 	
 	NPS_Chart: function(data) {
 		if (!data.hasOwnProperty('length')) throw 'Unexpected format.';
+		if (data.length === 0) return data;
+		// Clone object
+		data = JSON.parse(JSON.stringify(data));
 		for (var i = 0; i < data.length; i++) {
 			data[i].detractors /= 100;
 			data[i].passives /= 100;
@@ -1832,6 +2679,10 @@ clipper.charts.formatters = {
 	},
 
 	DoctorsPromote_Chart: function(data) {
+		if (data.hasOwnProperty('length') && data.length === 0) {
+			// No data
+			return {};
+		}
 		return {
 			"satisfied": {
 				"amount": data.satisfied.amount / 100,
@@ -1845,13 +2696,15 @@ clipper.charts.formatters = {
 				"dissatisfied": {
 				"amount": data.dissatisfied.amount / 100
 			}
-		}
+		};
 	},
 
 	PromotersPromote_Chart: function(data) {
 		if (!data.hasOwnProperty('length')) throw 'Unexpected format.';
+		// Clone object
+		data = JSON.parse(JSON.stringify(data));
 		for (var i = 0; i < data.length; i++) {
-			if (data[i].competitors.hasOwnProperty('length') && data[i].competitors.length == 0) {
+			if (data[i].competitors.hasOwnProperty('length') && data[i].competitors.length === 0) {
 				data[i].competitors = {};
 			}
 			for (var c in data[i].competitors) {
@@ -1861,10 +2714,16 @@ clipper.charts.formatters = {
 		return data;
 	},
 
+	PromotersPromoteMean_Chart: function(data) {
+		return data;
+	},
+
 	DetractorsPromote_Chart: function(data) {
 		if (!data.hasOwnProperty('length')) throw 'Unexpected format.';
+		// Clone object
+		data = JSON.parse(JSON.stringify(data));
 		for (var i = 0; i < data.length; i++) {
-			if (data[i].competitors.hasOwnProperty('length') && data[i].competitors.length == 0) {
+			if (data[i].competitors.hasOwnProperty('length') && data[i].competitors.length === 0) {
 				data[i].competitors = {};
 			}
 			for (var c in data[i].competitors) {
@@ -1875,6 +2734,8 @@ clipper.charts.formatters = {
 	},
 
 	PromVsDetrPromote_Chart: function(data) {
+		// Clone object
+		data = JSON.parse(JSON.stringify(data));
 		for (var i = 0; i < data.length; i++) {
 			data[i].promoters = parseFloat(data[i].promoters) / 100;
 			data[i].detractors = parseFloat(data[i].detractors) / 100;
@@ -1884,6 +2745,8 @@ clipper.charts.formatters = {
 	},
 
 	PPDBrandMessages_Chart: function(data) {
+		// Clone object
+		data = JSON.parse(JSON.stringify(data));
 		if (!data.hasOwnProperty('length')) throw 'Unexpected format.';
 		for (var i = 0; i < data.length; i++) {
 			data[i].detractors /= 100;
@@ -1900,9 +2763,71 @@ clipper.charts.formatters = {
 	}
 
 };
+clipper.charts.easing = {
 
-/***** HELPER FUNCTIONS *************************************************************/
+	/**
+	 * All functions have the same parameters.
+	 * Implemented as seen on http://gizma.com/easing/ replacing c with (e - b).
+	 * 
+	 * @param numeric t Time (actual)
+	 * @param numeric b Begining. The starting property value.
+	 * @param numeric e End. The final property value.
+	 * @param numeric d Duration. Total time of the animation.
+	 */
 
+	linear: function (t, b, e, d) {
+		return ((e - b) * (t / d)) + b;
+	},
+
+	quadIn: function (t, b, e, d) {
+		t /= d;
+		return (e - b) * (t * t) + b;
+	},
+
+	quadOut: function (t, b, e, d) {
+		t /= d;
+		return -(e - b) * t * (t - 2) + b;
+	},
+
+	quadInOut: function (t, b, e, d) {
+		t /= d / 2;
+		if (t < 1) return (e - b)/2 * (t * t) + b;
+		t--;
+		return -(e - b)/2 * (t*(t-2) - 1) + b;
+	},
+
+	cubicIn: function (t, b, e, d) {
+		t /= d;
+		return (e - b) * (t * t * t) + b;
+	},
+
+	cubicOut: function (t, b, e, d) {
+		t /= d/2;
+		t--;
+		return (e - b) * (t * t * t + 1) + b;
+	},
+
+	cubicInOut: function (t, b, e, d) {
+		t /= d / 2;
+		if (t < 1) return (e - b)/2 * (t * t * t) + b;
+		t -= 2;
+		return (e - b)/2 * (t * t * t + 2) + b;
+	},
+
+	sinusoidalIn: function (t, b, e, d) {
+		return -(e - b) * Math.cos(t/d * (Math.PI/2)) + (e - b) + b;
+	},
+
+	sinusoidalOut: function (t, b, e, d) {
+		return (e - b) * Math.sin(t / d * (Math.PI/2)) + b;
+	},
+
+	sinusoidalInOut: function (t, b, e, d) {
+		return -(e - b)/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+	}
+
+};
+clipper.charts.tools = {};
 /**
  * Takes an object and compares it with other object (the defaults object).
  * If the first object lacks properties from the defaults, they are created.
@@ -1912,33 +2837,61 @@ clipper.charts.formatters = {
  * @params object defaults
  *   Default object
  */
-clipper._merge = function(obj, defaults) {
+clipper.charts.tools.merge = function(obj, defaults) {
 	for (var p in defaults) {
 		if (obj.hasOwnProperty(p)) {
 			if (typeof defaults[p] == 'object') {
-				obj[p] = clipper._merge(obj[p], defaults[p]);
+				obj[p] = clipper.charts.tools.merge(obj[p], defaults[p]);
 			}
 		} else {
 			obj[p] = defaults[p];
 		}
 	}
 	return obj;
-}
+};
 
-clipper._injectClass = function(className, object) {
+/**
+ * Injects a class name into a DOM object.
+ * 
+ * @param  string className
+ *   Class name to inject
+ * @param  object object
+ *   DOM object
+ */
+clipper.charts.tools.injectClass = function(className, object) {
 	if (object.className.indexOf(className) > -1) return;
-	if (object.className == '') {
+	if (object.className === '') {
 		object.className = className;
 	} else {
 		object.className += ' ' + className;
 	}
-}
+};
 
 /**
  * Returns a unique id
+ *
+ * @return string
+ *   A Unique identifier
  */
-clipper.uid = function() {
+clipper.charts.tools.uid = function() {
 	var now = Date.now();
 	var rnd = (Math.random().toString(36)+'00000000000000000').slice(2,18);
 	return now + '-' + rnd;
-}
+};
+
+/**
+ * Returns whether an object is a DOM element or not. Crossbrowser.
+ *
+ * @param {object} Obj An object to test.
+ * @return {bool} True if it is a DOM element; false otherwise.
+ */
+clipper.charts.tools.isDOMelement = function(obj) {
+	try {
+		return obj instanceof HTMLElement;
+	} catch (e) {
+		return (typeof obj === 'object') &&
+			(obj.nodeType === 1) &&
+			(typeof obj.style === 'object') &&
+			(typeof obj.ownerDocument === 'object');
+	}
+};
