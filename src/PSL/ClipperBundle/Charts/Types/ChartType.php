@@ -288,7 +288,7 @@ abstract class ChartType
    *
    * @return array
    *    0 - cache-string-id
-   *    1 - the result / boolean (none)
+   *    1 - array|boolean result | boolean (none)
    */
   private function cacheMapping($result = FALSE, $method, $dual = FALSE, $answer = FALSE, $extra = FALSE)
   {
@@ -328,7 +328,7 @@ abstract class ChartType
   {
     // Don't process empty answer
     if (empty($answers)) {
-      return FALSE;
+      return array_combine($this->brands, array_fill(0, count($this->brands), NULL));
     }
     
     // cache
@@ -374,7 +374,7 @@ abstract class ChartType
     
     // cache
     $this->cacheMapping($result, $cache_str);
-        
+
     return $result;
   }
   
@@ -393,7 +393,7 @@ abstract class ChartType
   {
     // Don't process empty answer
     if (empty($answers)) {
-      return FALSE;
+      return array_combine($this->brands, array_fill(0, count($this->brands), NULL));
     }
     
     // cache
@@ -441,7 +441,7 @@ abstract class ChartType
     
     // cache
     $this->cacheMapping($result, $cache_str);
-    
+
     return $result;
   }
   
@@ -458,7 +458,8 @@ abstract class ChartType
   {
     // Don't process empty answer or messages
     if ((empty($answers)) || (empty($messages))) {
-      return FALSE;
+      $set = array_fill(0, count($messages), NULL);
+      return array_combine($this->brands, array_fill(0, count($this->brands), $set));
     }
     
     // cache
