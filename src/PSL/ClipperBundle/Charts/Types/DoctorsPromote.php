@@ -14,26 +14,8 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 class DoctorsPromote extends ChartType {
 
   private $respondent = array();
-  private $base = array();
-
-  private $promoting  = array(
-    'ds' => array(  //Dissatisfied
-      'count'  => 0,
-      'perc'   => 0,
-    ),
-    'sa' => array(  //Satisfied
-      'count'  => 0,
-      'perc'   => 0,
-    ),
-    'se' => array(  //Satisfied (Exclusive)
-      'count'  => 0,
-      'perc'   => 0,
-    ),
-    'ss' => array(  //Satisfied (Shared)
-      'count'  => 0,
-      'perc'   => 0,
-    ),
-  );
+  private $promoting  = array();
+  private $base = 0;
 
   /**
    * Method call to return chart data.
@@ -48,7 +30,27 @@ class DoctorsPromote extends ChartType {
    */
   public function dataTable(ChartEvent $event) {
     //prep base structure
-    $this->base = array_combine($this->brands, array_fill(0, count($this->brands), array()));
+    $this->base = 0;
+    
+    //prep promoting structure
+    $this->promoting  = array(
+      'ds' => array(  //Dissatisfied
+        'count'  => 0,
+        'perc'   => 0,
+      ),
+      'sa' => array(  //Satisfied
+        'count'  => 0,
+        'perc'   => 0,
+      ),
+      'se' => array(  //Satisfied (Exclusive)
+        'count'  => 0,
+        'perc'   => 0,
+      ),
+      'ss' => array(  //Satisfied (Shared)
+        'count'  => 0,
+        'perc'   => 0,
+      ),
+    );
     
     if ($event->getCountFiltered()) {
       //extract respondent
@@ -57,19 +59,13 @@ class DoctorsPromote extends ChartType {
         $this->extractRespondent($response);
       }
       
-      //#final-calculation; calculate the aggregated count into parentage
-      $total = $this->promoting['ds']['count'] + $this->promoting['sa']['count'];
+      //#final-calculation;
       if (!empty($this->respondent)) {
         foreach ($this->promoting as $ty => $set) {
-          $this->promoting[$ty]['perc'] = $this->roundingUpValue((($set['count'] / $total) * 100));
+          $perc = (($set['count'] / $this->base) * 100);
+          $this->promoting[$ty]['perc'] = $this->roundingUpValue($perc, 0, FALSE, PHP_ROUND_HALF_DOWN);
         }
-      }
-      
-      //calc base
-      foreach ($this->brands as $brand) {
-        $this->base[$brand] = array_filter($this->base[$brand]);
-        $this->base[$brand] = count($this->base[$brand]);
-      }
+      }      
     } // if getCountFiltered()
     
     // "How satisfied is the market?"
@@ -84,7 +80,7 @@ class DoctorsPromote extends ChartType {
       'dissatisfied' => array(
         'amount' => $this->promoting['ds']['perc'],
       ),
-      'base'         => array_sum($this->base),
+      'base'         => $this->base,
     );
   }
 
@@ -111,10 +107,10 @@ class DoctorsPromote extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting respondent token
     $lstoken = $response->getLsToken();
-
+    
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+    $answers = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
 
     //values assignments
     foreach ($this->brands as $brand) {
@@ -122,10 +118,12 @@ class DoctorsPromote extends ChartType {
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = $answers[$brand];
-      $this->base[$brand][] = $answers[$brand];
+      $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
     }
-
+    
+    // collect all as base
+    $this->base++;
+    
     //convert brand's answers into score by each respondent
     $this->calculateRespondentSatifaction($this->respondent[$lstoken]);
   }
@@ -145,20 +143,33 @@ class DoctorsPromote extends ChartType {
    *
    * @return void
    */
-  private function calculateRespondentSatifaction($brandsAnswer = array()) {
-    $promote_count = array_filter($brandsAnswer);
-    $promote_count = count($promote_count);
-    if ($promote_count >= 1) {
-      $this->promoting['sa']['count']++;
-      if ($promote_count == 1) {
-        $this->promoting['se']['count']++;
+  private function calculateRespondentSatifaction($brandsAnswer = array()) {    
+    $brandsAnswerCat = array();
+    foreach ($brandsAnswer as $brand => $answer) {
+      $cat = $this->identifyRespondentCategory($answer);
+      if (!isset($brandsAnswerCat[$cat])) {
+        $brandsAnswerCat[$cat] = 0;
       }
-      else {
-        $this->promoting['ss']['count']++;
-      }
+      $brandsAnswerCat[$cat]++;
+    }
+    
+    // Dissatisfied
+    if (empty($brandsAnswerCat['promoter'])) {
+      $this->promoting['ds']['count']++;
       return;
     }
-    $this->promoting['ds']['count']++;
+    
+    //Satisfied
+    $this->promoting['sa']['count']++;
+    
+    if ($brandsAnswerCat['promoter'] == 1) {
+      // Satisfied (Exclusive)
+      $this->promoting['se']['count']++;
+      return;
+    }
+    
+    //Satisfied (Shared)
+    $this->promoting['ss']['count']++;
     return;
   }
 }

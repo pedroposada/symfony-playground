@@ -18,7 +18,7 @@
 namespace PSL\ClipperBundle\Utils;
 
 class GeoMapper {  
-  protected $map;
+  protected static $map;
   /**
    * Define map.
    * @method __construct
@@ -37,7 +37,7 @@ class GeoMapper {
    * @param  ContainerInterface $container
    */
   public function __construct() {
-    $this->map = array(
+    self::$map = array(
       'EU5' => array(
         'France',
         'Germany',
@@ -320,8 +320,8 @@ class GeoMapper {
    *
    * @return array
    */
-  public function getMap() {
-    return $this->map;
+  public static function getMap() {
+    return self::$map;
   }
   
   /**
@@ -331,7 +331,7 @@ class GeoMapper {
    * @return array
    */
   public function getRegions() {
-    return array_keys($this->map); 
+    return array_keys(self::$map); 
   }
   
   /**
@@ -345,8 +345,8 @@ class GeoMapper {
    * @return array
    */
   public function getCountries($region) {
-    if (isset($this->map[$region])) {
-      return $this->map[$region];
+    if (isset(self::$map[$region])) {
+      return self::$map[$region];
     }
     return array();
   }
@@ -363,7 +363,7 @@ class GeoMapper {
    */
   public function findRegions($specific_country = FALSE) {
     $countries_list = array();
-    array_walk($this->map, function($countries, $region) use (&$countries_list, $specific_country) {
+    array_walk(self::$map, function($countries, $region) use (&$countries_list, $specific_country) {
       array_walk($countries, function($country, $index) use (&$countries_list, $specific_country, $region) {
         if ((!empty($specific_country)) && ($specific_country != $country)) {
           return;

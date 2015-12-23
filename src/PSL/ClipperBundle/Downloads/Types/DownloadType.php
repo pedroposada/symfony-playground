@@ -18,8 +18,8 @@ abstract class DownloadType
   protected $download_type;
 
   public function __construct(ContainerInterface $container, $survey_type, $download_type) {
-    $this->container           = $container;
-    $this->logger              = $container->get('monolog.logger.clipper');
+    $this->container     = $container;
+    $this->logger        = $container->get('monolog.logger.clipper');
     $this->survey_type   = $survey_type;
     $this->download_type = $download_type;
   }
@@ -39,6 +39,19 @@ abstract class DownloadType
             
       $event->setFile($this->exportFile($event));      
     }
+  }
+  
+  /**
+   * Helper method to sanitize filename.
+   * @method sanitizeFileName
+   *
+   * @param  string $filename
+   *
+   * @return string
+   */
+  protected function sanitizeFileName($filename)
+  {
+    return preg_replace("/[^a-zA-Z0-9-_\.]/", "_", $filename);
   }
 
   /**

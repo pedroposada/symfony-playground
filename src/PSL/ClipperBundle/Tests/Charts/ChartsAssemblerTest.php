@@ -201,13 +201,10 @@ class ChartsAssemblerTest extends WebTestCase
     $test = array(
       'brand'            => 'is_string',
       'detractors'       => 'is_numeric',
-      'detractors_prec'  => 'is_numeric',
       'detractors_count' => 'is_numeric',
       'passives'         => 'is_numeric',
-      'passives_prec'    => 'is_numeric',
       'passives_count'   => 'is_numeric',
       'promoters'        => 'is_numeric',
-      'promoters_prec'   => 'is_numeric',
       'promoters_count'  => 'is_numeric',
       'diff'             => 'is_numeric',
     );
@@ -226,10 +223,10 @@ class ChartsAssemblerTest extends WebTestCase
   public function testChartPPDBrandMessages()
   {
     $data_table = self::$assembler->getChartDataTable(self::$order->getId(), self::$map[$this->getCounter()], self::$survey_type);
-    $brands = self::$order->getFormDataByField('brands');
+    $attributes = self::$order->getFormDataByField('attributes');
 
     //each brands have it's own data row
-    $this->assertSame(count($data_table), count($brands));
+    $this->assertSame(count($data_table), count($attributes));
 
     //each row much has this key & value
     $test = array(
@@ -351,7 +348,14 @@ class ChartsAssemblerTest extends WebTestCase
       foreach ($data as $type_dt) {
         foreach ($type_dt as $cat => $cat_set) {
           $this->assertTrue(is_string($cat), "Category '{$cat}' is expected as string.");
+          if ($cat == 'diff') {
+            $this->assertTrue(is_numeric($cat_set), "Diff value having wrong data type.");
+            continue;
+          }
           foreach ($test as $key => $ts) {
+            if (!is_array($cat_set)) {
+              continue;
+            }
             $this->assertArrayHasKey($key, $cat_set, "'{$key}' key is missing.");
             $this->assertTrue($ts($cat_set[$key]), "'{$key}' value having wrong data type.");
           }

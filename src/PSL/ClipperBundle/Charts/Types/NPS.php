@@ -68,28 +68,40 @@ class NPS extends ChartType
       $this->extractRespondent($response);
     }
     
+    $score_order = array();
     $overall_avg = $overall_total = $overall_count = 0;
     if (!empty($this->respondent)) {
       //#final-calculation
       foreach ($this->brands_results as $brand => $respondent) {
-        $total = array_sum($respondent);
-        $overall_total += $total;
-        $count = count($respondent);
-        $overall_count += $count;
-        
         $this->dataTable_data[$brand]['brand'] = $brand;
         $this->dataTable_data[$brand]['base']  = $this->base[$brand];
         foreach (array('detractors', 'passives', 'promoters') as $type) {
           if (!empty($this->dataTable_data[$brand][$type])) {
             $this->dataTable_data[$brand][$type] = (($this->dataTable_data[$brand][$type] / $this->base[$brand]) * 100);
-            $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], TRUE);
           }
         }
-        $this->dataTable_data[$brand]['score'] = $this->roundingUpValue(($total / $count));
+        $score = $this->dataTable_data[$brand]['score'] = $this->dataTable_data[$brand]['promoters'] - $this->dataTable_data[$brand]['detractors'];
+        while (isset($score_order[$score])) {
+          $score++;
+        }
+        $score_order[$score] = $brand;
+        // rounding up last
+        $this->dataTable_data[$brand]['score'] = $this->roundingUpValue($this->dataTable_data[$brand]['score'], 0, FALSE, PHP_ROUND_HALF_DOWN);
+        foreach (array('detractors', 'passives', 'promoters') as $type) {
+          $this->dataTable_data[$brand][$type] = $this->roundingUpValue($this->dataTable_data[$brand][$type], 0, FALSE, PHP_ROUND_HALF_DOWN);
+        }
       }
-      $overall_avg = $this->roundingUpValue(($overall_total / $overall_count));      
     }
     $this->respondent = array();
+    
+    // order descending by score
+    $dataTable_data_bk = $this->dataTable_data;
+    $this->dataTable_data = array();
+    krsort($score_order);    
+    foreach ($score_order as $brand_odr) {
+      $this->dataTable_data[$brand_odr] = $dataTable_data_bk[$brand_odr];
+    }
+    unset($dataTable_data_bk, $score_order);
     
     //remove keys
     $this->dataTable_data = array_values($this->dataTable_data);
@@ -141,7 +153,7 @@ class NPS extends ChartType
 
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');
+    $answers = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
 
     //values assignments
     foreach ($this->brands as $brand) {
@@ -153,12 +165,12 @@ class NPS extends ChartType
       if (!isset($this->respondent[$lstoken])) {
         $this->respondent[$lstoken] = array();
       }
-      $this->respondent[$lstoken][$brand] = $answers[$brand];
-      //capture base
-      if (!empty($answers[$brand])) {
+      if (!is_null($answers[$brand])) {
+        $this->respondent[$lstoken][$brand] = intval($answers[$brand]);
         //capture size
         $type = $this->identifyRespondentCategory($answers[$brand]);
         $this->dataTable_data[$brand]["{$type}s"]++;
+        //capture base
         $this->base[$brand]++;
       }
     }
@@ -195,7 +207,7 @@ class NPS extends ChartType
         case 'promoter':
           $OtherBrandCount = array_filter($brandsAnswer);
           $OtherBrandCount = count($OtherBrandCount);
-          $brandsAnswer[$brand] = $this->roundingUpValue((3 + (2 / $OtherBrandCount)));
+          $brandsAnswer[$brand] = (3 + (2 / $OtherBrandCount));
           break;
       } //switch
       $this->brands_results[$brand][$lstoken] = $brandsAnswer[$brand];

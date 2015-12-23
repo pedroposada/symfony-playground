@@ -21,7 +21,6 @@ class NPSPlusExcel extends DownloadType
   protected $activeWorkSheet;
 
   //object related
-  protected $file_name;
   protected static $app_name = 'Clipper';
 
   //data related
@@ -106,9 +105,12 @@ class NPSPlusExcel extends DownloadType
    */
   private function prepProcessor($order_id, $survey_type) {
     //filename
-    $this->file_name = explode('-', $order_id);
-    $this->file_name = self::$app_name . "-Export-{$survey_type}-{$this->file_name[0]}";
-
+    if (empty($this->file_name)) {
+      $this->file_name = explode('-', $order_id);
+      $this->file_name = self::$app_name . "-Export-{$survey_type}-{$this->file_name[0]}";     
+    }
+    $this->file_name = $this->sanitizeFileName($this->file_name);
+    
     //prep Excel object
     $this->phpExcelObject = $this->container->get('phpexcel')->createPHPExcelObject();
     if (empty($this->phpExcelObject)) {
@@ -134,6 +136,7 @@ class NPSPlusExcel extends DownloadType
     //prep file
     $order_id    = $event->getOrderId();
     $survey_type = $event->getSurveyType();
+    $this->file_name = $event->getFilename();
     $this->prepProcessor($order_id, $survey_type);
 
     //get data
@@ -260,7 +263,7 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->setCellValue('A2', self::$text_content['base-who-are-aware']);
 
         //content
-        $this->activeWorkSheet->getColumnDimension('A')->setWidth(20);
+        $this->activeWorkSheet->getColumnDimension('A')->setWidth(31);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
         break;
@@ -307,7 +310,7 @@ class NPSPlusExcel extends DownloadType
         }
 
         //content
-        $this->activeWorkSheet->getColumnDimension('A')->setWidth(30);
+        $this->activeWorkSheet->getColumnDimension('A')->setWidth(38);
         $row = 5; //stats at
         $this->excelDrawTable($sheetname, $this->data['complete'][$in_sequence], $row, $specific_brand);
         break;
@@ -363,7 +366,13 @@ class NPSPlusExcel extends DownloadType
       $this->activeWorkSheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
       $row++;
     }
-
+    
+    if (empty($dataTable['datatable'])) {
+      $this->activeWorkSheet->setCellValue("A{$row}", "No data.");
+      $row++;
+      return;
+    }
+    
     //draw table
     switch ($sheetname) {
       // NPS Chart
@@ -371,15 +380,29 @@ class NPSPlusExcel extends DownloadType
         //prep data
         $localDataTable = array();
         array_walk($dataTable['datatable'], function($set, $key) use (&$localDataTable) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if ((empty($set['brand'])) || ($set['base'] == 0)) {
+            return; // array_walk
+          }
           $localDataTable[$set['brand']] = $set;
+        });        
+        if (empty($localDataTable)) {
+          break; // switch
+        }
+        // new requirement since FirstView: order by mean
+        uasort($localDataTable, function ($a, $b) {
+          if ($a['score'] == $b['score']) {
+            return 0;
+          }
+          return (($a['score'] > $b['score']) ? -1 : 1);
         });
-
+        
         $rowStarts = $row;
-
+        
         // brand list
         $colStarts = $alp = 1;
-        foreach($dataTable['brands'] as $brand) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$brand}");
+        foreach($localDataTable as $brand => $set) {
+          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$set['brand']}");
           $colEnds = $alp;
           $alp++;
         }
@@ -388,8 +411,8 @@ class NPSPlusExcel extends DownloadType
         //base
         $this->activeWorkSheet->setCellValue("A{$row}", "Base");
         $alp = 1;
-        foreach($dataTable['brands'] as $brand) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$localDataTable[$brand]['base']}");
+        foreach($localDataTable as $brand => $set) {
+          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$set['base']}");
           $alp++;
         }
         $row++;
@@ -401,8 +424,8 @@ class NPSPlusExcel extends DownloadType
           $cattype = ucwords($type);
           $this->activeWorkSheet->setCellValue("A{$row}", $cattype);
           $alp = 1;
-          foreach($dataTable['brands'] as $brand) {
-            $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$localDataTable[$brand][$type]}%");
+          foreach($localDataTable as $brand => $set) {
+            $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$set[$type]}%");
             $alp++;
           }
           $row++;
@@ -413,8 +436,8 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->setCellValue("A{$row}", "Mean scores");
 
         $alp = 1;
-        foreach($dataTable['brands'] as $brand) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$localDataTable[$brand]['score']}");
+        foreach($localDataTable as $brand => $set) {
+          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$set['score']}");
           $alp++;
         }
 
@@ -423,6 +446,11 @@ class NPSPlusExcel extends DownloadType
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getFont()->setBold(TRUE);
+        $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getAlignment()->setWrapText(TRUE);
+        $this->activeWorkSheet->getRowDimension($rowStarts)->setRowHeight(80);
+        foreach (range($colStarts, $colEnds) as $cl) {
+          $this->activeWorkSheet->getColumnDimension("{$col[$cl]}")->setWidth(15);          
+        }
         $this->activeWorkSheet->getStyle("A{$end_row}:{$col[$colEnds]}{$end_row}")->getFont()->setBold(TRUE);
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
         $this->activeWorkSheet->getStyle("A{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->applyFromArray($styles);
@@ -432,11 +460,20 @@ class NPSPlusExcel extends DownloadType
 
       // Loyalty Chart
       case 'Table 2':
-        //prep data
+        // prep data
         $localDataTable = array();
         array_walk($dataTable['datatable']['brands'], function($set, $key) use (&$localDataTable) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (empty($set['base'])) {
+            return; // array_walk
+          }
           $localDataTable[$set['brand']] = $set;
-        });
+        });        
+        $localDataTable['Mean - all brands'] = array(
+          'brand' => 'Mean - all brands',
+          'base'    => $dataTable['datatable']['base'],
+          'loyalty' => $dataTable['datatable']['mean'],
+        );
 
         $rowStarts = $row;
 
@@ -445,26 +482,16 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->setCellValue("C{$row}", "Mean");
         $row++;
 
-        //brands
-        foreach($dataTable['brands'] as $brand) {
-          //sanitize
-          if (!isset($localDataTable[$brand])) {
-            $localDataTable[$brand] = array();
-          }
-          foreach (array('base', 'loyalty') as $type) {
-            if (!isset($localDataTable[$brand][$type])) {
-              $localDataTable[$brand][$type] = 0;
-            }
-          }
-          $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
-          $this->activeWorkSheet->setCellValue("B{$row}", "{$localDataTable[$brand]['base']}");
-          $this->activeWorkSheet->setCellValue("C{$row}", "{$localDataTable[$brand]['loyalty']}");
+        // new requirement since FirstView: order by mean
+        uasort($localDataTable, function ($a, $b) {
+          return (strcmp($a['loyalty'], $b['loyalty']) < 0);
+        });
+        foreach ($localDataTable as $brand => $meandat) {          
+          $this->activeWorkSheet->setCellValue("A{$row}", "{$meandat['brand']}");
+          $this->activeWorkSheet->setCellValue("B{$row}", "{$meandat['base']}");
+          $this->activeWorkSheet->setCellValue("C{$row}", "{$meandat['loyalty']}");
           $row++;
         }
-        //mean - all brands
-        $this->activeWorkSheet->setCellValue("A{$row}", "Mean - all brands");
-        $this->activeWorkSheet->setCellValue("B{$row}", "{$dataTable['datatable']['base']}");
-        $this->activeWorkSheet->setCellValue("C{$row}", "{$dataTable['datatable']['mean']}");
 
         $end_row = $row;
 
@@ -526,20 +553,29 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->setCellValue("B{$row}", "Base");
         $this->activeWorkSheet->setCellValue("C{$row}", "Mean");
         $row++;
+        
+        $dataTable['datatable']['brands']['Mean - all brands'] = array(
+          'base'  => $dataTable['datatable']['overall']['base'],
+          'mean'  => $dataTable['datatable']['overall']['mean'],          
+        );
+        
+        // new requirement since FirstView: order by mean
+        uasort($dataTable['datatable']['brands'], function ($a, $b) {
+          return (strcmp($a['mean'], $b['mean']) < 0);
+        });
 
         //brands
         foreach($dataTable['datatable']['brands'] as $brand => $set) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (empty($set['base'])) {
+            continue;
+          }
           $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
           $this->activeWorkSheet->setCellValue("B{$row}", "{$set['base']}");
           $this->activeWorkSheet->setCellValue("C{$row}", "{$set['mean']}");
+          $end_row = $row;
           $row++;
-        }
-        //mean - all brands
-        $this->activeWorkSheet->setCellValue("A{$row}", "Mean - all brands");
-        $this->activeWorkSheet->setCellValue("B{$row}", "{$dataTable['datatable']['overall']['base']}");
-        $this->activeWorkSheet->setCellValue("C{$row}", "{$dataTable['datatable']['overall']['mean']}");
-
-        $end_row = $row;
+        }        
 
         //styling
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
@@ -556,14 +592,22 @@ class NPSPlusExcel extends DownloadType
         //prep data
         $localDataTable = array();
         array_walk($dataTable['datatable'], function($set, $key) use (&$localDataTable) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (empty($set['base'])) {
+            return;
+          }
           $localDataTable[$set['brand']] = $set;
         });
 
         $rowStarts = $row;
 
         // brand list
-        $colStarts = $alp = 1;
+        $colStarts = $colEnds = $alp = 1;
         foreach($dataTable['brands'] as $brand) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (!isset($localDataTable[$brand])) {
+            continue;
+          }
           $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$brand}");
           $colEnds = $alp;
           $alp++;
@@ -574,6 +618,10 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->setCellValue("A{$row}", "Base");
         $alp = 1;
         foreach($dataTable['brands'] as $brand) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (!isset($localDataTable[$brand])) {
+            continue;
+          }
           $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$localDataTable[$brand]['base']}");
           $alp++;
         }
@@ -581,23 +629,25 @@ class NPSPlusExcel extends DownloadType
 
         //brands
         foreach($dataTable['brands'] as $brand) {
-          $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
-          //competitors
-          $competitors = array();
-          $localDataTable[$brand]['competitors'] = (array) $localDataTable[$brand]['competitors'];
-          if (!empty($localDataTable[$brand]['competitors'])) {
-            $competitors = array_keys($localDataTable[$brand]['competitors']);
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (!isset($localDataTable[$brand])) {
+            continue;
           }
+          $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
           $alp = 0;
           foreach($dataTable['brands'] as $compbrand) {
+            // new requirement since FirstView: hide brand with no base (hidden)
+            if (!isset($localDataTable[$compbrand])) {
+              continue;
+            }
             $alp++;
             if ($brand == $compbrand) {
               $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "--");
               continue;
             }
             $prec = 0;
-            if ((!empty($competitors)) && (in_array($compbrand, $competitors))) {
-              $prec = $localDataTable[$brand]['competitors'][$compbrand];
+            if ((!is_object($localDataTable[$compbrand]['competitors'])) && (!empty($localDataTable[$compbrand]['competitors'][$brand]))) {
+              $prec = $localDataTable[$compbrand]['competitors'][$brand];
             }
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$prec}%");
           }
@@ -609,6 +659,11 @@ class NPSPlusExcel extends DownloadType
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getFont()->setBold(TRUE);
+        $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->getAlignment()->setWrapText(TRUE);
+        $this->activeWorkSheet->getRowDimension($rowStarts)->setRowHeight(80);
+        foreach (range($colStarts, $colEnds) as $cl) {
+          $this->activeWorkSheet->getColumnDimension("{$col[$cl]}")->setWidth(15);          
+        }
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
         $this->activeWorkSheet->getStyle("A{$rowStarts}:{$col[$colEnds]}{$rowStarts}")->applyFromArray($styles);
         $styles = array('borders' => array('right' => self::$style['def-border']));
@@ -620,6 +675,14 @@ class NPSPlusExcel extends DownloadType
         //prep data
         $localDataTable = array();
         array_walk($dataTable['datatable'], function($set, $key) use (&$localDataTable) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (
+            (empty($set['promoters_count'])) &&
+            (empty($set['passives_count'])) &&
+            (empty($set['detractors_count'])) 
+          ) {
+            return;
+          }
           $localDataTable[$set['brand']] = $set;
         });
 
@@ -646,6 +709,10 @@ class NPSPlusExcel extends DownloadType
 
         //brands
         foreach ($dataTable['brands'] as $brand) {
+          // new requirement since FirstView: hide brand with no base (hidden)
+          if (!isset($localDataTable[$brand])) {
+            continue;
+          }
           $uppur_border[] = $row;
 
           //base
@@ -662,7 +729,7 @@ class NPSPlusExcel extends DownloadType
           $this->activeWorkSheet->setCellValue("A{$row}", "{$brand}");
           $alp = 1;
           foreach (self::$net_promoter_categories as $cat) {
-            $cat = $cat . 's_prec';
+            $cat = $cat . 's';
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$localDataTable[$brand][$cat]}%");
             $alp++;
           }
@@ -703,7 +770,9 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->mergeCells("{$col[$colStarts]}{$row}:{$col[$alp]}{$row}");
         $this->activeWorkSheet->setCellValue("{$col[$colStarts]}{$row}", "All Brands");
         $row++;
-
+        
+        $base_row = $row;
+        
         //heading 2
         $alp = 1;
         foreach (self::$net_promoter_categories as $cat) {
@@ -715,24 +784,11 @@ class NPSPlusExcel extends DownloadType
         }
         $row++;
 
-        //base, continue later
-        $base_row = $row;
-        $base_count = array();
-        $this->activeWorkSheet->setCellValue("A{$row}", "Base");
-        $row++;
-
         //messages
         foreach ($dataTable['datatable'] as $msgInd => $mesge) {
           $this->activeWorkSheet->setCellValue("A{$row}", "{$mesge['message']}");
           $alp = 1;
-          foreach (self::$net_promoter_categories as $cat) {
-            //get count
-            $count = $cat . 's_count';
-            if (!isset($base_count[$cat])) {
-              $base_count[$cat] = 0;
-            }
-            $base_count[$cat] += $mesge[$count];
-
+          foreach (self::$net_promoter_categories as $cat) {            
             //perc
             $perc = $cat . 's';
             $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$mesge[$perc]}%");
@@ -744,20 +800,11 @@ class NPSPlusExcel extends DownloadType
 
         $end_row = $row;
 
-        //base
-        $alp = 1;
-        foreach (self::$net_promoter_categories as $cat) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$base_row}", "{$base_count[$cat]}");
-          $alp++;
-        }
-
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);
         $styles = array('borders' => array('right' => self::$style['def-border']));
         $this->activeWorkSheet->getStyle("A{$rowStarts}:A{$end_row}")->applyFromArray($styles);
         $styles = array('borders' => array('bottom' => self::$style['def-border']));
-        $this->activeWorkSheet->getStyle("A{$base_row}:{$col[$colEnds]}{$base_row}")->applyFromArray($styles);
-        $base_row--;
         $this->activeWorkSheet->getStyle("A{$base_row}:{$col[$colEnds]}{$base_row}")->applyFromArray($styles);
         break;
 
@@ -784,24 +831,26 @@ class NPSPlusExcel extends DownloadType
         }
         $row++;
 
-        //base, continue later
+        //base
         $base_row = $row;
-        $base_count = array();
         $this->activeWorkSheet->setCellValue("A{$row}", "Base");
+        $alp = 1;
+        $brand = $dataTable['brands'][$specific_brand];
+        $brandset = end($dataTable['datatable']['brands'][$brand]);
+        foreach (self::$net_promoter_categories as $cat) {
+          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$brandset[$cat]['base']}");
+          $alp++;
+        }
         $row++;
 
-        //messages
-        foreach ($dataTable['datatable']['questions'] as $questionIndex => $question) {
-          $this->activeWorkSheet->setCellValue("A{$row}", "{$question}");
-          $brand = $dataTable['brands'][$specific_brand];
-          $scores = $dataTable['datatable']['brands'][$brand][$questionIndex];
+        // brand questions
+        $brand = $dataTable['brands'][$specific_brand];
+        $scores = $dataTable['datatable']['brands'][$brand];
+        foreach ($scores as $scindx => $score) {
+          $this->activeWorkSheet->setCellValue("A{$row}", "{$score['question']}");
           $alp = 1;
           foreach (self::$net_promoter_categories as $cat) {
-            if (!isset($base_count[$cat])) {
-              $base_count[$cat] = 0;
-            }
-            $base_count[$cat] += $scores[$cat]['base'];
-            $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$scores[$cat]['perc']}%");
+            $this->activeWorkSheet->setCellValue("{$col[$alp]}{$row}", "{$score[$cat]['perc']}%");
             $alp++;
           }
           $row++;
@@ -812,14 +861,7 @@ class NPSPlusExcel extends DownloadType
         $this->activeWorkSheet->getStyle("A{$row}")->applyFromArray(self::$style['def-note']);
         $row--;
 
-        $end_row = $row;
-
-        //base
-        $alp = 1;
-        foreach (self::$net_promoter_categories as $cat) {
-          $this->activeWorkSheet->setCellValue("{$col[$alp]}{$base_row}", "{$base_count[$cat]}");
-          $alp++;
-        }
+        $end_row = $row;        
 
         //styling
         $this->activeWorkSheet->getStyle("{$col[$colStarts]}{$rowStarts}:{$col[$colEnds]}{$end_row}")->applyFromArray(self::$style['align-center']);

@@ -97,28 +97,39 @@ class DetractorsPromote extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers = $this->filterAnswersToQuestionMap($answers, 'int');    
+    $answers = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');    
     
     //capture base
     foreach ($this->brands as $brand) {
-      if ($this->identifyRespondentCategory($answers[$brand], 'detractor')) {
-        $this->base[$brand]++;
+      if (is_null($answers[$brand])) {
+        continue;
+      }
+      if ($this->validateRespondentCategory($answers[$brand], 'detractor')) {
+        $this->extractPromoter($brand, $answers);        
       }
     }
-    
-    $answers = array_filter($answers);
-    asort($answers);
-    
-    $answers_keys = array_keys($answers);
-    if (isset($answers_keys[0]) && $this->identifyRespondentCategory($answers[$answers_keys[0]], 'detractor')) {
-      unset($answers[$answers_keys[0]]);
-      foreach ($answers as $answer_brand => $answers_value) {
-        if ($this->identifyRespondentCategory($answers_value, 'promoter')) {
-          if (!isset($this->competitors[$answers_keys[0]][$answer_brand])) {
-            $this->competitors[$answers_keys[0]][$answer_brand] = 0;
-          }
-          $this->competitors[$answers_keys[0]][$answer_brand]++;
+  }
+  
+  /**
+   * Method to get a Promoters promotes.
+   * @method extractPromoter
+   *
+   * @param  string $brand
+   * @param  array $answers
+   *
+   * @return void
+   */
+  private function extractPromoter($brand, $answers) {
+    $this->base[$brand]++;
+    foreach ($answers as $ans_brnd => $answer) {
+      if (($ans_brnd == $brand) || (empty($answer))) {
+        continue;
+      }
+      if ($this->validateRespondentCategory($answer, 'promoter')) {
+        if (!isset($this->competitors[$brand][$ans_brnd])) {
+          $this->competitors[$brand][$ans_brnd] = 0;          
         }
+        $this->competitors[$brand][$ans_brnd]++;
       }
     }
   }
@@ -147,9 +158,9 @@ class DetractorsPromote extends ChartType {
     if (empty($this->competitors[$brand])) {
       return;
     }
-    $competitors_count = count($this->competitors[$brand]);
+    $competitors_count = $this->base[$brand];
     array_walk($this->competitors[$brand], function(&$count, $comp_brand) use ($competitors_count) {
-      $count = $this->roundingUpValue((($count / $competitors_count) * 100));
+      $count = $this->roundingUpValue((($count / $competitors_count) * 100), 0, FALSE, PHP_ROUND_HALF_UP);
     });
   }
 }

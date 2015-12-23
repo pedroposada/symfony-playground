@@ -39,6 +39,11 @@ class ChartEvent extends Event
   protected $count_total    = 0;
   //filtered responses count
   protected $count_filtered = 0;
+  
+  /**
+   * Cache
+   */
+  protected $use_cache;
 
   public function setOrderId($order_id)
   {
@@ -68,6 +73,16 @@ class ChartEvent extends Event
   public function getSurveyType()
   {
     return $this->survey_type;
+  }
+  
+  public function setCacheUsage($yes)
+  {
+    $this->use_cache = (!empty($yes));
+  }
+  
+  public function getCacheUsage()
+  {
+    return (!empty($this->use_cache));
   }
   
   public function getBrands()

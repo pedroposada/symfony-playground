@@ -16,6 +16,13 @@ class Assembler
   protected $params;
   protected $responses;
   protected $dispatcher;
+  
+  /**
+   * Cache
+   */
+  public $use_cache = FALSE;
+  private static $cached_responses;
+  private $event_cache_usage = FALSE;
 
   public function __construct(ContainerInterface $container)
   {
@@ -42,20 +49,42 @@ class Assembler
     $event->setOrderId($order_id);
     $event->setChartMachineName($machine_name);
     $event->setFilters($drilldown);
-    $fqg = $this->em->getReference('PSLClipperBundle:FirstQGroup', $order_id);
-    $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg, array('updated' => 'DESC'));
-    $responses = new ArrayCollection($responses);
-    $event->setCountTotal($responses->count());
     
+    // get responses on cache
+    $responses = FALSE;
+    if ($this->use_cache) {
+      $key = array($order_id, $drilldown);
+      $key = json_encode($key);
+      $key = hash('sha256', $key, FALSE);      
+      if (isset(self::$cached_responses[$key])) {
+        $responses = self::$cached_responses[$key];
+      }
+    }
+    if ($responses === FALSE) {
+      $fqg = $this->em->getReference('PSLClipperBundle:FirstQGroup', $order_id);
+      $responses = $this->em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg, array('updated' => 'DESC'));
+      $responses = new ArrayCollection($responses);
+      if ($this->use_cache) {
+        self::$cached_responses[$key] = $responses;
+      }
+    }    
+    $event->setCountTotal($responses->count());
+        
     if ($first = $responses->first()) {
       $event->setData($responses);
       $event->setSurveyType($survey_type);
       $event->setBrands($first->getFirstqgroup()->getFormDataByField('brands'));
       $event->setAttributes($first->getFirstqgroup()->getFormDataByField('attributes'));
+      $event->setCacheUsage($this->event_cache_usage);
       $this->dispatcher->dispatch(ClipperEvents::CHART_PROCESS, $event);
     }
     
     return $event;
+  }
+  
+  public function setCacheUsage($yes)
+  {
+    $this->event_cache_usage = (!empty($yes));
   }
     
   /**

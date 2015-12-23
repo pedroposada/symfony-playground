@@ -26,6 +26,7 @@ class DownloadsController extends Controller
    *
    * @QueryParam(name="order_id", default=false, strict=true, nullable=false, allowBlank=false, description="FirstQGroup UUID")
    * @QueryParam(name="type", default="xls", nullable=true, description="Export file type.")
+   * @QueryParam(name="file", default="", nullable=true, description="Export file name.")
    *
    * @return Symfony\Component\HttpFoundation\Response;
    */
@@ -37,6 +38,7 @@ class DownloadsController extends Controller
 
     $order_id = $paramFetcher->get('order_id');
     $type     = $paramFetcher->get('type');
+    $filename = $paramFetcher->get('file');
 
     if (empty($order_id)) {
       throw new Exception("Missing Order ID.");
@@ -45,6 +47,13 @@ class DownloadsController extends Controller
     try {
       //@TODO review cache strategies
       $charts = $this->getChartsByOrderId($order_id);
+      
+      // check if empty
+      foreach ($charts as $chart) {
+        if (empty($chart['datatable'])) {
+          throw new Exception("Requested Order-ID did not have any responses.");     
+        }
+      }
 
       //prep data structure
       $data = array(
@@ -85,23 +94,26 @@ class DownloadsController extends Controller
         }
       }      
       // combination drilldown - country & specialty (dual): @see CLIP-69:v2
+      // since FirstView: if have more than one specialty
       $locations = array_merge($data['available-drilldown']['countries'], $data['available-drilldown']['regions']);
       $locations = array_filter($locations);
       $locations = array_unique($locations);
-      foreach ((array) $locations as $location) {
-        foreach ((array) $data['available-drilldown']['specialties'] as $specialty) {
-          $filter_set = array(
-            'country'   => $location,
-            'specialty' => $specialty,
-          );
-          $data['combined-filtered'][] = array(
-            'filters' => $filter_set,
-            'data'    => $this->getChartsByOrderId($order_id, $filter_set),
-          );
+      if (count($data['available-drilldown']['specialties']) > 1) {
+        foreach ($locations as $location) {
+          foreach ($data['available-drilldown']['specialties'] as $specialty) {
+            $filter_set = array(
+              'country'   => $location,
+              'specialty' => $specialty,
+            );
+            $data['combined-filtered'][] = array(
+              'filters' => $filter_set,
+              'data'    => $this->getChartsByOrderId($order_id, $filter_set),
+            );
+          }
         }
       }
       $assembler = $this->container->get('download_assembler');
-      return $assembler->getDownloadFile($order_id, $this->survey_type, $type, $data);
+      return $assembler->getDownloadFile($order_id, $this->survey_type, $type, $data, $filename);
     }
     catch(Exception $e) {
       $content = "{$e->getMessage()} - File [{$e->getFile()}] - Line [{$e->getLine()}]";
@@ -126,6 +138,9 @@ class DownloadsController extends Controller
     if (empty($this->survey_type)) {
       $this->survey_type = $charts_helper->getSurveyType();
     }
+    // cache setting; enable both
+    $charts_helper->setCacheUsageOnAssembler(TRUE);
+    $charts_helper->setCacheUsageOnChart(TRUE);
     $charts_data = $charts_helper->getCharts();
     return $charts_data['charts'];
   }
