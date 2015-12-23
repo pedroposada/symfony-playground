@@ -17,6 +17,13 @@ class PromVsDetrPromote extends ChartType {
   //differences of 'pro' against 'det'
   private $brands_scores_results = array();
   private $answer_set            = array();
+  
+  // Brand [OTHER]
+  // string; "Other" brand label.
+  public static $brand_other        = 'Other';
+  // boolean|integer; flag to skip "Other" brand, Or int value of NPS.
+  public static $ignore_brand_other = FALSE;
+  
   /**
    * Method call to return chart data.
    * @method dataTable
@@ -31,7 +38,11 @@ class PromVsDetrPromote extends ChartType {
   public function dataTable(ChartEvent $event) {
     //prep other attributes
     parent::$decimal_point = 1;
-
+    
+    if (self::$ignore_brand_other !== FALSE) {
+      $this->brands[] = self::$brand_other;
+    }
+    
     //create basic structure for @var $this->brands_scores
     $score_set = array_combine(
       array_keys(parent::$net_promoters_cat_range), 
@@ -39,8 +50,7 @@ class PromVsDetrPromote extends ChartType {
         array(
           'c'   => 0, //count / use for base 
           't'   => 0, //total
-          'cal' => 0, //slide calculation
-          'p'   => 0, //percentage
+          'cal' => 0, //slide calculation / percentage
         )
       )
     );
@@ -73,7 +83,6 @@ class PromVsDetrPromote extends ChartType {
       $data = array('brand' => $brand);
       foreach (parent::$net_promoters_cat_range as $type => $et) {
         $data[$type . 's']       = $this->brands_scores[$brand][$type]['cal'];
-        $data[$type . 's_prec']  = $this->brands_scores[$brand][$type]['p'];
         $data[$type . 's_count'] = $this->brands_scores[$brand][$type]['c'];
       }
       $data['diff'] = $result;
@@ -82,7 +91,11 @@ class PromVsDetrPromote extends ChartType {
 
     // "How much more of my brand do Promoters use compared to Detractors?"
     $event->setTitleLong("How much more of my brand do Promoters use compared to Detractors?");
-
+    
+    if (self::$ignore_brand_other !== FALSE) {
+      array_pop($this->brands);
+    }
+    
     return $dataTable;
   }
 
@@ -131,13 +144,18 @@ class PromVsDetrPromote extends ChartType {
 
     //getting answers
     $answers = $response->getResponseDecoded();
+    
     //filtering answers to which related question
-    $answers_que  = $this->filterAnswersToQuestionMap($answers, 'int');
+    $answers_que  = $this->filterAnswersToQuestionMapViaBrand($answers, 'int');
+    
     //filtering answers for promote-scale
-    $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
+    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers, self::$ignore_brand_other);
 
     //values assignments
     foreach ($this->brands as $brand) {
+      if (is_null($answers_type[$brand])) {
+        continue;
+      }
       //update brands' scores
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
       $this->brands_scores[$brand][$type]['c']++;
@@ -182,20 +200,14 @@ class PromVsDetrPromote extends ChartType {
     foreach ($this->answer_set as $type => $empty) {
       $count = $this->brands_scores[$brand][$type]['c'];
       $count = max(1, $count);
-      $$type = $this->brands_scores[$brand][$type]['cal'] = $this->brands_scores[$brand][$type]['t'] / $count;
+      $$type = ($this->brands_scores[$brand][$type]['t'] / $count);
+      $this->brands_scores[$brand][$type]['cal'] = $this->roundingUpValue($$type, 1, FALSE, PHP_ROUND_HALF_DOWN);
       $total_count += $this->brands_scores[$brand][$type]['c'];
     }
-    if (!empty($total_count)) {
-      foreach ($this->answer_set as $type => $empty) {
-        $percentage = (($this->brands_scores[$brand][$type]['c'] / $total_count) * 100);
-        $this->brands_scores[$brand][$type]['p'] = $this->roundingUpValue($percentage);
-      }
+    $result = 0;
+    if ($detractor) {
+      $result = (($promoter / $detractor) * 100);
     }
-    $result = ($promoter - $detractor);
-    if (!empty($detractor)) {
-      $result = ($result / $detractor);
-      $result *= 100;
-    }
-    $this->brands_scores_results[$brand] = $this->roundingUpValue($result);
+    $this->brands_scores_results[$brand] = $this->roundingUpValue($result, 1, FALSE, PHP_ROUND_HALF_DOWN);
   }
 }

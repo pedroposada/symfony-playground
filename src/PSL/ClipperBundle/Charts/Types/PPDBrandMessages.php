@@ -16,6 +16,8 @@ class PPDBrandMessages extends ChartType {
   private $result = array();
   private $counts = array();
   
+  private $questions = array();
+  
   private $brand_filter = FALSE;
 
   /**
@@ -46,6 +48,8 @@ class PPDBrandMessages extends ChartType {
       $this->brand_filter = $filters['brand'];
     }
     
+    $this->qcode_clean = array_values($this->qcode);
+    
     //prep calculation structure
     $set = array_keys(parent::$net_promoters_cat_range);
     $set = array_flip($set);
@@ -58,15 +62,16 @@ class PPDBrandMessages extends ChartType {
     
 
     //get set of question
-    $questions = $event->getAttributes();
-
+    $this->questions = $event->getAttributes();
+    $this->questions = array_combine(array_keys($this->qcode), $this->questions);
+    
     //extract respondent
     foreach ($event->getData() as $response) {
       //update @var $this->result
       //update @var $this->counts
       $this->extractRespondent($response);
     }
-
+    
     //final calculation
     foreach ($this->qcode as $qindex => $qcode) {
       foreach ($this->counts as $type => $info) {
@@ -75,7 +80,7 @@ class PPDBrandMessages extends ChartType {
           continue;  
         }
         $this->result[$qcode][$type]['perc'] = (($this->result[$qcode][$type]['count'] / $info['count']) * 100);
-        $this->result[$qcode][$type]['perc'] = $this->roundingUpValue($this->result[$qcode][$type]['perc']);
+        $this->result[$qcode][$type]['perc'] = $this->roundingUpValue($this->result[$qcode][$type]['perc'], 0, FALSE, PHP_ROUND_HALF_DOWN);
       }
       $this->result[$qcode]['diff'] = ($this->result[$qcode]['promoter']['perc'] - $this->result[$qcode]['detractor']['perc']);
       $this->result[$qcode]['diff'] = $this->roundingUpValue($this->result[$qcode]['diff'], 0);
@@ -93,7 +98,7 @@ class PPDBrandMessages extends ChartType {
         $key += 1;
       }
       $dataTable[$key] = array(
-        'message'          => $questions[$qindex],
+        'message'          => $this->questions[$qindex],
         'detractors'       => $this->result[$qcode]['detractor']['perc'],
         'detractors_count' => $this->result[$qcode]['detractor']['count'],
         'passives'         => $this->result[$qcode]['passive']['perc'],
@@ -103,7 +108,7 @@ class PPDBrandMessages extends ChartType {
         'lcl'              => $this->result[$qcode]['confidence']['low'],
         'hcl'              => $this->result[$qcode]['confidence']['high'],
       );
-      unset($questions[$qindex]);
+      unset($this->questions[$qindex]);
       unset($this->result[$qcode]);
     }
     
@@ -146,21 +151,23 @@ class PPDBrandMessages extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answers_que = $this->filterAnswersToQuestionMap($answers, 'y/n');
-
+    $answers_que = $this->filterAnswersToQuestionMapIntoViaMessages($answers, $this->questions);
+    // $answers_que = array_map('array_filter', $answers_que);
+    
     //filtering answers for promote-scale
-    $answers_type = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
-
+    $answers_type = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
+    
     foreach ($this->brands as $brand) {
       if ((!empty($this->brand_filter)) && ($this->brand_filter != $brand)) {
         continue;
       }
       $type = $this->identifyRespondentCategory($answers_type[$brand]);
-      $this->counts[$type]['count']++;
-      foreach ($this->qcode as $qindex => $qcode) {
-        if (!empty($answers_que[$brand][$qindex])) {
-          $this->result[$qcode][$type]['count'] += $answers_que[$brand][$qindex];          
-        }
+      if (!is_null($answers_type[$brand])) {
+        $this->counts[$type]['count']++;
+      }      
+      foreach ($answers_que[$brand] as $valindex => $val) {
+        $val = (int) $val;
+        $this->result[$this->qcode_clean[$valindex]][$type]['count'] += $val;
       }
     }
   }

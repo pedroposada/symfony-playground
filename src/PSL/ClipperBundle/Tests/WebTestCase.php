@@ -93,6 +93,9 @@ abstract class WebTestCase extends BaseWebTestCase
         );
 
         $response = $client->getResponse();
+        if (!$response->isSuccessful()) {
+            return FALSE;
+        }
         $data     = json_decode($response->getContent(), true);
 
         return static::makeClient(
@@ -211,7 +214,8 @@ abstract class WebTestCase extends BaseWebTestCase
                    ->setParameter('state', $order_status)
                    ->setParameter('raw_like', '%"survey_type":"' . $survey_type . '%')
                    ->getQuery()
-                   ->getSingleResult();
+                   ->getResult();
+      $group = current($group);
 
       if (!empty($return_one) && ($return_one !== FALSE)) {
         try {

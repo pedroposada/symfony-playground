@@ -17,6 +17,9 @@ use \Exception;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+// special requirement
+use PSL\ClipperBundle\Charts\Types\PromVsDetrPromote;
+
 class ClipperChartsService {
   private $container;
   private $em;
@@ -47,6 +50,9 @@ class ClipperChartsService {
   private $fields = array();
   // array : Compile charts
   private $charts = array();
+  
+  // array : ChartEvent
+  private $chEvent;
 
   private static $customTokenEnclosure = '%%';
   private static $chartEventQueryMap = array(
@@ -60,6 +66,11 @@ class ClipperChartsService {
   );
   
   private static $js_charttype_postfix = '_Chart';
+  /**
+   * Cache
+   */
+  public $use_cache_assember = FALSE;
+  public $use_cache_chart = FALSE;
 
   public function __construct(ContainerInterface $container) 
   {
@@ -67,6 +78,12 @@ class ClipperChartsService {
     $this->em = $this->container->get('doctrine')->getManager();
   }
   
+  /**
+   * Method to set order by order-id.
+   * @method setOrderID
+   *
+   * @param  string $order_id
+   */
   public function setOrderID($order_id) 
   {
     $fqg = $this->em->getRepository('PSLClipperBundle:FirstQGroup')->find($order_id);
@@ -84,6 +101,13 @@ class ClipperChartsService {
     $this->survey_type = $survey_type;
   }
   
+  /**
+   * Method to set chart Drilldown.
+   * @method setDrillDown
+   *
+   * @param  array $drilldown
+   * @param  boolean $apply_to_specific_chart
+   */
   public function setDrillDown($drilldown = array(), $apply_to_specific_chart = FALSE) 
   {
     //sanitize drilldown
@@ -104,21 +128,67 @@ class ClipperChartsService {
     }
   }
   
+  /**
+   * Method to set returning chart's Fields.
+   * @method setReturnFields
+   *
+   * @param  array $return_survey_fields
+   */
   public function setReturnFields($return_survey_fields = array())
   {
     $this->return_survey_fields = (array) $return_survey_fields;
   }
   
+  /**
+   * Method to set returning chart's Extras.
+   * @method setReturnChartExtras
+   *
+   * @param  array $return_charts_extra
+   */
   public function setReturnChartExtras($return_charts_extra = array())
   {
     $this->return_charts_extra  = (array) $return_charts_extra;
   }
   
+  /**
+   * Method to set returning chart's Customs.
+   * @method setReturnChartCustoms
+   *
+   * @param  array $return_charts_custom
+   */
   public function setReturnChartCustoms($return_charts_custom = array())
   {
     $this->return_charts_custom = (array) $return_charts_custom;
   }
   
+  /**
+   * Method to set Cache on Chart assembler level, defaulting to No.
+   * @method setCacheUsageOnAssembler
+   *
+   * @param  boolean $yes
+   */
+  public function setCacheUsageOnAssembler($yes) {
+    
+    $this->use_cache_assember = (!empty($yes));
+  }
+  
+  /**
+   * Method to set Cache on Chart Type level, defaulting to No.
+   * @method setCacheUsageOnChart
+   *
+   * @param  boolean $yes
+   */
+  public function setCacheUsageOnChart($yes) {
+    
+    $this->use_cache_chart = (!empty($yes));
+  }
+  
+  /**
+   * Method to get selected order survey type.
+   * @method getSurveyType
+   *
+   * @return string
+   */
   public function getSurveyType() 
   {
     if (empty($this->order_id)) {
@@ -127,67 +197,72 @@ class ClipperChartsService {
     return $this->survey_type;
   }
 
+  /**
+   * Method to return Chart complete array set based on sets vars.
+   * @method getCharts
+   *
+   * @return array
+   */
   public function getCharts()
   {
-    //sanitize
+    // sanitize properties
     $this->prepProperties();
-    
-    $map = $this->container->get('survey_chart_map')->map($this->survey_type);
-    $assembler = $this->container->get('chart_assembler');
-
     $this->charts = new ArrayCollection();
+    
+    // get map
+    $map = $this->container->get('survey_chart_map')->map($this->survey_type);
+    
+    // get assembler
+    $assembler = $this->container->get('chart_assembler');
+    // apply cache setting
+    $assembler->use_cache = $this->use_cache_assember;
+    $assembler->setCacheUsage($this->use_cache_chart);
+        
+    // loop to each charts
     foreach ($map['machine_names'] as $index => $machine_name) {
+      // drilldown
       $drilldown = array();
-      if ($this->drilldown_on_specific_chart === FALSE) {
+      // get drill down if:
+      if (
+        // not applied to specific chart, OR
+        ($this->drilldown_on_specific_chart === FALSE) 
+        ||
+        (
+          // specific chart and only to current slide
+          (!empty($this->drilldown_on_specific_chart)) 
+          && 
+          (in_array($machine_name, $this->drilldown_on_specific_chart))
+        )
+      ) {
         $drilldown = $this->drilldown;
       }
-      elseif ((!empty($this->drilldown_on_specific_chart)) && (in_array($machine_name, $this->drilldown_on_specific_chart))) {
-        $drilldown = $this->drilldown;
-      }
-      $chEvent = $assembler->getChartEvent($this->order_id, $machine_name, $this->survey_type, $drilldown);
+      
+      // get chart data
+      $this->chEvent = $assembler->getChartEvent($this->order_id, $machine_name, $this->survey_type, $drilldown);
       $chart = array('chartmachinename' => $machine_name);
-      //default
-      if (!empty($this->return_charts_extra)) {
-        foreach ($this->return_charts_extra as $key) {
-          if (isset(self::$chartEventQueryMap[$key])) {
-            $f = self::$chartEventQueryMap[$key];
-            $chart[$key] = $chEvent->$f();
-          }
-        }
-      }
-      //custom
-      if (!empty($this->return_charts_custom)) {
-        foreach ($this->return_charts_custom as $key => $mod) {
-          if (strpos($mod, self::$customTokenEnclosure . 'machine_name' . self::$customTokenEnclosure) !== FALSE) {
-            $chart[$key] = str_replace(self::$customTokenEnclosure . 'machine_name' . self::$customTokenEnclosure, $machine_name, $mod);
-          }
-          else {
-            $rex = preg_quote(self::$customTokenEnclosure, '/');
-            $rex = '/' . $rex . '(.*)' . $rex . '/';
-            $mods = array();
-            preg_match($rex, $mod, $mods);
-            $mods = end($mods);
-            if (isset(self::$chartEventQueryMap[$mods])) {
-              $f = self::$chartEventQueryMap[$mods];
-              $data = $chEvent->$f();
-              $data = str_replace(self::$customTokenEnclosure . $mods . self::$customTokenEnclosure, $data, $mod);
-              $chart[$key] = $data;
-            }
-            else {
-              $chart[$key] = $mod;
-            }
-          }
-        }
-      }
+      
+      // get chart data; default - extra
+      $this->getChartExtraData($chart);
+      
+      // get chart data; custom
+      $this->getChartCustomData($chart, $machine_name);
+            
       $this->charts->add($chart);
-    }
-
+    } // foreach $map['machine_names'];
+    
+    // return data
     return array(
       'fields' => $this->fields,
       'charts' => $this->charts,
     );
   }
   
+  /**
+   * Method to return order Quota.
+   * @method getQuotas
+   *
+   * @return array
+   */
   public function getQuotas()
   {
     $markets     = $this->fqg->getFormDataByField('markets');
@@ -196,6 +271,12 @@ class ClipperChartsService {
     return $this->container->get('quota_map')->lookupMultiple($markets, $specialties);
   }
   
+  /**
+   * Method to prepare order survey properties, sanitized to preset vars.
+   * @method prepProperties
+   *
+   * @return void
+   */
   private function prepProperties() 
   {
     //defaulting fields
@@ -231,6 +312,86 @@ class ClipperChartsService {
       $data = reset($data);
       $this->survey_type = $data;
     }
+  }
+  
+  /**
+   * Method to get chart Extra Data, as per preset var.
+   * @method getChartExtraData
+   * 
+   * @var $this->return_charts_extra
+   *
+   * @param  array &$chart
+   *
+   * @return void
+   */
+  private function getChartExtraData(&$chart)
+  {
+    if (empty($this->return_charts_extra)) {
+      return;
+    }
+    
+    // special requirement
+    if ($this->survey_type == 'nps_plus') {
+      switch ($chart['chartmachinename']) {
+        case 'PromVsDetrPromote':
+          if (PromVsDetrPromote::$ignore_brand_other === FALSE) {
+            break;
+          }
+          $brands = $this->chEvent->getBrands();
+          $brands[] = PromVsDetrPromote::$brand_other;
+          $this->chEvent->setBrands($brands);
+          break;
+      } // switch
+    }
+    
+    foreach ($this->return_charts_extra as $key) {
+      if (isset(self::$chartEventQueryMap[$key])) {
+        $f = self::$chartEventQueryMap[$key];
+        $chart[$key] = $this->chEvent->$f();
+      }
+    }
+  }
+  
+  /**
+   * Method to get chart Custom Data, as per preset var.
+   * @method getChartCustomData
+   * 
+   * @var $this->return_charts_custom
+   *
+   * @param  array &$chart
+   * @param  string $machine_name
+   *
+   * @return void
+   */
+  private function getChartCustomData(&$chart, $machine_name)
+  {
+    if (empty($this->return_charts_custom)) {
+      return;
+    }
+    
+    foreach ($this->return_charts_custom as $key => $mod) {
+      $mock_name = self::$customTokenEnclosure . 'machine_name' . self::$customTokenEnclosure;
+      if (strpos($mod, $mock_name) !== FALSE) {
+        $chart[$key] = str_replace($mock_name, $machine_name, $mod);
+        continue; // foreach
+      }
+      
+      $rex = preg_quote(self::$customTokenEnclosure, '/');
+      $rex = '/' . $rex . '(.*)' . $rex . '/';
+      $mods = array();
+      preg_match($rex, $mod, $mods);
+      $mods = end($mods);
+      if (isset(self::$chartEventQueryMap[$mods])) {
+        $mock_name = self::$customTokenEnclosure . $mods . self::$customTokenEnclosure;
+        $func = self::$chartEventQueryMap[$mods];
+        $data = $this->chEvent->$func();
+        $data = str_replace($mock_name, $data, $mod);
+        $chart[$key] = $data;
+      }
+      else {
+        $chart[$key] = $mod;
+      }      
+    } // foreach
   }
   
   /**

@@ -13,6 +13,7 @@ use PSL\ClipperBundle\Charts\Types\ChartType;
 
 class PPDBrandMessagesByBrands extends ChartType {
   private $results = array();
+  private $questions = array();
   
   /**
    * Method call to return chart data.
@@ -30,13 +31,14 @@ class PPDBrandMessagesByBrands extends ChartType {
     $event->setTitleLong('Download: What does my brand represent to Promoters as compared to Detractors by brands?');
 
     //prep result
-    $questions = $event->getAttributes();
+    $this->questions = $event->getAttributes();
     $cats = array_combine(array_keys(parent::$net_promoters_cat_range), array_fill(0, count(parent::$net_promoters_cat_range), array(
       'count' => 0, // type-count
       'base'  => 0, // who are aware of the brand & say yes
       'perc'  => 0,
     )));
-    $default = array_combine(array_keys($questions), array_fill(0, count($questions), $cats));
+    $cats = array_merge($cats, array('diff' => 0));
+    $default = array_combine(array_keys($this->questions), array_fill(0, count($this->questions), $cats));
     $this->results = array_combine($this->brands, array_fill(0, count($this->brands), array()));
     array_walk($this->results, function(&$set, $index) use ($default) {
       $set = $default;
@@ -57,7 +59,7 @@ class PPDBrandMessagesByBrands extends ChartType {
     }
     
     return array(
-      'questions' => $questions,
+      'questions' => $this->questions,
       'brands'    => $this->results,
     );
   }
@@ -92,18 +94,21 @@ class PPDBrandMessagesByBrands extends ChartType {
   private function extractRespondent(LimeSurveyResponse $response) {
     //getting answers
     $answers = $response->getResponseDecoded();
-    $answersQue = $this->filterAnswersToQuestionMap($answers, 'y/n');
+    $answersQue = $this->filterAnswersToQuestionMapIntoViaMessages($answers, $this->questions);
     
     //filtering answers for promote-scale
-    $answersType = $this->filterAnswersToQuestionMap($answers, 'int', $this->map[parent::$net_promoters]);
+    $answersType = $this->filterAnswersToQuestionMapViaNetPromoter($answers);
     
     foreach ($this->brands as $brand) {
+      if (empty($answersQue[$brand])) {
+        continue;
+      }
       $type = $this->identifyRespondentCategory($answersType[$brand]);
       foreach ($answersQue[$brand] as $qIndex => $qAnswer) {
-        $this->results[$brand][$qIndex][$type]['count']++;
-        if (!empty($qAnswer)) {
-          $this->results[$brand][$qIndex][$type]['base']++;          
+        if (!is_null($answersType[$brand])) {
+          $this->results[$brand][$qIndex][$type]['base']++;
         }
+        $this->results[$brand][$qIndex][$type]['count'] += (int) $qAnswer;
       }
     }
   }
@@ -120,10 +125,22 @@ class PPDBrandMessagesByBrands extends ChartType {
     foreach ($result as $ques_index => $ques_set) {
       foreach (parent::$net_promoters_cat_range as $type => $val) {
         if (!empty($ques_set[$type]['count'])) {
-          $result[$ques_index][$type]['perc'] = $this->roundingUpValue((($ques_set[$type]['base'] / $ques_set[$type]['count']) * 100));
+          $calc = (($ques_set[$type]['count'] / $ques_set[$type]['base']) * 100);
+          $result[$ques_index][$type]['perc'] = $this->roundingUpValue($calc, 0, FALSE, PHP_ROUND_HALF_UP);
         }
         unset($result[$ques_index][$type]['count']);
+      } // nps
+      
+      $result[$ques_index]['question'] = $this->questions[$ques_index];
+      $diff = ($result[$ques_index]['promoter']['perc'] - $result[$ques_index]['detractor']['perc']);
+      $result[$ques_index]['diff'] = $this->roundingUpValue($diff, 2, FALSE, PHP_ROUND_HALF_UP);
+    } // $result
+    
+    usort($result, function ($a, $b) {
+      if ($a['diff'] == $b['diff']) {
+        return 0;
       }
-    }
+      return (($a['diff'] > $b['diff']) ? -1 : 1);
+    });
   }
 }

@@ -132,7 +132,6 @@ class ChartsControllerTest extends WebTestCase
       'drilldown',
       'filter',
       'countTotal',
-      'countFiltered',
       'datatable',
       'titleLong',
       'charttype',

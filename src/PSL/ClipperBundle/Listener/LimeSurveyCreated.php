@@ -104,12 +104,12 @@ class LimeSurveyCreated extends FqProcess
     if (empty($dbconfig_validate)) {
       throw new Exception("rPanel database.translateapi parameters is missing.");
     }
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
-    $conn->connect(); // connects and immediately starts a new transaction
-    $rps->setConnection($conn);
+    $conn_translateapi = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
+    $conn_translateapi->connect(); // connects and immediately starts a new transaction
+    $rps->setConnection($conn_translateapi);
 
     try {
-      $conn->beginTransaction();
+      $conn_translateapi->beginTransaction();
 
       // Create Feasibility Project (one to many)
       if (!$fqg->getProjId()) {
@@ -126,11 +126,9 @@ class LimeSurveyCreated extends FqProcess
 
       // Update Feasibility Project - Launch project
       $rps->updateFeasibilityProject($rpanel_project);
-
-      $conn->commit();
     }
     catch (\Exception $e) {
-      $conn->rollBack();
+      $conn_translateapi->rollBack();
       $message = $e->getMessage();
       throw new Exception("rPanel database connection error: (databases.translateapi) [{$message}]");
     }
@@ -149,12 +147,12 @@ class LimeSurveyCreated extends FqProcess
     if (empty($dbconfig_validate)) {
       throw new Exception("rPanel database.rpanel parameters is missing.");
     }
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
-    $conn->connect(); // connects and immediately starts a new transaction
-    $rps->setConnection($conn);
+    $conn_rpanel = \Doctrine\DBAL\DriverManager::getConnection($dbconfig, $config);
+    $conn_rpanel->connect(); // connects and immediately starts a new transaction
+    $rps->setConnection($conn_rpanel);
 
     try {
-      $conn->beginTransaction();
+      $conn_rpanel->beginTransaction();
 
       // Create Project (one to many)
       if (!$fqg->getProjectSk()) {
@@ -177,14 +175,19 @@ class LimeSurveyCreated extends FqProcess
 
       // PROJECT_DETAIL_TEXTINVITES
       $rps->createProjectDetailTextinvites($rpanel_project);
-
-      $conn->commit();
+      
+      // Commit both
+      $conn_translateapi->commit();
+      $conn_rpanel->commit();
     }
     catch (\Exception $e) {
-      $conn->rollBack();
+      // Revert both connections
+      $conn_translateapi->rollBack();
+      $conn_rpanel->rollBack();
       $message = $e->getMessage();
       throw new Exception("rPanel database connection error: (databases.rpanel) [{$message}]");
     }
+    
   }
 
   /**
