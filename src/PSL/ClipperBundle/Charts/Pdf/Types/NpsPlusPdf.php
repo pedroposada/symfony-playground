@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * file: PSL\ClipperBundle\Charts\Pdf\Types\NpsPlusPdf.php
+ * service: clipper.charts.pdf.nps_plus
+ * 
  * Create reports in pdf format for NPS Plus surveys
  **/
 
