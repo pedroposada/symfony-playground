@@ -209,8 +209,10 @@ class ChartsController extends FOSRestController
           'twig' => 'PSLClipperBundle:Charts:nps_plus/introduction.html.twig',
           'placeholders' => array(
             'main_title' => 'NPS+ Multiple Sclerosis',
-            'section_title' => 'About NPS+',
           )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/tableofcontents.html.twig'
         ),
         array(
           'twig' => 'PSLClipperBundle:Charts:nps_plus/chart01.html.twig',
@@ -282,6 +284,336 @@ class ChartsController extends FOSRestController
                   }
                ]
             }'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart03.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '{
+               "satisfied":{
+                  "amount":52,
+                  "exclusive":{
+                     "amount":15
+                  },
+                  "shared":{
+                     "amount":36
+                  }
+               },
+               "dissatisfied":{
+                  "amount":48
+               }
+            }'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart04.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '{
+               "overall": {
+                  "base": 11,
+                  "mean": 0.9
+                },
+               "brands": {
+                  "Tysabri": {
+                    "base": 3,
+                    "mean": 1
+                  },
+                  "Tecfidera": {
+                    "base": 3,
+                    "mean": 1
+                  },
+                  "Gilenya": {
+                    "base": 2,
+                    "mean": 1.1
+                  },
+                  "Rebif": {
+                    "base": 2,
+                    "mean": 1.1
+                  },
+                  "Copaxone": {
+                    "base": 1,
+                    "mean": 1.3
+                  }
+                }
+            }'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart05.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '[
+               {
+                 "brand": "Tysabri",
+                 "competitors": {
+                   "Tecfidera": 67
+                 }
+               },
+               {
+
+                 "brand": "Tecfidera",
+                 "competitors": {
+                   "Tysabri": 58
+                 }
+               },
+               {
+                 "brand": "Rebif",
+                 "competitors": {
+                   "Copaxone": 87
+                 }
+               },
+               {
+                 "brand": "Copaxone",
+                 "competitors": {
+                   "Rebif": 68
+                 }
+               },
+               {
+                 "brand": "Gilenya",
+                 "competitors": {
+                   "Tecfidera": 83
+                 }
+               }
+            ]'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart06.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '[
+               {
+                 "brand": "Tysabri",
+                 "competitors": {
+                   "Tecfidera": 12,
+                   "Rebif": 7,
+                   "Copaxone": 11,
+                   "Gilenya": 5
+                 }
+               },
+               {
+                 "brand": "Tecfidera",
+                 "competitors": {
+                   "Tysabri": 7,
+                   "Rebif": 17,
+                   "Copaxone": 22,
+                   "Gilenya": 2
+                 }
+               },
+               {
+                 "brand": "Rebif",
+                 "competitors": {
+                   "Tysabri": 22,
+                   "Tecfidera": 25,
+                   "Copaxone": 9,
+                   "Gilenya": 6
+                 }
+               },
+               {
+                 "brand": "Copaxone",
+                 "competitors": {
+                   "Tysabri": 20,
+                   "Tecfidera": 20,
+                   "Rebif": 2,
+                   "Gilenya": 4
+                 }
+               },
+               {
+                 "brand": "Gilenya",
+                 "competitors": {
+                   "Tecfidera": 16,
+                   "Tysabri": 22,
+                   "Copaxone": 6,
+                   "Rebif": 12
+                 }
+               }
+            ]'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart07.html.twig',
+          'placeholders' => array(
+            'chart_datatable' => '[
+               {
+                  "brand":"Tysabri",
+                  "promoters": 11.8,
+                  "detractors": 2.6,
+                  "diff": 354
+               },
+               {
+                  "brand":"Tecfidera",
+                  "promoters": 16.1,
+                  "detractors": 4.4,
+                  "diff": 266
+               },
+               {
+                  "brand":"Gilenya",
+                  "promoters": 7.3,
+                  "detractors": 2.7,
+                  "diff": 170
+               },
+               {
+                  "brand":"Rebif",
+                  "promoters": 24.5,
+                  "detractors": 9.4,
+                  "diff": 161
+               },
+               {
+                  "brand":"Copaxone",
+                  "promoters": 33,
+                  "detractors": 18.5,
+                  "diff": 78
+               }
+            ]'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart08intro.html.twig',
+          'placeholders' => array(
+            'region' => 'EU5'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart08.html.twig',
+          'placeholders' => array(
+            'subsection_number' => '1',
+            'brand' => 'Aubagio (teriflunomide)',
+            'chart_datatable' => '[
+               {
+                  "message":"Is cost effective",
+                  "detractors":46,
+                  "passives":68,
+                  "promoters":81
+               },
+               {
+                  "message":"Has few side effects",
+                  "detractors":44,
+                  "passives":68,
+                  "promoters":78
+               },
+               {
+                  "message":"Good overall benefits v risk profile",
+                  "detractors":67,
+                  "passives":92,
+                  "promoters":94
+               },
+               {
+                  "message":"Has convenient administration",
+                  "detractors":53,
+                  "passives":64,
+                  "promoters":80
+               },
+               {
+                  "message":"Provides long term safety",
+                  "detractors":61,
+                  "passives":76,
+                  "promoters":86
+               },
+               {
+                  "message":"Allows for good patient compliance",
+                  "detractors":70,
+                  "passives":73,
+                  "promoters":92
+               },
+               {
+                  "message":"Has novel mechanism of action",
+                  "detractors":62,
+                  "passives":65,
+                  "promoters":83
+               },
+               {
+                  "message":"Sustains long term efficacy",
+                  "detractors":72,
+                  "passives":79,
+                  "promoters":89
+               },
+               {
+                  "message":"Positively impacts quality of life",
+                  "detractors":81,
+                  "passives":90,
+                  "promoters":97
+               },
+               {
+                  "message":"Is well tolerated",
+                  "detractors":68,
+                  "passives":84,
+                  "promoters":84
+               },
+               {
+                  "message":"Slows the progression of disability",
+                  "detractors":80,
+                  "passives":87,
+                  "promoters":94
+               },
+               {
+                  "message":"Reduces the number / severity of relapses",
+                  "detractors":93,
+                  "passives":94,
+                  "promoters":99
+               }
+            ]'
+          )
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart09intro.html.twig'
+        ),
+        array(
+          'twig' => 'PSLClipperBundle:Charts:nps_plus/chart09.html.twig',
+          'placeholders' => array(
+            'subsection_number' => '1',
+            'brand' => 'Aubagio',
+            'country' => 'FRANCE',
+            'chart_datatable' => '[
+               {
+                  "brand":"Tecfidera",
+                  "detractors":[
+                     "Expensive now old-fashioned inhaler",
+                     "Second/third line treatment for more difficult patients",
+                     "Expensive and sometimes helps",
+                     "Expensive, been around long time",
+                     "2nd line treatment some cons as high steroid"
+                  ],
+                  "promoters":[
+                     "A trusted first line therapy",
+                     "Prevention of symptoms and improvement in lung function",
+                     "Gold standard",
+                     "Treats symptoms and reduces exacerbations",
+                     "Keeps patients out of hospital"
+                  ]
+               },
+               {
+                  "brand":"Tysabri",
+                  "detractors":[
+                     "Expensive now old-fashioned inhaler",
+                     "Second/third line treatment for more difficult patients",
+                     "Expensive and sometimes helps",
+                     "Expensive, been around long time",
+                     "2nd line treatment some cons as high steroid"
+                  ],
+                  "promoters":[
+                     "A trusted first line therapy",
+                     "Prevention of symptoms and improvement in lung function",
+                     "Gold standard",
+                     "Treats symptoms and reduces exacerbations",
+                     "Keeps patients out of hospital"
+                  ]
+               },
+               {
+                  "brand":"Copaxone",
+                  "detractors":[
+                     "Expensive now old-fashioned inhaler",
+                     "Second/third line treatment for more difficult patients",
+                     "Expensive and sometimes helps",
+                     "Expensive, been around long time",
+                     "2nd line treatment some cons as high steroid"
+                  ],
+                  "promoters":[
+                     "A trusted first line therapy",
+                     "Prevention of symptoms and improvement in lung function",
+                     "Gold standard",
+                     "Treats symptoms and reduces exacerbations",
+                     "Keeps patients out of hospital"
+                  ]
+               }
+            ]'
           )
         ),
         array(
