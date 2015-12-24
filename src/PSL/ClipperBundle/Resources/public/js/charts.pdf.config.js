@@ -97,6 +97,22 @@ var ChartsSettings = {
       textFont: font,
       logo: logoSettings
     },
+    'PromotersPromoteMean_Chart': {
+      bubbles: {
+        opacity: 0.8,
+        strokeColor: white
+      },
+      brandBubble: {
+        fill: bubbleColor
+      },
+      meanBubble: {
+        fill: bubbleMeanColor,
+      },
+      textColor: textColor,
+      textFont: font,
+      textWeight: '600',
+      logo: logoSettings
+    },
     'PromotersPromote_Chart': {
       heatmap: {
         lowerColor:  hexToRgb(heatmapCold), // R, G, B

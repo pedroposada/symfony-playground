@@ -1,0 +1,40 @@
+{#
+	Placeholders:
+		-chart_datatable
+#}
+
+{% extends 'PSLClipperBundle:Charts:nps_plus/base.html.twig' %}
+
+{% set section_title = 'Chart 3: How satisfied is the market?' %}
+{% set chart_type = 'DoctorsPromote_Chart' %}
+
+{% block content %}
+	<p>This chart shows doctor satisfaction with available drugs. It gives the % of:</p>
+
+	<ul>
+		<li><strong>Dissatisfied</strong> doctors i.e. those who promote no drugs.</li>
+		<li><strong>Satisfied</strong> doctors i.e. those who promote at least 1 drug. For these doctors it shows the % that are:
+			<ul>
+				<li>Exclusive i.e. promote only 1 drug.</li>
+				<li>Shared i.e. promote more than 1 drug.</li>
+			</ul>
+		</li>
+	</ul>
+
+	<p>This chart tells you how satisfied a market is with available drugs.</p>
+
+	<ul>
+		<li>A high % of Dissatisfied doctors suggests a high level of unmet needs.</li>
+		<li>A high % of Shared Promoters suggests that the market is satisfied, but may also indicate that:
+			<ul>
+				<li>Brands are not well differentiated.</li>
+				<li>Each brand has a niche use.</li>
+			</ul>
+		</li>
+	</ul>
+
+	{{ include('PSLClipperBundle:Charts:chart.html.twig') }}
+
+	<p><small>Note: numbers are rounded to the nearest whole number</small></p>
+
+{% endblock %}

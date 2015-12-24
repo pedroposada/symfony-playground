@@ -1,0 +1,17 @@
+{#
+	Placeholders:
+		-subsection_number
+		-brand
+		-chart_datatable
+#}
+
+{% extends 'PSLClipperBundle:Charts:nps_plus/base.html.twig' %}
+
+{% set section_title = 'Chart 8.' ~ subsection_number ~ ': What brand messages are associated with ' ~ brand ~ '?' %}
+{% set chart_type = 'PPDBrandMessages_Chart' %}
+
+{% block content %}
+
+	{{ include('PSLClipperBundle:Charts:chart.html.twig') }}
+
+{% endblock %}
