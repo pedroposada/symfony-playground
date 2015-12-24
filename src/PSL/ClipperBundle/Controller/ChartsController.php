@@ -326,7 +326,7 @@ class ChartsController extends FOSRestController
     $logger = $this->container->get('monolog.logger.clipper');
     $order_id = $paramFetcher->get('order_id', ''); // FQG order_id
     $filepath = $this->container->get('kernel')->getRootDir() . '/../web/bundles/pslclipper/zip/';
-    $filename = 'charts.zip';
+    $filename = 'charts-'. $order_id .'.zip';
     $filefull = $filepath . $filename;
 
     $archive = new \ZipArchive();

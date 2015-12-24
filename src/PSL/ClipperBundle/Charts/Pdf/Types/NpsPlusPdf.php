@@ -63,8 +63,11 @@ class NpsPlusPdf
    */
   protected function main(ChartEvent $event)
   {
+    // get data structures
+    $dataStructures = $this->getDataStructures($this->fqg);
+    
     // get pdfs
-    $pdfs = $this->getPdfs();
+    $pdfs = $this->getPdfs($dataStructures);
     
     // set pages in event object
     $event->setPdfFiles($pdfs);
@@ -87,16 +90,19 @@ class NpsPlusPdf
        * @todo: get list of twig files based on values from $dataStructure
        **/
       $tpls = array(
-        'PSLClipperBundle:charts:nps_plus/chart01.html.twig',
-        'PSLClipperBundle:charts:nps_plus/chart01.html.twig',
+        'PSLClipperBundle:charts:nps_plus/chart01.html.twig' => array(),
+        'PSLClipperBundle:charts:nps_plus/chart01.html.twig' => array(),
       );
-      foreach ($tpls as $key => $tpl) {
-        $html = $this->templating->render($tpl);
+      foreach ($tpls as $tpl => $plh) {
+        $html = $this->templating->render($tpl, $plh);
         $pages->add($html);
       }
       // render pages into PDF files
-      $pdf = $this->container->get('knp_snappy.pdf')->getOutputFromHtml($pages); // headless browser
-      $pdfs->add($pdf);
+      // $pdf = $this->container->get('knp_snappy.pdf')->getOutputFromHtml($pages); // headless browser
+      $hash = uniqid();
+      $filepath = $this->container->get('kernel')->getRootDir() . '/../web/bundles/pslclipper/pdf/' . $hash . '.pdf';
+      $this->container->get('knp_snappy.pdf')->generateFromHtml($pages, $filepath); // headless browser
+      $pdfs->add($filepath);
     }
     
     return $pdfs;
@@ -122,12 +128,43 @@ class NpsPlusPdf
      * );
      **/
 
-    // drilldowns - regions
-    $regions = $this->geoMapper->findRegionsByMarkets($fqg->getFormDataByField('markets'));
-    foreach ($regions as $region) {
+    // drilldowns - region
+    $elems = $this->geoMapper->findRegionsByMarkets($fqg->getFormDataByField('markets'));
+    foreach ($elems as $elem) {
       $drilldowns->add(
         array(
-          'region' => $region 
+          'filter_type' => 'region',
+          'filters' => array(
+            'region' => $elem 
+          )
+        )
+      );
+    }
+    // drilldowns - country/brand
+    $cs = $fqg->getFormDataByField('markets');
+    $bs = $fqg->getFormDataByField('brands');
+    foreach ($cs as $c) {
+      foreach ($bs as $b) {
+        $drilldowns->add(
+          array(
+            'filter_type' => 'country/brand',
+            'filters' => array(
+              'country' => $c,
+              'brand' => $b, 
+            )
+          )
+        );
+      }
+    }
+    // drilldowns - brand
+    $elems = $fqg->getFormDataByField('brands');
+    foreach ($regions as $elem) {
+      $drilldowns->add(
+        array(
+          'filter_type' => 'brand',
+          'filters' => array(
+            'brand' => $elem 
+          )
         )
       );
     }
@@ -136,7 +173,11 @@ class NpsPlusPdf
     
     // dataStructures
     foreach ($drilldowns as $filters) {
-      $dataStructures->add($this->chart_helper->getDataStructure($fqg->getId(), $filters));
+      $tmp = array(
+        'filter_type' => $filters['filter_type'],
+        'structure' => $this->chart_helper->getDataStructure($fqg->getId(), $filters['filters'])
+      );
+      $dataStructures->add($tmp);
     }
     
     return $dataStructures;
