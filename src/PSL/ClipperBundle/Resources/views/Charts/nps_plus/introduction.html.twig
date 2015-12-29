@@ -1,6 +1,7 @@
 {#
 	Placeholders:
-		- main_title
+		-main_title
+		-region
 #}
 
 {% extends 'PSLClipperBundle:Charts:nps_plus/base.html.twig' %}
@@ -16,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-	<p>Congratulations on purchasing your FirstView NPS+ Report for Multiple Sclerosis (EU5).</p>
+	<p>Congratulations on purchasing your FirstView NPS+ Report for Multiple Sclerosis ({{ region }}).</p>
 
 	<p>The Net Promoter Score® (NPS) measures overall brand satisfaction. Higher scores point to greater brand usage and are a sign of growth potential.</p>
 
@@ -35,5 +36,5 @@
 
 	<p>See Appendix for details of Net Promoter Score® (NPS) and why it's important.</p>
 
-	<p>This report is based on a survey of 150 EU5 (France, Italy, Germany, Spain, UK) Neurologists surveyed between 2 to 6 November 2015.</p>
+	<p>This report is based on a survey of @TODO: MAKE ALL DYNAMIC 150 {{ region }} (France, Italy, Germany, Spain, UK) Neurologists surveyed between 2 to 6 November 2015.</p>
 {% endblock %}

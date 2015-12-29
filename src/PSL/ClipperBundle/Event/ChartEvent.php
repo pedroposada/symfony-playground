@@ -28,7 +28,7 @@ class ChartEvent extends Event
   // ArrayCollection pdfFiles
   protected $pdfFiles;
   // ArrayCollection of twigs and placeholders
-  protected $pdfMap;
+  protected $pdfMaps;
   
   //available "drilldown" option by survey_type
   protected static $drilldown_keys = array('countries', 'specialties', 'regions');
@@ -218,9 +218,9 @@ class ChartEvent extends Event
     return $this->titleLong;
   }
 
-  public function setPdfFiles(ArrayCollection $pdfs)
+  public function setPdfFiles(ArrayCollection $pdfFiles)
   {
-    $this->pdfs = $pdfFiles;
+    $this->pdfFiles = $pdfFiles;
   }
 
   public function getPdfFiles()
@@ -228,13 +228,13 @@ class ChartEvent extends Event
     return $this->pdfFiles;
   }
 
-  public function getPdfMap()
+  public function getPdfMaps()
   {
-    return $this->pdfMap;
+    return $this->pdfMaps;
   }
 
-  public function setPdfMap($pdfMap)
+  public function setPdfMaps($pdfMaps)
   {
-    $this->pdfMap = $pdfMap;
+    $this->pdfMaps = $pdfMaps;
   }
 }

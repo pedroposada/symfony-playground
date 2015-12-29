@@ -396,7 +396,7 @@ class GeoMapper {
     $regions = array();
     
     foreach ((array)$markets as $market) {
-      foreach ($this->map as $region => $countries) {
+      foreach (self::$map as $region => $countries) {
         if (in_array($market, $countries)) {
           $regions[$region] = $region;
         }
