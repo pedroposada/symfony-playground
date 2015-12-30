@@ -175,9 +175,9 @@ class ClipperController extends FOSRestController
     // Conversion only needed when the request currency is different with user currency
     if ($request_currency_symbol != $currency_symbol) {
       $price = $price * $conversion_rate;
-      $price_label = $currency_symbol . number_format($price);  
+      $price_label = $currency_symbol . number_format($price);
     }
-    
+
     $returnObject = array(
       'price' => $price,
       'priceLabel' => $price_label,
@@ -572,7 +572,7 @@ class ClipperController extends FOSRestController
         return new Response($returnObject, 400);
       }
 
-      // Update price 
+      // Update price
       $form_raw_data = $firstq_group->getFormDataRaw();
       $form_raw_data = json_decode($form_raw_data, TRUE);
       $form_raw_data["price_total"] = $amount_label;
@@ -1423,8 +1423,11 @@ class ClipperController extends FOSRestController
       $destination = strtr($limesurvey_url_destination, array(
         '[SID]' => $sid,
         '[LANG]' => 'en',
-        '[SLUG]' => $slug
+        '[SLUG]' => $slug,
+        '[RTEAMID]' => isset($_GET['d']) ? $_GET['d'] : NULL,
+        '[PROJECTID]' => isset($_GET['e']) ? $_GET['e'] : NULL,
       ));
+
       return new RedirectResponse($destination, 301);
       // http status code 301 Moved Permanently
     }
