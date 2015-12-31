@@ -97,9 +97,9 @@
 		}
 	</script>
 	{# @todo: add/load from vendor folder using composer.json #}
-    <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/clipper.charts.js') }}"></script>
+    <script type="text/javascript" src="{{ app.request.scheme ~ '://' ~ 'localhost:8081' ~ asset('bundles/pslclipper/js/clipper.charts.js') }}"></script>
     {# specific rules for pdf downloads #}
-    <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/charts.pdf.config.js') }}"></script>
+    <script type="text/javascript" src="{{ app.request.scheme ~ '://' ~ 'localhost:8081' ~ asset('bundles/pslclipper/js/charts.pdf.config.js') }}"></script>
 </head>
 <body>
 
@@ -120,10 +120,11 @@
 			{% block footer %}
 				<span class="page"></span>
 			{% endblock %}
+
 		</footer>
 	</div>
 
-	<script>wkhtmltopdf_replace();</script>
+	<script>//wkhtmltopdf_replace();</script>
 	
 </body>
 </html>

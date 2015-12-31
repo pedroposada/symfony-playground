@@ -198,6 +198,7 @@ class ChartsController extends FOSRestController
         ->container
         ->get('event_dispatcher')
         ->dispatch(ClipperEvents::CHART_PDF, $event);
+      dump($event); die();
       // get array map of twigs and placeholders from service
       $maps = $event->getPdfMaps();
 
@@ -241,11 +242,15 @@ class ChartsController extends FOSRestController
     $filepath = $this->container->get('kernel')->getRootDir() . '/../web/bundles/pslclipper/zip/';
     $filename = 'charts-'. $order_id .'.zip';
     $filefull = $filepath . $filename;
-
-    $archive = new \ZipArchive();
-    $archive->open($filefull, \ZipArchive::CREATE|\ZipArchive::OVERWRITE);
     
     try {
+      // create archive
+      $archive = new \ZipArchive();
+      $r = $archive->open($filefull, \ZipArchive::CREATE|\ZipArchive::OVERWRITE);
+      if ($r !== true) {
+        throw new Exception('Unable to create the Zip Archive.');
+      }
+
       // dispatch charts event
       $event = new ChartEvent();
       $event->setOrderId($order_id);
@@ -262,6 +267,7 @@ class ChartsController extends FOSRestController
       }  
     }
     catch (Exception $e) {
+      die($e);
       $logger->debug('Pdf files error', array('exception' => $e));
       // @TODO: Remove exception from empty string
       $archive->addFromString('empty.txt', 'empty - ' . $e->getMessage());
