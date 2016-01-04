@@ -79,7 +79,7 @@ class NpsPlusPdf
     $pdfs = $this->getPdfs($htmls);
 
     // set pages in event object
-    //$event->setPdfMaps($maps);
+    $event->setPdfMaps($maps);
     $event->setPdfFiles($pdfs);
     $event->setHtmlFiles($htmls);
   }
@@ -182,6 +182,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     // Chart 2
     $datatable = $this->getChartDataStructuresByMachineName($data, 'Loyalty')['datatable'];
     $map->add(array(
@@ -190,6 +191,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     // Chart 3
     $datatable = $this->getChartDataStructuresByMachineName($data, 'DoctorsPromote')['datatable'];
     $map->add(array(
@@ -198,6 +200,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     // Chart 4
     $datatable = $this->getChartDataStructuresByMachineName($data, 'PromotersPromoteMean')['datatable'];
     $map->add(array(
@@ -206,6 +209,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     // Chart 5
     $datatable = $this->getChartDataStructuresByMachineName($data, 'PromotersPromote')['datatable'];
     $map->add(array(
@@ -214,6 +218,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     // Chart 6
     $datatable = $this->getChartDataStructuresByMachineName($data, 'DetractorsPromote')['datatable'];
     $map->add(array(
@@ -222,6 +227,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     // Chart 7
     $datatable = $this->getChartDataStructuresByMachineName($data, 'PromVsDetrPromote')['datatable'];
     $map->add(array(
@@ -230,6 +236,7 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
+    unset($datatable);
     //return $map;
 
     // Chart 8
@@ -257,9 +264,11 @@ class NpsPlusPdf
           'brand' => $brand
         )
       ));
+      unset($datatable);
+      unset($subdata);
     }
     //return $map;
-    
+
     // Chart 9
     // - Intro
     $map->add(array(
@@ -285,6 +294,8 @@ class NpsPlusPdf
             'country' => $market
           )
         ));
+        unset($datatable);
+        unset($subdata);
       }
     }
 

@@ -62,11 +62,34 @@
 		.chart {
 			margin-left: auto;
 			margin-right: auto;
-			width: 700px;
+			width: 680px;
 			min-height: 450px;
 			height: 450px;
 			border: 1px solid #ccc;
 			padding: 2em;
+		}
+		.clipper-charts-npschart, .clipper-charts-heatmap, .clipper-charts-dnachart, .clipper-charts-promvsdetrpromotechart {
+			height: auto;
+		}
+		.clipper-charts-promoterspromotechart-cell, .clipper-charts-detractorspromotechart-cell, .clipper-charts-ppdbrandmessageschart-maintable tr {
+			page-break-inside: avoid;
+		}
+		.clipper-charts-heatmap > div > div:last-child {
+			bottom: -1em !important;
+		}
+		.clipper-charts-promvsdetrpromotechart-brand {
+			margin: 1%;
+			padding: 1%;
+			width: 45%;
+			display: inline-block;
+			border: 1px solid #ccc;
+			page-break-inside: avoid;
+		}
+		.clipper-charts-dnachart > div {
+			height: auto !important;
+		}
+		.clipper-charts-dnachart-body {
+			height: auto !important;
 		}
 	</style>
 	{# @todo: add/load from vendor folder using composer.json #}

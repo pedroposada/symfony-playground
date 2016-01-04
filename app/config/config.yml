@@ -73,6 +73,8 @@ doctrine:
                 password: %database_password%
                 host: %database_host%
                 driver: %database_driver%
+                logging: false
+                profiling: false
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         auto_mapping: true
@@ -156,9 +158,6 @@ nelmio_cors:
               - OPTIONS
             expose_headers: { }
             max_age: 3600
-
-
-
 
   ######################################
  ## Applications specific parameters ##
