@@ -172,6 +172,14 @@ $(document).ready(function(){
     );
     $this->addSurveyUrlParameter($survey_url_parameters_row);
 
+    $survey_url_parameters_row = array('id' => '130',
+      'sid' => $sid,
+      'parameter' => 'c',
+      'targetqid' => '',
+      'targetsqid' => '',
+    );
+    $this->addSurveyUrlParameter($survey_url_parameters_row);
+
 // ---------------------------------------------------------------------------------------------------------------------------
 // pre group
 
