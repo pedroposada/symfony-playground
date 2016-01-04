@@ -27,6 +27,7 @@ class AppKernel extends Kernel
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
+            new KG\StaticBundle\KGStaticBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
