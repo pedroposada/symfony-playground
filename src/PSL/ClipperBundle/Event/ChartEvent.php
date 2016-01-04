@@ -29,6 +29,8 @@ class ChartEvent extends Event
   protected $pdfFiles;
   // ArrayCollection of twigs and placeholders
   protected $pdfMaps;
+  // ArrayCollection of html filenames
+  protected $htmlFiles;
   
   //available "drilldown" option by survey_type
   protected static $drilldown_keys = array('countries', 'specialties', 'regions');
@@ -236,5 +238,15 @@ class ChartEvent extends Event
   public function setPdfMaps($pdfMaps)
   {
     $this->pdfMaps = $pdfMaps;
+  }
+
+  public function getHtmlFiles()
+  {
+    return $this->htmlFiles;
+  }
+
+  public function setHtmlFiles($htmlFiles)
+  {
+    $this->htmlFiles = $htmlFiles;
   }
 }

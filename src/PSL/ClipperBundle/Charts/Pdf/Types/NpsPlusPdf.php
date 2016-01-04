@@ -132,7 +132,7 @@ class NpsPlusPdf
       $pdfGenerator->generate($htmlList->toArray(), $filepath, array(
         'encoding' => 'utf-8',
         'images' => true,
-        'javascript-delay' => 2000,
+        'javascript-delay' => 5000,
         'enable-javascript' => true,
         'no-stop-slow-scripts' => true,
         'debug-javascript' => true
@@ -182,7 +182,6 @@ class NpsPlusPdf
         'chart_datatable' => json_encode($datatable)
       )
     ));
-    return $map;
     // Chart 2
     $datatable = $this->getChartDataStructuresByMachineName($data, 'Loyalty')['datatable'];
     $map->add(array(
