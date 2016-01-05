@@ -24,6 +24,9 @@ parameters:
   limesurvey.api.ls_password:                 "[*limesurvey.api.ls_password*]"
   limesurvey.url_destination_base:            "[*limesurvey.url_destination_base*]"
   limesurvey.url_redirect_base:               "[*limesurvey.url_redirect_base*]"
+  limesurvey.url_exit:                        "[*limesurvey.url_exit*]"
+  limesurvey.url_screenout                    "[*limesurvey.url_screenout*]"
+  limesurvey.url_quota_full                   "[*limesurvey.url_quota_full*]"
   # rpanel:
   rpanel.user_id:                             "[*rpanel.user_id*]"
   rpanel.client_id:                           "[*rpanel.client_id*]"
