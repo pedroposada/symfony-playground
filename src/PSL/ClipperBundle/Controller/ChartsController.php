@@ -177,9 +177,9 @@ class ChartsController extends FOSRestController
       $filters = array();
 
       // Parse drilldown
-      $f_arr = split(',', $drilldown);
+      $f_arr = explode(',', $drilldown);
       foreach ($f_arr as $value) {
-        $f_tmp = split(':', $value);
+        $f_tmp = explode(':', $value);
         if (count($f_tmp) > 1) {
           $filters[$f_tmp[0]] = $f_tmp[1];
         } else if (count($f_tmp) > 0) {
@@ -205,7 +205,7 @@ class ChartsController extends FOSRestController
       $map = ($maps !== null) ? $maps[0]->toArray() : array();
 
       if ($page > count($map) || $page <= 0) {
-        throw new Exception("Page does not exist");
+        throw new Exception("Page does not exist. Limit is " . count($map));
       }
       $idx = $page - 1;
 

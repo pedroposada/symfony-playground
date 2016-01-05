@@ -133,8 +133,11 @@ class NpsPlusPdf
       $pdfGenerator->getInternalGenerator()->setTimeout(500);
       $pdfGenerator->generate($htmlList->toArray(), $filepath, array(
         'encoding' => 'utf-8',
+        'enable-smart-shrinking' => true,
         'images' => true,
-        'javascript-delay' => 5000,
+        'page-size' => 'Letter',
+        'dpi' => '300',
+        'javascript-delay' => 15000,
         'enable-javascript' => true,
         'no-stop-slow-scripts' => true,
         'debug-javascript' => true
