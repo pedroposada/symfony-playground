@@ -9,12 +9,12 @@ services:
     class: PSL\ClipperBundle\Service\GoogleSpreadsheetService
     arguments:
       - @service_container
-      - %google_spreadsheets.client_id%
-      - %google_spreadsheets.service_account_name%
-      - %google_spreadsheets.p12_file_name%
-      - %google_spreadsheets.spreadsheet_name%
-      - %google_spreadsheets.worksheet_name%
-      - %google_spreadsheets.p12_file_path%
+      # - %google_spreadsheets.client_id%
+      # - %google_spreadsheets.service_account_name%
+      # - %google_spreadsheets.p12_file_name%
+      # - %google_spreadsheets.spreadsheet_name%
+      # - %google_spreadsheets.worksheet_name%
+      # - %google_spreadsheets.p12_file_path%
 
   rpanel:
     class: PSL\ClipperBundle\Service\RPanelService

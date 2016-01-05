@@ -15,11 +15,16 @@ namespace PSL\ClipperBundle\Service;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 use PSL\ClipperBundle\Entity\FeasibilityRequest;
 use PSL\ClipperBundle\Utils\GoogleSheets;
 
-use \stdClass as stdClass;
-use \Exception as Exception;
+use \stdClass;
+use \Exception;
 use \DateTime;
 use \DateInterval;
 
@@ -49,22 +54,7 @@ class GoogleSpreadsheetService
    *
    * @param array $params - the array of parameters for the Google Spreadsheet connection
    */
-  public function __construct(
-  ContainerInterface $container,
-  $client_id,
-  $service_account_name,
-  $p12_file_name,
-  $spreadsheet_name,
-  $worksheet_name,
-  $p12_file_path
-  ) {
-    $this->client_id = $client_id;
-    $this->service_account_name = $service_account_name;
-    $this->p12_file_name = $p12_file_name;
-    $this->spreadsheet_name = $spreadsheet_name;
-    $this->worksheet_name = $worksheet_name;
-    $this->p12_file_path = $p12_file_path;
-
+  public function __construct(ContainerInterface $container) {
     $this->container = $container;
   }
 
@@ -75,82 +65,140 @@ class GoogleSpreadsheetService
    *
    * @return feasibility object
    */
-  public function requestFeasibility($form_data)
+  public function requestFeasibility($form_data_objects)
   {
-    // Feasibility object
-    $feasibility = new stdClass();
+    // Feasibility Array
+    $feasibility_array = array();
     
-    // Validation of the fields
-    $error_string = '';
-    if (!is_numeric($form_data->loi)) {
-      $error_string .= 'LOI is not a number. ';
+    // Data arrays
+    $data_in = array();
+    $data_out = array();
+    
+    $col = array("D","E","F","G","H","I","J","K","L");
+    
+    foreach ($form_data_objects as $key => $form_data) {
+      // mapping of cell to data to send
+      $column = $col[$key];
+      /*
+      // original set of INSERT cells
+      $data = array(
+        // FirstQ
+        "C3" => 'FirstQ',
+        "C5" => $form_data->num_participants,
+        "C7" => $form_data->market,
+        "C8" => $form_data->specialty,
+        "C10" => $form_data->loi,
+        "C18" => $form_data->ir
+      );
+      */
+      $data = array(
+        // FirstQ
+        "{$column}2" => 'FirstQ',
+        "{$column}4" => $form_data->market,
+        "{$column}5" => $form_data->specialty,
+        "{$column}6" => $form_data->num_participants,
+        "{$column}7" => $form_data->loi,
+        "{$column}12" => $form_data->ir
+      );
+      $data_in[] = $data;
+      
+      // cells to return
+      /*
+      // original set of OUPUT cells
+      $return = array("F3","F5","F7","F8","F10","F12",
+                      "F14","F15","F16","F17","F20","F21",
+                      "F22","F24","F26","F27");
+      */
+      $return = array("{$column}3","{$column}5","{$column}7","{$column}8","{$column}10","{$column}12",
+                      "{$column}14","{$column}15","{$column}16","{$column}17","{$column}20","{$column}21",
+                      "{$column}22","{$column}24","{$column}26","{$column}27");
+      
+      $data_out[] = $return;
     }
-    if (!is_numeric($form_data->ir)) {
-      $error_string .= 'IR is not a number. ';
-    }
-    if (empty($form_data->market)) {
-      $error_string .= 'Market is empty. ';
-    }
-    if (empty($form_data->specialty)) {
-      $error_string .= 'Specialty is empty.';
-    }
-
-    if ($error_string !== '') {
-      // Throw exception if data is incorrect
-      throw new Exception($error_string);
-    }
-
-    // mapping of cell to data to send
-    $data = array(
-      // FirstQ
-      'C3' => 'FirstQ',
-      'C5' => $form_data->num_participants,
-      'C7' => $form_data->market,
-      'C8' => $form_data->specialty,
-      'C10' => $form_data->loi,
-      'C18' => $form_data->ir
-    );
-    // cells to return
-    $return = array('F3', 'F5', 'F7', 'F8',
-                    'F10', 'F12', 'F14', 'F15',
-                    'F16', 'F17', 'F20', 'F21',
-                    'F22', 'F24', 'F26', 'F27');
-
-    // Google Sheets object, just in case
-    $this->setupFeasibilitySheet();
-
-    if ($this->sheet) {
+    
+    $browser = $this->container->get('gremo_buzz');
+    
+    if($browser) {
+      
+      // Setup buzz request
+      $url = 'http://clipper.dev:8000/sheets/cells';
+      $headers = array('Content-Type' => 'application/json');
+      
+      $payload = new stdClass();
+      $payload->sheet_key = "YiS9lrYk8kTDFIwVEOXfPJ7MTnzeKThK2";
+      $payload->sheet_name = "NewUI";
+      $payload->cells_insert = $data_in;
+      $payload->cells_return = $data_out;
+      
       // retrieve result
-      $result = $this->sheet->batchSetGet($this->spreadsheet_name, $this->worksheet_name, $data, $return);
-
-      if ($result) {
+      $jsonPayload = $this->getSerializer()->encode($payload, 'json');
+      
+      $response = $browser->put($url, $headers, $jsonPayload);
+      
+      if ($response) {
         
-        // Clean numbers except F12, F21, F22, F26, F27
-        $arrayToFormat = array('F3', 'F5', 'F7', 'F8', 'F10', 'F14', 'F15', 'F16', 'F17', 'F20', 'F24');
-        foreach ($result as $key => $value) {
-          if (in_array($key, $arrayToFormat)) {
-            // returns 
-            $result[$key] = $this->returnInteger($value);
+        if ($response->isSuccessful()) {
+          
+          // Decode Json
+          $json_response = json_decode($response->getContent());
+          
+          if (!isset($json_response->content->error_message)) {
+            
+            $gs_results = $json_response->content->result;
+            
+            // create Feasibility objects
+            foreach ($gs_results as $index => $gs_result) {
+              
+              // type cast to an array
+              $gs_result = (array) $gs_result;
+              /*
+              // Clean numbers except F12, F21, F22, F26, F27
+              $arrayToFormat = array('F3', 'F5', 'F7', 'F8', 'F10', 'F14', 'F15', 'F16', 'F17', 'F20', 'F24');
+              foreach ($gs_result as $key => $value) {
+                if (in_array($key, $arrayToFormat)) {
+                  // returns 
+                  $gs_result[$key] = $this->returnInteger($value);
+                }
+              }
+              */
+              $form_data = $form_data_objects[$index];
+              
+              $feasibility = new stdClass();
+              $feasibility->market = $form_data->market;
+              $feasibility->specialty = $form_data->specialty;
+              $feasibility->feasibility = TRUE;
+              $feasibility->num_participants = $form_data->num_participants;
+              // $feasibility->participants_sample = $gs_result['F8'];
+              // $feasibility->price = $gs_result['F24'];
+              $feasibility->participants_sample = 200;
+              $feasibility->price = 2000;
+              $feasibility->result = $gs_result;
+              
+              // Add feasibility object
+              $feasibility_array[] = $feasibility;
+            }
+          }
+          else {
+            
+            throw new Exception('Error retrieving results. ' . $json_response->content->error_message);
           }
         }
+        else {
+          // Buzz Response 
+          throw new Exception('Error retrieving results. Request was not Successful.');
+        }
         
-        $feasibility->market = $form_data->market;
-        $feasibility->specialty = $form_data->specialty;
-        $feasibility->feasibility = TRUE;
-        $feasibility->num_participants = $form_data->num_participants;
-        $feasibility->participants_sample = $result['F8'];
-        $feasibility->price = $result['F24'];
-        $feasibility->result = $result;
       }
       else {
-          throw new Exception('Error retrieving results.');
+        // Generic error
+        throw new Exception('Error retrieving results.');
       }
     }
     else {
       throw new Exception('Error retrieving sheet.');
     }
 
-    return $feasibility;
+    return $feasibility_array;
   }
 
   /**
@@ -246,5 +294,16 @@ class GoogleSpreadsheetService
    */
   function returnInteger($numberString) {
     return (int)preg_replace("/[^0-9]/", "", $numberString);
+  }
+  
+  /**
+   * Serializer
+   */
+  protected function getSerializer()
+  {
+    $encoders = array(new XmlEncoder(), new JsonEncoder());
+    $normalizers = array(new ObjectNormalizer());
+
+    return new Serializer($normalizers, $encoders);
   }
 }
