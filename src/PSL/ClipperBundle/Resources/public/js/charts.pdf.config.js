@@ -15,7 +15,7 @@ var color1 = '#CC6633',
   bubbleColor = '#919191',
   bubbleMeanColor = '#ff2a1a',
   logoSettings = {
-    image: '../images/logo.png',
+    //image: '../images/logo.png',
     width: '50px',
     height: '15px',
     opacity: 0.5,
