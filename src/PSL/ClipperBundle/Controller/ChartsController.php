@@ -197,7 +197,7 @@ class ChartsController extends FOSRestController
       $this
         ->container
         ->get('event_dispatcher')
-        ->dispatch(ClipperEvents::CHART_PDF, $event);
+        ->dispatch(ClipperEvents::CHART_PDF_PREVIEW, $event);
 
       // get array map of twigs and placeholders from service
       $maps = $event->getPdfMaps();

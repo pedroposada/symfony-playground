@@ -72,16 +72,18 @@ class NpsPlusPdf
       $maps->add($this->getTemplateMap($this->fqg, array('region' => $region)));
     }
 
-    // get htmls
-    $htmls = $this->getHtmls($maps);
-
-    // get pdfs
-    $pdfs = $this->getPdfs($htmls);
-
     // set pages in event object
     $event->setPdfMaps($maps);
-    $event->setPdfFiles($pdfs);
-    $event->setHtmlFiles($htmls);
+
+    if ($event->getName() === 'chart_pdf') {
+      // get htmls
+      $htmls = $this->getHtmls($maps);
+      $event->setHtmlFiles($htmls);
+
+      // get pdfs
+      $pdfs = $this->getPdfs($htmls);
+      $event->setPdfFiles($pdfs);
+    }
   }
 
   protected function getHtmls($templateMaps)
@@ -109,7 +111,7 @@ class NpsPlusPdf
     $html = $this->templating->render($template, $placeholder);
     $tmpFile = $this->container->get('kernel')->getRootDir() . '/../web/bundles/pslclipper/html/' . $fname;
     file_put_contents($tmpFile, $html);
-    return $tmpFile;
+    return 'file://'.$tmpFile;
   }
   
   /**
@@ -128,7 +130,7 @@ class NpsPlusPdf
       $filepath = $this->container->get('kernel')->getRootDir() . '/../web/bundles/pslclipper/pdf/' . $hash . '.pdf';
 
       $pdfGenerator = $this->container->get('knp_snappy.pdf');
-      $pdfGenerator->getInternalGenerator()->setTimeout(300);
+      $pdfGenerator->getInternalGenerator()->setTimeout(500);
       $pdfGenerator->generate($htmlList->toArray(), $filepath, array(
         'encoding' => 'utf-8',
         'images' => true,

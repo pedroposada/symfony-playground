@@ -234,3 +234,8 @@ services:
     arguments: [@service_container, "nps_plus"]
     tags:
        - { name: kernel.event_listener, event: chart_pdf, method: onPdf, priority: 0 }
+  clipper.charts.pdf.nps_plus_prev:
+    class: PSL\ClipperBundle\Charts\Pdf\Types\NpsPlusPdf
+    arguments: [@service_container, "nps_plus"]
+    tags:
+       - { name: kernel.event_listener, event: chart_pdf_preview, method: onPdf, priority: 0 }
