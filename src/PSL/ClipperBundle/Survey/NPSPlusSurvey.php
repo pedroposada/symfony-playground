@@ -158,7 +158,7 @@ $(document).ready(function(){
 
     $survey_url_parameters_row = array('id' => '110',
       'sid' => $sid,
-      'parameter' => 'd',
+      'parameter' => 'rteamid',
       'targetqid' => '',
       'targetsqid' => '',
     );
@@ -166,7 +166,7 @@ $(document).ready(function(){
 
     $survey_url_parameters_row = array('id' => '120',
       'sid' => $sid,
-      'parameter' => 'e',
+      'parameter' => 'surveyid',
       'targetqid' => '',
       'targetsqid' => '',
     );
@@ -236,10 +236,12 @@ $(document).ready(function(){
       'qlimit' => 0,
       'action' => 1,
       'active' => 1,
-      'autoload_url' => 0,
+      'autoload_url' => 1,
       'quota_id' => $quota_0_id,
       'code' => 'N',
     );
+
+    $screenout_url = $this->container->getParameter('limesurvey.url_screenout');
 
     // Integrate multiple language
     $quotals = array();
@@ -252,7 +254,7 @@ $(document).ready(function(){
         'quotals_language' => $language,
         'quotals_name' => $quota_0_name,
         'quotals_message' => $language . ' - Terminate message.',
-        'quotals_url' => '',
+        'quotals_url' => $screenout_url,
         'quotals_urldescrip' => '',
       );
     }

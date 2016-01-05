@@ -1406,6 +1406,10 @@ class ClipperController extends FOSRestController
   {
     $response = null;
 
+    // get paramters
+    $rteamid = isset($_GET['rteamid']) ? $_GET['rteamid'] : NULL;
+    $surveyid = isset($_GET['surveyid']) ? $_GET['surveyid'] : NULL;
+
     // get LS
     $ls = $this->container->get('limesurvey');
     $response = $ls->get_survey_properties(array(
@@ -1414,8 +1418,15 @@ class ClipperController extends FOSRestController
     ));
 
     if( isset($response['expires']) && !is_null($response['expires']) ) {
+
+      $limesurvey_quotafull_url = $this->container->getParameter('limesurvey.url_quota_full');
+      $quotafull_url = strtr($limesurvey_quotafull_url, array(
+        '[RTEAMID]' => $rteamid,
+        '[SURVEYID]' => $surveyid,
+      ));
+
       // display message
-      return $this->render('PSLClipperBundle:Clipper:maximum.html.twig');
+      return $this->render('PSLClipperBundle:Clipper:maximum.html.twig', array('url'=>$quotafull_url));
     }
     else {
       // redirect
@@ -1424,8 +1435,8 @@ class ClipperController extends FOSRestController
         '[SID]' => $sid,
         '[LANG]' => 'en',
         '[SLUG]' => $slug,
-        '[RTEAMID]' => isset($_GET['d']) ? $_GET['d'] : NULL,
-        '[PROJECTID]' => isset($_GET['e']) ? $_GET['e'] : NULL,
+        '[RTEAMID]' => $rteamid,
+        '[SURVEYID]' => $surveyid,
       ));
 
       return new RedirectResponse($destination, 301);

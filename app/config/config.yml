@@ -193,9 +193,8 @@ parameters:
   clipper.conditions: Resources/terms/conditions.xml
   clipper.quota.universal: "1"
   #limeSurvey
-  limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]?d=[RTEAMID]&e=[PROJECTID]'
-  limesurvey.url_exit: '%limesurvey.url_redirect_base%/clipper/limesurvey/exit?d={PASSTHRU:d}&e={PASSTHRU:e}&c_0003=2'
-  limesurvey.url_destination: '%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?d=[RTEAMID]&e=[PROJECTID]'
+  limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]?rteamid=[RTEAMID]&surveyid=[SURVEYID]'
+  limesurvey.url_destination: '%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?rteamid=[RTEAMID]&surveyid=[SURVEYID]'
   limesurvey.url_destination_base_sid: '%limesurvey.url_destination_base%/sid/[SID]'
   limesurvey.add_participants_max_duration: 5 # time in seconds. Determines time limit for batch.
   limesurvey.add_participants_chunk_size: 100 # number of participants per request. Decrease if exceptions thrown related to fwrite()
