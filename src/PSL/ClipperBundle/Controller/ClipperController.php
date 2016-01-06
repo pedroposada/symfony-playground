@@ -1422,7 +1422,7 @@ class ClipperController extends FOSRestController
       $limesurvey_quotafull_url = $this->container->getParameter('limesurvey.url_quota_full');
       $quotafull_url = strtr($limesurvey_quotafull_url, array(
         '[RTEAMID]' => $rteamid,
-        '[SURVEYID]' => $surveyid,
+        '[PROJECTID]' => $surveyid,
       ));
 
       // display message
@@ -1436,7 +1436,7 @@ class ClipperController extends FOSRestController
         '[LANG]' => 'en',
         '[SLUG]' => $slug,
         '[RTEAMID]' => $rteamid,
-        '[SURVEYID]' => $surveyid,
+        '[PROJECTID]' => $surveyid,
       ));
 
       return new RedirectResponse($destination, 301);
