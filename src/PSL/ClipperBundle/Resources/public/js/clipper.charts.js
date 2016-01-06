@@ -189,6 +189,7 @@ clipper.charts = clipper.charts || {};
 	clipper.charts.Chart.prototype.getCopyrightNotice = function () {
 		var me = this.container;
 		var notice = me.ownerDocument.createElement('div');
+		notice.className = 'copyright-notice';
 		var y = new Date();
 		y = y.getFullYear();
 		notice.appendChild(me.ownerDocument.createTextNode('© Copyright ' + y + ' Doctor\'s Guide Publishing Limited.'));
@@ -449,7 +450,7 @@ clipper.charts.factory = function(type, DOMContainer, settings, data) {
 		var html = '';
 
 		html += '<div style="margin-left: 24%; width:52%; height:100%; position:relative; font-weight:'+this.settings.textWeight_brand+'">';
-		html += '<div style="position:absolute;'+labelPos+';height:'+bheight+'px;line-height:'+bheight+'px; ">' + value + '</div>';
+		html += '<div style="position:absolute;'+labelPos+';height:'+bheight+'px;line-height:'+bheight+'px;width:35px;">' + value + '</div>';
 		html += '<div style="position:absolute;height: ' + bheight + 'px; width: ' + bwidth + '%; background-color: ' + bgc + '; left: ' + left + '">';
 		html += '</div>';
 
@@ -1319,7 +1320,7 @@ clipper.charts.factory = function(type, DOMContainer, settings, data) {
 
 		html += '<div style="text-align:center;width:98%;padding:1%;font-size:' + (fontSize - 1) + 'px;font-family:' + this.settings.textFont + ';font-weight:'+this.settings.textWeight_labels+';line-height:1.5em">Also most commonly promote...</div>';
 
-		html += '<div style="margin-top:0px;max-width:79%;overflow-x: ' + overflow + '; ">';
+		html += '<div style="margin-top:0px;margin-bottom:35px;max-width:79%;overflow-x: ' + overflow + '; ">';
 		
 		html += '<table cellspacing="0" style="table-layout:fixed;margin-left: auto;margin-right:auto; margin-bottom: 15px; font-size: ' + fontSize + 'px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '">';
 
@@ -1854,7 +1855,7 @@ clipper.charts.factory = function(type, DOMContainer, settings, data) {
 
 		html += '<div style="text-align:center;width:98%;padding:1%;font-size:' + (fontSize - 1) + 'px;font-family:' + this.settings.textFont + ';font-weight:'+this.settings.textWeight_labels+';line-height:1.5em">Also promote...</div>';
 
-		html += '<div style="margin-top:0px;max-width:79%;overflow-x: ' + overflow + '; ">';
+		html += '<div style="margin-top:0px;margin-bottom:35px;max-width:79%;overflow-x: ' + overflow + '; ">';
 
 		html += '<table cellspacing="0" style="table-layout:fixed;margin-left:auto;margin-right:auto; margin-bottom: 15px; font-size: ' + fontSize + 'px; font-family: ' + this.settings.textFont + '; text-align: center; color: ' + this.settings.textColor + '">';
 

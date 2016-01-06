@@ -52,13 +52,6 @@
 			padding: 0.2em 0.5em 0.2em 0.5em;
 			box-sizing: border-box;
 		}
-		.main-footer {
-			text-align: center;
-			font-size: 2em;
-			width: 100%;
-			position: absolute;
-			bottom: -2em;
-		}
 		.loyaltyscore-howiscalculated {
 			width: 80%;
 			margin: auto;
@@ -95,37 +88,54 @@
 			border: 1px solid #ccc;
 			padding: 2em;
 		}
+		.chart .copyright-notice {
+			width: 50%;
+			padding-top: 0.5em;
+		}
 		.clipper-charts-npschart, .clipper-charts-heatmap, .clipper-charts-dnachart, .clipper-charts-promvsdetrpromotechart {
 			height: auto;
 		}
 		.clipper-charts-promoterspromotechart-cell, .clipper-charts-detractorspromotechart-cell, .clipper-charts-ppdbrandmessageschart-maintable tr {
 			page-break-inside: avoid;
 		}
+		.clipper-charts-promvsdetrpromotechart {
+			text-align: center;
+			min-height: auto;
+		}
 		.clipper-charts-promvsdetrpromotechart-brand {
 			margin: 1%;
-			padding: 1%;
-			width: 45%;
+			width: 30%;
 			display: inline-block;
-			border: 1px solid #ccc;
+			border: 1px solid #efefef;
 			page-break-inside: avoid;
+		}
+		.clipper-charts-promvsdetrpromotechart-brand > h2 {
+			background-color: rgba(0,0,0,0.4);
+			margin: 0px;
+			color: #ffffff;
+			padding: 5px;
+			min-height: 40px;
 		}
 		.clipper-charts-dnachart > div {
 			height: auto !important;
 		}
 		.clipper-charts-dnachart-body {
 			height: auto !important;
+			padding-bottom: 2em;
+		}
+		.clipper-charts-dnachart-brand > h3 {
+			page-break-after: avoid;
+		}
+		.clipper-charts-doctorspromotechart {
+			position: relative;
 		}
 	</style>
 	<script>
-	{{ file('@PSLClipperBundle/Resources/public/js/clipper.charts.js')|raw }}
+	{{ file('@PSLClipperBundle/Resources/public/js/clipper.charts.min.js')|raw }}
 	</script>
 	<script>
 	{{ file('@PSLClipperBundle/Resources/public/js/charts.pdf.config.js')|raw }}
 	</script>
-	{# @todo: add/load from vendor folder using composer.json #}
-    <!--script type="text/javascript" src="{#{ app.request.scheme ~ '://' ~ 'localhost:8081' ~ asset('bundles/pslclipper/js/clipper.charts.js') }#}"></script>
-    {# specific rules for pdf downloads #}
-    <script type="text/javascript" src="{#{ app.request.scheme ~ '://' ~ 'localhost:8081' ~ asset('bundles/pslclipper/js/charts.pdf.config.js') }#}"></script-->
 </head>
 <body>
 
@@ -142,12 +152,6 @@
 				{% endblock %}
 			</div>
 		{% endblock %}
-		<footer class="main-footer">
-			{% block footer %}
-				<span class="page"></span>
-			{% endblock %}
-
-		</footer>
 	</div>
 	
 </body>

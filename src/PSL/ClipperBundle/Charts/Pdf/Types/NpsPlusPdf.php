@@ -140,7 +140,8 @@ class NpsPlusPdf
         'javascript-delay' => 15000,
         'enable-javascript' => true,
         'no-stop-slow-scripts' => true,
-        'debug-javascript' => true
+        'debug-javascript' => true,
+        'footer-center' => '[page]'
       ), true); // headless browser
 
       $pdfs->add($filepath);
