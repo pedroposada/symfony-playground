@@ -159,13 +159,20 @@ class NpsPlusPdf
   {
     $map = new ArrayCollection();
     $formData = $this->fqg->getFormDataUnserialized();
+    $countries = $this->geoMapper->getCountries($drilldown['region']);
 
     // Introduction
     $map->add(array(
       'twig' => 'PSLClipperBundle:Charts:nps_plus/introduction.html.twig',
       'placeholders' => array(
         'main_title' => $formData['title'],
-        'region' => $drilldown['region']
+        'region' => $drilldown['region'],
+        'countries' => $countries,
+        'specialties' => $formData['specialties'],
+        'patient_type' => $formData['patient_type'],
+        'participants' => $formData['num_participants'],
+        'launch_date' => $formData['launch_date'],
+        'completion_date' => $formData['completion_date']
       )
     ));
 
@@ -174,7 +181,6 @@ class NpsPlusPdf
       'twig' => 'PSLClipperBundle:Charts:nps_plus/tableofcontents.html.twig'
     ));
     // Get data
-    $countries = $this->geoMapper->getCountries($drilldown['region']);
     $filters = array(
       'countries' => $countries
     );
