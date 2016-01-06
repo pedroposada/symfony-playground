@@ -41,6 +41,10 @@ parameters:
   rpanel.databases.translateapi.host:         "[*rpanel.databases.translateapi.host*]"
   rpanel.databases.translateapi.driver:       "[*rpanel.databases.translateapi.driver*]"
   # google_spreadsheets:
+  google_spreadsheets.sheet_type:             "[*google_spreadsheets.sheet_type*]"
+  google_spreadsheets.sheet_key:              "[*google_spreadsheets.sheet_key*]"
+  google_spreadsheets.sheet_name:             "[*google_spreadsheets.sheet_name*]"
+  
   google_spreadsheets.client_id:              "[*google_spreadsheets.client_id*]"
   google_spreadsheets.service_account_name:   "[*google_spreadsheets.service_account_name*]"
   google_spreadsheets.p12_file_name:          "[*google_spreadsheets.p12_file_name*]"

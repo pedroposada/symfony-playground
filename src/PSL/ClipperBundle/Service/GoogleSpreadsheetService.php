@@ -70,19 +70,99 @@ class GoogleSpreadsheetService
     // Feasibility Array
     $feasibility_array = array();
     
+    // Browser to make remote call
+    $browser = $this->container->get('gremo_buzz');
+    
+    // Call type is the parameter that will decide if the
+    // sheet used requires a single call or multiple ones
+    $call_type = $this->container->getParameter('google_spreadsheets.sheet_type');
+    
+    if ($call_type == "multiple") {
+      $data = $this->setupDataMultipleCalls($form_data_objects);
+    }
+    else {
+      $data = $this->setupDataSingleCall($form_data_objects);
+    }
+    
+    // Setup buzz request
+    $url = 'http://clipper.dev:8000/sheets/cells';
+    $headers = array('Content-Type' => 'application/json');
+    
+    $payload = new stdClass();
+    $payload->sheet_key = $this->container->getParameter('google_spreadsheets.sheet_key');
+    $payload->sheet_name = $this->container->getParameter('google_spreadsheets.sheet_name');
+    $payload->cells_insert = $data->insert;
+    $payload->cells_return = $data->return;
+    
+    // retrieve result
+    $jsonPayload = $this->getSerializer()->encode($payload, 'json');
+    
+    $response = $browser->put($url, $headers, $jsonPayload);
+    
+    if ($response) {
+      
+      if ($response->isSuccessful()) {
+        
+        // Decode Json
+        $json_response = json_decode($response->getContent());
+        
+        if (!isset($json_response->content->error_message)) {
+          
+          $gs_results = $json_response->content->result;
+          
+          if ($call_type == "multiple") {
+            $feasibility_array = $this->formatFeasibilityDataMultipleCalls($gs_results, $form_data_objects);
+          }
+          else {
+            $feasibility_array = $this->formatFeasibilityDataSingleCall($gs_results, $form_data_objects);
+          }
+        }
+        else {
+          // Error on the PSL Sheets side
+          throw new Exception('Error retrieving results. ' . $json_response->content->error_message);
+        }
+      }
+      else {
+        // Buzz Response 
+        throw new Exception('Error retrieving results. Request was not Successful.');
+      }
+    }
+    else {
+      // Generic error
+      throw new Exception('Error retrieving results.');
+    }
+
+    return $feasibility_array;
+  }
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * Handling data set up
+   * ----------------------------------------------------------------------------------------
+   */
+
+  /**
+   * For the regular UI. 
+   * This will format the data for a series of calls
+   *
+   * Returns formatted arrays for the insert and return data
+   *
+   * @param object $form_data_objects - list of data to send to Google sheet
+   *
+   * @return object - cells and data to insert and return
+   */
+  public function setupDataMultipleCalls($form_data_objects)
+  {
+    $data = new stdClass();
+    
     // Data arrays
     $data_in = array();
     $data_out = array();
     
-    $col = array("D","E","F","G","H","I","J","K","L");
-    
     foreach ($form_data_objects as $key => $form_data) {
-      // mapping of cell to data to send
-      $column = $col[$key];
-      /*
-      // original set of INSERT cells
-      $data = array(
-        // FirstQ
+      
+      // set of INSERT cells
+      $insert = array(
         "C3" => 'FirstQ',
         "C5" => $form_data->num_participants,
         "C7" => $form_data->market,
@@ -90,9 +170,49 @@ class GoogleSpreadsheetService
         "C10" => $form_data->loi,
         "C18" => $form_data->ir
       );
-      */
-      $data = array(
-        // FirstQ
+      
+      $data_in[] = $insert;
+      
+      // set of OUPUT cells
+      $return = array("F3","F5","F7","F8","F10","F12",
+                      "F14","F15","F16","F17","F20","F21",
+                      "F22","F24","F26","F27");
+      $data_out[] = $return;
+    }
+    
+    $data->insert = $data_in;
+    $data->return = $data_out;
+    
+    return $data;
+  }
+  
+  /**
+   * For the NewUI.
+   * This will format the data for a single call
+   *
+   * Returns formatted arrays for the insert and return data
+   *
+   * @param object $form_data_objects - list of data to send to Google sheet
+   *
+   * @return object - cells and data to insert and return
+   */
+  public function setupDataSingleCall($form_data_objects)
+  {
+    $data = new stdClass();
+    
+    // Data arrays
+    $data_in = array();
+    $data_out = array();
+    
+    // @TODO: Refactor the generation of the columns
+    $col = array("D","E","F","G","H","I","J","K","L");
+    
+    foreach ($form_data_objects as $key => $form_data) {
+      // mapping of cell to data to send
+      $column = $col[$key];
+      
+      // set of INSERT cells
+      $insert = array(
         "{$column}2" => 'FirstQ',
         "{$column}4" => $form_data->market,
         "{$column}5" => $form_data->specialty,
@@ -100,15 +220,9 @@ class GoogleSpreadsheetService
         "{$column}7" => $form_data->loi,
         "{$column}12" => $form_data->ir
       );
-      $data_in[] = $data;
+      $data_in[] = $insert;
       
-      // cells to return
-      /*
-      // original set of OUPUT cells
-      $return = array("F3","F5","F7","F8","F10","F12",
-                      "F14","F15","F16","F17","F20","F21",
-                      "F22","F24","F26","F27");
-      */
+      // set of OUPUT cells
       $return = array("{$column}3","{$column}5","{$column}7","{$column}8","{$column}10","{$column}12",
                       "{$column}14","{$column}15","{$column}16","{$column}17","{$column}20","{$column}21",
                       "{$column}22","{$column}24","{$column}26","{$column}27");
@@ -116,92 +230,127 @@ class GoogleSpreadsheetService
       $data_out[] = $return;
     }
     
-    $browser = $this->container->get('gremo_buzz');
+    $data->insert = $data_in;
+    $data->return = $data_out;
     
-    if($browser) {
-      
-      // Setup buzz request
-      $url = 'http://clipper.dev:8000/sheets/cells';
-      $headers = array('Content-Type' => 'application/json');
-      
-      $payload = new stdClass();
-      $payload->sheet_key = "YiS9lrYk8kTDFIwVEOXfPJ7MTnzeKThK2";
-      $payload->sheet_name = "NewUI";
-      $payload->cells_insert = $data_in;
-      $payload->cells_return = $data_out;
-      
-      // retrieve result
-      $jsonPayload = $this->getSerializer()->encode($payload, 'json');
-      
-      $response = $browser->put($url, $headers, $jsonPayload);
-      
-      if ($response) {
-        
-        if ($response->isSuccessful()) {
-          
-          // Decode Json
-          $json_response = json_decode($response->getContent());
-          
-          if (!isset($json_response->content->error_message)) {
-            
-            $gs_results = $json_response->content->result;
-            
-            // create Feasibility objects
-            foreach ($gs_results as $index => $gs_result) {
-              
-              // type cast to an array
-              $gs_result = (array) $gs_result;
-              /*
-              // Clean numbers except F12, F21, F22, F26, F27
-              $arrayToFormat = array('F3', 'F5', 'F7', 'F8', 'F10', 'F14', 'F15', 'F16', 'F17', 'F20', 'F24');
-              foreach ($gs_result as $key => $value) {
-                if (in_array($key, $arrayToFormat)) {
-                  // returns 
-                  $gs_result[$key] = $this->returnInteger($value);
-                }
-              }
-              */
-              $form_data = $form_data_objects[$index];
-              
-              $feasibility = new stdClass();
-              $feasibility->market = $form_data->market;
-              $feasibility->specialty = $form_data->specialty;
-              $feasibility->feasibility = TRUE;
-              $feasibility->num_participants = $form_data->num_participants;
-              // $feasibility->participants_sample = $gs_result['F8'];
-              // $feasibility->price = $gs_result['F24'];
-              $feasibility->participants_sample = 200;
-              $feasibility->price = 2000;
-              $feasibility->result = $gs_result;
-              
-              // Add feasibility object
-              $feasibility_array[] = $feasibility;
-            }
-          }
-          else {
-            
-            throw new Exception('Error retrieving results. ' . $json_response->content->error_message);
-          }
-        }
-        else {
-          // Buzz Response 
-          throw new Exception('Error retrieving results. Request was not Successful.');
-        }
-        
-      }
-      else {
-        // Generic error
-        throw new Exception('Error retrieving results.');
-      }
-    }
-    else {
-      throw new Exception('Error retrieving sheet.');
-    }
-
-    return $feasibility_array;
+    return $data;
   }
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * Handling data returned
+   * ----------------------------------------------------------------------------------------
+   */
 
   /**
+   * For the regular UI.
+   * This will format the data from multiple calls
+   *
+   * Returns an array of feasibility objects
+   *
+   * @param object $gs_result - Google sheet results
+   *
+   * @return array - feasibility objects
+   */
+  public function formatFeasibilityDataMultipleCalls($gs_results, $form_data_objects)
+  {
+    $feasibility_array = array();
+    
+    // create Feasibility objects
+    foreach ($gs_results as $index => $gs_result) {
+      // type cast to an array
+      $gs_result = (array) $gs_result;
+      
+      // Clean numbers except F12, F21, F22, F26, F27
+      $arrayToFormat = array('F3', 'F5', 'F7', 'F8', 'F10', 'F14', 'F15', 'F16', 'F17', 'F20', 'F24');
+      foreach ($gs_result as $key => $value) {
+        if (in_array($key, $arrayToFormat)) {
+          // returns 
+          $gs_result[$key] = $this->returnInteger($value);
+        }
+      }
+      
+      $form_data = $form_data_objects[$index];
+      
+      $feasibility = new stdClass();
+      $feasibility->market = $form_data->market;
+      $feasibility->specialty = $form_data->specialty;
+      $feasibility->feasibility = TRUE;
+      $feasibility->num_participants = $form_data->num_participants;
+      $feasibility->participants_sample = $gs_result['F8'];
+      $feasibility->price = $gs_result['F24'];
+      $feasibility->result = $gs_result;
+      
+      // Add feasibility object
+      $feasibility_array[] = $feasibility;
+    }
+    
+    return $feasibility_array;
+  }
+  
+  /**
+   * For the NewUI.
+   * This will format the data for a single call
+   *
+   * Returns an array of feasibility objects
+   *
+   * @param object $gs_result - Google sheet results
+   *
+   * @return array - feasibility objects
+   */
+  public function formatFeasibilityDataSingleCall($gs_results, $form_data_objects)
+  {
+    $feasibility_array = array();
+    
+    // create Feasibility objects
+    foreach ($gs_results as $index => $gs_result) {
+      
+      // type cast to an array
+      $gs_result = (array) $gs_result;
+      
+      // @TODO: Clean data with new mapping
+      
+      // Clean numbers except F12, F21, F22, F26, F27
+      $arrayToFormat = array('F3', 'F5', 'F7', 'F8', 'F10', 'F14', 'F15', 'F16', 'F17', 'F20', 'F24');
+      foreach ($gs_result as $key => $value) {
+        if (in_array($key, $arrayToFormat)) {
+          // returns 
+          $gs_result[$key] = $this->returnInteger($value);
+        }
+      }
+      
+      $form_data = $form_data_objects[$index];
+      
+      $feasibility = new stdClass();
+      $feasibility->market = $form_data->market;
+      $feasibility->specialty = $form_data->specialty;
+      $feasibility->feasibility = TRUE;
+      $feasibility->num_participants = $form_data->num_participants;
+      
+      // @TODO: get values from the $gs_results
+      
+      // $feasibility->participants_sample = $gs_result['F8'];
+      // $feasibility->price = $gs_result['F24'];
+      $feasibility->participants_sample = 200;
+      $feasibility->price = 2000;
+      $feasibility->result = $gs_result;
+      
+      // Add feasibility object
+      $feasibility_array[] = $feasibility;
+    }
+    
+    return $feasibility_array;
+  }
+  
+  /**
+   * ----------------------------------------------------------------------------------------
+   * Sheet setup 
+   * ----------------------------------------------------------------------------------------
+   */
+
+  /**
+   * No longer needed
+   *
    * Return a GoogleSheets object with all proper parameters set and ready to
    *
    * @return object - GoogleSheets object containing the full uri wrapped in protected XML object
