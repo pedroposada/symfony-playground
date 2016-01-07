@@ -1423,7 +1423,7 @@ class ClipperController extends FOSRestController
 
     // get paramters
     $rteamid = isset($_GET['rteamid']) ? $_GET['rteamid'] : NULL;
-    $surveyid = isset($_GET['surveyid']) ? $_GET['surveyid'] : NULL;
+    $projectid = isset($_GET['projectid']) ? $_GET['projectid'] : NULL;
 
     // get LS
     $ls = $this->container->get('limesurvey');
@@ -1437,7 +1437,7 @@ class ClipperController extends FOSRestController
       $limesurvey_quotafull_url = $this->container->getParameter('limesurvey.url_quota_full');
       $quotafull_url = strtr($limesurvey_quotafull_url, array(
         '[RTEAMID]' => $rteamid,
-        '[SURVEYID]' => $surveyid,
+        '[PROJECTID]' => $projectid,
       ));
 
       // display message
@@ -1451,7 +1451,7 @@ class ClipperController extends FOSRestController
         '[LANG]' => 'en',
         '[SLUG]' => $slug,
         '[RTEAMID]' => $rteamid,
-        '[SURVEYID]' => $surveyid,
+        '[PROJECTID]' => $projectid,
       ));
 
       return new RedirectResponse($destination, 301);

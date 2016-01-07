@@ -166,7 +166,7 @@ $(document).ready(function(){
 
     $survey_url_parameters_row = array('id' => '120',
       'sid' => $sid,
-      'parameter' => 'surveyid',
+      'parameter' => 'projectid',
       'targetqid' => '',
       'targetsqid' => '',
     );
