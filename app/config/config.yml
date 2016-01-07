@@ -114,7 +114,7 @@ gremo_buzz:
     options:
         ignore_errors: true
         max_redirects: 5
-        timeout: 30
+        timeout: 5
         verify_peer: true
 
 # Nelmio CORS

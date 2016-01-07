@@ -256,10 +256,9 @@ class ClipperController extends FOSRestController
 
       // Google Spreadsheet validation
       $gsc = $this->get('google_spreadsheet');
-      // $gsc->setupFeasibilitySheet();
+      $gsc->setupFeasibilitySheet();
 
-      // $gs_result_array = array();
-      $form_data_objects = array();
+      $gs_result_array = array();
       $gs_result_total = 0;
       $num_participants_total = 0;
 
@@ -273,53 +272,37 @@ class ClipperController extends FOSRestController
           $form_data_object->num_participants = $this->container->get('quota_map')->lookupOne($market_value, $specialty_value);
           $num_participants_total += $form_data_object->num_participants;
 
-          $form_data_objects[] = $form_data_object;
+          // check feasibility
+          $gs_result = $gsc->requestFeasibility($form_data_object);
+          // add results
+          if( $gs_result ) {
+            $gs_result_array[] = $gs_result;
+            $gs_result_total += (int)str_replace(',', '', $gs_result->price);
+          }
         }
       }
-      
-      // check feasibility
-      $gs_results = $gsc->requestFeasibility($form_data_objects);
-      
-      if ($gs_results) {
-        
-        var_dump($gs_results); die;
-        
-        // add results to total price
-        foreach ($gs_results as $key => $gs_result) {
-          $gs_result_total += (int)str_replace(',', '', $gs_result->price);
-        }
-        
-        $form_data->num_participants = $num_participants_total;
-        // Always USD for now, convertion will be a new request from front end.
-        $gs_result_total_label = '$' . number_format($gs_result_total);
-        $form_data->price = $gs_result_total;
-        $form_data->price_total = $gs_result_total_label;
+      $form_data->num_participants = $num_participants_total;
+      // Always USD for now, convertion will be a new request from front end.
+      $gs_result_total_label = '$' . number_format($gs_result_total);
+      $form_data->price = $gs_result_total;
+      $form_data->price_total = $gs_result_total_label;
 
-        // calculate estimated time of completion
-        $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
-        $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
+      // calculate estimated time of completion
+      $timezone_adjusment = $this->latestTimezoneAndAdjustment($form_data->markets, $form_data->specialties);
+      $completion_date = $this->calculateSurveyCompletionTime($form_data->launch_date, $form_data->timezone_client, $timezone_adjusment);
 
-        $form_data->completion_date = $completion_date;
+      $form_data->completion_date = $completion_date;
 
-        // Save or update into the database
-        $firstq_uuid = $this->createFirstQProject($form_data, $gs_results, $firstq_group_uuid);
+      // Save or update into the database
+      $firstq_uuid = $this->createFirstQProject($form_data, $gs_result_array, $firstq_group_uuid);
 
-        // build product response
-        $returnObject['product']['price'] = $gs_result_total;
-        $returnObject['product']['price_label'] = $gs_result_total_label;
-        $returnObject['product']['firstq_uuid'] = $firstq_uuid;
-        $returnObject['product']['num_participants'] = $num_participants_total;
-        $returnObject['product']['end_date'] = $completion_date;
-        $returnObject['product']['firstq_uuid'] = $firstq_uuid;
-      }
-      else {
-        // Return operation specific error
-        $returnObject['product'] = FALSE;
-        $returnObject['error_message'] = "General Google Sheet error.";
-        $returnObject['error_code'] = 1;
-        $responseStatus = 400;
-        $this->logger->debug("General Google Sheet error.");
-      }
+      // build product response
+      $returnObject['product']['price'] = $gs_result_total;
+      $returnObject['product']['price_label'] = $gs_result_total_label;
+      $returnObject['product']['firstq_uuid'] = $firstq_uuid;
+      $returnObject['product']['num_participants'] = $num_participants_total;
+      $returnObject['product']['end_date'] = $completion_date;
+      $returnObject['product']['firstq_uuid'] = $firstq_uuid;
     }
     catch (\Doctrine\ORM\ORMException $e) {
       // ORM exception
@@ -984,10 +967,10 @@ class ClipperController extends FOSRestController
    * Saves a new FirstQProject or update an existing one
    *
    * @param string $form_data_serialized - data from the form
-   * @param string $gs_results - array of data from google speadsheet
+   * @param string $gs_result_array - array of data from google speadsheet
    * @param string $firstq_uid - first q unique id, can be null
    */
-  private function createFirstQProject($form_data_serialized, $gs_results, $firstq_group_uuid)
+  private function createFirstQProject($form_data_serialized, $gs_result_array, $firstq_group_uuid)
   {
     // Get parameters
     $parameters_clipper = $this->container->getParameter('clipper');
@@ -1019,7 +1002,7 @@ class ClipperController extends FOSRestController
     $em->persist($firstq_group);
 
     // Loop for all combination and set individual FirstQ projects
-    foreach ($gs_results as $key => $gs_result) {
+    foreach ($gs_result_array as $key => $gs_result) {
       $firstq_project = new FirstQProject();
       $firstq_project->setSheetDataRaw($this->getSerializer()->encode($gs_result, 'json'));
       $firstq_project->setState($parameters_clipper['state_codes']['limesurvey_pending']);
