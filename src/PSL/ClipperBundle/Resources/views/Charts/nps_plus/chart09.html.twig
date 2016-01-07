@@ -11,6 +11,12 @@
 {% set section_title = 'Chart 9.' ~ subsection_number ~ ': What does ' ~ brand ~ ' represent to Promoters and Detractors? [' ~ country ~ ']' %}
 {% set chart_type = 'DNA_Chart' %}
 
+{% block header %}
+	<header class="section-header">
+		<h3>{{ section_title|e('html') }}</h3>
+	</header>
+{% endblock %}
+
 {% block content %}
 
 	{{ include('PSLClipperBundle:Charts:chart.html.twig') }}

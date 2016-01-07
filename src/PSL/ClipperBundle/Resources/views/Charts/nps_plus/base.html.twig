@@ -32,17 +32,22 @@
 		.section-header {
 			background-color: #949494;
 			color: #ffffff;
-			color: #333333;
 			padding: 1em;
 			margin-bottom: 1em;
 		}
-		.section-header h2 {
+		.section-header h2, .section-header h3 {
 			font-size: 3em;
 			font-weight: 100;
 			margin: 0px;
 		}
 		.section-content {
 			font-size: 2.3em;
+		}
+		.table-of-contents > li {
+			margin-bottom: 1.3em;
+		}
+		.no-break {
+			page-break-inside: avoid;
 		}
 		.footnote {
 			width: 80%;
@@ -117,18 +122,28 @@
 			padding: 5px;
 			min-height: 40px;
 		}
-		.clipper-charts-dnachart > div {
+		.clipper-charts-dnachart, .clipper-charts-dnachart > div {
 			height: auto !important;
+		}
+		.clipper-charts-dnachart {
+			min-height: 0px;
+		}
+		.clipper-charts-dnachart-wrapper {
+			margin-top: -3em;
 		}
 		.clipper-charts-dnachart-body {
 			height: auto !important;
 			padding-bottom: 2em;
 		}
 		.clipper-charts-dnachart-brand > h3 {
-			page-break-after: avoid;
+			display: none;
 		}
 		.clipper-charts-doctorspromotechart {
 			position: relative;
+		}
+		.clipper-charts-doctorspromotechart > .google-visualization-orgchart-table {
+			-webkit-transform: scale(1.6) translateY(-60px);
+			transform: scale(1.6) translateY(-60px);
 		}
 	</style>
 	<script>

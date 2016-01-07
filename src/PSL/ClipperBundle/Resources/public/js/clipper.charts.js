@@ -1053,7 +1053,8 @@ clipper.charts.factory = function(type, DOMContainer, settings, data) {
 				higherColor: [0, 0, 0] // R, G, B
 			},
 			textColor: '#aaa',
-			textFont: 'sans-serif'
+			textFont: 'sans-serif',
+			legendAlignment: 'auto'
 		};
 
 		defaultSettings = clipper.charts.tools.merge(this.settings, defaultSettings);
@@ -1405,15 +1406,22 @@ clipper.charts.factory = function(type, DOMContainer, settings, data) {
 		var legend = wrapper.getElementsByClassName('clipper-charts-promoterspromotechart-legend-svg')[0];
 		var lh = legend.clientHeight;
 		legend.style.position = 'absolute';
-		if (wrapper.clientHeight <= window.innerHeight && tblh > lh) {
+		var la = this.settings.legendAlignment;
+		if (la === 'auto') {
+			if (wrapper.clientHeight <= window.innerHeight && tblh > lh) {
+				la = 'center';
+			} else {
+				la = 'bottom';
+			}
+		}
+		if (la === 'center') {
 			var rows = tbl.querySelectorAll('tr');
 			var gh = tblh - (rows[0].clientHeight + rows[1].clientHeight);
 			var ltop = Math.floor((gh / 2) - (lh / 2));
 			legend.style.top = (rows[0].clientHeight + rows[1].clientHeight + ltop) + 'px';
-		} else {
+		} else if (la === 'bottom') {
 			legend.style.bottom = '50px';
 		}
-
 	};
 // END Amongst my Promoters, how many other brands do they promote and which other brand is most promoted Chart
 /**
@@ -1951,12 +1959,20 @@ clipper.charts.factory = function(type, DOMContainer, settings, data) {
 		var legend = wrapper.getElementsByClassName('clipper-charts-detractorspromotechart-legend-svg')[0];
 		var lh = legend.clientHeight;
 		legend.style.position = 'absolute';
-		if (wrapper.clientHeight <= window.innerHeight && tblh > lh) {
+		var la = this.settings.legendAlignment;
+		if (la === 'auto') {
+			if (wrapper.clientHeight <= window.innerHeight && tblh > lh) {
+				la = 'center';
+			} else {
+				la = 'bottom';
+			}
+		}
+		if (la === 'center') {
 			var rows = tbl.querySelectorAll('tr');
 			var gh = tblh - (rows[0].clientHeight + rows[1].clientHeight);
 			var ltop = Math.floor((gh / 2) - (lh / 2));
 			legend.style.top = (rows[0].clientHeight + rows[1].clientHeight + ltop) + 'px';
-		} else {
+		} else if (la === 'bottom') {
 			legend.style.bottom = '50px';
 		}
 

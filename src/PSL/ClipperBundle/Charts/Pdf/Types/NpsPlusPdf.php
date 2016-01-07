@@ -83,6 +83,18 @@ class NpsPlusPdf
       // get pdfs
       $pdfs = $this->getPdfs($htmls);
       $event->setPdfFiles($pdfs);
+
+      // remove htmls
+      $this->deleteHtmls($htmls);
+    }
+  }
+
+  protected function deleteHtmls($htmls)
+  {
+    foreach ($htmls as $document) {
+      foreach ($document as $file) {
+        unlink($file);
+      }
     }
   }
 
@@ -288,27 +300,29 @@ class NpsPlusPdf
     ));
     // - Charts
     $brandCount = count($formData['brands']);
-    foreach ($formData['markets'] as $marketIdx => $market) {
-      foreach ($formData['brands'] as $brandIdx => $brand) {
-        // Get subdata
-        $filters = array(
-          'countries' => $market,
-          'brand' => $brand
-        );
-        $subdata = $this->chart_helper->getDataStructure($fqg->getId(), $filters);
-        $datatable = $this->getChartDataStructuresByMachineName($subdata, 'DNA')['datatable'];
+    foreach ($countries as $marketIdx => $market) {
+      // Get subdata
+      $filters = array(
+        'countries' => $market
+      );
+      $subdata = $this->chart_helper->getDataStructure($fqg->getId(), $filters);
+      $datatable = $this->getChartDataStructuresByMachineName($subdata, 'DNA')['datatable'];
+
+      foreach ($datatable as $brandIdx => $brand_datatable) {
         $map->add(array(
           'twig' => 'PSLClipperBundle:Charts:nps_plus/chart09.html.twig',
           'placeholders' => array(
-            'chart_datatable' => json_encode($datatable),
+            'chart_datatable' => json_encode([$brand_datatable]),
             'subsection_number' => ($marketIdx * $brandCount) + ($brandIdx + 1),
-            'brand' => $brand,
+            'brand' => $brand_datatable['brand'],
             'country' => $market
           )
         ));
-        unset($datatable);
-        unset($subdata);
       }
+
+      unset($brand_datatable);
+      unset($datatable);
+      unset($subdata);
     }
 
     // Appendix
