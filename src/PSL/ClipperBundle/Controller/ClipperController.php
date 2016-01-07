@@ -282,6 +282,8 @@ class ClipperController extends FOSRestController
       
       if ($gs_results) {
         
+        var_dump($gs_results); die;
+        
         // add results to total price
         foreach ($gs_results as $key => $gs_result) {
           $gs_result_total += (int)str_replace(',', '', $gs_result->price);
