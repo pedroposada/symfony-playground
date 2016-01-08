@@ -52,7 +52,8 @@
         "braintree/braintree_php" : "3.5.0",
         "graze/guzzle-jsonrpc": "~3.0",
         "knplabs/knp-snappy-bundle": "dev-master",
-        "kgilden/static-bundle": "~1.0"
+        "kgilden/static-bundle": "~1.0",
+        "clipper/charts": "dev-master"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3",

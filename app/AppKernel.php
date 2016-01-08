@@ -28,6 +28,7 @@ class AppKernel extends Kernel
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
             new KG\StaticBundle\KGStaticBundle(),
+            new PSL\ClipperChartsBundle\PSLClipperChartsBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
