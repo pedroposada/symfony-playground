@@ -175,9 +175,9 @@ class ClipperController extends FOSRestController
     // Conversion only needed when the request currency is different with user currency
     if ($request_currency_symbol != $currency_symbol) {
       $price = $price * $conversion_rate;
-      $price_label = $currency_symbol . number_format($price);  
+      $price_label = $currency_symbol . number_format($price);
     }
-    
+
     $returnObject = array(
       'price' => $price,
       'priceLabel' => $price_label,
@@ -572,7 +572,7 @@ class ClipperController extends FOSRestController
         return new Response($returnObject, 400);
       }
 
-      // Update price 
+      // Update price
       $form_raw_data = $firstq_group->getFormDataRaw();
       $form_raw_data = json_decode($form_raw_data, TRUE);
       $form_raw_data["price_total"] = $amount_label;
@@ -1406,6 +1406,10 @@ class ClipperController extends FOSRestController
   {
     $response = null;
 
+    // get paramters
+    $rteamid = isset($_GET['rteamid']) ? $_GET['rteamid'] : NULL;
+    $projectid = isset($_GET['projectid']) ? $_GET['projectid'] : NULL;
+
     // get LS
     $ls = $this->container->get('limesurvey');
     $response = $ls->get_survey_properties(array(
@@ -1414,8 +1418,15 @@ class ClipperController extends FOSRestController
     ));
 
     if( isset($response['expires']) && !is_null($response['expires']) ) {
+
+      $limesurvey_quotafull_url = $this->container->getParameter('limesurvey.url_quota_full');
+      $quotafull_url = strtr($limesurvey_quotafull_url, array(
+        '[RTEAMID]' => $rteamid,
+        '[PROJECTID]' => $projectid,
+      ));
+
       // display message
-      return $this->render('PSLClipperBundle:Clipper:maximum.html.twig');
+      return $this->render('PSLClipperBundle:Clipper:maximum.html.twig', array('url'=>$quotafull_url));
     }
     else {
       // redirect
@@ -1423,8 +1434,11 @@ class ClipperController extends FOSRestController
       $destination = strtr($limesurvey_url_destination, array(
         '[SID]' => $sid,
         '[LANG]' => 'en',
-        '[SLUG]' => $slug
+        '[SLUG]' => $slug,
+        '[RTEAMID]' => $rteamid,
+        '[PROJECTID]' => $projectid,
       ));
+
       return new RedirectResponse($destination, 301);
       // http status code 301 Moved Permanently
     }

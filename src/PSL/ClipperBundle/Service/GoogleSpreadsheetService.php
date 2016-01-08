@@ -104,10 +104,11 @@ class GoogleSpreadsheetService
     $data = array(
       // FirstQ
       'C3' => 'FirstQ',
-      'C10' => $form_data->loi,
-      'C18' => $form_data->ir,
+      'C5' => $form_data->num_participants,
       'C7' => $form_data->market,
-      'C8' => $form_data->specialty
+      'C8' => $form_data->specialty,
+      'C10' => $form_data->loi,
+      'C18' => $form_data->ir
     );
     // cells to return
     $return = array('F3', 'F5', 'F7', 'F8',
