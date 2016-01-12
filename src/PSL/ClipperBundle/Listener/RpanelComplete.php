@@ -34,7 +34,7 @@ class RpanelComplete extends FqProcess
     
     $country = current($fqp->getSheetDataByField('market'));
     $specialty = current($fqp->getSheetDataByField('specialty'));
-    $quota = $this->container->get('quota_map')->lookupOne($country, $specialty);
+    $quota = current($fqp->getSheetDataByField('num_participants'));
     $this->logger->debug("Lookup for country code: [{$country}] and specialty code: [{$specialty}]. Quota: [{$quota}]", array('rpanel_complete'));
     
     // if completed is less than quota, then exit
