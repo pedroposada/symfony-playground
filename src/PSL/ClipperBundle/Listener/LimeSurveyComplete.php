@@ -26,7 +26,7 @@ class LimeSurveyComplete extends FqProcess
     // When quota is reached OR time has expired; whichever comes first.
     $markets = $fqg->getFormDataByField('markets');
     $specialties = $fqg->getFormDataByField('specialties');
-    $estimated_quota = array_sum($this->container->get('quota_map')->lookupMultiple($markets, $specialties));
+    $estimated_quota = $fqg->getFormDataByField('num_participants');
 
     $em = $this->container->get('doctrine')->getManager();
     $responses = $em->getRepository('PSLClipperBundle:LimeSurveyResponse')->findByFirstqgroup($fqg);
@@ -43,7 +43,8 @@ class LimeSurveyComplete extends FqProcess
       // Email to client when quota has been reached and the report is ready.
       // link to project report with quick-login of the user.
       if (empty($this->user['mail'])) {
-        throw new Exception("User has no email address for order id: [$fqg->getId()]", parent::LOGERROR);
+        $message = "User has no email address for order id: [" . $fqg->getId() . "]";
+        throw new Exception($message, parent::LOGERROR);
       }
       $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $this->user['mail'], '', array());
       $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
