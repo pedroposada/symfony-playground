@@ -89,6 +89,20 @@ class NpsPlusPdf
     }
   }
 
+  /**
+   * Deletes the temp. generated HTMLs
+   * 
+   * @param ArrayCollection $htmls An ArrayCollection of ArrayCollections
+   * of the files generated in this form:
+   * array(
+   *   array(
+   *     'path/to/file/myTemphtml12345.html',
+   *     'path/to/file/myTemphtml67890.html',
+   *     'path/to/file/myTemphtmlABCDE.html',
+   *       ...
+   *   )
+   * )
+   */
   protected function deleteHtmls($htmls)
   {
     foreach ($htmls as $document) {
@@ -98,6 +112,16 @@ class NpsPlusPdf
     }
   }
 
+  /**
+   * Takes the template maps, renders the templates and creates temporary htmls.
+   * It returns an array of arrays of the files created.
+   * 
+   * @param ArrayCollection $templateMaps The template maps as 
+   *   getTemplateMap returns.
+   * 
+   * @return ArrayCollection ArrayCollection of ArrayCollections of
+   *   the files created.
+   */
   protected function getHtmls($templateMaps)
   {
     $htmls = new ArrayCollection();
@@ -117,6 +141,15 @@ class NpsPlusPdf
     return $htmls;
   }
 
+  /**
+   * Takes a template and its placeholders, renders it and creates a temp HTML
+   * with it.
+   * 
+   * @param String $template Template resource location.
+   * @param Array $placeholder All the placeholders for the twig template.
+   * 
+   * @return String The temp HTML file created. 
+   */
   protected function saveTempHtml($template, $placeholder=array())
   {
     $fname = uniqid('clipper_NpsPlus', true) . '.html';
@@ -145,10 +178,11 @@ class NpsPlusPdf
       $pdfGenerator->getInternalGenerator()->setTimeout(500);
       $pdfGenerator->generate($htmlList->toArray(), $filepath, array(
         'encoding' => 'utf-8',
+        'lowquality' => false,
         'enable-smart-shrinking' => true,
         'images' => true,
         'page-size' => 'Letter',
-        'dpi' => '300',
+        'dpi' => 300,
         'javascript-delay' => 15000,
         'enable-javascript' => true,
         'no-stop-slow-scripts' => true,
@@ -333,6 +367,15 @@ class NpsPlusPdf
     return $map;
   }
 
+  /**
+   * Searches in the data structure providen for the substructure with the
+   * name $machinename.
+   * @param ArrayCollection $dataStructure Main data structure as given by
+   *   the chart builder
+   * @param String $machinename A machine name to look for.
+   * 
+   * @return ArrayCollection The substructure found.
+   */
   private function getChartDataStructuresByMachineName($dataStructure, $machinename)
   {
     if (!isset($dataStructure['charts'])) {
