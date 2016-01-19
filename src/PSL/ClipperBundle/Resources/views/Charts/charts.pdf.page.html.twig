@@ -1,0 +1,33 @@
+{# charts-chart-page.html.twig #}
+{% autoescape false %}
+  
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <title>Charts</title>
+      
+      {# google charts API #}
+      <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+      {# @todo: add/load from vendor folder using composer.json #}
+      <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/clipper.charts.js') }}"></script>
+      
+      {# specific rules for pdf downloads #}
+      <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/charts.pdf.config.js') }}"></script>
+      <script type="text/javascript" src="{{ asset('bundles/pslclipper/js/charts.pdf.custom.js') }}"></script>
+      
+      {# styles #}
+      <script type="text/javascript" src="{{ asset('bundles/pslclipper/css/pdf.charts.css') }}"></script>
+
+    </head>
+    <body>
+      
+      <div class="title">{% block title %}{% endblock %}</div>
+      <div class="description">{% block title %}{% endblock %}</div>
+      <div class="google-chart">{% block title %}{% endblock %}</div>
+      
+    </body>
+  </html>
+    
+{% endautoescape %}

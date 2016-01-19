@@ -9,6 +9,8 @@
 /composer.phar
 /vendor/
 /web/bundles/
+!web/bundles/pslclipper/zip/.gitkeep
+!web/bundles/pslclipper/pdf/.gitkeep
 src/PSL/ClipperBundle/Command/TestCommand.php
 app/config/parameters.ymlsrc/PSL/ClipperBundle/Resources/public/images/fwreports-second-orig.png
 src/PSL/ClipperBundle/Resources/public/images/fwreports-second.xcf
@@ -17,3 +19,6 @@ src/PSL/ClipperBundle/Resources/public/images/fwreports-second-orig.png
 src/PSL/ClipperBundle/Resources/public/admin-ui/js/app-config.js
 app/Resources/users.yml
 app/Resources/invoice_whitelist.yml
+src/PSL/ClipperBundle/Resources/public/html/
+src/PSL/ClipperBundle/Resources/public/pdf/
+src/PSL/ClipperBundle/Resources/public/zip/

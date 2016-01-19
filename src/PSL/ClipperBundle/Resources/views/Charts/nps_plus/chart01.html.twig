@@ -1,0 +1,22 @@
+{#
+	Placeholders:
+		-chart_datatable
+#}
+
+{% extends 'PSLClipperBundle:Charts:nps_plus/base.html.twig' %}
+
+{% set section_title = 'Chart 1: Net Promoter Score?' %}
+{% set chart_type = 'NPS_Chart' %}
+
+{% block content %}
+	<p>For each brand, this chart shows the % of doctors in each NPS segment: Detractors, Passives and Promoters.</p>
+
+	<p>The rightmost column shows the NPS score, calculated as: % Promoters - % Detractors.</p>
+
+	<p>NPS measures overall brand health. The higher the score, the healthier the brand.</p>
+
+	{{ include('PSLClipperBundle:Charts:chart.html.twig') }}
+
+	<p class="note"><small>Note: numbers are rounded to the nearest whole number</small></p>
+
+{% endblock %}

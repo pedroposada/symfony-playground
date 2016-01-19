@@ -1,0 +1,22 @@
+{#
+	Placeholders:
+		-chart_datatable
+#}
+
+{% extends 'PSLClipperBundle:Charts:nps_plus/base.html.twig' %}
+
+{% set section_title = 'Chart 2: How loyal are doctors to my brand?' %}
+{% set chart_type = 'Loyalty_Chart' %}
+
+{% block content %}
+	<p>This chart shows each brand’s Loyalty Score as a circle on a scale from 1 to 5. The <span class="highlight-red">red</span> circle shows the mean score for all brands surveyed.</p>
+	
+	<p>Scores &lt; 3.0 indicate low loyalty. Doctors are more likely to switch to competing brands.</p>
+
+	<p>Scores &gt; 4.0 indicate high loyalty. Doctors are less likely to switch to competing brands.</p>
+
+	<p>See Appendix for details of Loyalty Score and why it’s important.</p>
+
+	{{ include('PSLClipperBundle:Charts:chart.html.twig') }}
+
+{% endblock %}

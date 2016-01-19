@@ -1,6 +1,6 @@
 <?php
 /**
- * PSL/ClipperBundle/Utils/GeoMapperService.php
+ * PSL/ClipperBundle/Utils/GeoMapper.php
  *
  * Clipper GeoMapper Utilities.
  * 
@@ -44,6 +44,9 @@ class GeoMapper {
         'Italy',
         'Spain',
         'UK',
+      ),
+      'US' => array(
+        'USA',
       ),
       //additional data from net
     /** 
@@ -379,5 +382,27 @@ class GeoMapper {
     }
     asort($countries_list);
     return $countries_list;
+  }
+  
+  /**
+   * This method will return a flat array of regions or empty array
+   * 
+   * @param array $markets
+   * 
+   * @return array $regions
+   **/
+  public function findRegionsByMarkets($markets = array())
+  {
+    $regions = array();
+    
+    foreach ((array)$markets as $market) {
+      foreach (self::$map as $region => $countries) {
+        if (in_array($market, $countries)) {
+          $regions[$region] = $region;
+        }
+      }
+    }
+    
+    return count($regions) ? array_keys($regions) : array();
   }
 }
