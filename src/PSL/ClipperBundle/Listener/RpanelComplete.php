@@ -39,7 +39,7 @@ class RpanelComplete extends FqProcess
     
     // if completed is less than quota, then exit
     if ($quota > $response) {
-      throw new Exception("Quota ({$quota}) has not been reached yet.", parent::LOGINFO);
+      throw new Exception("Quota ({$quota}) has not been reached yet. Current: {$response}.", parent::LOGINFO);
     }
     $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
     
