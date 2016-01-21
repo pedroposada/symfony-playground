@@ -204,10 +204,13 @@ class LimeSurveyCreated extends FqProcess
     $urls = array();
     $sid = $data['sid'];
     foreach ($data['participants'] as $participant) {
+      $token = (isset($participant['token'])&&!empty($participant['token']))
+        ? $participant['token']
+        : uniqid('', true);
       $urls[] = strtr($baseURL, array(
         '[SID]' => $sid,
         '[LANG]' => $languageCode,
-        '[SLUG]' => $participant['token'],
+        '[SLUG]' => $token,
       ));
     }
 
