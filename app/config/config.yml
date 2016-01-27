@@ -204,6 +204,7 @@ parameters:
   clipper.brands: Resources/terms/brands.xml
   clipper.conditions: Resources/terms/conditions.xml
   clipper.quota.universal: "1"
+  clipper.quicklogin.firstq: '%clipper.frontend.url%/quicklogin/[QL_HASH]/project?project_id=[ORDER_ID]'
   #limeSurvey
   limesurvey.url_redirect: '%limesurvey.url_redirect_base%/clipper/limesurvey/[SID]/[SLUG]/[LANG]?rteamid=[RTEAMID]&projectid=[PROJECTID]'
   limesurvey.url_destination: '%limesurvey.url_destination_base_sid%/token/[SLUG]/lang/[LANG]?rteamid=[RTEAMID]&projectid=[PROJECTID]'
