@@ -73,12 +73,14 @@ class LimeSurveyExported extends FqProcess
       $fwsso_quicklogin_user = new FWSSOQuickLoginUser('', '', $this->user['mail'], '', array());
       $hash = $fwsso_quicklogin_user->getQuickLoginHash($this->container->getParameter('clipper.users.ql_encryptionkey'));
 
-      // http://localhost:9000/#quick-login&op=select-project&order_id=4db9db84-589f-11e5-bff2-4ffbfe082dc5&ql_hash=GhbXpDS2kh4gRI6QcQmF9nui5UNTydBb_c1_j4STRR2FR8bL58DidYiKOcF9y4YdD1R3qmnI1PXXMEkiH2KAlA,,
-      $link = $this->container->getParameter('clipper.frontend.url')
-            . '#quick-login'
-            . '&op=select-project'
-            . '&order_id=' . $fqg->getId()
-            . '&ql_hash=' . $hash;
+      // http://[FIRSTQDOMAIN]/quicklogin/[QL_HASH]/project?project_id=[ORDER_ID]
+      $link = $this->container->getParameter('clipper.quicklogin.firstq');
+      $tokens = array(
+        '[QL_HASH]'  => $hash,
+        '[ORDER_ID]' => $fqg->getId()
+      );
+      // Replace tokens in link
+      $link = str_replace(array_keys($tokens), array_values($tokens), $link);
 
       $message = \Swift_Message::newInstance()
         ->setContentType('text/html')
