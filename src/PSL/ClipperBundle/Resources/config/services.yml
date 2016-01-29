@@ -127,6 +127,12 @@ services:
     tags:
       - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 70 }
 
+  clipper.listener.limesurvey_exported:
+    class: PSL\ClipperBundle\Listener\LimeSurveyExported
+    arguments: [@service_container, "limesurvey_exported"]
+    tags:
+      - { name: kernel.event_listener, event: fq_process, method: onMain, priority: 60 }
+
   # refresh responses
   clipper.listener.limesurvey_responses:
     class: PSL\ClipperBundle\Listener\LimeSurveyResponses

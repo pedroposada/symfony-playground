@@ -36,12 +36,26 @@ class RpanelComplete extends FqProcess
     $specialty = current($fqp->getSheetDataByField('specialty'));
     $quota = current($fqp->getSheetDataByField('num_participants'));
     $this->logger->debug("Lookup for country code: [{$country}] and specialty code: [{$specialty}]. Quota: [{$quota}]", array('rpanel_complete'));
+
+    $estimated_completion_date = current($fqg->getFormDataByField('completion_date'));
+    $now = new \DateTime('now');
+    $completion_date = new \DateTime($estimated_completion_date);
+
+    // CLIP-75. Project complete is either:
+    // When quota is reached OR time has expired; whichever comes first.
+    $quota_is_reached = ($quota <= $response);
+    $time_has_expired = ($completion_date <= $now);
+
+    $this->logger->debug("Estimated completion date: {$estimated_completion_date}");
     
     // if completed is less than quota, then exit
-    if ($quota > $response) {
-      throw new Exception("Quota ({$quota}) has not been reached yet.", parent::LOGINFO);
+    if (!$quota_is_reached && !$time_has_expired) {
+      throw new Exception("Quota ({$quota}) has not been reached yet. Current: {$response}.", parent::LOGINFO);
     }
-    $this->logger->debug("Quota ({$quota}) has been reached.", array('rpanel_complete'));
+
+    $message = ($time_has_expired) ? "Time has expired ({$estimated_completion_date})." : "Quota ({$quota}) has been reached.";
+    
+    $this->logger->debug($message, array('rpanel_complete'));
     
     // quota reached, EXPIRE survey
     $response = $ls->set_survey_properties(array(
