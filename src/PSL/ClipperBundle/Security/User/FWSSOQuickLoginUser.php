@@ -82,7 +82,7 @@ class FWSSOQuickLoginUser implements UserInterface
     public function getQuickLoginHash($key)
     {        
         $string_to_encrypt = array(
-          'id' => trim($this->username),
+          'id' => trim($this->email),
         );
         $string_to_encrypt = json_encode($string_to_encrypt);
 

@@ -449,7 +449,7 @@ class ClipperUserController extends FOSRestController
       $ql_hash = $user->getQuickLoginHash($encKey);
       
       $fe = $container->getParameter('clipper.frontend.url');
-      $link = $fe . '#fpr?ql=' . $ql_hash;
+      $link = $fe . '/quicklogin/' . $ql_hash . '/project-dashboard';
       
       // @TODO Set the subject and body
       $msg = \Swift_Message::newInstance()
