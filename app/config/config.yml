@@ -4,8 +4,8 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: @PSLClipperBundle/Resources/config/config.yml }
-    - { resource: @PSLClipperBundle/Resources/config/services.yml }
+    - { resource: "@PSLClipperBundle/Resources/config/config.yml" }
+    - { resource: "@PSLClipperBundle/Resources/config/services.yml" }
     - { resource: doctrine_extensions.yml }
 
 framework:
@@ -170,6 +170,19 @@ nelmio_cors:
               - Authorization
             allow_methods:
               - GET
+              - OPTIONS
+        ^/clipper/contactus:
+            allow_credentials: true
+            allow_origin:
+              - '*'
+            allow_headers:
+              - Origin
+              - X-Requested-With
+              - Content-Type
+              - Accept
+              - Authorization
+            allow_methods:
+              - POST
               - OPTIONS
 
   ######################################
