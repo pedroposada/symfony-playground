@@ -1,0 +1,7 @@
+<div class="message">
+	<span>Contact form</span>
+
+	<p>{{ message|e('html') }}</p>
+
+	<p>Please contact me by {{ cont_method|e('html') }} at: {{ cont_value|e('html') }} .</p>
+</div>

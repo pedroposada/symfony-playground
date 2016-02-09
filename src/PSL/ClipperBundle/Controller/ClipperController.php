@@ -10,12 +10,14 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\BrowserKit\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\VarDumper;
 use Symfony\Component\Config\FileLocator;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -1506,6 +1508,54 @@ class ClipperController extends FOSRestController
 
     return new RedirectResponse($destination, 301);
 
+  }
+
+  /**
+   * Send email to contact us address
+   * /clipper/contactus/
+   *
+   * @param ParamFetcher $paramFetcher Paramfetcher
+   *
+   * @Route("/contactus")
+   * @Method({"POST"})
+   * @QueryParam(name="contact-message", default="(empty)", description="Contact message")
+   * @QueryParam(name="contact-method", default="email", description="How do you prefer to be contacted?")
+   */
+  public function contactusAction(ParamFetcher $paramFetcher)
+  {
+    $addr_norp = $this->container->getParameter('clipper.no_reply_email');
+    $addr_to = $this->container->getParameter('clipper.admin_email');
+    $contact_message = $this->getRequest()->request->get('contact-message');
+    $contact_method = $this->getRequest()->request->get('contact-method');
+    $contact_method_txt = preg_replace('/\-.*/', '', $contact_method);
+    $cont_email = $this->getRequest()->request->get('contact-email');
+    $cont_phone = $this->getRequest()->request->get('contact-phone');
+
+    $mail_from = ($contact_method === 'email-contact') ? $cont_email : $addr_norp;
+    
+    $message = \Swift_Message::newInstance()
+      ->setSubject('Contact form')
+      ->setFrom($mail_from)
+      ->setTo($addr_to)
+      ->setBody(
+        $this->renderView(
+          'PSLClipperBundle:Emails:contactus.html.twig', // Twig template
+          array(
+            'message' => $contact_message,
+            'cont_method' => $contact_method_txt,
+            'cont_value' => ($contact_method_txt === 'email') ? $cont_email : $cont_phone 
+          ) // Placeholders
+        ),
+        'text/html'
+      );
+
+    $this->get('mailer')->send($message);
+
+    return new JsonResponse(array(
+      'content' => 'Message sent.',
+      'header' => array(),
+      'status'=> 200
+    ));
   }
 
 }
