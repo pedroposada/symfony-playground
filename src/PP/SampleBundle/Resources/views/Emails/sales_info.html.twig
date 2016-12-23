@@ -1,0 +1,49 @@
+{# src/PP/SampleBundle/Resources/views/Emails/sales_info.twig #}
+{# Template for sale info in email #}
+
+<div>
+  <table>
+    <tbody>
+      <tr>
+        <td>Name</td>
+        <td>{{ sales_info.user_name }}</td>
+      </tr>
+      <tr>
+        <td>Company</td>
+        <td>{{ sales_info.company }}</td>
+      </tr>
+      <tr>
+        <td>Title</td>
+        <td>{{ sales_info.title }}</td>
+      </tr>
+      <tr>
+        <td>Launch date</td>
+        <td>{{ sales_info.launch_date }}</td>
+      </tr>
+      <tr>
+        <td>Markets</td>
+        <td>{{ sales_info.markets }}</td>
+      </tr>
+      <tr>
+        <td>Specialties</td>
+        <td>{{ sales_info.specialties }}</td>
+      </tr>
+      <tr>
+        <td>Price</td>
+        <td>{{ sales_info.price }}</td>
+      </tr>
+      {% if sales_info.project_number is defined %}
+      <tr>
+        <td>Project Number</td>
+        <td>{{ sales_info.project_number }}</td>
+      </tr>
+      {% endif %}
+      {% if sales_info.vat_number is defined %}
+      <tr>
+        <td>Vat Number</td>
+        <td>{{ sales_info.vat_number }}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>

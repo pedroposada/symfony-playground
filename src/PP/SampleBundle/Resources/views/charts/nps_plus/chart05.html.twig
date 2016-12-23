@@ -1,0 +1,25 @@
+{#
+	Placeholders:
+		-chart_datatable
+#}
+
+{% extends 'PPSampleBundle:Charts:nps_plus/base.html.twig' %}
+
+{% set section_title = 'Chart 5: Which other brand is most promoted by my Promoters?' %}
+{% set chart_type = 'PromotersPromote_Chart' %}
+
+{% block content %}
+	<p>This chart shows the competitor most promoted by each brand’s Promoters.</p>
+
+	<ul>
+		<li>Shaded cells indicate the most commonly promoted competitor for each brand.</li>
+		<li>The degree of shading indicates the percentage of brand Promoters who promote that competitor.</li>
+	</ul>
+
+	<p>If Promoters of one brand also tend to promote another brand, it suggests that the two brands are considered interchangeable.</p>
+
+	<p>Alternatively, the two brands may be used for different patient types.</p>
+
+	{{ include('PPSampleBundle:Charts:chart.html.twig') }}
+
+{% endblock %}

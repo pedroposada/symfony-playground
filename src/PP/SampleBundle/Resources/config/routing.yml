@@ -1,0 +1,79 @@
+psl_clipper_limesurvey_redirect:
+  path:     /limesurvey/{sid}/{slug}/{lang}
+  defaults: { _controller: PPSampleBundle:Clipper:redirectLimeSurvey }
+  requirements:
+    sid: \d+
+psl_clipper_thankyou:
+  path:     /thankyou/{fquuid}
+  defaults: { _controller: PPSampleBundle:Clipper:thankyou }
+psl_clipper_debug:
+  path:     /debug
+  defaults: { _controller: PPSampleBundle:Clipper:debug }
+psl_clipper_contactus:
+  path:     /contactus
+  defaults: { _controller: PPSampleBundle:Clipper:contactus }
+  methods: [POST]
+psl_clipper_exit:
+  path:     /limesurvey/exit
+  defaults: { _controller: PPSampleBundle:Clipper:exit }
+
+# User Forgot Password route
+clipper_user_forgotpassword:
+  path:     /api/user/forgotpassword/{email}
+  defaults: { _controller: PPSampleBundle:ClipperUser:forgotpassword }
+  methods: [GET]
+
+# Automatic routes
+clipper:
+  type:     rest
+  resource: PP\SampleBundle\Controller\ClipperController
+  prefix:   /api
+clipper_user:
+  type:     rest
+  resource: PP\SampleBundle\Controller\ClipperUserController
+  prefix:   /api
+
+# FW SSO users
+api_login_check:
+   path:    /api/login_check
+
+# FW SSO Quick Login users
+api_quick_login_check:
+    path:   /api/ql/login_check
+
+# Admin UI users
+api_login_admin_check:
+    path:   /api/admin/login_check
+
+
+# Charts
+psl_clipper_charts:
+  path:     /charts
+  defaults: { _controller: PPSampleBundle:Charts:charts }
+
+psl_clipper_charts_static:
+  path:     /charts/static
+  defaults:
+    _controller: FrameworkBundle:Template:template
+    template:    views/static/charts.html.twig
+
+psl_clipper_charts_react:
+  path:     /charts/react
+  defaults: { _controller: PPSampleBundle:Charts:chartsReact }
+
+psl_clipper_charts_rest:
+  type:     rest
+  resource: PP\SampleBundle\Controller\ChartsController
+  prefix:   /charts
+
+# Downloads
+psl_clipper_downloads_rest:
+  type:     rest
+  resource: PP\SampleBundle\Controller\DownloadsController
+
+
+# Automatic routes
+# clipper:
+  # type:     rest
+  # resource: PP\SampleBundle\Controller\ClipperController
+  # prefix:   /ws

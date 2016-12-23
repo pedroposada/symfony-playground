@@ -1,0 +1,20 @@
+{#
+	Placeholders:
+		-chart_datatable
+#}
+
+{% extends 'PPSampleBundle:Charts:nps_plus/base.html.twig' %}
+
+{% set section_title = 'Chart 6: Which other brands are promoted by my Detractors?' %}
+{% set chart_type = 'DetractorsPromote_Chart' %}
+
+{% block content %}
+	<p>This chart shows which other brands are promoted by each brand’s Detractors.</p>
+
+	<p>Cell shading indicates the percentage of Detractors who promote the competitor in each column.</p>
+
+	<p>When Detractors of your brand promote competing brand(s), they are more likely to switch.</p>
+
+	{{ include('PPSampleBundle:Charts:chart.html.twig') }}
+
+{% endblock %}

@@ -1,0 +1,589 @@
+<?php
+/**
+ * PP/SampleBundle/Survey/BarriersSurvey.php
+ * 
+ * Barriers Survey Class
+ * Handles all business logic for an Barriers survey
+ * Extends the Lime Survey class
+ * 
+ * @version 1.0
+ * 
+ */
+
+namespace PP\SampleBundle\Survey;
+
+use PP\SampleBundle\Survey\LimeSurvey;
+
+class BarriersSurvey extends LimeSurvey
+{
+  
+  protected $market;
+  
+  protected $specialty;
+  
+  protected $brands;
+  
+  protected $statements;
+  
+  protected $patients;
+  
+  protected $url_exit;
+  
+  public function __construct($templating, $survey_data)
+  // public function __construct($form_data)
+  {
+    parent::setTemplating($templating);
+    // $this->setTemplating();
+    
+    $this->market = $survey_data->market;
+    $this->specialty = $survey_data->specialty;
+    $this->brands = $survey_data->brands;
+    $this->statements = $survey_data->statements;
+    $this->patients = $survey_data->patients;
+    $this->url_exit = $survey_data->url_exit;
+  }
+  
+  /*
+  public function setParentTemplating($templating)
+  {
+    parent::setTemplating($templating);
+  }
+  */
+  
+  /**
+   * Function to fill the arrays needed for the survey
+   */
+  public function createSurveyComponants()
+  {
+    
+    $templating = $this->getTemplating();
+    
+    // ids
+    // survey       100000
+    // group        2000
+    // questions    30000
+    // subquestions 40000
+    // condition    500
+    
+// ------------------------------------------------------------------------------
+    
+    $sid = '896139';
+    
+    // Survey settings
+    
+    $survey_row = $templating->render('PPSampleBundle:limesurvey:limesurveySurveyRow.xml.twig', 
+      array('survey_id' => $sid,
+        'adminemail' => 'steven.lee@pslgroup.com',
+        'faxto' => '5149999999',
+        'bounce_email' => 'steven.lee@pslgroup.com',
+      )
+    );
+    $this->addSurvey($survey_row);
+    
+    // Language settings 
+    
+    $survey_language_settings_row = $templating->render('PPSampleBundle:limesurvey:NPSSurveyAssets/npsSurveyLanguageSettings.xml.twig',
+      array('surveyls_survey_id' => $sid,
+        'surveyls_url' => $this->url_exit,
+      )
+    );
+    $this->addSurveysLanguagesetting($survey_language_settings_row);
+    
+    // url parameters
+    
+    $survey_url_parameters_row = $templating->render('PPSampleBundle:limesurvey:limesurveyUrlParameters.xml.twig', 
+      array('id' => '100',
+        'sid' => $sid,
+        'parameter' => 'lstoken',
+        'targetqid' => '',
+        'targetsqid' => '',
+      )
+    );
+    $this->addSurveyUrlParameter($survey_url_parameters_row);
+    
+// ---------------------------------------------------------------------------------------------------------------------------
+// group 0
+
+// Adoption
+// ---------------------------------------------------------------------------------------------------------------------------
+    
+    $group_order = 0;
+
+    $gid_0 = 2000;
+    
+    $group_0_row = $templating->render('PPSampleBundle:limesurvey:limesurveyGroupRow.xml.twig', 
+      array('gid' => $gid_0,
+        'sid' => $sid,
+        'group_name' => 'Adoption',
+        'group_order' => $group_order,
+      )
+    );
+    
+    $this->addGroup($group_0_row);
+    $group_order++;
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 0
+    // Thinking about the following drugs used to treat {PATIENT}, which of these statements applies to each of them? 
+    // Please select one response for each drug.
+    // ------------------------------------------------------------------------------
+    
+    $qid_0_0 = 30000;
+    $question_0_0 = '<p>Thinking about the following drugs used to treat ' . $this->patients . ', which of these statements applies to each of them? Please select one response for each drug.</p>';
+    
+    $question_0_0_row = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $qid_0_0,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $gid_0,
+        'type' => 'F',
+        'title' => 'G001Q001',
+        'question' => $question_0_0,
+        'help' => '',
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'Y',
+        'question_order' => 0,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 1,
+      )
+    );
+    
+    $this->addQuestion($question_0_0_row);
+    
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 0
+    // answers
+    // ------------------------------------------------------------------------------
+    
+    $answers_0_0 = array(
+      'I currently use this drug',
+      'I have used this drug previously and would consider using it again',
+      'I have used this drug previously but would no longer consider it',
+      'I have never used this drug but would consider it',
+      'I have never used this drug and would not consider it',
+      'I am not aware of this drug',
+    );
+    foreach ($answers_0_0 as $key => $answer) {
+      $index = $key + 1;
+      $answer_row = $templating->render('PPSampleBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
+        array('qid' => $qid_0_0,
+          'code' => 'A0' . $index,
+          'answer' => $answer,
+          'sortorder' => $index,
+          'assessment_value' => 0,
+        )
+      );
+      
+      $this->addAnswer($answer_row);
+    }
+
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 0
+    // subquestion
+    // Brands
+    // ------------------------------------------------------------------------------
+    
+    $subquestions_0_0 = 40000;
+    
+    foreach ($this->brands as $key => $brand) {
+      $index = $key + 1;
+      $subquestion_row = $templating->render('PPSampleBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
+        array('qid' => $subquestions_0_0 + $index,
+          'parent_qid' => $qid_0_0,
+          'sid' => $sid,
+          'gid' => $gid_0,
+          'type' => 'F',
+          'title' => 'SQ00' . $index,
+          'question' => $brand,
+          'other' => 'N',
+          'question_order' => $index,
+          'scale_id' => 0,
+        )
+      );
+      
+      $this->addSubquestion($subquestion_row);
+    }
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 0
+    // question_attributes
+    // ------------------------------------------------------------------------------
+    
+    $question_attribute_0_0_row_0 = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
+      array('qid' => $qid_0_0,
+        'attribute' => 'printable_help',
+        'value' => 1,
+        'language' => 'EN',
+      ));
+    
+    $this->addQuestionAttribute($question_attribute_0_0_row_0);
+    
+    $question_attribute_0_0_row_1 = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
+      array('qid' => $qid_0_0,
+        'attribute' => 'random_order',
+        'value' => 1,
+        'language' => '',
+      ));
+    
+    $this->addQuestionAttribute($question_attribute_0_0_row_1);
+    
+    
+// ---------------------------------------------------------------------------------------------------------------------------
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 1
+    // Currently used (hidden)
+    // hidden
+    // ------------------------------------------------------------------------------
+    
+    $qid_0_1 = 300100;
+    $question_0_1 = 'Currently used (hidden)
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+  $("#question{QID}").hide();
+  $(".question-wrapper input:radio").change(function(){
+    var name = $(this).attr("name");
+    var n = name.indexOf("SQ");
+    var subQuestion = name.substring(n);
+    var answer = $(this).attr("value");
+    if (answer == "A01") {
+      $("#java{SGQ}" + subQuestion).val("A1");
+      $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", "checked");
+      $("#answer{SGQ}" + subQuestion + "-").attr("checked", false);
+    }
+    else {
+      $("#java{SGQ}" + subQuestion).val("");
+      $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", false);
+      $("#answer{SGQ}" + subQuestion + "-").attr("checked", "checked");
+    }
+  });
+});
+</script>';
+    
+    $question_0_1_row = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $qid_0_1,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $gid_0,
+        'type' => 'F',
+        'title' => 'G001Q002',
+        'question' => $question_0_1,
+        'help' => '',
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'N',
+        'question_order' => 4,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 1,
+      )
+    );
+    
+    $this->addQuestion($question_0_1_row);
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 1
+    // answers
+    // ------------------------------------------------------------------------------
+    
+    $answer_0_1_row = $templating->render('PPSampleBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
+      array('qid' => $qid_0_1,
+        'code' => 'A1',
+        'answer' => 'yes',
+        'sortorder' => 1,
+        'assessment_value' => 0,
+      )
+    );
+    $this->addAnswer($answer_0_1_row);
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 1
+    // subquestions
+    // ------------------------------------------------------------------------------
+    
+    $subquestions_0_1 = 40100;
+    
+    foreach ($this->brands as $key => $brand) {
+      $index = $key + 1;
+      $subquestion_row = $templating->render('PPSampleBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
+        array('qid' => $subquestions_0_1 + $index,
+          'parent_qid' => $qid_0_1,
+          'sid' => $sid,
+          'gid' => $gid_0,
+          'type' => 'F',
+          'title' => 'SQ00' . $index,
+          'question' => $brand,
+          'other' => 'N',
+          'question_order' => $index,
+          'scale_id' => 0,
+        )
+      );
+      
+      $this->addSubquestion($subquestion_row);
+    }
+    
+    
+// ---------------------------------------------------------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 2
+    // Brand awareness (hidden)
+    // hidden
+    // ------------------------------------------------------------------------------
+
+    $qid_0_2 = 300200;
+    $question_0_2 = 'Brand awareness (hidden)
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+  $("#question{QID}").hide();
+  $(".question-wrapper input:radio").change(function(){
+    var name = $(this).attr("name");
+    var n = name.indexOf("SQ");
+    var subQuestion = name.substring(n);
+    var answer = $(this).attr("value");
+    if (answer != "A06") {
+      $("#java{SGQ}" + subQuestion).val("A1");
+      $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", "checked");
+      $("#answer{SGQ}" + subQuestion + "-").attr("checked", false);
+    }
+    else {
+      $("#java{SGQ}" + subQuestion).val("");
+      $("#answer{SGQ}" + subQuestion + "-A1").attr("checked", false);
+      $("#answer{SGQ}" + subQuestion + "-").attr("checked", "checked");
+    }
+  });
+});
+</script>';
+    
+    $question_0_2_row = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $qid_0_2,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $gid_0,
+        'type' => 'F',
+        'title' => 'G001Q003',
+        'question' => $question_0_2,
+        'help' => '',
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'N',
+        'question_order' => 5,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 1,
+      )
+    );
+    
+    $this->addQuestion($question_0_2_row);
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 1
+    // answers
+    // ------------------------------------------------------------------------------
+    
+    $answer_0_2_row = $templating->render('PPSampleBundle:limesurvey:limesurveyAnswerRow.xml.twig', 
+      array('qid' => $qid_0_2,
+        'code' => 'A1',
+        'answer' => 'yes',
+        'sortorder' => 1,
+        'assessment_value' => 0,
+      )
+    );
+    $this->addAnswer($answer_0_2_row);
+    
+    // ------------------------------------------------------------------------------
+    // group 0
+    // question 1
+    // subquestions
+    // ------------------------------------------------------------------------------
+    
+    $subquestions_0_2 = 40200;
+    
+    foreach ($this->brands as $key => $brand) {
+      $index = $key + 1;
+      $subquestion_row = $templating->render('PPSampleBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
+        array('qid' => $subquestions_0_2 + $index,
+          'parent_qid' => $qid_0_2,
+          'sid' => $sid,
+          'gid' => $gid_0,
+          'type' => 'F',
+          'title' => 'SQ00' . $index,
+          'question' => $brand,
+          'other' => 'N',
+          'question_order' => $index,
+          'scale_id' => 0,
+        )
+      );
+      
+      $this->addSubquestion($subquestion_row);
+    }
+
+// ---------------------------------------------------------------------------------------------------------------------------
+// group 1
+
+// current prescribing
+// ---------------------------------------------------------------------------------------------------------------------------
+    
+    $gid_1 = 2100;
+    
+    $group_1_row = $templating->render('PPSampleBundle:limesurvey:limesurveyGroupRow.xml.twig', 
+      array('gid' => $gid_1,
+        'sid' => $sid,
+        'group_name' => 'Current prescribing',
+        'group_order' => $group_order,
+      )
+    );
+    
+    $this->addGroup($group_1_row);
+    $group_order++;
+    
+    // ------------------------------------------------------------------------------
+    // group 1
+    // question 0
+    // In a typical month what % of your patients for the treatment of {PATIENT} do you prescribe each of the following drugs? 
+    // We realise it is not possible to know this exactly, but we would sincerely appreciate your best approximation. 
+    // Please express your answer as a percentage. Your responses must add up to at least 100% and can be more if drugs are co-prescribed.
+    // ------------------------------------------------------------------------------
+    
+    $qid_1_0 = 30100;
+    $question_1_0 = '<p>In a typical month what % of your patients for the treatment of ' . $this->patients . ' do you prescribe each of the following drugs? We realise it is not possible to know this exactly, but we would sincerely appreciate your best approximation. Please express your answer as a percentage. Your responses must add up to at least 100% and can be more if drugs are co-prescribed.</p>';
+    $help_1_0 = '<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+  var tbl = $("table.questions-list tbody");
+  var total_percentage = $("table.questions-list tr.subquestions-list").not("[style*=\"display\"]").first().clone().attr("id", "total-percentage");
+  total_percentage.find("th").text("Total");
+  total_percentage.find("input").attr("disabled", "true");
+  total_percentage.find("input").addClass("readonly");
+  tbl.append(total_percentage);
+  $("input").not(".readonly, input[type=\"hidden\"]").on("input", function(e) { 
+      var percentage = 0;
+      var newval = $(this).val().replace(/[^0-9.]/g, "");
+      if( parseInt(newval, 10) > 100 ) { 
+          newval = newval.substring(0, 2); 
+      }
+      $(this).val(newval);
+      $("input").not(".readonly, input[type=\"hidden\"]").each(function(index,element){
+          var elemVal = parseInt($(element).val(), 10) || 0;
+          percentage += elemVal; 
+      });
+      total_percentage.find("input.readonly").val(percentage);
+  });
+});
+</script>';
+    
+    $question_1_0_row = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionRow.xml.twig', 
+      array('qid' => $qid_1_0,
+        'parent_qid' => 0,
+        'sid' => $sid,
+        'gid' => $gid_1,
+        'type' => ':',
+        'title' => 'G002Q001',
+        'question' => $question_1_0,
+        'help' => $help_1_0,
+        'preg' => '',
+        'other' => 'N',
+        'mandatory' => 'N',
+        'question_order' => 1,
+        'scale_id' => 0,
+        'same_default' => 0,
+        'relevance' => 1,
+      )
+    );
+    
+    $this->addQuestion($question_1_0_row);
+    
+    
+    // ------------------------------------------------------------------------------
+    // group 1
+    // question 0
+    // subquestions
+    // ------------------------------------------------------------------------------
+    
+    $subquestions_1_0 = 40300;
+    
+    // top row
+    $subquestion_1_0_row = $templating->render('PPSampleBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
+      array('qid' => $subquestions_1_0,
+        'parent_qid' => $qid_1_0,
+        'sid' => $sid,
+        'gid' => $gid_1,
+        'type' => 'T',
+        'title' => 'SQ001',
+        'question' => '%',
+        'other' => 'N',
+        'question_order' => 0,
+        'scale_id' => 1,
+      )
+    );
+      
+    $this->addSubquestion($subquestion_1_0_row);
+    
+    // loop through all brands
+    foreach ($this->brands as $key => $brand) {
+      $index = $key + 1;
+      $subquestion_row = $templating->render('PPSampleBundle:limesurvey:limesurveySubquestionRow.xml.twig', 
+        array('qid' => $subquestions_1_0 + $index,
+          'parent_qid' => $qid_1_0,
+          'sid' => $sid,
+          'gid' => $gid_1,
+          'type' => 'T',
+          'title' => 'SQ00' . $index,
+          'question' => $brand,
+          'other' => 'N',
+          'question_order' => $index,
+          'scale_id' => 0,
+        )
+      );
+      
+      $this->addSubquestion($subquestion_row);
+    }
+    
+    // ------------------------------------------------------------------------------
+    // group 1
+    // question 0
+    // attributes
+    // ------------------------------------------------------------------------------
+    
+    $attributes_1_0_row_0 = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
+      array('qid' => $qid_1_0,
+        'attribute' => 'array_filter',
+        'value' => 'G001Q002',
+        'language' => '',
+      ));
+    
+    $this->addQuestionAttribute($attributes_1_0_row_0);
+    
+    $attributes_1_0_row_1 = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
+      array('qid' => $qid_1_0,
+        'attribute' => 'input_boxes',
+        'value' => 1,
+        'language' => '',
+      ));
+    
+    $this->addQuestionAttribute($attributes_1_0_row_1);
+    
+    $attributes_1_0_row_2 = $templating->render('PPSampleBundle:limesurvey:limesurveyQuestionAttributeRow.xml.twig', 
+      array('qid' => $qid_1_0,
+        'attribute' => 'printable_help',
+        'value' => 1,
+        'language' => 'en',
+      ));
+    
+    $this->addQuestionAttribute($attributes_1_0_row_2);
+    
+    return $this;
+  }
+}
+  

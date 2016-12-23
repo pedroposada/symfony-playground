@@ -1,0 +1,22 @@
+PP\SampleBundle\Entity\ClipperCache:
+    type: entity
+    table: clipper_cache
+    repositoryClass: PP\SampleBundle\Entity\Repository\ClipperCacheRepository
+    fields:
+        name:
+            type: string
+            nullable: false
+            unique: true
+            id: true
+            options:
+                comment: "Cache key name."
+        data:
+            type: text
+            nullable: true
+            options:
+                comment: "Serialized string of cache item."
+        expiries:
+            type: datetime
+            options:
+                comment: "Date and time of data is expired."
+    lifecycleCallbacks: {}

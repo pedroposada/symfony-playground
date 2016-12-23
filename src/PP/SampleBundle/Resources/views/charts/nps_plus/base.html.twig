@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{% block head_title %}PDF preview{% endblock %}</title>
+	<style>
+		@font-face {
+			font-family: Raleway;
+			src: url({{ file('@PPSampleBundle/Resources/public/fonts/raleway-regular.b64.txt')|raw }}) format('truetype');
+		}
+		@font-face {
+			font-family: RalewayBold;
+			src: url({{ file('@PPSampleBundle/Resources/public/fonts/raleway-bold.b64.txt')|raw }}) format('truetype');
+		}
+		html, body {
+			width: 8.5in;
+			height: 11in;
+			font-family: Raleway;
+			font-size: 70%;
+			margin: 0px;
+			padding: 0px;
+			line-height: 1.7;
+		}
+		#wrapper {
+			margin: 2% auto 5% auto;
+			width: 95%;
+			min-height: 90%;
+			position: relative;
+		}
+		.main-logo {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+			width: 16.27907%;
+		}
+		.main-title {
+			font-size: 3.73em;
+			font-weight: 100;
+			text-align: center;
+			color: #303030;
+		}
+		.section-header {
+			background-color: #7F7F7F;
+			color: #ffffff;
+			padding: 1em;
+			margin-bottom: 1em;
+			border-radius: 3px;
+		}
+		.section-header h2, .section-header h3 {
+			font-size: 2.48em;
+			font-weight: normal;
+			margin: 0px;
+		}
+		.section-content {
+			font-size: 2.3em;
+		}
+		.section-content p {
+			-webkit-margin-before: 0;
+			-webkit-margin-after: 0;
+			margin-bottom: 0.25em;
+		}
+		.section-content strong {
+			font-family: RalewayBold;
+			font-weight: bold;
+		}
+		.section-content ul {
+			padding-left: 1.2em;
+		}
+		.table-of-contents > li {
+			margin-bottom: 1em;
+		}
+		.no-break {
+			page-break-inside: avoid;
+		}
+		.note {
+			color: #6b6b6b;
+		}
+		.footnote {
+			width: 95%;
+			margin-top: 2em;
+			margin-left: auto;
+			margin-right: 0px;
+			font-size: 0.8em;
+			background-color: #feffeb;
+			border: 1px solid #6f6f6f;
+			border-bottom: 3px solid #333;
+			padding: 0.2em 0.5em 0.2em 0.5em;
+			box-sizing: border-box;
+			font-size: 0.85em;
+			line-height: 2;
+		}
+		.highlight-red {
+			color:#ff2a1a;
+			font-family: RalewayBold;
+			font-weight: bold;
+		}
+		.highlight-orange {
+			color:#cc6633;
+			font-family: RalewayBold;
+			font-weight: bold;
+		}
+		.highlight-blue {
+			color:#08488c;
+			font-family: RalewayBold;
+			font-weight: bold;
+		}
+		.loyaltyscore-howiscalculated {
+			width: 80%;
+			margin: auto;
+			margin-bottom: 1em;
+			border: 1px solid #cacaca;
+			text-align: center;
+		}
+		.loyaltyscore-howiscalculated th, .loyaltyscore-howiscalculated td {
+			padding: 0.3em;
+		}
+		.loyaltyscore-howiscalculated thead {
+			background-color: #ededed;
+		}
+		.loyaltyscore-howiscalculated tr:nth-child(even) {
+			background-color: #f8f8f8;
+		}
+		.loyaltyscore-howiscalculated th, .loyaltyscore-howiscalculated td {
+			border: 1px dashed #a6a6a6;
+		}
+		.loyaltyscore-howiscalculated th:first-child, .loyaltyscore-howiscalculated td:first-child {
+			border-left: 0px;
+		}
+		.loyaltyscore-howiscalculated th:last-child, .loyaltyscore-howiscalculated td:last-child {
+			border-right: 0px;
+		}
+		.loyaltyscore-howiscalculated th {
+			border-top: 0px;
+		}
+		.loyaltyscore-howiscalculated tbody > tr:last-child td {
+			border-bottom: 0px;
+		}
+		.chart {
+			margin-left: auto;
+			margin-right: auto;
+			width: 90%;
+			min-height: 450px;
+			height: 450px;
+			border: 1px solid #ccc;
+			padding: 2em;
+		}
+		.chart .copyright-notice {
+			width: 50%;
+			padding-top: 0.5em;
+			color: #6b6b6b;
+		}
+		.clipper-charts-npschart, .clipper-charts-heatmap, .clipper-charts-dnachart, .clipper-charts-promvsdetrpromotechart {
+			height: auto;
+		}
+		.clipper-charts-promoterspromotechart-cell, .clipper-charts-detractorspromotechart-cell, .clipper-charts-ppdbrandmessageschart-maintable tr {
+			page-break-inside: avoid;
+		}
+		.clipper-charts-promvsdetrpromotechart {
+			text-align: center;
+			min-height: auto;
+		}
+		.clipper-charts-promvsdetrpromotechart-brand {
+			margin: 1%;
+			width: 30%;
+			display: inline-block;
+			border: 1px solid #efefef;
+			page-break-inside: avoid;
+		}
+		.clipper-charts-promvsdetrpromotechart-brand > h2 {
+			background-color: rgba(0,0,0,0.4);
+			margin: 0px;
+			color: #ffffff;
+			padding: 5px;
+			min-height: 4em;
+			font-weight: normal;
+		}
+		.clipper-charts-dnachart, .clipper-charts-dnachart > div {
+			height: auto !important;
+		}
+		.clipper-charts-dnachart {
+			min-height: 0px;
+		}
+		.clipper-charts-dnachart-wrapper {
+			margin-top: -2.5em;
+		}
+		.clipper-charts-dnachart-body {
+			height: auto !important;
+			padding-bottom: 2em;
+		}
+		.clipper-charts-dnachart-brand > h3 {
+			display: none;
+		}
+		.clipper-charts-dnachart-brand > h4 {
+			font-size: 1.2em !important;
+		}
+		.clipper-charts-dnachart-brand > ul > li {
+			font-size: 0.87em !important;
+		}
+		.clipper-charts-doctorspromotechart {
+			position: relative;
+		}
+		.clipper-charts-doctorspromotechart > .google-visualization-orgchart-table {
+			-webkit-transform: scale(1.2) translateY(-30px);
+			transform: scale(1.2) translateY(-30px);
+		}
+	</style>
+	<script>
+	{{ file('@PSLClipperChartsBundle/Resources/public/js/clipper.charts.min.js')|raw }}
+	</script>
+	<script>
+	{{ file('@PPSampleBundle/Resources/public/js/charts.pdf.config.js')|raw }}
+	</script>
+</head>
+<body>
+
+	<div id="wrapper">
+		{% block section %}
+			{% block header %}
+				<header class="section-header">
+					<h2>{{ section_title|e('html') }}</h2>
+				</header>
+			{% endblock %}
+			<div class="section-content">
+				{% block content %}
+					{{ content|raw }}
+				{% endblock %}
+			</div>
+		{% endblock %}
+	</div>
+	
+</body>
+</html>
